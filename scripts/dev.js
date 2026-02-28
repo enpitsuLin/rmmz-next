@@ -2,13 +2,16 @@
 import { spawn } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { homedir } from "node:os";
+import { homedir, platform } from "node:os";
 import { fileURLToPath } from "node:url";
 import { createServer, createLogger } from "vite";
 import cac from "cac";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const isWindows = platform() === "win32";
+const isLinux = platform() === "linux";
+const isMacOS = platform() === "darwin";
 
 // ============================================================================
 // VDF Parser & Path Finding
@@ -59,34 +62,68 @@ function parseVDF(content) {
   return result;
 }
 
+function getSteamConfigPaths() {
+  const paths = [];
+
+  if (isMacOS) {
+    paths.push(
+      join(homedir(), "Library", "Application Support", "Steam", "config", "libraryfolders.vdf")
+    );
+  } else if (isWindows) {
+    // Windows: Check both 64-bit and 32-bit default locations
+    paths.push(
+      join("C:\\Program Files (x86)\\Steam", "config", "libraryfolders.vdf"),
+      join("C:\\Program Files\\Steam", "config", "libraryfolders.vdf")
+    );
+    // Also check user-specific Steam path from registry
+    const localAppData = process.env.LOCALAPPDATA;
+    const programData = process.env.PROGRAMDATA;
+    if (localAppData) {
+      paths.push(join(localAppData, "Steam", "config", "libraryfolders.vdf"));
+    }
+    if (programData) {
+      paths.push(join(programData, "Steam", "config", "libraryfolders.vdf"));
+    }
+  } else if (isLinux) {
+    // Linux: ~/.steam/steam/config or ~/.steam/debian-installation/config or ~/.local/share/Steam
+    paths.push(
+      join(homedir(), ".steam", "steam", "config", "libraryfolders.vdf"),
+      join(homedir(), ".steam", "config", "libraryfolders.vdf"),
+      join(homedir(), ".local", "share", "Steam", "config", "libraryfolders.vdf"),
+      join(homedir(), ".steam", "debian-installation", "config", "libraryfolders.vdf")
+    );
+  }
+
+  return paths;
+}
+
 function getSteamLibraryFolders() {
   const paths = [];
-  const steamConfigPath = join(
-    homedir(),
-    "Library",
-    "Application Support",
-    "Steam",
-    "config",
-    "libraryfolders.vdf"
-  );
+  const configPaths = getSteamConfigPaths();
 
-  if (!existsSync(steamConfigPath)) return paths;
+  for (const configPath of configPaths) {
+    if (!existsSync(configPath)) continue;
 
-  try {
-    const content = readFileSync(steamConfigPath, "utf8");
-    const parsed = parseVDF(content);
-    const libraryFolders = parsed.libraryfolders;
+    try {
+      const content = readFileSync(configPath, "utf8");
+      const parsed = parseVDF(content);
+      const libraryFolders = parsed.libraryfolders;
 
-    if (!libraryFolders) return paths;
+      if (!libraryFolders) continue;
 
-    for (const key of Object.keys(libraryFolders)) {
-      if (!isNaN(Number(key))) {
-        const folder = libraryFolders[key];
-        if (folder && folder.path) paths.push(folder.path);
+      for (const key of Object.keys(libraryFolders)) {
+        if (!isNaN(Number(key))) {
+          const folder = libraryFolders[key];
+          if (folder && folder.path) {
+            paths.push(folder.path);
+          }
+        }
       }
+      // Stop after first successful parse
+      if (paths.length > 0) break;
+    } catch {
+      // Continue to next config path
     }
-  } catch {
-    // Silently fail
   }
 
   return paths;
@@ -121,15 +158,36 @@ function findRMMZPath(libraryFolders) {
   return null;
 }
 
+function getNWJSPossiblePaths() {
+  if (isMacOS) {
+    return [
+      "RPGMZ.app/Contents/Resources/nwjs-mac/nwjs.app/Contents/MacOS/nwjs",
+      "RPG Maker MZ.app/Contents/Resources/nwjs-mac/nwjs.app/Contents/MacOS/nwjs",
+      "nwjs-mac/nwjs.app/Contents/MacOS/nwjs",
+      "nwjs/nwjs.app/Contents/MacOS/nwjs",
+    ];
+  } else if (isWindows) {
+    return [
+      "nwjs-win/nw.exe",
+      "nwjs-win64/nw.exe",
+      "nwjs/nw.exe",
+      "nw.exe",
+    ];
+  } else if (isLinux) {
+    return [
+      "nwjs-linux/nw",
+      "nwjs-linux64/nw",
+      "nwjs/nw",
+      "nw",
+    ];
+  }
+  return [];
+}
+
 function findNWJS(rmmzPath) {
   if (!rmmzPath) return null;
 
-  const possiblePaths = [
-    "RPGMZ.app/Contents/Resources/nwjs-mac/nwjs.app/Contents/MacOS/nwjs",
-    "RPG Maker MZ.app/Contents/Resources/nwjs-mac/nwjs.app/Contents/MacOS/nwjs",
-    "nwjs-mac/nwjs.app/Contents/MacOS/nwjs",
-    "nwjs/nwjs.app/Contents/MacOS/nwjs",
-  ];
+  const possiblePaths = getNWJSPossiblePaths();
 
   for (const relativePath of possiblePaths) {
     const fullPath = join(rmmzPath, relativePath);
@@ -163,7 +221,7 @@ function getProjectPath(customPath = null) {
 // ============================================================================
 
 function commandFind() {
-  console.log("Searching for RPG Maker MZ...");
+  console.log(`Searching for RPG Maker MZ on ${platform()}...`);
 
   const libraryFolders = getSteamLibraryFolders();
   if (libraryFolders.length === 0) {
@@ -186,7 +244,11 @@ function commandFind() {
   console.log("\n✅ Found nwjs at:");
   console.log(nwjsPath);
   console.log("\n📝 Environment variable:");
-  console.log(`RMMZ_NW_PATH="${nwjsPath}"`);
+  if (isWindows) {
+    console.log(`set RMMZ_NW_PATH=${nwjsPath}`);
+  } else {
+    console.log(`export RMMZ_NW_PATH="${nwjsPath}"`);
+  }
 }
 
 function commandGame(options) {
@@ -306,6 +368,11 @@ async function commandDev(options) {
 
   process.on("SIGINT", shutdown);
   process.on("SIGTERM", shutdown);
+
+  // Windows uses SIGBREAK for Ctrl+C
+  if (isWindows) {
+    process.on("SIGBREAK", shutdown);
+  }
 }
 
 // ============================================================================
