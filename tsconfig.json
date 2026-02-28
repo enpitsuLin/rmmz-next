@@ -4,7 +4,13 @@
     "module": "commonjs",
     "target": "es2021",
     "declaration": true,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "lib": [
+      "DOM",
+      "DOM.AsyncIterable",
+      "DOM.Iterable",
+      "ES2021"
+    ]
   },
   "include": [
     "src"

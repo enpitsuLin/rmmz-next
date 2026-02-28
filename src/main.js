@@ -1,5 +1,7 @@
 import * as PIXI from 'pixi.js';
 
+import './monkey-patches/index.js'
+
 globalThis.PIXI = PIXI;
 
 //=============================================================================
