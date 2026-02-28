@@ -50,7 +50,7 @@ class Main {
 
     testXhr() {
         const xhr = new XMLHttpRequest();
-        xhr.open("GET", document.currentScript.src);
+        xhr.open("GET", import.meta.url);
         xhr.onload = () => (this.xhrSucceeded = true);
         xhr.send();
     }
