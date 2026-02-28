@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "game": "\"/Volumes/External/SteamLibrary/steamapps/common/RPG Maker MZ/RPGMZ.app/Contents/Resources/nwjs-mac/nwjs.app/Contents/MacOS/nwjs\" \"$(pwd)/project/\""
   },
   "devDependencies": {
     "vite": "^8.0.0-beta.13"
