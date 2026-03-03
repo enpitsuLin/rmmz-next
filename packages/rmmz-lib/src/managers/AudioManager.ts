@@ -1,6 +1,6 @@
-import type { database } from "../types/database";
+import type { MZ } from "../types";
 
-export interface AudioWithPos extends database.Audio {
+export interface AudioWithPos extends MZ.AudioInfo {
   pos?: number
 }
 

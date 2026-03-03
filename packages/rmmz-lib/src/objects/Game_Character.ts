@@ -51,6 +51,13 @@ class Game_Character extends Game_CharacterBase {
   static ROUTE_PLAY_SE = 44;
   static ROUTE_SCRIPT = 45;
 
+  _moveRouteForcing!: boolean
+  _moveRoute!: null
+  _moveRouteIndex!: number;
+  _originalMoveRoute!: null
+  _originalMoveRouteIndex!: number;
+  _waitCount!: number;
+
   constructor() {
     super();
   }

@@ -4,7 +4,7 @@
 
 import { Graphics, Utils } from "../core";
 import { Game_Actors, Game_Map, Game_Message, Game_Party, Game_Player, Game_Screen, Game_SelfSwitches, Game_Switches, Game_System, Game_Temp, Game_Timer, Game_Troop, Game_Variables } from "../objects";
-import type { Database } from "../types";
+import type { Database, MZ } from "../types";
 import { BattleManager } from "./BattleManager";
 import { StorageManager } from "./StorageManager";
 
@@ -227,20 +227,20 @@ export class DataManager {
     return Utils.isOptionValid("tskip");
   }
 
-  static isSkill(a: Database.Item | Database.Weapon | Database.Armor | Database.Skill): a is Database.Skill {
-    return a && $dataSkills.includes(a as Database.Skill);
+  static isSkill(a: MZ.Item | MZ.Weapon | MZ.Armor | MZ.Skill): a is MZ.Skill {
+    return a && $dataSkills.includes(a as MZ.Skill);
   }
 
-  static isItem(a: Database.Item | Database.Weapon | Database.Armor | Database.Skill): a is Database.Item {
-    return a && $dataItems.includes(a as Database.Item);
+  static isItem(a: MZ.Item | MZ.Weapon | MZ.Armor | MZ.Skill): a is MZ.Item {
+    return a && $dataItems.includes(a as MZ.Item);
   }
 
-  static isWeapon(a: Database.Item | Database.Weapon | Database.Armor | Database.Skill): a is Database.Weapon {
-    return a && $dataWeapons.includes(a as Database.Weapon);
+  static isWeapon(a: MZ.Item | MZ.Weapon | MZ.Armor | MZ.Skill): a is MZ.Weapon {
+    return a && $dataWeapons.includes(a as MZ.Weapon);
   }
 
-  static isArmor(a: Database.Item | Database.Weapon | Database.Armor | Database.Skill): a is Database.Armor {
-    return a && $dataArmors.includes(a as Database.Armor);
+  static isArmor(a: MZ.Item | MZ.Weapon | MZ.Armor | MZ.Skill): a is MZ.Armor {
+    return a && $dataArmors.includes(a as MZ.Armor);
   }
 
   static createGameObjects() {

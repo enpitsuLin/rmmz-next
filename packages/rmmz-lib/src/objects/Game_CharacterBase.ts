@@ -1,9 +1,43 @@
+import { Graphics } from "../core"
+import { ImageManager } from "../managers/ImageManager"
+
 /**
  * The superclass of Game_Character. 
  * 
  * It handles basic information, such as coordinates and images, shared by all characters.
  */
 class Game_CharacterBase {
+  _x!: number
+  _y!: number
+  _realX!: number
+  _realY!: number
+  _moveSpeed!: number
+  _moveFrequency!: number
+  _opacity!: number
+  _blendMode!: number
+  _direction!: number
+  _pattern!: number
+  _priorityType!: number
+  _tileId!: number
+  _characterName!: string
+  _characterIndex!: number
+  _isObjectCharacter!: boolean
+  _walkAnime!: boolean
+  _stepAnime!: boolean
+  _directionFix!: boolean
+  _through!: boolean
+  _transparent!: boolean
+  _bushDepth!: number
+  _animationId!: number
+  _balloonId!: number
+  _animationPlaying!: boolean
+  _balloonPlaying!: boolean
+  _animationCount!: number
+  _stopCount!: number
+  _jumpCount!: number
+  _jumpPeak!: number
+  _movementSuccess!: boolean
+
   constructor() {
     this.initMembers();
   }
@@ -49,11 +83,11 @@ class Game_CharacterBase {
     return this._y;
   }
 
-  pos(x, y) {
+  pos(x: number, y: number) {
     return this._x === x && this._y === y;
   }
 
-  posNt(x, y) {
+  posNt(x: number, y: number) {
     // No through
     return this.pos(x, y) && !this.isThrough();
   }
@@ -62,7 +96,7 @@ class Game_CharacterBase {
     return this._moveSpeed;
   }
 
-  setMoveSpeed(moveSpeed) {
+  setMoveSpeed(moveSpeed: number) {
     this._moveSpeed = moveSpeed;
   }
 
@@ -70,7 +104,7 @@ class Game_CharacterBase {
     return this._moveFrequency;
   }
 
-  setMoveFrequency(moveFrequency) {
+  setMoveFrequency(moveFrequency: number) {
     this._moveFrequency = moveFrequency;
   }
 
@@ -78,7 +112,7 @@ class Game_CharacterBase {
     return this._opacity;
   }
 
-  setOpacity(opacity) {
+  setOpacity(opacity: number) {
     this._opacity = opacity;
   }
 
@@ -86,7 +120,7 @@ class Game_CharacterBase {
     return this._blendMode;
   }
 
-  setBlendMode(blendMode) {
+  setBlendMode(blendMode: number) {
     this._blendMode = blendMode;
   }
 
@@ -94,7 +128,7 @@ class Game_CharacterBase {
     return this._priorityType === 1;
   }
 
-  setPriorityType(priorityType) {
+  setPriorityType(priorityType: number) {
     this._priorityType = priorityType;
   }
 
@@ -118,7 +152,7 @@ class Game_CharacterBase {
     return !this.isMoving() && !this.isJumping();
   }
 
-  checkStop(threshold) {
+  checkStop(threshold: number) {
     return this._stopCount > threshold;
   }
 
@@ -149,11 +183,11 @@ class Game_CharacterBase {
     this._animationCount = 0;
   }
 
-  reverseDir(d) {
+  reverseDir(d: number) {
     return 10 - d;
   }
 
-  canPass(x, y, d) {
+  canPass(x: number, y: number, d: number) {
     const x2 = $gameMap.roundXWithDirection(x, d);
     const y2 = $gameMap.roundYWithDirection(y, d);
     if (!$gameMap.isValid(x2, y2)) {
@@ -171,7 +205,7 @@ class Game_CharacterBase {
     return true;
   }
 
-  canPassDiagonally(x, y, horz, vert) {
+  canPassDiagonally(x: number, y: number, horz: number, vert: number) {
     const x2 = $gameMap.roundXWithDirection(x, horz);
     const y2 = $gameMap.roundYWithDirection(y, vert);
     if (this.canPass(x, y, vert) && this.canPass(x, y2, horz)) {
@@ -183,34 +217,34 @@ class Game_CharacterBase {
     return false;
   }
 
-  isMapPassable(x, y, d) {
+  isMapPassable(x: number, y: number, d: number) {
     const x2 = $gameMap.roundXWithDirection(x, d);
     const y2 = $gameMap.roundYWithDirection(y, d);
     const d2 = this.reverseDir(d);
     return $gameMap.isPassable(x, y, d) && $gameMap.isPassable(x2, y2, d2);
   }
 
-  isCollidedWithCharacters(x, y) {
+  isCollidedWithCharacters(x: number, y: number) {
     return this.isCollidedWithEvents(x, y) || this.isCollidedWithVehicles(x, y);
   }
 
-  isCollidedWithEvents(x, y) {
+  isCollidedWithEvents(x: number, y: number) {
     const events = $gameMap.eventsXyNt(x, y);
     return events.some((event) => event.isNormalPriority());
   }
 
-  isCollidedWithVehicles(x, y) {
+  isCollidedWithVehicles(x: number, y: number) {
     return $gameMap.boat().posNt(x, y) || $gameMap.ship().posNt(x, y);
   }
 
-  setPosition(x, y) {
+  setPosition(x: number, y: number) {
     this._x = Math.round(x);
     this._y = Math.round(y);
     this._realX = x;
     this._realY = y;
   }
 
-  copyPosition(character) {
+  copyPosition(character: Game_CharacterBase) {
     this._x = character._x;
     this._y = character._y;
     this._realX = character._realX;
@@ -218,7 +252,7 @@ class Game_CharacterBase {
     this._direction = character._direction;
   }
 
-  locate(x, y) {
+  locate(x: number, y: number) {
     this.setPosition(x, y);
     this.straighten();
     this.refreshBushDepth();
@@ -228,7 +262,7 @@ class Game_CharacterBase {
     return this._direction;
   }
 
-  setDirection(d) {
+  setDirection(d: number) {
     if (!this.isDirectionFixed() && d) {
       this._direction = d;
     }
@@ -364,7 +398,7 @@ class Game_CharacterBase {
     return this._pattern < 3 ? this._pattern : 1;
   }
 
-  setPattern(pattern) {
+  setPattern(pattern: number) {
     this._pattern = pattern;
   }
 
@@ -427,39 +461,39 @@ class Game_CharacterBase {
     return this._characterIndex;
   }
 
-  setImage(characterName, characterIndex) {
+  setImage(characterName: string, characterIndex: number) {
     this._tileId = 0;
     this._characterName = characterName;
     this._characterIndex = characterIndex;
     this._isObjectCharacter = ImageManager.isObjectCharacter(characterName);
   }
 
-  setTileImage(tileId) {
+  setTileImage(tileId: number) {
     this._tileId = tileId;
     this._characterName = "";
     this._characterIndex = 0;
     this._isObjectCharacter = true;
   }
 
-  checkEventTriggerTouchFront(d) {
+  checkEventTriggerTouchFront(d: number) {
     const x2 = $gameMap.roundXWithDirection(this._x, d);
     const y2 = $gameMap.roundYWithDirection(this._y, d);
     this.checkEventTriggerTouch(x2, y2);
   }
 
-  checkEventTriggerTouch(/* x, y */) {
+  checkEventTriggerTouch(_x: number, _y: number) {
     return false;
   }
 
-  isMovementSucceeded(/* x, y */) {
+  isMovementSucceeded() {
     return this._movementSuccess;
   }
 
-  setMovementSuccess(success) {
+  setMovementSuccess(success: boolean) {
     this._movementSuccess = success;
   }
 
-  moveStraight(d) {
+  moveStraight(d: number) {
     this.setMovementSuccess(this.canPass(this._x, this._y, d));
     if (this.isMovementSucceeded()) {
       this.setDirection(d);
@@ -474,7 +508,7 @@ class Game_CharacterBase {
     }
   }
 
-  moveDiagonally(horz, vert) {
+  moveDiagonally(horz: number, vert: number) {
     this.setMovementSuccess(
       this.canPassDiagonally(this._x, this._y, horz, vert)
     );
@@ -493,7 +527,7 @@ class Game_CharacterBase {
     }
   }
 
-  jump(xPlus, yPlus) {
+  jump(xPlus: number, yPlus: number) {
     if (Math.abs(xPlus) > Math.abs(yPlus)) {
       if (xPlus !== 0) {
         this.setDirection(xPlus < 0 ? 4 : 6);
@@ -516,7 +550,7 @@ class Game_CharacterBase {
     return this._walkAnime;
   }
 
-  setWalkAnime(walkAnime) {
+  setWalkAnime(walkAnime: boolean) {
     this._walkAnime = walkAnime;
   }
 
@@ -524,7 +558,7 @@ class Game_CharacterBase {
     return this._stepAnime;
   }
 
-  setStepAnime(stepAnime) {
+  setStepAnime(stepAnime: boolean) {
     this._stepAnime = stepAnime;
   }
 
@@ -532,7 +566,7 @@ class Game_CharacterBase {
     return this._directionFix;
   }
 
-  setDirectionFix(directionFix) {
+  setDirectionFix(directionFix: boolean) {
     this._directionFix = directionFix;
   }
 
@@ -540,7 +574,7 @@ class Game_CharacterBase {
     return this._through;
   }
 
-  setThrough(through) {
+  setThrough(through: boolean) {
     this._through = through;
   }
 
@@ -552,7 +586,7 @@ class Game_CharacterBase {
     return this._bushDepth;
   }
 
-  setTransparent(transparent) {
+  setTransparent(transparent: boolean) {
     this._transparent = transparent;
   }
 

@@ -1,9 +1,13 @@
+import type { Game_Event } from "./Game_Event";
+
 /**
  * The game object class for a map.
  * 
  *  It contains scrolling and passage determination functions.
  */
 class Game_Map {
+
+  _events!: Game_Event[]
 
   /**
    * @param { Game_Map } [gameMap]
@@ -461,7 +465,7 @@ class Game_Map {
     return this.events().filter((event) => event.pos(x, y));
   }
 
-  eventsXyNt(x, y) {
+  eventsXyNt(x: number, y: number) {
     return this.events().filter((event) => event.posNt(x, y));
   }
 

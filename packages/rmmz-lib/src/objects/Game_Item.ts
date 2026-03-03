@@ -1,5 +1,5 @@
 import { DataManager } from "../managers/DataManager";
-import type { DataItem } from "../types/database";
+import type { MZ } from "../types";
 
 /**
  * The game object class for handling skills, items, weapons, and armor. 
@@ -10,7 +10,7 @@ class Game_Item {
   private _dataClass: "skill" | "item" | "weapon" | "armor" | "";
   private _itemId: number;
 
-  constructor(item?: DataItem) {
+  constructor(item?: MZ.Item) {
     this._dataClass = "";
     this._itemId = 0;
     if (item) {
@@ -64,7 +64,7 @@ class Game_Item {
     }
   }
 
-  setObject(item: DataItem) {
+  setObject(item: MZ.Item) {
     if (DataManager.isSkill(item)) {
       this._dataClass = "skill";
     } else if (DataManager.isItem(item)) {

@@ -1,5 +1,5 @@
 import { DataManager } from "../managers/DataManager";
-import type { Database } from "../types";
+import type { MZ } from "../types";
 import type { Game_Actor } from "./Game_Actor";
 import type { Game_Enemy } from "./Game_Enemy";
 
@@ -388,7 +388,7 @@ class Game_BattlerBase {
   }
 
   allTraits() {
-    return this.traitObjects().reduce((r, obj) => r.concat(obj.traits), [] as Database.Trait[]);
+    return this.traitObjects().reduce((r, obj) => r.concat(obj.traits), [] as MZ.Trait[]);
   }
 
   traits(code: number) {
@@ -763,30 +763,30 @@ class Game_BattlerBase {
     }
   }
 
-  isSkillWtypeOk(_skill: Database.Skill) {
+  isSkillWtypeOk(_skill: MZ.Skill) {
     return true;
   }
 
-  skillMpCost(skill: Database.Skill) {
+  skillMpCost(skill: MZ.Skill) {
     return Math.floor(skill.mpCost * this.mcr);
   }
 
-  skillTpCost(skill: Database.Skill) {
+  skillTpCost(skill: MZ.Skill) {
     return skill.tpCost;
   }
 
-  canPaySkillCost(skill: Database.Skill) {
+  canPaySkillCost(skill: MZ.Skill) {
     return (
       this._tp >= this.skillTpCost(skill) && this._mp >= this.skillMpCost(skill)
     );
   }
 
-  paySkillCost(skill: Database.Skill) {
+  paySkillCost(skill: MZ.Skill) {
     this._mp -= this.skillMpCost(skill);
     this._tp -= this.skillTpCost(skill);
   }
 
-  isOccasionOk(item: Database.Item | Database.Skill) {
+  isOccasionOk(item: MZ.Item | MZ.Skill) {
     if ($gameParty.inBattle()) {
       return item.occasion === 0 || item.occasion === 1;
     } else {
@@ -794,11 +794,11 @@ class Game_BattlerBase {
     }
   }
 
-  meetsUsableItemConditions(item: Database.Item | Database.Skill) {
+  meetsUsableItemConditions(item: MZ.Item | MZ.Skill) {
     return this.canMove() && this.isOccasionOk(item);
   }
 
-  meetsSkillConditions(skill: Database.Skill) {
+  meetsSkillConditions(skill: MZ.Skill) {
     return (
       this.meetsUsableItemConditions(skill) &&
       this.isSkillWtypeOk(skill) &&
@@ -808,11 +808,11 @@ class Game_BattlerBase {
     );
   }
 
-  meetsItemConditions(item: Database.Item) {
+  meetsItemConditions(item: MZ.Item) {
     return this.meetsUsableItemConditions(item) && $gameParty.hasItem(item);
   }
 
-  canUse(item: Database.Item | Database.Skill) {
+  canUse(item: MZ.Item | MZ.Skill) {
     if (!item) {
       return false;
     } else if (DataManager.isSkill(item)) {
@@ -824,7 +824,7 @@ class Game_BattlerBase {
     }
   }
 
-  canEquip(item: Database.Weapon | Database.Armor) {
+  canEquip(item: MZ.Weapon | MZ.Armor) {
     if (!item) {
       return false;
     } else if (DataManager.isWeapon(item)) {
@@ -836,13 +836,13 @@ class Game_BattlerBase {
     }
   }
 
-  canEquipWeapon(item: Database.Weapon) {
+  canEquipWeapon(item: MZ.Weapon) {
     return (
       this.isEquipWtypeOk(item.wtypeId) && !this.isEquipTypeSealed(item.etypeId)
     );
   }
 
-  canEquipArmor(item: Database.Armor) {
+  canEquipArmor(item: MZ.Armor) {
     return (
       this.isEquipAtypeOk(item.atypeId) && !this.isEquipTypeSealed(item.etypeId)
     );

@@ -1,4 +1,4 @@
-import type { DataItem } from "../types";
+import type { MZ } from "../types";
 import type { Game_Battler } from "./Game_Battler";
 import { Game_Item } from "./Game_Item";
 
@@ -96,7 +96,7 @@ class Game_Action {
     this._item.setObject($dataItems[itemId]);
   }
 
-  setItemObject(object: DataItem) {
+  setItemObject(object: MZ.Item) {
     this._item.setObject(object);
   }
 

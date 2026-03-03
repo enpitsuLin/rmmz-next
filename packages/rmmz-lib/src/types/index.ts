@@ -1,2 +1,2 @@
 export * from './common'
-export * as Database from './database'
+export * from './database'

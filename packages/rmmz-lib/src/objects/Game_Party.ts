@@ -1,4 +1,4 @@
-import type { Database } from "../types";
+import type { MZ } from "../types";
 import { Game_Unit } from "./Game_Unit";
 
 /**
@@ -254,7 +254,7 @@ class Game_Party extends Game_Unit {
     return this.numItems(item) >= this.maxItems(item);
   }
 
-  hasItem(item: Database.Item | Database.Weapon | Database.Armor, includeEquip?: boolean) {
+  hasItem(item: MZ.Item | MZ.Weapon | MZ.Armor, includeEquip?: boolean) {
     if (this.numItems(item) > 0) {
       return true;
     } else if (includeEquip && this.isAnyMemberEquipped(item)) {

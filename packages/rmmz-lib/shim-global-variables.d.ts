@@ -13,27 +13,26 @@ import type {
   Game_Troop,
   Game_Variables,
 
-
+  MZ
 } from './src'
 
-import type * as Database from './src/types/database'
 
 declare global {
-  declare var $dataActors: Database.Actor[]
+  declare var $dataActors: MZ.Actor[]
   declare var $dataClasses: unknown[]
-  declare var $dataSkills: Database.Skill[]
-  declare var $dataItems: Database.Item[]
-  declare var $dataWeapons: Database.Weapon[]
-  declare var $dataArmors: Database.Armor[]
-  declare var $dataEnemies: Database.Enemy[]
+  declare var $dataSkills: MZ.Skill[]
+  declare var $dataItems: MZ.Item[]
+  declare var $dataWeapons: MZ.Weapon[]
+  declare var $dataArmors: MZ.Armor[]
+  declare var $dataEnemies: MZ.Enemy[]
   declare var $dataTroops: unknown
-  declare var $dataStates: Database.State[]
+  declare var $dataStates: MZ.State[]
   declare var $dataAnimations: unknown
-  declare var $dataTilesets: unknown
-  declare var $dataCommonEvents: unknown
-  declare var $dataSystem: Database.System
-  declare var $dataMapInfos: unknown
-  declare var $dataMap: Database.Map
+  declare var $dataTilesets: MZ.Tileset[]
+  declare var $dataCommonEvents: MZ.CommonEvent[]
+  declare var $dataSystem: MZ.System
+  declare var $dataMapInfos: MZ.MapInfo[]
+  declare var $dataMap: MZ.Map
 
   declare var $gameTemp: Game_Temp
   declare var $gameSystem: Game_System
