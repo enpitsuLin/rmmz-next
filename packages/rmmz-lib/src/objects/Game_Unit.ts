@@ -2,6 +2,8 @@
  * The superclass of Game_Party and Game_Troop.
  */
 class Game_Unit {
+  _inBattle: boolean;
+
   constructor() {
     this._inBattle = false;
   }

@@ -1,40 +1,37 @@
+import type { EasingType, RGBA } from "../types";
+import { Game_Picture } from "./Game_Picture";
+
 /**
- * The game object class for screen effect data, such as changes in color tone
-and flashes.
+ * The game object class for screen effect data, such as changes in color tone and flashes.
  */
 class Game_Screen {
 
-  /**
-   * @param { Game_Screen } [gameScreen]
-   */
-  constructor(gameScreen) {
-    if (gameScreen) {
-      this._brightness = gameScreen._brightness;
-      this._fadeOutDuration = gameScreen._fadeOutDuration;
-      this._fadeInDuration = gameScreen._fadeInDuration;
-      this._tone = gameScreen._tone_data?.clone();
-      this._toneTarget = gameScreen._toneTarget_data?.clone();
-      this._toneDuration = gameScreen._toneDuration;
-      this._flashColor = gameScreen._flashColor_data?.clone();
-      this._flashDuration = gameScreen._flashDuration;
-      this._shakePower = gameScreen._shakePower;
-      this._shakeSpeed = gameScreen._shakeSpeed;
-      this._shakeDuration = gameScreen._shakeDuration;
-      this._shakeDirection = gameScreen._shakeDirection;
-      this._shake = gameScreen._shake;
-      this._zoomX = gameScreen._zoomX;
-      this._zoomY = gameScreen._zoomY;
-      this._zoomScale = gameScreen._zoomScale;
-      this._zoomScaleTarget = gameScreen._zoomScaleTarget;
-      this._zoomDuration = gameScreen._zoomDuration;
-      this._weatherType = gameScreen._weatherType;
-      this._weatherPower = gameScreen._weatherPower;
-      this._weatherPowerTarget = gameScreen._weatherPowerTarget;
-      this._weatherDuration = gameScreen._weatherDuration;
-      this._pictures = gameScreen._pictures_data?.clone();
-    } else {
-      this.clear();
-    }
+  _brightness!: number;
+  _fadeOutDuration!: number;
+  _fadeInDuration!: number;
+  _tone!: RGBA;
+  _toneTarget!: RGBA;
+  _toneDuration!: number;
+  _flashColor!: RGBA;
+  _flashDuration!: number;
+  _shakePower!: number;
+  _shakeSpeed!: number;
+  _shakeDuration!: number;
+  _shakeDirection!: number;
+  _shake!: number;
+  _zoomX!: number;
+  _zoomY!: number;
+  _zoomScale!: number;
+  _zoomScaleTarget!: number;
+  _zoomDuration!: number;
+  _weatherType!: string;
+  _weatherPower!: number;
+  _weatherPowerTarget!: number;
+  _weatherDuration!: number;
+  _pictures!: Game_Picture[];
+
+  constructor() {
+    this.clear();
   }
 
   clear() {
@@ -91,12 +88,12 @@ class Game_Screen {
     return this._weatherPower;
   }
 
-  picture(pictureId) {
+  picture(pictureId: number) {
     const realPictureId = this.realPictureId(pictureId);
     return this._pictures[realPictureId];
   }
 
-  realPictureId(pictureId) {
+  realPictureId(pictureId: number) {
     if ($gameParty.inBattle()) {
       return pictureId + this.maxPictures();
     } else {
@@ -160,49 +157,49 @@ class Game_Screen {
     }
   }
 
-  startFadeOut(duration) {
+  startFadeOut(duration: number) {
     this._fadeOutDuration = duration;
     this._fadeInDuration = 0;
   }
 
-  startFadeIn(duration) {
+  startFadeIn(duration: number) {
     this._fadeInDuration = duration;
     this._fadeOutDuration = 0;
   }
 
-  startTint(tone, duration) {
-    this._toneTarget = tone.clone();
+  startTint(tone: number[], duration: number) {
+    this._toneTarget = tone.clone() as RGBA;
     this._toneDuration = duration;
     if (this._toneDuration === 0) {
-      this._tone = this._toneTarget.clone();
+      this._tone = this._toneTarget.clone() as RGBA;
     }
   }
 
-  startFlash(color, duration) {
-    this._flashColor = color.clone();
+  startFlash(color: RGBA, duration: number) {
+    this._flashColor = color.clone() as RGBA;
     this._flashDuration = duration;
   }
 
-  startShake(power, speed, duration) {
+  startShake(power: number, speed: number, duration: number) {
     this._shakePower = power;
     this._shakeSpeed = speed;
     this._shakeDuration = duration;
   }
 
-  startZoom(x, y, scale, duration) {
+  startZoom(x: number, y: number, scale: number, duration: number) {
     this._zoomX = x;
     this._zoomY = y;
     this._zoomScaleTarget = scale;
     this._zoomDuration = duration;
   }
 
-  setZoom(x, y, scale) {
+  setZoom(x: number, y: number, scale: number) {
     this._zoomX = x;
     this._zoomY = y;
     this._zoomScale = scale;
   }
 
-  changeWeather(type, power, duration) {
+  changeWeather(type: string, power: number, duration: number) {
     if (type !== "none" || duration === 0) {
       this._weatherType = type;
     }
@@ -310,9 +307,17 @@ class Game_Screen {
     this.startFlash([255, 0, 0, 128], 8);
   }
 
-  // prettier-ignore
+
   showPicture(
-    pictureId, name, origin, x, y, scaleX, scaleY, opacity, blendMode
+    pictureId: number,
+    name: string,
+    origin: number,
+    x: number,
+    y: number,
+    scaleX: number,
+    scaleY: number,
+    opacity: number,
+    blendMode: number,
   ) {
     const realPictureId = this.realPictureId(pictureId);
     const picture = new Game_Picture();
@@ -322,38 +327,53 @@ class Game_Screen {
     this._pictures[realPictureId] = picture;
   }
 
-  // prettier-ignore
+
   movePicture(
-    pictureId, origin, x, y, scaleX, scaleY, opacity, blendMode,
-    duration, easingType
+    pictureId: number,
+    origin: number,
+    x: number,
+    y: number,
+    scaleX: number,
+    scaleY: number,
+    opacity: number,
+    blendMode: number,
+    duration: number,
+    easingType: EasingType,
   ) {
     const picture = this.picture(pictureId);
     if (picture) {
-      // prettier-ignore
+
       picture.move(
-        origin, x, y, scaleX, scaleY, opacity, blendMode,
-        duration, easingType
+        origin,
+        x,
+        y,
+        scaleX,
+        scaleY,
+        opacity,
+        blendMode,
+        duration,
+        easingType
       );
     }
   }
 
-  rotatePicture(pictureId, speed) {
+  rotatePicture(pictureId: number, speed: number) {
     const picture = this.picture(pictureId);
     if (picture) {
       picture.rotate(speed);
     }
   }
 
-  tintPicture(pictureId, tone, duration) {
+  tintPicture(pictureId: number, tone: RGBA, duration: number) {
     const picture = this.picture(pictureId);
     if (picture) {
       picture.tint(tone, duration);
     }
   }
 
-  erasePicture(pictureId) {
+  erasePicture(pictureId: number) {
     const realPictureId = this.realPictureId(pictureId);
-    this._pictures[realPictureId] = null;
+    delete this._pictures[realPictureId];
   }
 }
 

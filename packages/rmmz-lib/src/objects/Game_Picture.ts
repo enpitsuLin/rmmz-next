@@ -1,9 +1,38 @@
+import type { EasingType, RGBA } from "../types"
+
 /**
  * The game object class for a picture.
  */
 class Game_Picture {
+  _name?: string
+
+  _origin?: number
+  _x?: number
+  _y?: number
+  _scaleX?: number
+  _scaleY?: number
+  _opacity?: number
+  _blendMode?: number
+
+  _targetX?: number
+  _targetY?: number
+  _targetScaleX?: number
+  _targetScaleY?: number
+  _targetOpacity?: number
+  _duration?: number
+  _wholeDuration?: number
+  _easingType?: EasingType
+  _easingExponent?: number
+
+  _tone?: RGBA | null
+  _toneTarget?: RGBA | null
+  _toneDuration?: number
+
+  _angle?: number
+  _rotationSpeed?: number
+
   constructor() {
-    this.initialize(...arguments);
+    this.initialize();
   }
 
   initialize() {
@@ -87,9 +116,16 @@ class Game_Picture {
     this._rotationSpeed = 0;
   }
 
-  // prettier-ignore
+
   show(
-    name, origin, x, y, scaleX, scaleY, opacity, blendMode
+    name: string,
+    origin: number,
+    x: number,
+    y: number,
+    scaleX: number,
+    scaleY: number,
+    opacity: number,
+    blendMode: number,
   ) {
     this._name = name;
     this._origin = origin;
@@ -104,9 +140,16 @@ class Game_Picture {
     this.initRotation();
   }
 
-  // prettier-ignore
   move(
-    origin, x, y, scaleX, scaleY, opacity, blendMode, duration, easingType
+    origin: number,
+    x: number,
+    y: number,
+    scaleX: number,
+    scaleY: number,
+    opacity: number,
+    blendMode: number,
+    duration: number,
+    easingType: number,
   ) {
     this._origin = origin;
     this._targetX = x;
@@ -121,18 +164,18 @@ class Game_Picture {
     this._easingExponent = 2;
   }
 
-  rotate(speed) {
+  rotate(speed: number) {
     this._rotationSpeed = speed;
   }
 
-  tint(tone, duration) {
+  tint(tone: RGBA, duration: number) {
     if (!this._tone) {
       this._tone = [0, 0, 0, 0];
     }
-    this._toneTarget = tone.clone();
+    this._toneTarget = tone.clone() as RGBA;
     this._toneDuration = duration;
     if (this._toneDuration === 0) {
-      this._tone = this._toneTarget.clone();
+      this._tone = this._toneTarget.clone() as RGBA;
     }
   }
 
@@ -169,7 +212,7 @@ class Game_Picture {
     }
   }
 
-  applyEasing(current, target) {
+  applyEasing(current: number, target: number) {
     const d = this._duration;
     const wd = this._wholeDuration;
     const lt = this.calcEasing((wd - d) / wd);
@@ -178,7 +221,7 @@ class Game_Picture {
     return start + (target - start) * t;
   }
 
-  calcEasing(t) {
+  calcEasing(t: number) {
     const exponent = this._easingExponent;
     switch (this._easingType) {
       case 1: // Slow start
@@ -192,15 +235,15 @@ class Game_Picture {
     }
   }
 
-  easeIn(t, exponent) {
+  easeIn(t: number, exponent: number) {
     return Math.pow(t, exponent);
   }
 
-  easeOut(t, exponent) {
+  easeOut(t: number, exponent: number) {
     return 1 - Math.pow(1 - t, exponent);
   }
 
-  easeInOut(t, exponent) {
+  easeInOut(t: number, exponent: number) {
     if (t < 0.5) {
       return this.easeIn(t * 2, exponent) / 2;
     } else {
