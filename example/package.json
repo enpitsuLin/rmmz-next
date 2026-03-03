@@ -13,7 +13,8 @@
   },
   "packageManager": "pnpm@10.30.3",
   "dependencies": {
-    "pixi.js": "7.4.3"
+    "pixi.js": "7.4.3",
+    "rmmz-lib": "workspace:*"
   },
   "devDependencies": {
     "@types/nw.js": "^0.92.0",

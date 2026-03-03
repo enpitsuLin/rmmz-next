@@ -19,6 +19,9 @@ importers:
       pixi.js:
         specifier: 7.4.3
         version: 7.4.3
+      rmmz-lib:
+        specifier: workspace:*
+        version: link:../packages/rmmz-lib
     devDependencies:
       '@types/nw.js':
         specifier: ^0.92.0
