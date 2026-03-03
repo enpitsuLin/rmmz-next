@@ -25,6 +25,12 @@ const scriptUrls = [
 const effekseerWasmUrl = "js/libs/effekseer.wasm";
 
 class Main {
+  error: Error | null = null;
+  xhrSucceeded: boolean = false;
+  loadCount: number = 0;
+
+  numScripts: number | undefined;
+
   constructor() {
     this.xhrSucceeded = false;
     this.loadCount = 0;
@@ -92,11 +98,11 @@ class Main {
     }
   }
 
-  onScriptError(e) {
-    this.printError("Failed to load", e.target._url);
+  onScriptError(e: ErrorEvent) {
+    this.printError("Failed to load", (e.target as HTMLScriptElement)._url!);
   }
 
-  printError(name, message) {
+  printError(name: string, message: string) {
     this.eraseLoadingSpinner();
     if (!document.getElementById("errorPrinter")) {
       const errorPrinter = document.createElement("div");
@@ -106,7 +112,7 @@ class Main {
     }
   }
 
-  makeErrorHtml(name, message) {
+  makeErrorHtml(name: string, message: string) {
     const nameDiv = document.createElement("div");
     const messageDiv = document.createElement("div");
     nameDiv.id = "errorName";
