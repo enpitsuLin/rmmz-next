@@ -4,7 +4,7 @@
 
 import { Graphics, Utils } from "../core";
 import { Game_Actors, Game_Map, Game_Message, Game_Party, Game_Player, Game_Screen, Game_SelfSwitches, Game_Switches, Game_System, Game_Temp, Game_Timer, Game_Troop, Game_Variables } from "../objects";
-import type { DataArmor, DataItem, DataMap, DataSkill, DataWeapon } from "../types/database";
+import type { Database } from "../types";
 import { BattleManager } from "./BattleManager";
 import { StorageManager } from "./StorageManager";
 
@@ -227,20 +227,20 @@ export class DataManager {
     return Utils.isOptionValid("tskip");
   }
 
-  static isSkill(a: DataItem | DataSkill): a is DataSkill {
-    return a && $dataSkills.includes(a as DataSkill);
+  static isSkill(a: Database.Item | Database.Weapon | Database.Armor | Database.Skill): a is Database.Skill {
+    return a && $dataSkills.includes(a as Database.Skill);
   }
 
-  static isItem(a: DataItem | DataSkill): a is DataItem {
-    return a && $dataItems.includes(a as DataItem);
+  static isItem(a: Database.Item | Database.Weapon | Database.Armor | Database.Skill): a is Database.Item {
+    return a && $dataItems.includes(a as Database.Item);
   }
 
-  static isWeapon(a: DataWeapon | DataArmor): a is DataWeapon {
-    return a && $dataWeapons.includes(a as DataWeapon);
+  static isWeapon(a: Database.Item | Database.Weapon | Database.Armor | Database.Skill): a is Database.Weapon {
+    return a && $dataWeapons.includes(a as Database.Weapon);
   }
 
-  static isArmor(a: DataWeapon | DataArmor): a is DataArmor {
-    return a && $dataArmors.includes(a as DataArmor);
+  static isArmor(a: Database.Item | Database.Weapon | Database.Armor | Database.Skill): a is Database.Armor {
+    return a && $dataArmors.includes(a as Database.Armor);
   }
 
   static createGameObjects() {

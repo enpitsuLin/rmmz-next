@@ -13,33 +13,27 @@ import type {
   Game_Troop,
   Game_Variables,
 
-  DataActor,
-  DataItem,
-  DataSystem,
-  DataMap,
-  DataState,
-  DataEnemy,
-  DataWeapon,
-  DataArmor,
-  DataSkill,
+
 } from './src'
 
+import type * as Database from './src/types/database'
+
 declare global {
-  declare var $dataActors: DataActor[]
+  declare var $dataActors: Database.Actor[]
   declare var $dataClasses: unknown[]
-  declare var $dataSkills: DataSkill[]
-  declare var $dataItems: DataItem[]
-  declare var $dataWeapons: DataWeapon[]
-  declare var $dataArmors: DataArmor[]
-  declare var $dataEnemies: DataEnemy[]
+  declare var $dataSkills: Database.Skill[]
+  declare var $dataItems: Database.Item[]
+  declare var $dataWeapons: Database.Weapon[]
+  declare var $dataArmors: Database.Armor[]
+  declare var $dataEnemies: Database.Enemy[]
   declare var $dataTroops: unknown
-  declare var $dataStates: DataState[]
+  declare var $dataStates: Database.State[]
   declare var $dataAnimations: unknown
   declare var $dataTilesets: unknown
   declare var $dataCommonEvents: unknown
-  declare var $dataSystem: DataSystem
+  declare var $dataSystem: Database.System
   declare var $dataMapInfos: unknown
-  declare var $dataMap: DataMap
+  declare var $dataMap: Database.Map
 
   declare var $gameTemp: Game_Temp
   declare var $gameSystem: Game_System

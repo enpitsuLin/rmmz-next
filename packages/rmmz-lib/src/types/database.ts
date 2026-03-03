@@ -1,191 +1,201 @@
-export namespace database {
 
-  export interface Action {
-    conditionParam1: number
-    conditionParam2: number
-    conditionType: number
-    rating: number
-    skillId: number
-  }
-
-  export interface DropItem {
-    dataId: number
-    denominator: number
-    kind: number
-  }
-
-  export interface Base {
-    id: number
-
-    name: string
-    note: string
-  }
-
-  export interface Trait {
-    code: number
-    dataId: number
-    value: number
-  }
-
-  export interface Damage {
-    critical: boolean
-    elementId: number
-    formula: string
-    type: number
-    variance: number
-  }
-
-  export interface Effect {
-    code: number
-    dataId: number
-    value1: number
-    value2: number
-  }
-
-  export interface Advanced {
-    gameId: number
-    screenWidth: number
-    screenHeight: number
-    uiAreaWidth: number
-    uiAreaHeight: number
-    numberFontFilename: string
-    fallbackFonts: string
-    fontSize: number
-    mainFontFilename: string
-    screenScale: number
-    windowOpacity: number
-    picturesUpperLimit: number
-  }
-
-  export interface Audio {
-    name: string
-    pan: number
-    pitch: number
-    volume: number
-  }
-
-  export interface Vehicle {
-    bgm: Audio
-    characterIndex: number
-    characterName: string
-    startMapId: number
-    startX: number
-    startY: number
-  }
-
-  export interface AttackMotion {
-    type: number
-    weaponImageId: number
-  }
-
-  export interface Terms {
-    basic: string[]
-    commands: (string | undefined)[]
-    params: string[]
-    messages: Messages
-  }
-
-  export interface Messages {
-    alwaysDash: string
-    commandRemember: string
-    touchUI: string
-    bgmVolume: string
-    bgsVolume: string
-    meVolume: string
-    seVolume: string
-    possession: string
-    expTotal: string
-    expNext: string
-    saveMessage: string
-    loadMessage: string
-    file: string
-    autosave: string
-    partyName: string
-    emerge: string
-    preemptive: string
-    surprise: string
-    escapeStart: string
-    escapeFailure: string
-    victory: string
-    defeat: string
-    obtainExp: string
-    obtainGold: string
-    obtainItem: string
-    levelUp: string
-    obtainSkill: string
-    useItem: string
-    criticalToEnemy: string
-    criticalToActor: string
-    actorDamage: string
-    actorRecovery: string
-    actorGain: string
-    actorLoss: string
-    actorDrain: string
-    actorNoDamage: string
-    actorNoHit: string
-    enemyDamage: string
-    enemyRecovery: string
-    enemyGain: string
-    enemyLoss: string
-    enemyDrain: string
-    enemyNoDamage: string
-    enemyNoHit: string
-    evasion: string
-    magicEvasion: string
-    magicReflection: string
-    counterAttack: string
-    substitute: string
-    buffAdd: string
-    debuffAdd: string
-    buffRemove: string
-    actionFailure: string
-  }
-
-  export interface TestBattler {
-    actorId: number
-    level: number
-    equips: number[]
-  }
-
-  export interface TitleCommandWindow {
-    background: number
-    offsetX: number
-    offsetY: number
-  }
-
-  export interface Editor {
-    messageWidth1: number
-    messageWidth2: number
-    jsonFormatLevel: number
-  }
-
-
-  export type Actor = DataActor
-  export type Item = DataItem
-  export type Skill = DataSkill
+/** 基础数据结构，包含所有数据库对象的通用字段 */
+export interface BaseData {
+  id: number
+  name: string
+  note: string
 }
 
-export interface DataActor extends database.Base {
-  battlerName: string
-  characterIndex: number,
+/** 音频配置 */
+export interface AudioConfig {
+  name: string
+  pan: number
+  pitch: number
+  volume: number
+}
+
+/** 特性/特征 */
+export interface Trait {
+  code: number
+  dataId: number
+  value: number
+}
+
+/** 伤害计算配置 */
+export interface DamageConfig {
+  critical: boolean
+  elementId: number
+  formula: string
+  type: number
+  variance: number
+}
+
+/** 效果配置 */
+export interface EffectConfig {
+  code: number
+  dataId: number
+  value1: number
+  value2: number
+}
+
+/** 敌人行动配置 */
+export interface EnemyAction {
+  conditionParam1: number
+  conditionParam2: number
+  conditionType: number
+  rating: number
+  skillId: number
+}
+
+/** 掉落物品配置 */
+export interface DropItemConfig {
+  dataId: number
+  denominator: number
+  kind: number
+}
+
+/** 高级系统设置 */
+export interface AdvancedSettings {
+  gameId: number
+  screenWidth: number
+  screenHeight: number
+  uiAreaWidth: number
+  uiAreaHeight: number
+  numberFontFilename: string
+  fallbackFonts: string
+  fontSize: number
+  mainFontFilename: string
+  screenScale: number
+  windowOpacity: number
+  picturesUpperLimit: number
+}
+
+/** 载具配置 */
+export interface VehicleConfig {
+  bgm: AudioConfig
+  characterIndex: number
   characterName: string
-  classId: number,
-  equips: number[],
-  faceIndex: number,
-  faceName: string,
-  traits: database.Trait[],
-  initialLevel: number,
-  maxLevel: number,
-  nickname: string,
+  startMapId: number
+  startX: number
+  startY: number
+}
+
+/** 攻击动作配置 */
+export interface AttackMotionConfig {
+  type: number
+  weaponImageId: number
+}
+
+/** 游戏术语配置 */
+export interface GameTerms {
+  basic: string[]
+  commands: (string | undefined)[]
+  params: string[]
+  messages: GameMessages
+}
+
+/** 游戏消息文本 */
+export interface GameMessages {
+  alwaysDash: string
+  commandRemember: string
+  touchUI: string
+  bgmVolume: string
+  bgsVolume: string
+  meVolume: string
+  seVolume: string
+  possession: string
+  expTotal: string
+  expNext: string
+  saveMessage: string
+  loadMessage: string
+  file: string
+  autosave: string
+  partyName: string
+  emerge: string
+  preemptive: string
+  surprise: string
+  escapeStart: string
+  escapeFailure: string
+  victory: string
+  defeat: string
+  obtainExp: string
+  obtainGold: string
+  obtainItem: string
+  levelUp: string
+  obtainSkill: string
+  useItem: string
+  criticalToEnemy: string
+  criticalToActor: string
+  actorDamage: string
+  actorRecovery: string
+  actorGain: string
+  actorLoss: string
+  actorDrain: string
+  actorNoDamage: string
+  actorNoHit: string
+  enemyDamage: string
+  enemyRecovery: string
+  enemyGain: string
+  enemyLoss: string
+  enemyDrain: string
+  enemyNoDamage: string
+  enemyNoHit: string
+  evasion: string
+  magicEvasion: string
+  magicReflection: string
+  counterAttack: string
+  substitute: string
+  buffAdd: string
+  debuffAdd: string
+  buffRemove: string
+  actionFailure: string
+}
+
+/** 测试战斗者配置 */
+export interface TestBattlerConfig {
+  actorId: number
+  level: number
+  equips: number[]
+}
+
+/** 标题命令窗口配置 */
+export interface TitleCommandWindowConfig {
+  background: number
+  offsetX: number
+  offsetY: number
+}
+
+/** 编辑器配置 */
+export interface EditorConfig {
+  messageWidth1: number
+  messageWidth2: number
+  jsonFormatLevel: number
+}
+
+
+/** 角色数据 */
+export interface Actor extends BaseData {
+  battlerName: string
+  characterIndex: number
+  characterName: string
+  classId: number
+  equips: number[]
+  faceIndex: number
+  faceName: string
+  traits: Trait[]
+  initialLevel: number
+  maxLevel: number
+  nickname: string
   profile: string
 }
 
-export interface DataItem extends database.Base {
+/** 物品数据 */
+export interface Item extends BaseData {
   animationId: number
-  consumable: boolean,
-  damage: database.Damage,
+  consumable: boolean
+  damage: DamageConfig
   description: string
-  effects: database.Effect[],
+  effects: EffectConfig[]
   hitType: number
   iconIndex: number
   itypeId: number
@@ -198,19 +208,17 @@ export interface DataItem extends database.Base {
   tpGain: number
 }
 
-export interface DataSkill extends database.Base {
-  id: number
+/** 技能数据 */
+export interface Skill extends BaseData {
   animationId: number
-  damage: database.Damage
+  damage: DamageConfig
   description: string
-  effects: database.Effect[]
+  effects: EffectConfig[]
   hitType: number
   iconIndex: number
   message1: string
   message2: string
   mpCost: number
-  name: string
-  note: string
   occasion: number
   repeats: number
   requiredWtypeId1: number
@@ -224,25 +232,26 @@ export interface DataSkill extends database.Base {
   messageType: number
 }
 
-export interface DataSystem {
-  advanced: database.Advanced
-  airship: database.Vehicle
+/** 系统数据 */
+export interface System {
+  advanced: AdvancedSettings
+  airship: VehicleConfig
   armorTypes: string[]
-  attackMotions: database.AttackMotion[]
-  battleBgm: database.Audio
+  attackMotions: AttackMotionConfig[]
+  battleBgm: AudioConfig
   battleback1Name: string
   battleback2Name: string
   battlerHue: number
   battlerName: string
   battleSystem: number
-  boat: database.Vehicle
+  boat: VehicleConfig
   currencyUnit: string
-  defeatMe: database.Audio
+  defeatMe: AudioConfig
   editMapId: number
   elements: string[]
   equipTypes: string[]
   gameTitle: string
-  gameoverMe: database.Audio
+  gameoverMe: AudioConfig
   itemCategories: boolean[]
   locale: string
   magicSkills: number[]
@@ -258,26 +267,26 @@ export interface DataSystem {
   optSlipDeath: boolean
   optTransparent: boolean
   partyMembers: number[]
-  ship: database.Vehicle
+  ship: VehicleConfig
   skillTypes: string[]
-  sounds: database.Audio[]
+  sounds: AudioConfig[]
   startMapId: number
   startX: number
   startY: number
   switches: string[]
-  terms: database.Terms
-  testBattlers: database.TestBattler[]
+  terms: GameTerms
+  testBattlers: TestBattlerConfig[]
   testTroopId: number
   title1Name: string
   title2Name: string
-  titleBgm: database.Audio
-  titleCommandWindow: database.TitleCommandWindow
+  titleBgm: AudioConfig
+  titleCommandWindow: TitleCommandWindowConfig
   variables: string[]
   versionId: number
-  victoryMe: database.Audio
+  victoryMe: AudioConfig
   weaponTypes: string[]
   windowTone: number[]
-  editor: database.Editor
+  editor: EditorConfig
   faceSize: number
   iconSize: number
   optSplashScreen: boolean
@@ -285,13 +294,14 @@ export interface DataSystem {
   tileSize: number
 }
 
-export interface DataMap {
+/** 地图数据 */
+export interface Map {
   autoplayBgm: boolean
   autoplayBgs: boolean
   battleback1Name: string
   battleback2Name: string
-  bgm: database.Audio
-  bgs: database.Audio
+  bgm: AudioConfig
+  bgs: AudioConfig
   disableDashing: boolean
   displayName: string
   encounterList: unknown[]
@@ -312,7 +322,8 @@ export interface DataMap {
   events: unknown[]
 }
 
-export interface DataState {
+/** 状态数据 */
+export interface State {
   id: number
   autoRemovalTiming: number
   chanceByDamage: number
@@ -335,16 +346,17 @@ export interface DataState {
   removeByWalking: boolean
   restriction: number
   stepsToRemove: number
-  traits: database.Trait[]
+  traits: Trait[]
   messageType: number
 }
 
-export interface DataWeapon {
+/** 武器数据 */
+export interface Weapon {
   id: number
   animationId: number
   description: string
   etypeId: number
-  traits: database.Trait[]
+  traits: Trait[]
   iconIndex: number
   name: string
   note: string
@@ -353,12 +365,13 @@ export interface DataWeapon {
   wtypeId: number
 }
 
-export interface DataArmor {
+/** 防具数据 */
+export interface Armor {
   id: number
   atypeId: number
   description: string
   etypeId: number
-  traits: database.Trait[]
+  traits: Trait[]
   iconIndex: number
   name: string
   note: string
@@ -366,14 +379,15 @@ export interface DataArmor {
   price: number
 }
 
-export interface DataEnemy {
+/** 敌人数据 */
+export interface Enemy {
   id: number
-  actions: database.Action[]
+  actions: EnemyAction[]
   battlerHue: number
   battlerName: string
-  dropItems: database.DropItem[]
+  dropItems: DropItemConfig[]
   exp: number
-  traits: database.Trait[]
+  traits: Trait[]
   gold: number
   name: string
   note: string

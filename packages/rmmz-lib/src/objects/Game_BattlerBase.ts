@@ -1,5 +1,5 @@
 import { DataManager } from "../managers/DataManager";
-import type { database, DataItem, DataSkill } from "../types";
+import type { Database } from "../types";
 import type { Game_Actor } from "./Game_Actor";
 import type { Game_Enemy } from "./Game_Enemy";
 
@@ -388,7 +388,7 @@ class Game_BattlerBase {
   }
 
   allTraits() {
-    return this.traitObjects().reduce((r, obj) => r.concat(obj.traits), [] as database.Trait[]);
+    return this.traitObjects().reduce((r, obj) => r.concat(obj.traits), [] as Database.Trait[]);
   }
 
   traits(code: number) {
@@ -763,30 +763,30 @@ class Game_BattlerBase {
     }
   }
 
-  isSkillWtypeOk(_skill: DataSkill) {
+  isSkillWtypeOk(_skill: Database.Skill) {
     return true;
   }
 
-  skillMpCost(skill: DataSkill) {
+  skillMpCost(skill: Database.Skill) {
     return Math.floor(skill.mpCost * this.mcr);
   }
 
-  skillTpCost(skill: DataSkill) {
+  skillTpCost(skill: Database.Skill) {
     return skill.tpCost;
   }
 
-  canPaySkillCost(skill: DataSkill) {
+  canPaySkillCost(skill: Database.Skill) {
     return (
       this._tp >= this.skillTpCost(skill) && this._mp >= this.skillMpCost(skill)
     );
   }
 
-  paySkillCost(skill: DataSkill) {
+  paySkillCost(skill: Database.Skill) {
     this._mp -= this.skillMpCost(skill);
     this._tp -= this.skillTpCost(skill);
   }
 
-  isOccasionOk(item: DataItem | DataSkill) {
+  isOccasionOk(item: Database.Item | Database.Skill) {
     if ($gameParty.inBattle()) {
       return item.occasion === 0 || item.occasion === 1;
     } else {
@@ -794,11 +794,11 @@ class Game_BattlerBase {
     }
   }
 
-  meetsUsableItemConditions(item: DataItem | DataSkill) {
+  meetsUsableItemConditions(item: Database.Item | Database.Skill) {
     return this.canMove() && this.isOccasionOk(item);
   }
 
-  meetsSkillConditions(skill: DataSkill) {
+  meetsSkillConditions(skill: Database.Skill) {
     return (
       this.meetsUsableItemConditions(skill) &&
       this.isSkillWtypeOk(skill) &&
@@ -808,11 +808,11 @@ class Game_BattlerBase {
     );
   }
 
-  meetsItemConditions(item: DataItem) {
+  meetsItemConditions(item: Database.Item) {
     return this.meetsUsableItemConditions(item) && $gameParty.hasItem(item);
   }
 
-  canUse(item: DataItem | DataSkill) {
+  canUse(item: Database.Item | Database.Skill) {
     if (!item) {
       return false;
     } else if (DataManager.isSkill(item)) {
@@ -824,7 +824,7 @@ class Game_BattlerBase {
     }
   }
 
-  canEquip(item) {
+  canEquip(item: Database.Weapon | Database.Armor) {
     if (!item) {
       return false;
     } else if (DataManager.isWeapon(item)) {
@@ -836,13 +836,13 @@ class Game_BattlerBase {
     }
   }
 
-  canEquipWeapon(item) {
+  canEquipWeapon(item: Database.Weapon) {
     return (
       this.isEquipWtypeOk(item.wtypeId) && !this.isEquipTypeSealed(item.etypeId)
     );
   }
 
-  canEquipArmor(item) {
+  canEquipArmor(item: Database.Armor) {
     return (
       this.isEquipAtypeOk(item.atypeId) && !this.isEquipTypeSealed(item.etypeId)
     );

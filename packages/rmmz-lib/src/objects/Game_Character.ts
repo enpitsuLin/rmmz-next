@@ -1,3 +1,5 @@
+import { Game_CharacterBase } from "./Game_CharacterBase";
+
 /**
  * The superclass of Game_Player, Game_Follower, GameVehicle, and Game_Event.
  */
