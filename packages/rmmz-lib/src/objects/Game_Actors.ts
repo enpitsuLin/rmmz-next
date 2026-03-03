@@ -6,17 +6,8 @@ import { Game_Actor } from "./Game_Actor";
 class Game_Actors {
   private _data: Game_Actor[] = [];
 
-  /**
-   * @param { Game_Actors } [gameActors]
-   */
-  constructor(gameActors: Game_Actors) {
+  constructor() {
     this._data = [];
-
-    if (gameActors) {
-      gameActors._data.forEach((actor) => {
-        if (actor?._actorId) this.actor(actor._actorId);
-      });
-    }
   }
 
   actor(actorId: number) {

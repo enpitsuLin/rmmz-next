@@ -1,6 +1,6 @@
 import { Graphics } from "../core";
 import { AudioManager } from "../managers/AudioManager";
-import type { DataSystem } from "../types/database";
+import type { database } from "../types/database";
 
 /**
  * The game object class for the system data.
@@ -18,14 +18,14 @@ class Game_System {
   private _versionId: number;
   private _savefileId: number;
   private _framesOnSave: number;
-  private _bgmOnSave: DataSystem.Audio | null;
-  private _bgsOnSave: DataSystem.Audio | null;
+  private _bgmOnSave: database.Audio | null;
+  private _bgsOnSave: database.Audio | null;
   private _windowTone: string | null;
-  private _battleBgm: DataSystem.Audio | null;
-  private _victoryMe: DataSystem.Audio | null;
-  private _defeatMe: DataSystem.Audio | null;
-  private _savedBgm: DataSystem.Audio | null;
-  private _walkingBgm: DataSystem.Audio | null;
+  private _battleBgm: database.Audio | null;
+  private _victoryMe: database.Audio | null;
+  private _defeatMe: database.Audio | null;
+  private _savedBgm: database.Audio | null;
+  private _walkingBgm: database.Audio | null;
 
   /**
    * @param { Game_System } [gameSystem]
@@ -194,7 +194,7 @@ class Game_System {
     return this._battleBgm || $dataSystem.battleBgm;
   }
 
-  setBattleBgm(value: DataSystem.Audio | null) {
+  setBattleBgm(value: database.Audio | null) {
     this._battleBgm = value;
   }
 
@@ -202,7 +202,7 @@ class Game_System {
     return this._victoryMe || $dataSystem.victoryMe;
   }
 
-  setVictoryMe(value: DataSystem.Audio | null) {
+  setVictoryMe(value: database.Audio | null) {
     this._victoryMe = value;
   }
 
@@ -210,7 +210,7 @@ class Game_System {
     return this._defeatMe || $dataSystem.defeatMe;
   }
 
-  setDefeatMe(value: DataSystem.Audio | null) {
+  setDefeatMe(value: database.Audio | null) {
     this._defeatMe = value;
   }
 

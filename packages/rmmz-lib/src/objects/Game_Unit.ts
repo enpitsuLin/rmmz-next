@@ -1,3 +1,6 @@
+import { BattleManager } from "../managers/BattleManager";
+import type { Game_Battler } from "./Game_Battler";
+
 /**
  * The superclass of Game_Party and Game_Troop.
  */
@@ -12,7 +15,7 @@ class Game_Unit {
     return this._inBattle;
   }
 
-  members() {
+  members(): Game_Battler[] {
     return [];
   }
 
@@ -61,12 +64,12 @@ class Game_Unit {
     return members.length ? members[Math.randomInt(members.length)] : null;
   }
 
-  smoothTarget(index) {
+  smoothTarget(index: number) {
     const member = this.members()[Math.max(0, index)];
     return member && member.isAlive() ? member : this.aliveMembers()[0];
   }
 
-  smoothDeadTarget(index) {
+  smoothDeadTarget(index: number) {
     const member = this.members()[Math.max(0, index)];
     return member && member.isDead() ? member : this.deadMembers()[0];
   }
@@ -77,7 +80,7 @@ class Game_Unit {
     }
   }
 
-  onBattleStart(advantageous) {
+  onBattleStart(advantageous: boolean) {
     for (const member of this.members()) {
       member.onBattleStart(advantageous);
     }
@@ -97,7 +100,7 @@ class Game_Unit {
     }
   }
 
-  select(activeMember) {
+  select(activeMember: Game_Battler) {
     for (const member of this.members()) {
       if (member === activeMember) {
         member.select();
@@ -111,7 +114,7 @@ class Game_Unit {
     return this.aliveMembers().length === 0;
   }
 
-  substituteBattler(target) {
+  substituteBattler(target: Game_Battler) {
     for (const member of this.members()) {
       if (member.isSubstitute() && member !== target) {
         return member;

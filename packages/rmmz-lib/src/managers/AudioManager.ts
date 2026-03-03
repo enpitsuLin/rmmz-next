@@ -1,6 +1,6 @@
-import type { DataSystem } from "../types/database";
+import type { database } from "../types/database";
 
-export interface AudioWithPos extends DataSystem.Audio {
+export interface AudioWithPos extends database.Audio {
   pos?: number
 }
 

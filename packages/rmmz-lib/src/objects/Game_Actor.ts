@@ -6,24 +6,24 @@ import type { Game_Item } from "./Game_Item";
  * The game object class for an actor.
  */
 class Game_Actor extends Game_Battler {
-  private _actorId?: number;
-  private _name?: string;
-  private _nickname?: string;
-  private _profile?: string;
-  private _classId?: number;
-  private _level?: number;
-  private _characterName?: string;
-  private _characterIndex?: number;
-  private _faceName?: string;
-  private _faceIndex?: number;
-  private _battlerName?: string;
-  private _exp?: Record<number, number>;
-  private _skills?: number[];
-  private _equips?: Game_Item[];
-  private _actionInputIndex?: number;
-  private _lastMenuSkill?: Game_Item;
-  private _lastBattleSkill?: Game_Item;
-  private _lastCommandSymbol?: string;
+  _actorId!: number;
+  _name!: string;
+  _nickname!: string;
+  _profile!: string;
+  _classId!: number;
+  _level!: number;
+  _characterName!: string;
+  _characterIndex!: number;
+  _faceName!: string;
+  _faceIndex!: number;
+  _battlerName!: string;
+  _exp!: Record<number, number>;
+  _skills!: number[];
+  _equips!: Game_Item[];
+  _actionInputIndex!: number;
+  _lastMenuSkill!: Game_Item;
+  _lastBattleSkill!: Game_Item;
+  _lastCommandSymbol!: string;
 
   constructor(actorId?: number) {
     super();

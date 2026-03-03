@@ -1,127 +1,46 @@
-export interface DataActor {
-  id: number,
-  battlerName: string
-  characterIndex: number,
-  characterName: string
-  classId: number,
-  equips: number[],
-  faceIndex: number,
-  faceName: string,
-  traits: DataActor.Trait[],
-  initialLevel: number,
-  maxLevel: number,
-  name: string,
-  nickname: string,
-  note: string,
-  profile: string
-}
+export namespace database {
 
-export namespace DataActor {
+  export interface Action {
+    conditionParam1: number
+    conditionParam2: number
+    conditionType: number
+    rating: number
+    skillId: number
+  }
+
+  export interface DropItem {
+    dataId: number
+    denominator: number
+    kind: number
+  }
+
+  export interface Base {
+    id: number
+
+    name: string
+    note: string
+  }
+
   export interface Trait {
-    code: number,
-    dataId: number,
+    code: number
+    dataId: number
     value: number
   }
-}
 
-export interface DataItem {
-  id: number
-  animationId: number
-  consumable: boolean,
-  damage: {
-    critical: boolean,
+  export interface Damage {
+    critical: boolean
     elementId: number
     formula: string
     type: number
     variance: number
-  },
-  description: string
-  effects: DataItem.Effect[],
-  hitType: number
-  iconIndex: number
-  itypeId: number
-  name: string
-  note: string
-  occasion: number
-  price: number
-  repeats: number
-  scope: number
-  speed: number
-  successRate: number
-  tpGain: number
-}
+  }
 
-export namespace DataItem {
   export interface Effect {
     code: number
     dataId: number
     value1: number
     value2: number
   }
-}
-
-export interface DataSystem {
-  advanced: DataSystem.Advanced
-  airship: DataSystem.Vehicle
-  armorTypes: string[]
-  attackMotions: DataSystem.AttackMotion[]
-  battleBgm: DataSystem.Audio
-  battleback1Name: string
-  battleback2Name: string
-  battlerHue: number
-  battlerName: string
-  battleSystem: number
-  boat: DataSystem.Vehicle
-  currencyUnit: string
-  defeatMe: DataSystem.Audio
-  editMapId: number
-  elements: string[]
-  equipTypes: string[]
-  gameTitle: string
-  gameoverMe: DataSystem.Audio
-  itemCategories: boolean[]
-  locale: string
-  magicSkills: number[]
-  menuCommands: boolean[]
-  optAutosave: boolean
-  optDisplayTp: boolean
-  optDrawTitle: boolean
-  optExtraExp: boolean
-  optFloorDeath: boolean
-  optFollowers: boolean
-  optKeyItemsNumber: boolean
-  optSideView: boolean
-  optSlipDeath: boolean
-  optTransparent: boolean
-  partyMembers: number[]
-  ship: DataSystem.Vehicle
-  skillTypes: string[]
-  sounds: DataSystem.Audio[]
-  startMapId: number
-  startX: number
-  startY: number
-  switches: string[]
-  terms: DataSystem.Terms
-  testBattlers: DataSystem.TestBattler[]
-  testTroopId: number
-  title1Name: string
-  title2Name: string
-  titleBgm: DataSystem.Audio
-  titleCommandWindow: DataSystem.TitleCommandWindow
-  variables: string[]
-  versionId: number
-  victoryMe: DataSystem.Audio
-  weaponTypes: string[]
-  windowTone: number[]
-  editor: DataSystem.Editor
-  faceSize: number
-  iconSize: number
-  optSplashScreen: boolean
-  optMessageSkip: boolean
-  tileSize: number
-}
-
-export namespace DataSystem {
 
   export interface Advanced {
     gameId: number
@@ -240,6 +159,130 @@ export namespace DataSystem {
     jsonFormatLevel: number
   }
 
+
+  export type Actor = DataActor
+  export type Item = DataItem
+  export type Skill = DataSkill
+}
+
+export interface DataActor extends database.Base {
+  battlerName: string
+  characterIndex: number,
+  characterName: string
+  classId: number,
+  equips: number[],
+  faceIndex: number,
+  faceName: string,
+  traits: database.Trait[],
+  initialLevel: number,
+  maxLevel: number,
+  nickname: string,
+  profile: string
+}
+
+export interface DataItem extends database.Base {
+  animationId: number
+  consumable: boolean,
+  damage: database.Damage,
+  description: string
+  effects: database.Effect[],
+  hitType: number
+  iconIndex: number
+  itypeId: number
+  occasion: number
+  price: number
+  repeats: number
+  scope: number
+  speed: number
+  successRate: number
+  tpGain: number
+}
+
+export interface DataSkill extends database.Base {
+  id: number
+  animationId: number
+  damage: database.Damage
+  description: string
+  effects: database.Effect[]
+  hitType: number
+  iconIndex: number
+  message1: string
+  message2: string
+  mpCost: number
+  name: string
+  note: string
+  occasion: number
+  repeats: number
+  requiredWtypeId1: number
+  requiredWtypeId2: number
+  scope: number
+  speed: number
+  stypeId: number
+  successRate: number
+  tpCost: number
+  tpGain: number
+  messageType: number
+}
+
+export interface DataSystem {
+  advanced: database.Advanced
+  airship: database.Vehicle
+  armorTypes: string[]
+  attackMotions: database.AttackMotion[]
+  battleBgm: database.Audio
+  battleback1Name: string
+  battleback2Name: string
+  battlerHue: number
+  battlerName: string
+  battleSystem: number
+  boat: database.Vehicle
+  currencyUnit: string
+  defeatMe: database.Audio
+  editMapId: number
+  elements: string[]
+  equipTypes: string[]
+  gameTitle: string
+  gameoverMe: database.Audio
+  itemCategories: boolean[]
+  locale: string
+  magicSkills: number[]
+  menuCommands: boolean[]
+  optAutosave: boolean
+  optDisplayTp: boolean
+  optDrawTitle: boolean
+  optExtraExp: boolean
+  optFloorDeath: boolean
+  optFollowers: boolean
+  optKeyItemsNumber: boolean
+  optSideView: boolean
+  optSlipDeath: boolean
+  optTransparent: boolean
+  partyMembers: number[]
+  ship: database.Vehicle
+  skillTypes: string[]
+  sounds: database.Audio[]
+  startMapId: number
+  startX: number
+  startY: number
+  switches: string[]
+  terms: database.Terms
+  testBattlers: database.TestBattler[]
+  testTroopId: number
+  title1Name: string
+  title2Name: string
+  titleBgm: database.Audio
+  titleCommandWindow: database.TitleCommandWindow
+  variables: string[]
+  versionId: number
+  victoryMe: database.Audio
+  weaponTypes: string[]
+  windowTone: number[]
+  editor: database.Editor
+  faceSize: number
+  iconSize: number
+  optSplashScreen: boolean
+  optMessageSkip: boolean
+  tileSize: number
 }
 
 export interface DataMap {
@@ -247,8 +290,8 @@ export interface DataMap {
   autoplayBgs: boolean
   battleback1Name: string
   battleback2Name: string
-  bgm: DataSystem.Audio
-  bgs: DataSystem.Audio
+  bgm: database.Audio
+  bgs: database.Audio
   disableDashing: boolean
   displayName: string
   encounterList: unknown[]
@@ -267,4 +310,72 @@ export interface DataMap {
   width: number
   data: number[]
   events: unknown[]
+}
+
+export interface DataState {
+  id: number
+  autoRemovalTiming: number
+  chanceByDamage: number
+  iconIndex: number
+  maxTurns: number
+  message1: string
+  message2: string
+  message3: string
+  message4: string
+  minTurns: number
+  motion: number
+  name: string
+  note: string
+  overlay: number
+  priority: number
+  releaseByDamage: boolean
+  removeAtBattleEnd: boolean
+  removeByDamage: boolean
+  removeByRestriction: boolean
+  removeByWalking: boolean
+  restriction: number
+  stepsToRemove: number
+  traits: database.Trait[]
+  messageType: number
+}
+
+export interface DataWeapon {
+  id: number
+  animationId: number
+  description: string
+  etypeId: number
+  traits: database.Trait[]
+  iconIndex: number
+  name: string
+  note: string
+  params: number[]
+  price: number
+  wtypeId: number
+}
+
+export interface DataArmor {
+  id: number
+  atypeId: number
+  description: string
+  etypeId: number
+  traits: database.Trait[]
+  iconIndex: number
+  name: string
+  note: string
+  params: number[]
+  price: number
+}
+
+export interface DataEnemy {
+  id: number
+  actions: database.Action[]
+  battlerHue: number
+  battlerName: string
+  dropItems: database.DropItem[]
+  exp: number
+  traits: database.Trait[]
+  gold: number
+  name: string
+  note: string
+  params: number[]
 }

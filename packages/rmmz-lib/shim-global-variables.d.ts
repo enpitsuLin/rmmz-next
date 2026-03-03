@@ -11,20 +11,29 @@ import type {
   Game_Temp,
   Game_Timer,
   Game_Troop,
-  Game_Variables
+  Game_Variables,
+
+  DataActor,
+  DataItem,
+  DataSystem,
+  DataMap,
+  DataState,
+  DataEnemy,
+  DataWeapon,
+  DataArmor,
+  DataSkill,
 } from './src'
-import type { DataActor, DataItem, DataSystem, DataMap } from './src'
 
 declare global {
   declare var $dataActors: DataActor[]
   declare var $dataClasses: unknown[]
-  declare var $dataSkills: DataItem[]
+  declare var $dataSkills: DataSkill[]
   declare var $dataItems: DataItem[]
-  declare var $dataWeapons: DataItem[]
-  declare var $dataArmors: DataItem[]
-  declare var $dataEnemies: unknown
+  declare var $dataWeapons: DataWeapon[]
+  declare var $dataArmors: DataArmor[]
+  declare var $dataEnemies: DataEnemy[]
   declare var $dataTroops: unknown
-  declare var $dataStates: unknown
+  declare var $dataStates: DataState[]
   declare var $dataAnimations: unknown
   declare var $dataTilesets: unknown
   declare var $dataCommonEvents: unknown

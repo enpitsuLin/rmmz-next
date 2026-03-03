@@ -4,8 +4,25 @@
  * For convenience, all member variables in this class are public.
  */
 class Game_ActionResult {
+  used!: boolean
+  missed!: boolean
+  evaded!: boolean
+  physical!: boolean
+  drain!: boolean
+  critical!: boolean
+  success!: boolean
+  hpAffected!: boolean
+  hpDamage!: number
+  mpDamage!: number
+  tpDamage!: number
+  addedStates!: number[]
+  removedStates!: number[]
+  addedBuffs!: number[]
+  addedDebuffs!: number[]
+  removedBuffs!: number[]
+
   constructor() {
-    this.initialize(...arguments);
+    this.initialize();
   }
 
   initialize() {
@@ -53,51 +70,51 @@ class Game_ActionResult {
     return this.used && !this.missed && !this.evaded;
   }
 
-  isStateAdded(stateId) {
+  isStateAdded(stateId: number) {
     return this.addedStates.includes(stateId);
   }
 
-  pushAddedState(stateId) {
+  pushAddedState(stateId: number) {
     if (!this.isStateAdded(stateId)) {
       this.addedStates.push(stateId);
     }
   }
 
-  isStateRemoved(stateId) {
+  isStateRemoved(stateId: number) {
     return this.removedStates.includes(stateId);
   }
 
-  pushRemovedState(stateId) {
+  pushRemovedState(stateId: number) {
     if (!this.isStateRemoved(stateId)) {
       this.removedStates.push(stateId);
     }
   }
 
-  isBuffAdded(paramId) {
+  isBuffAdded(paramId: number) {
     return this.addedBuffs.includes(paramId);
   }
 
-  pushAddedBuff(paramId) {
+  pushAddedBuff(paramId: number) {
     if (!this.isBuffAdded(paramId)) {
       this.addedBuffs.push(paramId);
     }
   }
 
-  isDebuffAdded(paramId) {
+  isDebuffAdded(paramId: number) {
     return this.addedDebuffs.includes(paramId);
   }
 
-  pushAddedDebuff(paramId) {
+  pushAddedDebuff(paramId: number) {
     if (!this.isDebuffAdded(paramId)) {
       this.addedDebuffs.push(paramId);
     }
   }
 
-  isBuffRemoved(paramId) {
+  isBuffRemoved(paramId: number) {
     return this.removedBuffs.includes(paramId);
   }
 
-  pushRemovedBuff(paramId) {
+  pushRemovedBuff(paramId: number) {
     if (!this.isBuffRemoved(paramId)) {
       this.removedBuffs.push(paramId);
     }

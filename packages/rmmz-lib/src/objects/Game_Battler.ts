@@ -1,3 +1,6 @@
+import type { EffectType, MotionType } from "../types";
+import type { Game_Action } from "./Game_Action";
+import { Game_ActionResult } from "./Game_ActionResult";
 import { Game_BattlerBase } from "./Game_BattlerBase";
 
 /**
@@ -6,6 +9,24 @@ import { Game_BattlerBase } from "./Game_BattlerBase";
  * It contains methods for sprites and actions.
  */
 class Game_Battler extends Game_BattlerBase {
+  _actions!: Game_Action[]
+  _speed!: number
+  _result!: Game_ActionResult
+  _actionState!: string
+  _lastTargetIndex!: number
+  _damagePopup!: boolean
+  _effectType!: EffectType | null
+  _motionType!: MotionType | null
+  _weaponImageId!: number
+  _motionRefresh!: boolean
+  _selected!: boolean
+  _tpbState!: string
+  _tpbChargeTime!: number
+  _tpbCastTime!: number
+  _tpbIdleTime!: number
+  _tpbTurnCount!: number
+  _tpbTurnEnd!: boolean
+
   constructor() {
     super();
   }
@@ -48,11 +69,11 @@ class Game_Battler extends Game_BattlerBase {
     this._motionRefresh = false;
   }
 
-  requestEffect(effectType) {
+  requestEffect(effectType: EffectType) {
     this._effectType = effectType;
   }
 
-  requestMotion(motionType) {
+  requestMotion(motionType: MotionType) {
     this._motionType = motionType;
   }
 
@@ -122,15 +143,15 @@ class Game_Battler extends Game_BattlerBase {
     );
   }
 
-  startWeaponAnimation(weaponImageId) {
+  startWeaponAnimation(weaponImageId: number) {
     this._weaponImageId = weaponImageId;
   }
 
-  action(index) {
+  action(index: number) {
     return this._actions[index];
   }
 
-  setAction(index, action) {
+  setAction(index: number, action: Game_Action) {
     this._actions[index] = action;
   }
 
@@ -160,7 +181,7 @@ class Game_Battler extends Game_BattlerBase {
     this._tpbChargeTime -= 1;
   }
 
-  initTpbChargeTime(advantageous) {
+  initTpbChargeTime(advantageous: boolean) {
     const speed = this.tpbRelativeSpeed();
     this._tpbState = "charging";
     this._tpbChargeTime = advantageous ? 1 : speed * Math.random() * 0.5;
@@ -338,7 +359,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  addState(stateId) {
+  addState(stateId: number) {
     if (this.isStateAddable(stateId)) {
       if (!this.isStateAffected(stateId)) {
         this.addNewState(stateId);
@@ -672,7 +693,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  performAction(/*action*/) {
+  performAction(_action?: unknown) {
     //
   }
 

@@ -1,8 +1,17 @@
+import { Game_Battler } from "./Game_Battler";
+
 /**
  * The game object class for an enemy.
  */
 class Game_Enemy extends Game_Battler {
-  constructor(enemyId, x, y) {
+
+  _enemyId!: number;
+  _letter!: string;
+  _plural!: boolean;
+  _screenX!: number;
+  _screenY!: number;
+
+  constructor(enemyId: number, x: number, y: number) {
     super();
     this.setup(enemyId, x, y);
   }
@@ -16,14 +25,14 @@ class Game_Enemy extends Game_Battler {
     this._screenY = 0;
   }
 
-  setup(enemyId, x, y) {
+  setup(enemyId: number, x: number, y: number) {
     this._enemyId = enemyId;
     this._screenX = x;
     this._screenY = y;
     this.recoverAll();
   }
 
-  isEnemy() {
+  isEnemy(): this is this {
     return true;
   }
 
@@ -55,7 +64,7 @@ class Game_Enemy extends Game_Battler {
     return super.traitObjects().concat(this.enemy());
   }
 
-  paramBase(paramId) {
+  paramBase(paramId: number) {
     return this.enemy().params[paramId];
   }
 

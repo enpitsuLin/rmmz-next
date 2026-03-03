@@ -1,10 +1,19 @@
+import type { DataItem } from "../types";
+import type { Game_Battler } from "./Game_Battler";
 import { Game_Item } from "./Game_Item";
 
 /**
  * The game object class for a battle action.
  */
 class Game_Action {
-  constructor(subject, forcing) {
+
+  _subjectActorId!: number;
+  _subjectEnemyIndex!: number;
+  _forcing!: boolean;
+  _item!: Game_Item;
+  _targetIndex!: number;
+
+  constructor(subject: Game_Battler, forcing: boolean) {
     this._subjectActorId = 0;
     this._subjectEnemyIndex = -1;
     this._forcing = forcing || false;
@@ -35,13 +44,15 @@ class Game_Action {
     this._targetIndex = -1;
   }
 
-  setSubject(subject) {
+  setSubject(subject: Game_Battler) {
     if (subject.isActor()) {
       this._subjectActorId = subject.actorId();
       this._subjectEnemyIndex = -1;
-    } else {
+    } else if (subject.isEnemy()) {
       this._subjectEnemyIndex = subject.index();
       this._subjectActorId = 0;
+    } else {
+      throw new Error("Invalid subject");
     }
   }
 
@@ -77,19 +88,19 @@ class Game_Action {
     this.setSkill(this.subject().guardSkillId());
   }
 
-  setSkill(skillId) {
+  setSkill(skillId: number) {
     this._item.setObject($dataSkills[skillId]);
   }
 
-  setItem(itemId) {
+  setItem(itemId: number) {
     this._item.setObject($dataItems[itemId]);
   }
 
-  setItemObject(object) {
+  setItemObject(object: DataItem) {
     this._item.setObject(object);
   }
 
-  setTarget(targetIndex) {
+  setTarget(targetIndex: number) {
     this._targetIndex = targetIndex;
   }
 
