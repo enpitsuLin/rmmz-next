@@ -354,6 +354,7 @@ export declare namespace MZ {
     hasEncryptedImages: boolean;
     hasEncryptedAudio: boolean;
     encryptionKey: string;
+    optMessageSkip: boolean
   }
 
   interface CommonEvent {
