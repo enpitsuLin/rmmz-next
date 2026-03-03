@@ -11,9 +11,6 @@
     "module": "preserve",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "types": [
-      "./src/type.d.ts"
-    ],
     "strict": true,
     "noUnusedLocals": true,
     "declaration": true,
@@ -25,6 +22,5 @@
   },
   "include": [
     "src",
-    "src/type.d.ts"
   ]
 }

@@ -8,6 +8,9 @@
     "moduleResolution": "bundler",
     "declaration": true,
     "noEmit": true,
+    "types":[
+      "rmmz-lib/types",
+    ],
     "lib": [
       "DOM",
       "DOM.AsyncIterable",

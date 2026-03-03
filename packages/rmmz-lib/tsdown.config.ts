@@ -5,9 +5,16 @@ export default defineConfig({
     'src/index.ts',
   ],
   target: 'es2021',
-  exports: true,
+  exports: {
+    enabled: true,
+    async customExports(exports, context) {
+      exports['./types'] = './dist/types.d.ts'
+      return exports
+    },
+  },
+  platform: "browser",
   copy: [
-    'src/type.d.ts',
+    'src/*.d.ts',
   ]
   // ...config options
 })

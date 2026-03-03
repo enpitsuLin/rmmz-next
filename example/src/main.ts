@@ -1,8 +1,9 @@
 import * as PIXI from 'pixi.js';
+import 'rmmz-lib'
 
-import './monkey-patches/index.js'
-
+// @ts-expect-error
 globalThis.PIXI = PIXI;
+
 
 //=============================================================================
 // main.js v1.10.0
