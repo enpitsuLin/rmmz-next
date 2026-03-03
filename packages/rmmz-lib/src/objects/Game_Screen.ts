@@ -1,8 +1,7 @@
-//-----------------------------------------------------------------------------
-// Game_Screen
-//
-// The game object class for screen effect data, such as changes in color tone
-// and flashes.
+/**
+ * The game object class for screen effect data, such as changes in color tone
+and flashes.
+ */
 class Game_Screen {
 
   /**

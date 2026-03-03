@@ -1,8 +1,8 @@
-//-----------------------------------------------------------------------------
-// Game_ActionResult
-//
-// The game object class for a result of a battle action. For convinience, all
-// member variables in this class are public.
+/**
+ * The game object class for a result of a battle action. 
+ * 
+ * For convenience, all member variables in this class are public.
+ */
 class Game_ActionResult {
   constructor() {
     this.initialize(...arguments);

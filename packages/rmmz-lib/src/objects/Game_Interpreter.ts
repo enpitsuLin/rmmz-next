@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Interpreter
-//
-// The interpreter for running event commands.
+/**
+ * The interpreter for running event commands.
+ */
 class Game_Interpreter {
   constructor(depth) {
     this._depth = depth || 0;

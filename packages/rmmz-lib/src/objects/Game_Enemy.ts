@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Enemy
-//
-// The game object class for an enemy.
+/**
+ * The game object class for an enemy.
+ */
 class Game_Enemy extends Game_Battler {
   constructor(enemyId, x, y) {
     super();

@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Action
-//
-// The game object class for a battle action.
+/**
+ * The game object class for a battle action.
+ */
 class Game_Action {
   constructor(subject, forcing) {
     this._subjectActorId = 0;

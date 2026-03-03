@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Picture
-//
-// The game object class for a picture.
+/**
+ * The game object class for a picture.
+ */
 class Game_Picture {
   constructor() {
     this.initialize(...arguments);

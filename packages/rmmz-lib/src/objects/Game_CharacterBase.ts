@@ -1,8 +1,8 @@
-//-----------------------------------------------------------------------------
-// Game_CharacterBase
-//
-// The superclass of Game_Character. It handles basic information, such as
-// coordinates and images, shared by all characters.
+/**
+ * The superclass of Game_Character. 
+ * 
+ * It handles basic information, such as coordinates and images, shared by all characters.
+ */
 class Game_CharacterBase {
   constructor() {
     this.initMembers();

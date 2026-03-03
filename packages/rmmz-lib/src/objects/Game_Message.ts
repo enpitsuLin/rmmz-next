@@ -1,8 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Message
-//
-// The game object class for the state of the message window that displays text
-// or selections, etc.
+/**
+ * The game object class for the state of the message window that displays text or selections, etc.
+ */
 class Game_Message {
   constructor() {
     this.clear();

@@ -1,8 +1,8 @@
-//-----------------------------------------------------------------------------
-// Game_Party
-//
-// The game object class for the party. Information such as gold and items is
-// included.
+/**
+ * The game object class for the party. 
+ * 
+ * Information such as gold and items is included.
+ */
 class Game_Party extends Game_Unit {
 
   /**

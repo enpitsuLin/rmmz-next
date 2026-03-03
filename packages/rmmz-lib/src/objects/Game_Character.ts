@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Character
-//
-// The superclass of Game_Player, Game_Follower, GameVehicle, and Game_Event.
+/**
+ * The superclass of Game_Player, Game_Follower, GameVehicle, and Game_Event.
+ */
 class Game_Character extends Game_CharacterBase {
   static ROUTE_END = 0;
   static ROUTE_MOVE_DOWN = 1;

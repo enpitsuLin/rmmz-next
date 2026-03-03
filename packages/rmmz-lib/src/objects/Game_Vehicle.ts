@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Vehicle
-//
-// The game object class for a vehicle.
+/**
+ * The game object class for a vehicle.
+ */
 class Game_Vehicle extends Game_Character {
   constructor(type) {
     super();

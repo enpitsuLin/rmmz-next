@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Actors
-//
-// The wrapper class for an actor array.
+/**
+ * The wrapper class for an actor array.
+ */
 class Game_Actors {
 
   /**

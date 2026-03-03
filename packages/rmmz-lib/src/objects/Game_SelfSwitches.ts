@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_SelfSwitches
-//
-// The game object class for self switches.
+/**
+ * The game object class for self switches.
+ */
 class Game_SelfSwitches {
 
   /**

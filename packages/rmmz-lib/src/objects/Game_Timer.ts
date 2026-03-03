@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Timer
-//
-// The game object class for the timer.
+/**
+ * The game object class for the timer.
+ */
 class Game_Timer {
 
   /**

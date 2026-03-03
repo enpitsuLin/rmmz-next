@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Switches
-//
-// The game object class for switches.
+/**
+ * The game object class for switches.
+ */
 class Game_Switches {
   /**
    * @param { Game_Switches } [gameSwitches]

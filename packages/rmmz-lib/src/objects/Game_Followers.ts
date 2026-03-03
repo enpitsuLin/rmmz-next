@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Followers
-//
-// The wrapper class for a follower array.
+/**
+ * The wrapper class for a follower array.
+ */
 class Game_Followers {
   constructor() {
     this._visible = $dataSystem.optFollowers;

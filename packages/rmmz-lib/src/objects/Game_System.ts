@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_System
-//
-// The game object class for the system data.
+/**
+ * The game object class for the system data.
+ */
 class Game_System {
 
   /**

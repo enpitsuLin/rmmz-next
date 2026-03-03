@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Actor
-//
-// The game object class for an actor.
+/**
+ * The game object class for an actor.
+ */
 class Game_Actor extends Game_Battler {
   constructor(actorId) {
     super();

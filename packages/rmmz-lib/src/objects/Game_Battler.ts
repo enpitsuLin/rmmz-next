@@ -1,8 +1,8 @@
-//-----------------------------------------------------------------------------
-// Game_Battler
-//
-// The superclass of Game_Actor and Game_Enemy. It contains methods for sprites
-// and actions.
+/**
+ * The superclass of Game_Actor and Game_Enemy. 
+ * 
+ * It contains methods for sprites and actions.
+ */
 class Game_Battler extends Game_BattlerBase {
   constructor() {
     super();

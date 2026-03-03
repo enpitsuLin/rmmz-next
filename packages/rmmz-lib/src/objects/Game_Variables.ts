@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Variables
-//
-// The game object class for variables.
+/**
+ * The game object class for variables.
+ */
 class Game_Variables {
   /**
    * @param { Game_Variables } [gameVariables]

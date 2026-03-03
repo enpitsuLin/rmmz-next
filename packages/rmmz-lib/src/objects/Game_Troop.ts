@@ -1,7 +1,6 @@
-//-----------------------------------------------------------------------------
-// Game_Troop
-//
-// The game object class for a troop and the battle-related data.
+/**
+ * The game object class for a troop and the battle-related data.
+ */
 class Game_Troop extends Game_Unit {
   constructor() {
     super();

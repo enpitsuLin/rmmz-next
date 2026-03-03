@@ -1,8 +1,7 @@
-//-----------------------------------------------------------------------------
-// Game_Event
-//
-// The game object class for an event. It contains functionality for event page
-// switching and running parallel process events.
+/**
+ * The game object class for an event. It contains functionality for event page
+switching and running parallel process events.
+ */
 class Game_Event extends Game_Character {
   constructor(mapId, eventId) {
     super();

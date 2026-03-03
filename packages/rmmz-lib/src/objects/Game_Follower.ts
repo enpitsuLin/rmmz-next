@@ -1,8 +1,8 @@
-//-----------------------------------------------------------------------------
-// Game_Follower
-//
-// The game object class for a follower. A follower is an allied character,
-// other than the front character, displayed in the party.
+/**
+ * The game object class for a follower. 
+ * 
+ * A follower is an allied character, other than the front character, displayed in the party.
+ */
 class Game_Follower extends Game_Character {
   constructor(memberIndex) {
     super();

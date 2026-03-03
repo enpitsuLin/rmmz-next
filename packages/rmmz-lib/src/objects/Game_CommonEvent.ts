@@ -1,8 +1,8 @@
-//-----------------------------------------------------------------------------
-// Game_CommonEvent
-//
-// The game object class for a common event. It contains functionality for
-// running parallel process events.
+/**
+ * The game object class for a common event.
+ * 
+ *  It contains functionality for running parallel process events.
+ */
 class Game_CommonEvent {
   constructor(commonEventId) {
     this._commonEventId = commonEventId;

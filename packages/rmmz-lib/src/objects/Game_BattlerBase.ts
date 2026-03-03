@@ -1,7 +1,8 @@
-//-----------------------------------------------------------------------------
-// Game_BattlerBase
-//
-// The superclass of Game_Battler. It mainly contains parameters calculation.
+/**
+ * The superclass of Game_Battler. 
+ * 
+ * It mainly contains parameters calculation.
+ */
 class Game_BattlerBase {
   constructor() {
     this.initMembers();

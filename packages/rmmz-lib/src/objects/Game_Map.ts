@@ -1,8 +1,8 @@
-//-----------------------------------------------------------------------------
-// Game_Map
-//
-// The game object class for a map. It contains scrolling and passage
-// determination functions.
+/**
+ * The game object class for a map.
+ * 
+ *  It contains scrolling and passage determination functions.
+ */
 class Game_Map {
 
   /**
