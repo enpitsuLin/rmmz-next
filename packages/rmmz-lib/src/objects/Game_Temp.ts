@@ -1,6 +1,5 @@
 import { Utils } from "../core";
-import type { Game_Actor } from "./Game_Actor";
-import type { Game_Enemy } from "./Game_Enemy";
+import type { Game_CharacterBase } from "./Game_CharacterBase";
 
 /**
  * The game object class for temporary data that is not included in save data.
@@ -9,12 +8,12 @@ class Game_Temp {
   _isPlaytest!: boolean;
   _destinationX!: number | null;
   _destinationY!: number | null;
-  _touchTarget!: Game_Actor | Game_Enemy | null;
+  _touchTarget!: unknown | null;
   _touchState!: string;
   _needsBattleRefresh!: boolean;
   _commonEventQueue!: number[];
-  _animationQueue!: { targets: Game_Actor | Game_Enemy[]; animationId: number; mirror: boolean }[];
-  _balloonQueue!: { target: Game_Actor | Game_Enemy; balloonId: number }[];
+  _animationQueue!: unknown[]
+  _balloonQueue!: unknown[];
   _lastActionData!: number[];
 
   constructor() {
@@ -56,7 +55,7 @@ class Game_Temp {
     return this._destinationY;
   }
 
-  setTouchState(target: Game_Actor | Game_Enemy, state: string) {
+  setTouchState(target: unknown, state: string) {
     this._touchTarget = target;
     this._touchState = state;
   }
@@ -107,7 +106,7 @@ class Game_Temp {
 
   // prettier-ignore
   requestAnimation(
-    targets: Game_Actor[] | Game_Enemy[],
+    targets: Game_CharacterBase[],
     animationId: number,
     mirror = false
   ) {

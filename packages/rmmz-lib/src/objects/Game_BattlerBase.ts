@@ -250,7 +250,9 @@ class Game_BattlerBase {
 
   resetStateCounts(stateId: number) {
     const state = $dataStates[stateId];
+    //@ts-expect-error to fix
     const variance = 1 + Math.max(state.maxTurns - state.minTurns, 0);
+    //@ts-expect-error to fix
     this._stateTurns[stateId] = state.minTurns + Math.randomInt(variance);
   }
 
@@ -352,6 +354,7 @@ class Game_BattlerBase {
 
   stateIcons() {
     return this.states()
+      //@ts-expect-error to fix
       .map((state) => state.iconIndex)
       .filter((iconIndex) => iconIndex > 0);
   }
@@ -388,6 +391,7 @@ class Game_BattlerBase {
   }
 
   allTraits() {
+    //@ts-expect-error to fix
     return this.traitObjects().reduce((r, obj) => r.concat(obj.traits), [] as MZ.Trait[]);
   }
 
@@ -706,7 +710,9 @@ class Game_BattlerBase {
 
   sortStates() {
     this._states.sort((a, b) => {
+      //@ts-expect-error to fix
       const p1 = $dataStates[a].priority;
+      //@ts-expect-error to fix
       const p2 = $dataStates[b].priority;
       if (p1 !== p2) {
         return p2 - p1;
@@ -716,6 +722,7 @@ class Game_BattlerBase {
   }
 
   restriction() {
+    //@ts-expect-error to fix
     const restrictions = this.states().map((state) => state.restriction);
     return Math.max(0, ...restrictions);
   }
@@ -738,7 +745,9 @@ class Game_BattlerBase {
 
   mostImportantStateText() {
     for (const state of this.states()) {
+      //@ts-expect-error to fix
       if (state.message3) {
+        //@ts-expect-error to fix
         return state.message3;
       }
     }
@@ -748,6 +757,7 @@ class Game_BattlerBase {
   stateMotionIndex() {
     const states = this.states();
     if (states.length > 0) {
+      //@ts-expect-error to fix
       return states[0].motion;
     } else {
       return 0;
@@ -757,6 +767,7 @@ class Game_BattlerBase {
   stateOverlayIndex() {
     const states = this.states();
     if (states.length > 0) {
+      //@ts-expect-error to fix
       return states[0].overlay;
     } else {
       return 0;
@@ -853,10 +864,12 @@ class Game_BattlerBase {
   }
 
   canAttack() {
+    //@ts-expect-error to fix
     return this.canUse($dataSkills[this.attackSkillId()]);
   }
 
   canGuard() {
+    //@ts-expect-error to fix
     return this.canUse($dataSkills[this.guardSkillId()]);
   }
 }

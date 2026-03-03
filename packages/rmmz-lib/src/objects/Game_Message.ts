@@ -1,7 +1,29 @@
+import { Utils } from "../core";
+
 /**
  * The game object class for the state of the message window that displays text or selections, etc.
  */
 class Game_Message {
+  _texts!: string[];
+  _choices!: string[];
+  _speakerName!: string;
+  _faceName!: string;
+  _faceIndex!: number;
+  _background!: number;
+  _positionType!: number;
+  _choiceDefaultType!: number;
+  _choiceCancelType!: number;
+  _choiceBackground!: number;
+  _choicePositionType!: number;
+  _numInputVariableId!: number;
+  _numInputMaxDigits!: number;
+  _itemChoiceVariableId!: number;
+  _itemChoiceItypeId!: number;
+  _scrollMode!: boolean;
+  _scrollSpeed!: number;
+  _scrollNoFast!: boolean;
+  _choiceCallback!: ((n: number) => void) | null;
+
   constructor() {
     this.clear();
   }
@@ -96,62 +118,62 @@ class Game_Message {
     return this._scrollNoFast;
   }
 
-  add(text) {
+  add(text: string) {
     this._texts.push(text);
   }
 
-  setSpeakerName(speakerName) {
+  setSpeakerName(speakerName: string) {
     this._speakerName = speakerName ? speakerName : "";
   }
 
-  setFaceImage(faceName, faceIndex) {
+  setFaceImage(faceName: string, faceIndex: number) {
     this._faceName = faceName;
     this._faceIndex = faceIndex;
   }
 
-  setBackground(background) {
+  setBackground(background: number) {
     this._background = background;
   }
 
-  setPositionType(positionType) {
+  setPositionType(positionType: number) {
     this._positionType = positionType;
   }
 
-  setChoices(choices, defaultType, cancelType) {
+  setChoices(choices: string[], defaultType: number, cancelType: number) {
     this._choices = choices;
     this._choiceDefaultType = defaultType;
     this._choiceCancelType = cancelType;
   }
 
-  setChoiceBackground(background) {
+  setChoiceBackground(background: number) {
     this._choiceBackground = background;
   }
 
-  setChoicePositionType(positionType) {
+  setChoicePositionType(positionType: number) {
     this._choicePositionType = positionType;
   }
 
-  setNumberInput(variableId, maxDigits) {
+  setNumberInput(variableId: number, maxDigits: number) {
     this._numInputVariableId = variableId;
     this._numInputMaxDigits = maxDigits;
   }
 
-  setItemChoice(variableId, itemType) {
+  setItemChoice(variableId: number, itemType: number) {
     this._itemChoiceVariableId = variableId;
     this._itemChoiceItypeId = itemType;
   }
 
-  setScroll(speed, noFast) {
+  setScroll(speed: number, noFast: boolean) {
     this._scrollMode = true;
     this._scrollSpeed = speed;
     this._scrollNoFast = noFast;
   }
 
-  setChoiceCallback(callback) {
+  setChoiceCallback(callback: (n: number) => void) {
     this._choiceCallback = callback;
   }
 
-  onChoice(n) {
+  onChoice(n: number) {
     if (this._choiceCallback) {
       this._choiceCallback(n);
       this._choiceCallback = null;
