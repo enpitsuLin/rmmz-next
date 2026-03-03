@@ -1,6 +1,11 @@
+import * as PIXI from "pixi.js";
+import { FPSCounter } from "./FPSCounter";
+import { Utils } from "./Utils";
+import { Video } from "./Video";
+
 /**
  * The static class that carries out graphics processing.
- *
+*
  * @namespace
  */
 export class Graphics {
@@ -8,59 +13,32 @@ export class Graphics {
     throw new Error("This is a static class");
   }
 
+  static _width = 0;
+  static _height = 0;
+  static _defaultScale = 1;
+  static _realScale = 1;
+  static _errorPrinter: HTMLDivElement | null = null;
+  static _tickHandler: ((deltaTime: number) => void) | null = null;
+  static _canvas: HTMLCanvasElement | null = null;
+  static _fpsCounter: FPSCounter | null = null;
+  static _loadingSpinner: HTMLDivElement | null = null;
+  static _stretchEnabled = false;
+  static _app: PIXI.Application | null = null;
+  static _effekseer: ReturnType<typeof effekseer.createContext> = null;
+  static _wasLoading = false;
   /**
-   * Initializes the graphics system.
-   *
-   * @returns {boolean} True if the graphics system is available.
+   * The total frame count of the game screen.
    */
-  static initialize() {
-    this._width = 0;
-    this._height = 0;
-    this._defaultScale = 1;
-    this._realScale = 1;
-    this._errorPrinter = null;
-    this._tickHandler = null;
-    this._canvas = null;
-    this._fpsCounter = null;
-    this._loadingSpinner = null;
-    this._stretchEnabled = this._defaultStretchMode();
-    this._app = null;
-    this._effekseer = null;
-    this._wasLoading = false;
+  static frameCount = 0;
 
-    /**
-     * The total frame count of the game screen.
-     *
-     * @type number
-     * @name Graphics.frameCount
-     */
-    this.frameCount = 0;
-
-    /**
-     * The width of the window display area.
-     *
-     * @type number
-     * @name Graphics.boxWidth
-     */
-    this.boxWidth = this._width;
-
-    /**
-     * The height of the window display area.
-     *
-     * @type number
-     * @name Graphics.boxHeight
-     */
-    this.boxHeight = this._height;
-
-    this._updateRealScale();
-    this._createAllElements();
-    this._disableContextMenu();
-    this._setupEventHandlers();
-    this._createPixiApp();
-    this._createEffekseerContext();
-
-    return !!this._app;
-  }
+  /**
+   * The width of the window display area.
+   */
+  static boxWidth = 0;
+  /**
+   * The height of the window display area.
+   */
+  static boxHeight = 0;
 
   /**
    * The PIXI.Application object.
@@ -84,106 +62,135 @@ export class Graphics {
     return this._effekseer;
   }
 
-  /**
-   * Register a handler for tick events.
-   *
-   * @param {function} handler - The listener function to be added for updates.
-   */
-  static setTickHandler(handler) {
-    this._tickHandler = handler;
+  static get width() {
+    return this._width;
+  }
+
+  static set width(value: number) {
+    if (this._width !== value) {
+      this._width = value;
+      this._updateAllElements();
+    }
+  }
+
+  static get height() {
+    return this._height;
+  }
+
+  static set height(value: number) {
+    if (this._height !== value) {
+      this._height = value;
+      this._updateAllElements();
+    }
+  }
+
+  static get defaultScale() {
+    return this._defaultScale;
+  }
+
+  static set defaultScale(value: number) {
+    if (this._defaultScale !== value) {
+      this._defaultScale = value;
+      this._updateAllElements();
+    }
   }
 
   /**
-   * Starts the game loop.
+   * Initializes the graphics system.
+   *
+   * @returns True if the graphics system is available.
    */
+  static initialize(): boolean {
+    this._width = 0;
+    this._height = 0;
+    this._defaultScale = 1;
+    this._realScale = 1;
+    this._errorPrinter = null;
+    this._tickHandler = null;
+    this._canvas = null;
+    this._fpsCounter = null;
+    this._loadingSpinner = null;
+    this._stretchEnabled = this._defaultStretchMode();
+    this._app = null;
+    this._effekseer = null;
+    this._wasLoading = false;
+
+    this.frameCount = 0;
+    this.boxWidth = this._width;
+    this.boxHeight = this._height;
+
+    this._updateRealScale();
+    this._createAllElements();
+    this._disableContextMenu();
+    this._setupEventHandlers();
+    this._createPixiApp();
+    this._createEffekseerContext();
+
+    return !!this._app;
+  }
+
+
+
+  static setTickHandler(handler: (deltaTime: number) => void) {
+    this._tickHandler = handler;
+  }
+
   static startGameLoop() {
     if (this._app) {
       this._app.start();
     }
   }
 
-  /**
-   * Stops the game loop.
-   */
   static stopGameLoop() {
     if (this._app) {
       this._app.stop();
     }
   }
 
-  /**
-   * Sets the stage to be rendered.
-   *
-   * @param {Stage} stage - The stage object to be rendered.
-   */
-  static setStage(stage) {
+  static setStage(stage: PIXI.Container) {
     if (this._app) {
       this._app.stage = stage;
     }
   }
 
-  /**
-   * Shows the loading spinner.
-   */
   static startLoading() {
     if (!document.getElementById("loadingSpinner")) {
-      document.body.appendChild(this._loadingSpinner);
+      document.body.appendChild(this._loadingSpinner!);
     }
   }
 
-  /**
-   * Erases the loading spinner.
-   *
-   * @returns {boolean} True if the loading spinner was active.
-   */
-  static endLoading() {
+  static endLoading(): boolean {
     if (document.getElementById("loadingSpinner")) {
-      document.body.removeChild(this._loadingSpinner);
+      document.body.removeChild(this._loadingSpinner!);
       return true;
     } else {
       return false;
     }
   }
 
-  /**
-   * Displays the error text to the screen.
-   *
-   * @param {string} name - The name of the error.
-   * @param {string} message - The message of the error.
-   * @param {Error} [error] - The error object.
-   */
-  static printError(name, message, error = null) {
+  static printError(name: string, message: string, error: Error | null = null) {
     if (!this._errorPrinter) {
       this._createErrorPrinter();
     }
-    this._errorPrinter.innerHTML = this._makeErrorHtml(name, message, error);
+    this._errorPrinter!.innerHTML = this._makeErrorHtml(name, message, error);
     this._wasLoading = this.endLoading();
     this._applyCanvasFilter();
   }
 
-  /**
-   * Displays a button to try to reload resources.
-   *
-   * @param {function} retry - The callback function to be called when the button
-   *                           is pressed.
-   */
-  static showRetryButton(retry) {
+  static showRetryButton(retry: () => void) {
     const button = document.createElement("button");
     button.id = "retryButton";
     button.innerHTML = "Retry";
     // [Note] stopPropagation() is required for iOS Safari.
     button.ontouchstart = (e) => e.stopPropagation();
     button.onclick = () => {
-      Graphics.eraseError();
+      this.eraseError();
       retry();
     };
-    this._errorPrinter.appendChild(button);
+    this._errorPrinter!.appendChild(button);
     button.focus();
   }
 
-  /**
-   * Erases the loading error text.
-   */
   static eraseError() {
     if (this._errorPrinter) {
       this._errorPrinter.innerHTML = this._makeErrorHtml();
@@ -194,14 +201,7 @@ export class Graphics {
     this._clearCanvasFilter();
   }
 
-  /**
-   * Converts an x coordinate on the page to the corresponding
-   * x coordinate on the canvas area.
-   *
-   * @param {number} x - The x coordinate on the page to be converted.
-   * @returns {number} The x coordinate on the canvas area.
-   */
-  static pageToCanvasX(x) {
+  static pageToCanvasX(x: number): number {
     if (this._canvas) {
       const left = this._canvas.offsetLeft;
       return Math.round((x - left) / this._realScale);
@@ -210,14 +210,7 @@ export class Graphics {
     }
   }
 
-  /**
-   * Converts a y coordinate on the page to the corresponding
-   * y coordinate on the canvas area.
-   *
-   * @param {number} y - The y coordinate on the page to be converted.
-   * @returns {number} The y coordinate on the canvas area.
-   */
-  static pageToCanvasY(y) {
+  static pageToCanvasY(y: number): number {
     if (this._canvas) {
       const top = this._canvas.offsetTop;
       return Math.round((y - top) / this._realScale);
@@ -226,94 +219,26 @@ export class Graphics {
     }
   }
 
-  /**
-   * Checks whether the specified point is inside the game canvas area.
-   *
-   * @param {number} x - The x coordinate on the canvas area.
-   * @param {number} y - The y coordinate on the canvas area.
-   * @returns {boolean} True if the specified point is inside the game canvas area.
-   */
-  static isInsideCanvas(x, y) {
+  static isInsideCanvas(x: number, y: number): boolean {
     return x >= 0 && x < this._width && y >= 0 && y < this._height;
   }
 
-  /**
-   * Shows the game screen.
-   */
   static showScreen() {
-    this._canvas.style.opacity = 1;
+    this._canvas!.style.opacity = "1";
   }
 
-  /**
-   * Hides the game screen.
-   */
   static hideScreen() {
-    this._canvas.style.opacity = 0;
+    this._canvas!.style.opacity = "0";
   }
 
-  /**
-   * Changes the size of the game screen.
-   *
-   * @param {number} width - The width of the game screen.
-   * @param {number} height - The height of the game screen.
-   */
-  static resize(width, height) {
+  static resize(width: number, height: number) {
     this._width = width;
     this._height = height;
-    this._app.renderer.resize(width, height);
+    this._app!.renderer.resize(width, height);
     this._updateAllElements();
   }
 
-  /**
-   * The width of the game screen.
-   *
-   * @type number
-   * @name Graphics.width
-   */
-  static get width() {
-    return this._width;
-  }
-
-  static set width(value) {
-    if (this._width !== value) {
-      this._width = value;
-      this._updateAllElements();
-    }
-  }
-
-  /**
-   * The height of the game screen.
-   *
-   * @type number
-   * @name Graphics.height
-   */
-  static get height() {
-    return this._height;
-  }
-
-  static set height(value) {
-    if (this._height !== value) {
-      this._height = value;
-      this._updateAllElements();
-    }
-  }
-
-  /**
-   * The default zoom scale of the game screen.
-   *
-   * @type number
-   * @name Graphics.defaultScale
-   */
-  static get defaultScale() {
-    return this._defaultScale;
-  }
-
-  static set defaultScale(value) {
-    if (this._defaultScale !== value) {
-      this._defaultScale = value;
-      this._updateAllElements();
-    }
-  }
+  // Private methods
 
   static _createAllElements() {
     this._createErrorPrinter();
@@ -329,19 +254,19 @@ export class Graphics {
     this._updateVideo();
   }
 
-  static _onTick(deltaTime) {
-    this._fpsCounter.startTick();
+  static _onTick(deltaTime: number) {
+    this._fpsCounter!.startTick();
     if (this._tickHandler) {
       this._tickHandler(deltaTime);
     }
     if (this._canRender()) {
-      this._app.render();
+      this._app!.render();
     }
-    this._fpsCounter.endTick();
+    this._fpsCounter!.endTick();
   }
 
-  static _canRender() {
-    return !!this._app.stage;
+  static _canRender(): boolean {
+    return !!this._app!.stage;
   }
 
   static _updateRealScale() {
@@ -355,7 +280,7 @@ export class Graphics {
     }
   }
 
-  static _stretchWidth() {
+  static _stretchWidth(): number {
     if (Utils.isMobileDevice()) {
       return document.documentElement.clientWidth;
     } else {
@@ -363,10 +288,10 @@ export class Graphics {
     }
   }
 
-  static _stretchHeight() {
+  static _stretchHeight(): number {
     if (Utils.isMobileDevice()) {
       // [Note] Mobile browsers often have special operations at the top and
-      // bottom of the screen.
+      //   bottom of the screen.
       const rate = Utils.isLocal() ? 1.0 : 0.9;
       return document.documentElement.clientHeight * rate;
     } else {
@@ -374,7 +299,11 @@ export class Graphics {
     }
   }
 
-  static _makeErrorHtml(name, message /*, error*/) {
+  static _makeErrorHtml(
+    name?: string,
+    message?: string,
+    _error?: Error | null
+  ): string {
     const nameDiv = document.createElement("div");
     const messageDiv = document.createElement("div");
     nameDiv.id = "errorName";
@@ -384,7 +313,7 @@ export class Graphics {
     return nameDiv.outerHTML + messageDiv.outerHTML;
   }
 
-  static _defaultStretchMode() {
+  static _defaultStretchMode(): boolean {
     return Utils.isNwjs() || Utils.isMobileDevice();
   }
 
@@ -398,8 +327,8 @@ export class Graphics {
   static _updateErrorPrinter() {
     const width = this._width * 0.8 * this._realScale;
     const height = 100 * this._realScale;
-    this._errorPrinter.style.width = width + "px";
-    this._errorPrinter.style.height = height + "px";
+    this._errorPrinter!.style.width = width + "px";
+    this._errorPrinter!.style.height = height + "px";
   }
 
   static _createCanvas() {
@@ -410,10 +339,10 @@ export class Graphics {
   }
 
   static _updateCanvas() {
-    this._canvas.width = this._width;
-    this._canvas.height = this._height;
-    this._canvas.style.zIndex = 1;
-    this._centerElement(this._canvas);
+    this._canvas!.width = this._width;
+    this._canvas!.height = this._height;
+    this._canvas!.style.zIndex = "1";
+    this._centerElement(this._canvas!);
   }
 
   static _updateVideo() {
@@ -435,15 +364,15 @@ export class Graphics {
     this._fpsCounter = new FPSCounter();
   }
 
-  static _centerElement(element) {
+  static _centerElement(element: HTMLCanvasElement) {
     const width = element.width * this._realScale;
     const height = element.height * this._realScale;
     element.style.position = "absolute";
     element.style.margin = "auto";
-    element.style.top = 0;
-    element.style.left = 0;
-    element.style.right = 0;
-    element.style.bottom = 0;
+    element.style.top = "0";
+    element.style.left = "0";
+    element.style.right = "0";
+    element.style.bottom = "0";
     element.style.width = width + "px";
     element.style.height = height + "px";
   }
@@ -452,13 +381,13 @@ export class Graphics {
     const elements = document.body.getElementsByTagName("*");
     const oncontextmenu = () => false;
     for (const element of elements) {
-      element.oncontextmenu = oncontextmenu;
+      (element as HTMLElement).oncontextmenu = oncontextmenu;
     }
   }
 
   static _applyCanvasFilter() {
     if (this._canvas) {
-      this._canvas.style.opacity = 0.5;
+      this._canvas.style.opacity = "0.5";
       this._canvas.style.filter = "blur(8px)";
       this._canvas.style.webkitFilter = "blur(8px)";
     }
@@ -466,7 +395,7 @@ export class Graphics {
 
   static _clearCanvasFilter() {
     if (this._canvas) {
-      this._canvas.style.opacity = 1;
+      this._canvas.style.opacity = "1";
       this._canvas.style.filter = "";
       this._canvas.style.webkitFilter = "";
     }
@@ -481,7 +410,7 @@ export class Graphics {
     this._updateAllElements();
   }
 
-  static _onKeyDown(event) {
+  static _onKeyDown(event: KeyboardEvent) {
     if (!event.ctrlKey && !event.altKey) {
       switch (event.keyCode) {
         case 113: // F2
@@ -501,7 +430,7 @@ export class Graphics {
   }
 
   static _switchFPSCounter() {
-    this._fpsCounter.switchMode();
+    this._fpsCounter!.switchMode();
   }
 
   static _switchStretchMode() {
@@ -517,32 +446,32 @@ export class Graphics {
     }
   }
 
-  static _isFullScreen() {
-    return (
-      document.fullScreenElement ||
-      document.mozFullScreen ||
-      document.webkitFullscreenElement
+  static _isFullScreen(): boolean {
+    return !!(
+      (document as any).fullScreenElement ||
+      (document as any).mozFullScreen ||
+      (document as any).webkitFullscreenElement
     );
   }
 
   static _requestFullScreen() {
-    const element = document.body;
+    const element = document.body as any;
     if (element.requestFullScreen) {
       element.requestFullScreen();
     } else if (element.mozRequestFullScreen) {
       element.mozRequestFullScreen();
     } else if (element.webkitRequestFullScreen) {
-      element.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+      element.webkitRequestFullScreen((Element as any).ALLOW_KEYBOARD_INPUT);
     }
   }
 
   static _cancelFullScreen() {
-    if (document.cancelFullScreen) {
-      document.cancelFullScreen();
-    } else if (document.mozCancelFullScreen) {
-      document.mozCancelFullScreen();
-    } else if (document.webkitCancelFullScreen) {
-      document.webkitCancelFullScreen();
+    if ((document as any).cancelFullScreen) {
+      (document as any).cancelFullScreen();
+    } else if ((document as any).mozCancelFullScreen) {
+      (document as any).mozCancelFullScreen();
+    } else if ((document as any).webkitCancelFullScreen) {
+      (document as any).webkitCancelFullScreen();
     }
   }
 
@@ -550,7 +479,7 @@ export class Graphics {
     try {
       this._setupPixi();
       this._app = new PIXI.Application({
-        view: this._canvas,
+        view: this._canvas!,
         autoStart: false,
       });
       this._app.ticker.remove(this._app.render, this._app);
@@ -561,7 +490,7 @@ export class Graphics {
   }
 
   static _setupPixi() {
-    PIXI.settings.RENDER_OPTIONS.hello = false;
+    PIXI.utils.skipHello();
     PIXI.TextureGCSystem.defaultMaxIdle = 600;
   }
 
@@ -570,7 +499,7 @@ export class Graphics {
       try {
         this._effekseer = effekseer.createContext();
         if (this._effekseer) {
-          this._effekseer.init(this._app.renderer.gl);
+          this._effekseer.init((this._app.renderer as any).gl);
           this._effekseer.setRestorationOfStatesFlag(false);
         }
       } catch (e) {

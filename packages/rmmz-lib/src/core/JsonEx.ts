@@ -19,20 +19,20 @@ export class JsonEx {
   /**
    * Converts an object to a JSON string with object information.
    *
-   * @param {object} object - The object to be converted.
-   * @returns {string} The JSON string.
+   * @param object - The object to be converted.
+   * @returns The JSON string.
  */
-  static stringify(object) {
+  static stringify(object: any): string {
     return JSON.stringify(this._encode(object, 0));
   }
 
   /**
    * Parses a JSON string and reconstructs the corresponding object.
    *
-   * @param {string} json - The JSON string.
-   * @returns {object} The reconstructed object.
+   * @param json - The JSON string.
+   * @returns The reconstructed object.
    */
-  static parse(json) {
+  static parse(json: string) {
     return this._decode(JSON.parse(json));
   }
 
@@ -42,11 +42,11 @@ export class JsonEx {
    * @param {object} object - The object to be copied.
    * @returns {object} The copied object.
    */
-  static makeDeepCopy(object) {
+  static makeDeepCopy<T extends object>(object: T): T {
     return this.parse(this.stringify(object));
   }
 
-  static _encode(value, depth) {
+  static _encode(value: any, depth: number): any {
     // [Note] The handling code for circular references in certain versions of
     //   MV has been removed because it was too complicated and expensive.
     if (depth >= this.maxDepth) {
@@ -65,13 +65,13 @@ export class JsonEx {
     return value;
   }
 
-  static _decode(value) {
+  static _decode(value: any): any {
     const type = Object.prototype.toString.call(value);
     if (type === "[object Object]" || type === "[object Array]") {
       if (value["@"]) {
         const constructor = window[value["@"]];
         if (constructor) {
-          Object.setPrototypeOf(value, constructor.prototype);
+          Object.setPrototypeOf(value, (constructor as any).prototype);
         }
       }
       for (const key of Object.keys(value)) {

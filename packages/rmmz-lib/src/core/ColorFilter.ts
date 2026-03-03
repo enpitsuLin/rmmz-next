@@ -9,7 +9,7 @@ import * as PIXI from 'pixi.js'
 export class ColorFilter extends PIXI.Filter {
   constructor() {
     const _fragmentSrc = ColorFilter.prototype._fragmentSrc();
-    super(null, _fragmentSrc);
+    super(undefined, _fragmentSrc);
     this.uniforms.hue = 0;
     this.uniforms.colorTone = [0, 0, 0, 0];
     this.uniforms.blendColor = [0, 0, 0, 0];
@@ -21,7 +21,7 @@ export class ColorFilter extends PIXI.Filter {
    *
    * @param {number} hue - The hue value (-360, 360).
    */
-  setHue(hue) {
+  setHue(hue: number) {
     this.uniforms.hue = Number(hue);
   }
 
@@ -30,7 +30,7 @@ export class ColorFilter extends PIXI.Filter {
    *
    * @param {array} tone - The color tone [r, g, b, gray].
    */
-  setColorTone(tone) {
+  setColorTone(tone: [r: number, g: number, b: number, gray: number][]) {
     if (!(tone instanceof Array)) {
       throw new Error("Argument must be an array");
     }
@@ -42,7 +42,7 @@ export class ColorFilter extends PIXI.Filter {
    *
    * @param {array} color - The blend color [r, g, b, a].
    */
-  setBlendColor(color) {
+  setBlendColor(color: [r: number, g: number, b: number, a: number][]) {
     if (!(color instanceof Array)) {
       throw new Error("Argument must be an array");
     }
@@ -54,7 +54,7 @@ export class ColorFilter extends PIXI.Filter {
    *
    * @param {number} brightness - The brightness (0 to 255).
    */
-  setBrightness(brightness) {
+  setBrightness(brightness: number) {
     this.uniforms.brightness = Number(brightness);
   }
 

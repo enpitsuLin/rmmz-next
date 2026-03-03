@@ -6,7 +6,6 @@
   "description": "A simple example library built by tsdown",
   "exports": {
     ".": "./dist/index.mjs",
-    "./shim": "./dist/shim.mjs",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.mjs",
