@@ -1,3 +1,5 @@
+import { Game_BattlerBase } from "./Game_BattlerBase";
+
 /**
  * The superclass of Game_Actor and Game_Enemy. 
  * 

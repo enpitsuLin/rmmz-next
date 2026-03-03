@@ -1,32 +1,41 @@
+import type {
+  Game_Actors,
+  Game_Map,
+  Game_Message, Game_Party, Game_Player, Game_Screen, Game_SelfSwitches, Game_Switches, Game_System, Game_Temp, Game_Timer, Game_Troop, Game_Variables
+} from './objects'
+import type { DataActor, DataItem } from './types/database'
+
 declare global {
-  declare var $dataActors: any
-  declare var $dataClasses: any
-  declare var $dataSkills: any
-  declare var $dataItems: any
-  declare var $dataWeapons: any
-  declare var $dataArmors: any
-  declare var $dataEnemies: any
-  declare var $dataTroops: any
-  declare var $dataStates: any
-  declare var $dataAnimations: any
-  declare var $dataTilesets: any
-  declare var $dataCommonEvents: any
-  declare var $dataSystem: any
-  declare var $dataMapInfos: any
-  declare var $dataMap: any
-  declare var $gameTemp: any
-  declare var $gameSystem: any
-  declare var $gameScreen: any
-  declare var $gameTimer: any
-  declare var $gameMessage: any
-  declare var $gameSwitches: any
-  declare var $gameVariables: any
-  declare var $gameSelfSwitches: any
-  declare var $gameActors: any
-  declare var $gameParty: any
-  declare var $gameTroop: any
-  declare var $gameMap: any
-  declare var $gamePlayer: any
+  declare var $dataActors: DataActor[]
+  declare var $dataClasses: unknown[]
+  declare var $dataSkills: DataItem[]
+  declare var $dataItems: DataItem[]
+  declare var $dataWeapons: unknown[]
+  declare var $dataArmors: unknown[]
+  declare var $dataEnemies: unknown[]
+  declare var $dataTroops: unknown[]
+  declare var $dataStates: unknown[]
+  declare var $dataAnimations: unknown[]
+  declare var $dataTilesets: unknown[]
+  declare var $dataCommonEvents: unknown[]
+  declare var $dataSystem: unknown[]
+  declare var $dataMapInfos: unknown[]
+  declare var $dataMap: unknown[]
+
+  declare var $gameTemp: Game_Temp
+  declare var $gameSystem: Game_System
+  declare var $gameScreen: Game_Screen
+  declare var $gameTimer: Game_Timer
+  declare var $gameMessage: Game_Message
+  declare var $gameSwitches: Game_Switches
+  declare var $gameVariables: Game_Variables
+  declare var $gameSelfSwitches: Game_SelfSwitches
+  declare var $gameActors: Game_Actors
+  declare var $gameParty: Game_Party
+  declare var $gameTroop: Game_Troop
+  declare var $gameMap: Game_Map
+  declare var $gamePlayer: Game_Player
+
   declare var $testEvent: any
 }
 

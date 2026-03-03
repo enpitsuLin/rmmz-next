@@ -1,10 +1,16 @@
+import { DataManager } from "../managers/DataManager";
+import type { DataItem } from "../types/database";
+
 /**
  * The game object class for handling skills, items, weapons, and armor. 
  * 
  * It is required because save data should not include the database object itself.
  */
 class Game_Item {
-  constructor(item) {
+  private _dataClass: "skill" | "item" | "weapon" | "armor" | "";
+  private _itemId: number;
+
+  constructor(item?: DataItem) {
     this._dataClass = "";
     this._itemId = 0;
     if (item) {
@@ -58,7 +64,7 @@ class Game_Item {
     }
   }
 
-  setObject(item) {
+  setObject(item: DataItem) {
     if (DataManager.isSkill(item)) {
       this._dataClass = "skill";
     } else if (DataManager.isItem(item)) {
@@ -73,7 +79,7 @@ class Game_Item {
     this._itemId = item ? item.id : 0;
   }
 
-  setEquip(isWeapon, itemId) {
+  setEquip(isWeapon: boolean, itemId: number) {
     this._dataClass = isWeapon ? "weapon" : "armor";
     this._itemId = itemId;
   }

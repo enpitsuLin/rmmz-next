@@ -1,3 +1,5 @@
+import { Game_Item } from "./Game_Item";
+
 /**
  * The game object class for a battle action.
  */
@@ -550,9 +552,9 @@ class Game_Action {
   evalDamageFormula(target) {
     try {
       const item = this.item();
-      const a = this.subject(); // eslint-disable-line no-unused-vars
-      const b = target; // eslint-disable-line no-unused-vars
-      const v = $gameVariables._data; // eslint-disable-line no-unused-vars
+      const a = this.subject();
+      const b = target;
+      const v = $gameVariables._data;
       const sign = [3, 4].includes(item.damage.type) ? -1 : 1;
       const value = Math.max(eval(item.damage.formula), 0) * sign;
       return isNaN(value) ? 0 : value;

@@ -2,7 +2,10 @@
 // DataManager
 //
 
-import { Utils } from "../core";
+import { Graphics, Utils } from "../core";
+import { Game_Actors, Game_Map, Game_Message, Game_Party, Game_Player, Game_Screen, Game_SelfSwitches, Game_Switches, Game_System, Game_Temp, Game_Timer, Game_Troop, Game_Variables } from "../objects";
+import type { DataItem } from "../types/database";
+import { BattleManager } from "./BattleManager";
 import { StorageManager } from "./StorageManager";
 
 // The static class that manages the database and game objects.
@@ -224,19 +227,19 @@ export class DataManager {
     return Utils.isOptionValid("tskip");
   }
 
-  static isSkill(a) {
+  static isSkill(a: DataItem) {
     return a && $dataSkills.includes(a);
   }
 
-  static isItem(a) {
+  static isItem(a: DataItem) {
     return a && $dataItems.includes(a);
   }
 
-  static isWeapon(a) {
+  static isWeapon(a: DataItem) {
     return a && $dataWeapons.includes(a);
   }
 
-  static isArmor(a) {
+  static isArmor(a: DataItem) {
     return a && $dataArmors.includes(a);
   }
 

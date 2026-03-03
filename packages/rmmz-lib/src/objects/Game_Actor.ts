@@ -1,8 +1,31 @@
+import { DataManager } from "../managers/DataManager";
+import { Game_Battler } from "./Game_Battler";
+import type { Game_Item } from "./Game_Item";
+
 /**
  * The game object class for an actor.
  */
 class Game_Actor extends Game_Battler {
-  constructor(actorId) {
+  private _actorId?: number;
+  private _name?: string;
+  private _nickname?: string;
+  private _profile?: string;
+  private _classId?: number;
+  private _level?: number;
+  private _characterName?: string;
+  private _characterIndex?: number;
+  private _faceName?: string;
+  private _faceIndex?: number;
+  private _battlerName?: string;
+  private _exp?: Record<number, number>;
+  private _skills?: number[];
+  private _equips?: Game_Item[];
+  private _actionInputIndex?: number;
+  private _lastMenuSkill?: Game_Item;
+  private _lastBattleSkill?: Game_Item;
+  private _lastCommandSymbol?: string;
+
+  constructor(actorId?: number) {
     super();
     if (actorId) this.setup(actorId);
   }
@@ -33,7 +56,7 @@ class Game_Actor extends Game_Battler {
     this._lastCommandSymbol = "";
   }
 
-  setup(actorId) {
+  setup(actorId: number) {
     const actor = $dataActors[actorId];
     this._actorId = actorId;
     this._name = actor.name;
@@ -61,7 +84,7 @@ class Game_Actor extends Game_Battler {
     return this._name;
   }
 
-  setName(name) {
+  setName(name: string) {
     this._name = name;
   }
 
@@ -69,7 +92,7 @@ class Game_Actor extends Game_Battler {
     return this._nickname;
   }
 
-  setNickname(nickname) {
+  setNickname(nickname: string) {
     this._nickname = nickname;
   }
 
@@ -77,7 +100,7 @@ class Game_Actor extends Game_Battler {
     return this._profile;
   }
 
-  setProfile(profile) {
+  setProfile(profile: string) {
     this._profile = profile;
   }
 
@@ -125,7 +148,7 @@ class Game_Actor extends Game_Battler {
     this._battlerName = actor.battlerName;
   }
 
-  expForLevel(level) {
+  expForLevel(level: number) {
     const c = this.currentClass();
     const basis = c.expParams[0];
     const extra = c.expParams[1];
@@ -133,8 +156,8 @@ class Game_Actor extends Game_Battler {
     const acc_b = c.expParams[3];
     return Math.round(
       (basis * Math.pow(level - 1, 0.9 + acc_a / 250) * level * (level + 1)) /
-        (6 + Math.pow(level, 2) / 50 / acc_b) +
-        (level - 1) * extra
+      (6 + Math.pow(level, 2) / 50 / acc_b) +
+      (level - 1) * extra
     );
   }
 
@@ -175,7 +198,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  initEquips(equips) {
+  initEquips(equips: number[]) {
     const slots = this.equipSlots();
     const maxSlots = slots.length;
     this._equips = [];
@@ -276,7 +299,7 @@ class Game_Actor extends Game_Battler {
   }
 
   releaseUnequippableItems(forcing) {
-    for (;;) {
+    for (; ;) {
       const slots = this.equipSlots();
       const equips = this.equips();
       let changed = false;
