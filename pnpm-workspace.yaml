@@ -1,6 +1,7 @@
 packages:
+  - example
   - packages/*
 
 catalogs:
   dev:
-    vite: 8.0.0-beta.16
+    vite: 7.3.1

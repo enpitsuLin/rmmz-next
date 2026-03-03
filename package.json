@@ -1,25 +1,5 @@
 {
-  "name": "vite-project",
+  "name": "rmmz-lib-monorepo",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev:server": "vite",
-    "dev": "node scripts/dev.js",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "@types/nw.js": "^0.92.0",
-    "cac": "^7.0.0",
-    "vite": "catalog:dev"
-  },
-  "pnpm": {
-    "overrides": {
-      "vite": "^8.0.0-beta.16"
-    }
-  },
-  "dependencies": {
-    "pixi.js": "7.4.3"
-  }
+  "type": "module"
 }
