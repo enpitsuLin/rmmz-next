@@ -4,7 +4,7 @@
 
 import { Graphics, Utils } from "../core";
 import { Game_Actors, Game_Map, Game_Message, Game_Party, Game_Player, Game_Screen, Game_SelfSwitches, Game_Switches, Game_System, Game_Temp, Game_Timer, Game_Troop, Game_Variables } from "../objects";
-import type { DataItem } from "../types/database";
+import type { DataItem, DataMap } from "../types/database";
 import { BattleManager } from "./BattleManager";
 import { StorageManager } from "./StorageManager";
 
@@ -147,7 +147,7 @@ export class DataManager {
     return true;
   }
 
-  static loadMapData(mapId) {
+  static loadMapData(mapId: number) {
     if (mapId > 0) {
       const e = "Map%1.json".format(mapId.padZero(3));
       this.loadDataFile("$dataMap", e);
@@ -157,7 +157,7 @@ export class DataManager {
   }
 
   static makeEmptyMap() {
-    $dataMap = {};
+    $dataMap = {} as DataMap;
     $dataMap.data = [];
     $dataMap.events = [];
     $dataMap.width = 100;

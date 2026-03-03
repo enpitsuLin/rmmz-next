@@ -2,26 +2,21 @@
  * The game object class for switches.
  */
 class Game_Switches {
-  /**
-   * @param { Game_Switches } [gameSwitches]
-   */
-  constructor(gameSwitches) {
-    if (gameSwitches) {
-      this._data = gameSwitches._data.clone();
-    } else {
-      this.clear();
-    }
+  _data!: boolean[]
+
+  constructor() {
+    this.clear();
   }
 
   clear() {
     this._data = [];
   }
 
-  value(switchId) {
+  value(switchId: number) {
     return !!this._data[switchId];
   }
 
-  setValue(switchId, value) {
+  setValue(switchId: number, value: boolean) {
     if (switchId > 0 && switchId < $dataSystem.switches.length) {
       this._data[switchId] = value;
       this.onChange();

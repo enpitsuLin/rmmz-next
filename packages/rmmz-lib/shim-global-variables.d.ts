@@ -1,7 +1,17 @@
 import type {
   Game_Actors,
   Game_Map,
-  Game_Message, Game_Party, Game_Player, Game_Screen, Game_SelfSwitches, Game_Switches, Game_System, Game_Temp, Game_Timer, Game_Troop, Game_Variables
+  Game_Message,
+  Game_Party,
+  Game_Player,
+  Game_Screen,
+  Game_SelfSwitches,
+  Game_Switches,
+  Game_System,
+  Game_Temp,
+  Game_Timer,
+  Game_Troop,
+  Game_Variables
 } from './src'
 import type { DataActor, DataItem, DataSystem, DataMap } from './src'
 

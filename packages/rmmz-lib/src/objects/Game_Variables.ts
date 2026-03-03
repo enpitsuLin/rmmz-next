@@ -2,26 +2,22 @@
  * The game object class for variables.
  */
 class Game_Variables {
-  /**
-   * @param { Game_Variables } [gameVariables]
-   */
-  constructor(gameVariables) {
-    if (gameVariables) {
-      this._data = gameVariables._data.clone();
-    } else {
-      this.clear();
-    }
+  _data!: number[]
+
+
+  constructor() {
+    this.clear()
   }
 
   clear() {
     this._data = [];
   }
 
-  value(variableId) {
+  value(variableId: number) {
     return this._data[variableId] || 0;
   }
 
-  setValue(variableId, value) {
+  setValue(variableId: number, value: number) {
     if (variableId > 0 && variableId < $dataSystem.variables.length) {
       if (typeof value === "number") {
         value = Math.floor(value);

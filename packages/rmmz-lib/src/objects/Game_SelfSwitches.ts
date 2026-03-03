@@ -2,29 +2,21 @@
  * The game object class for self switches.
  */
 class Game_SelfSwitches {
+  _data!: Record<string, true>
 
-  /**
-   * @param { Game_SelfSwitches } [gameSelfSwitches]
-   */
-  constructor(gameSelfSwitches) {
-    if (gameSelfSwitches) {
-      this._data = {
-        ...gameSelfSwitches._data
-      };
-    } else {
-      this.clear();
-    }
+  constructor() {
+    this.clear();
   }
 
   clear() {
     this._data = {};
   }
 
-  value(key) {
+  value(key: string) {
     return !!this._data[key];
   }
 
-  setValue(key, value) {
+  setValue(key: string, value: boolean) {
     if (value) {
       this._data[key] = true;
     } else {
