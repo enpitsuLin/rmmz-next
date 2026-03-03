@@ -10,8 +10,8 @@ declare global {
   declare var $dataClasses: unknown[]
   declare var $dataSkills: DataItem[]
   declare var $dataItems: DataItem[]
-  declare var $dataWeapons: unknown
-  declare var $dataArmors: unknown
+  declare var $dataWeapons: DataItem[]
+  declare var $dataArmors: DataItem[]
   declare var $dataEnemies: unknown
   declare var $dataTroops: unknown
   declare var $dataStates: unknown
