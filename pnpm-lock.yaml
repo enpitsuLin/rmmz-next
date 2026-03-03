@@ -9,6 +9,10 @@ catalogs:
     vite:
       specifier: 7.3.1
       version: 7.3.1
+  types:
+    '@types/nw.js':
+      specifier: ^0.92.0
+      version: 0.92.0
 
 importers:
 
@@ -24,7 +28,7 @@ importers:
         version: link:../packages/rmmz-lib
     devDependencies:
       '@types/nw.js':
-        specifier: ^0.92.0
+        specifier: catalog:types
         version: 0.92.0
       cac:
         specifier: ^7.0.0
@@ -39,6 +43,9 @@ importers:
         specifier: 7.4.3
         version: 7.4.3
     devDependencies:
+      '@types/nw.js':
+        specifier: catalog:types
+        version: 0.92.0
       tsdown:
         specifier: ^0.18.1
         version: 0.18.4(typescript@5.9.3)

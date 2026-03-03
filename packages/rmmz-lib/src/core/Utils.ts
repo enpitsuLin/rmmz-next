@@ -32,7 +32,7 @@ export class Utils {
    * @returns {boolean} True if the current version is greater than or equal
    *                    to the given version.
    */
-  static checkRMVersion(version) {
+  static checkRMVersion(version: string) {
     const array1 = this.RPGMAKER_VERSION.split(".");
     const array2 = String(version).split(".");
     for (let i = 0; i < array1.length; i++) {
@@ -53,7 +53,7 @@ export class Utils {
    * @param {string} name - The option name.
    * @returns {boolean} True if the option is in the query string.
    */
-  static isOptionValid(name) {
+  static isOptionValid(name: string) {
     const args = location.search.slice(1);
     if (args.split("&").includes(name)) {
       return true;

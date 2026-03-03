@@ -17,7 +17,7 @@
     "rmmz-lib": "workspace:*"
   },
   "devDependencies": {
-    "@types/nw.js": "^0.92.0",
+    "@types/nw.js": "catalog:types",
     "cac": "^7.0.0",
     "vite": "catalog:dev"
   }
