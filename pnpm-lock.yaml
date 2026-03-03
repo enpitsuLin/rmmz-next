@@ -26,6 +26,10 @@ importers:
         version: 8.0.0-beta.16(@types/node@25.3.3)
 
   packages/rmmz-core:
+    dependencies:
+      pixi.js:
+        specifier: 7.4.3
+        version: 7.4.3
     devDependencies:
       tsdown:
         specifier: ^0.18.1
@@ -33,6 +37,9 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      vite:
+        specifier: ^8.0.0-beta.16
+        version: 8.0.0-beta.16(@types/node@25.3.3)
 
 packages:
 
