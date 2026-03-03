@@ -1,17 +1,22 @@
+import { BattleManager } from "../managers/BattleManager";
+
 /**
  * The game object class for the timer.
  */
 class Game_Timer {
 
+  private _frames: number;
+  private _working: boolean;
+
   /**
    * @param { Game_Timer } [gameTimer]
    */
-  constructor(gameTimer) {
+  constructor(gameTimer?: Game_Timer) {
     this._frames = gameTimer?._frames ?? 0;
-    this._working = gameTimer?._frames ?? false;
+    this._working = gameTimer?._frames ? true : false;
   }
 
-  update(sceneActive) {
+  update(sceneActive: boolean) {
     if (sceneActive && this._working && this._frames > 0) {
       this._frames--;
       if (this._frames === 0) {
@@ -20,7 +25,7 @@ class Game_Timer {
     }
   }
 
-  start(count) {
+  start(count: number) {
     this._frames = count;
     this._working = true;
   }
