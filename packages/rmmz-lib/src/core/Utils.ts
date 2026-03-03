@@ -4,6 +4,13 @@
  * @namespace
  */
 export class Utils {
+  static _audioElement: HTMLAudioElement | null = null;
+  static _videoElement: HTMLVideoElement | null = null;
+
+  static _hasEncryptedImages: boolean = false;
+  static _hasEncryptedAudio: boolean = false;
+  static _encryptionKey: string = "";
+
   constructor() {
     throw new Error("This is a static class");
   }
@@ -136,7 +143,7 @@ export class Utils {
    * @returns {boolean} True if the browser supports Web Audio API.
    */
   static canUseWebAudioAPI() {
-    return !!(window.AudioContext || window.webkitAudioContext);
+    return !!(window.AudioContext || (window as any).webkitAudioContext);
   }
 
   /**
@@ -155,7 +162,7 @@ export class Utils {
    */
   static canUseIndexedDB() {
     return !!(
-      window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB
+      window.indexedDB || (window as any).mozIndexedDB || (window as any).webkitIndexedDB
     );
   }
 
@@ -195,7 +202,7 @@ export class Utils {
    * @param {string} str - The input string.
    * @returns {string} Encoded string.
    */
-  static encodeURI(str) {
+  static encodeURI(str: string) {
     return encodeURIComponent(str).replace(/%2F/g, "/");
   }
 
@@ -205,7 +212,7 @@ export class Utils {
    * @param {string} filename - The filename with subfolders.
    * @returns {string} The filename without subfolders.
    */
-  static extractFileName(filename) {
+  static extractFileName(filename: string) {
     return filename.split("/").pop();
   }
 
@@ -215,8 +222,8 @@ export class Utils {
    * @param {string} str - The input string.
    * @returns {string} Escaped string.
    */
-  static escapeHtml(str) {
-    const entityMap = {
+  static escapeHtml(str: string) {
+    const entityMap: Record<string, string> = {
       "&": "&amp;",
       "<": "&lt;",
       ">": "&gt;",
@@ -232,7 +239,7 @@ export class Utils {
    *
    * @returns {boolean} True if the string contains any Arabic characters.
    */
-  static containsArabic(str) {
+  static containsArabic(str: string) {
     const regExp = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
     return regExp.test(str);
   }
@@ -244,7 +251,7 @@ export class Utils {
    * @param {boolean} hasAudio - Whether the audio files are encrypted.
    * @param {string} key - The encryption key.
    */
-  static setEncryptionInfo(hasImages, hasAudio, key) {
+  static setEncryptionInfo(hasImages: boolean, hasAudio: boolean, key: string) {
     this._hasEncryptedImages = hasImages;
     this._hasEncryptedAudio = hasAudio;
     this._encryptionKey = key;
@@ -274,7 +281,7 @@ export class Utils {
    * @param {ArrayBuffer} source - The data to be decrypted.
    * @returns {ArrayBuffer} The decrypted data.
    */
-  static decryptArrayBuffer(source) {
+  static decryptArrayBuffer(source: ArrayBuffer): ArrayBuffer {
     const header = new Uint8Array(source, 0, 16);
     const headerHex = Array.from(header, (x) => x.toString(16)).join(",");
     if (headerHex !== "52,50,47,4d,56,0,0,0,0,3,1,0,0,0,0,0") {
@@ -284,6 +291,7 @@ export class Utils {
     const view = new DataView(body);
     const key = this._encryptionKey.match(/.{2}/g);
     for (let i = 0; i < 16; i++) {
+      // @ts-expect-error to fix
       view.setUint8(i, view.getUint8(i) ^ parseInt(key[i], 16));
     }
     return body;
