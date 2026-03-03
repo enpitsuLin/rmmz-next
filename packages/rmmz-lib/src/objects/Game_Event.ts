@@ -339,3 +339,5 @@ class Game_Event extends Game_Character {
     this._prelockDirection = 0;
   }
 }
+
+export { Game_Event };

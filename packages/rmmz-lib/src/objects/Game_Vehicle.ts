@@ -226,3 +226,5 @@ class Game_Vehicle extends Game_Character {
     return true;
   }
 }
+
+export { Game_Vehicle };

@@ -208,3 +208,5 @@ class Game_Picture {
     }
   }
 }
+
+export { Game_Picture };

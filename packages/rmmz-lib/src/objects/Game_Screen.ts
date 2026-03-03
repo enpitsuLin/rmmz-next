@@ -356,3 +356,5 @@ class Game_Screen {
     this._pictures[realPictureId] = null;
   }
 }
+
+export { Game_Screen };

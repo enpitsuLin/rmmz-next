@@ -26,3 +26,5 @@ class Game_Actors {
     return null;
   }
 }
+
+export { Game_Actors };

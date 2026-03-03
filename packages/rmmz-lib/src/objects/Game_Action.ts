@@ -864,3 +864,5 @@ class Game_Action {
     }
   }
 }
+
+export { Game_Action };

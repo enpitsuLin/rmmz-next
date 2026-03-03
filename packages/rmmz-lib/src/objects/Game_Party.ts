@@ -477,3 +477,5 @@ class Game_Party extends Game_Unit {
     }
   }
 }
+
+export { Game_Party };

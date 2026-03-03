@@ -103,3 +103,5 @@ class Game_ActionResult {
     }
   }
 }
+
+export { Game_ActionResult };

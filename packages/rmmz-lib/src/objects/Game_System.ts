@@ -271,3 +271,5 @@ class Game_System {
     return $dataSystem.advanced.windowOpacity;
   }
 }
+
+export { Game_System };

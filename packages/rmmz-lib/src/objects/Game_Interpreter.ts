@@ -1773,3 +1773,5 @@ class Game_Interpreter {
     return true;
   }
 }
+
+export { Game_Interpreter };

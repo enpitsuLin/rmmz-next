@@ -41,3 +41,5 @@ class Game_CommonEvent {
     }
   }
 }
+
+export { Game_CommonEvent };

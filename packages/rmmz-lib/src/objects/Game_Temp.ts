@@ -154,3 +154,5 @@ class Game_Temp {
     this.setLastActionData(5, enemyIndex);
   }
 }
+
+export { Game_Temp };

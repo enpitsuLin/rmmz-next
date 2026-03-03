@@ -630,3 +630,5 @@ class Game_Player extends Game_Character {
     return this._followers.areGathered();
   }
 }
+
+export { Game_Player };

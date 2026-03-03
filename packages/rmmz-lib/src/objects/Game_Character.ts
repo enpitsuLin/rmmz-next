@@ -555,3 +555,5 @@ class Game_Character extends Game_CharacterBase {
     return 12;
   }
 }
+
+export { Game_Character };

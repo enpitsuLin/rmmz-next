@@ -714,3 +714,5 @@ class Game_Battler extends Game_BattlerBase {
     //
   }
 }
+
+export { Game_Battler };

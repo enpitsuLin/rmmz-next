@@ -197,3 +197,5 @@ class Game_Message {
     return Utils.containsArabic(this.allText());
   }
 }
+
+export { Game_Message };

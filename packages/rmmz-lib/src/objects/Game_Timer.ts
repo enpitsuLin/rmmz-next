@@ -45,3 +45,5 @@ class Game_Timer {
     BattleManager.abort();
   }
 }
+
+export { Game_Timer };

@@ -35,3 +35,5 @@ class Game_Variables {
     $gameMap.requestRefresh();
   }
 }
+
+export { Game_Variables };

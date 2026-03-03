@@ -133,3 +133,5 @@ class Game_Unit {
     }
   }
 }
+
+export { Game_Unit };

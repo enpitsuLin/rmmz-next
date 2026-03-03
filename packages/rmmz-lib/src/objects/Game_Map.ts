@@ -816,3 +816,5 @@ class Game_Map {
     return this.events().some((event) => event.isStarting());
   }
 }
+
+export { Game_Map };

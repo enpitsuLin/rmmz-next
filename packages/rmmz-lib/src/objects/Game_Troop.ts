@@ -254,3 +254,5 @@ class Game_Troop extends Game_Unit {
     return turnMax > this._turnCount;
   }
 }
+
+export { Game_Troop };

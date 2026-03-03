@@ -32,3 +32,5 @@ class Game_Switches {
     $gameMap.requestRefresh();
   }
 }
+
+export { Game_Switches };

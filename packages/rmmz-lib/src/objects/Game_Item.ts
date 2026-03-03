@@ -78,3 +78,5 @@ class Game_Item {
     this._itemId = itemId;
   }
 }
+
+export { Game_Item };

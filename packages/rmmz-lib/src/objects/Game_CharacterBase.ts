@@ -580,3 +580,5 @@ class Game_CharacterBase {
     this._balloonPlaying = false;
   }
 }
+
+export { Game_CharacterBase };

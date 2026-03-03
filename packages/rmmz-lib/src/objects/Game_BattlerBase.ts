@@ -845,3 +845,5 @@ class Game_BattlerBase {
     return this.canUse($dataSkills[this.guardSkillId()]);
   }
 }
+
+export { Game_BattlerBase };

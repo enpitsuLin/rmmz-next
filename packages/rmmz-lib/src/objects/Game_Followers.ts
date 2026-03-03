@@ -108,3 +108,5 @@ class Game_Followers {
     return this.visibleFollowers().some((follower) => follower.pos(x, y));
   }
 }
+
+export { Game_Followers };

@@ -890,3 +890,5 @@ class Game_Actor extends Game_Battler {
     this.requestMotionRefresh();
   }
 }
+
+export { Game_Actor };

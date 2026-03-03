@@ -276,3 +276,5 @@ class Game_Enemy extends Game_Battler {
     this.setActionState("waiting");
   }
 }
+
+export { Game_Enemy };
