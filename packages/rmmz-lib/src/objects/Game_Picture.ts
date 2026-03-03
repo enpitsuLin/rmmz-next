@@ -1,35 +1,35 @@
-import type { EasingType, RGBA } from "../types"
+import { EasingType, type RGBA } from "../types"
 
 /**
  * The game object class for a picture.
  */
 class Game_Picture {
-  _name?: string
+  _name!: string
 
-  _origin?: number
-  _x?: number
-  _y?: number
-  _scaleX?: number
-  _scaleY?: number
-  _opacity?: number
-  _blendMode?: number
+  _origin!: number
+  _x!: number
+  _y!: number
+  _scaleX!: number
+  _scaleY!: number
+  _opacity!: number
+  _blendMode!: number
 
-  _targetX?: number
-  _targetY?: number
-  _targetScaleX?: number
-  _targetScaleY?: number
-  _targetOpacity?: number
-  _duration?: number
-  _wholeDuration?: number
-  _easingType?: EasingType
-  _easingExponent?: number
+  _targetX!: number
+  _targetY!: number
+  _targetScaleX!: number
+  _targetScaleY!: number
+  _targetOpacity!: number
+  _duration!: number
+  _wholeDuration!: number
+  _easingType!: EasingType
+  _easingExponent!: number
 
-  _tone?: RGBA | null
-  _toneTarget?: RGBA | null
-  _toneDuration?: number
+  _tone!: RGBA | null
+  _toneTarget!: RGBA | null
+  _toneDuration!: number
 
-  _angle?: number
-  _rotationSpeed?: number
+  _angle!: number
+  _rotationSpeed!: number
 
   constructor() {
     this.initialize();
@@ -101,7 +101,7 @@ class Game_Picture {
     this._targetOpacity = this._opacity;
     this._duration = 0;
     this._wholeDuration = 0;
-    this._easingType = 0;
+    this._easingType = EasingType.easeIn;
     this._easingExponent = 0;
   }
 
@@ -200,7 +200,7 @@ class Game_Picture {
     if (this._toneDuration > 0) {
       const d = this._toneDuration;
       for (let i = 0; i < 4; i++) {
-        this._tone[i] = (this._tone[i] * (d - 1) + this._toneTarget[i]) / d;
+        this._tone![i] = (this._tone![i] * (d - 1) + this._toneTarget![i]) / d;
       }
       this._toneDuration--;
     }
