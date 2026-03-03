@@ -1,3 +1,9 @@
+import type { DataSystem } from "../types/database";
+
+export interface AudioWithPos extends DataSystem.Audio {
+  pos?: number
+}
+
 /**
  * AudioManager
  *
@@ -12,7 +18,7 @@ export class AudioManager {
   static _bgsVolume = 100;
   static _meVolume = 100;
   static _seVolume = 100;
-  static _currentBgm = null;
+  static _currentBgm: AudioWithPos | null = null;
   static _currentBgs = null;
   static _bgmBuffer = null;
   static _bgsBuffer = null;
@@ -53,12 +59,12 @@ export class AudioManager {
     this._seVolume = value;
   }
 
-  static playBgm(bgm, pos) {
+  static playBgm(bgm: AudioWithPos | null, pos?: number) {
     if (this.isCurrentBgm(bgm)) {
       this.updateBgmParameters(bgm);
     } else {
       this.stopBgm();
-      if (bgm.name) {
+      if (bgm?.name) {
         this._bgmBuffer = this.createBuffer("bgm/", bgm.name);
         this.updateBgmParameters(bgm);
         if (!this._meBuffer) {
@@ -69,7 +75,7 @@ export class AudioManager {
     this.updateCurrentBgm(bgm, pos);
   }
 
-  static replayBgm(bgm) {
+  static replayBgm(bgm: AudioWithPos | null) {
     if (this.isCurrentBgm(bgm)) {
       this.updateBgmParameters(bgm);
     } else {
@@ -80,7 +86,7 @@ export class AudioManager {
     }
   }
 
-  static isCurrentBgm(bgm) {
+  static isCurrentBgm(bgm: AudioWithPos | null) {
     return (
       this._currentBgm &&
       this._bgmBuffer &&
@@ -88,11 +94,11 @@ export class AudioManager {
     );
   }
 
-  static updateBgmParameters(bgm) {
+  static updateBgmParameters(bgm: AudioWithPos | null) {
     this.updateBufferParameters(this._bgmBuffer, this._bgmVolume, bgm);
   }
 
-  static updateCurrentBgm(bgm, pos) {
+  static updateCurrentBgm(bgm: AudioWithPos, pos?: number) {
     this._currentBgm = {
       name: bgm.name,
       volume: bgm.volume,
@@ -123,7 +129,7 @@ export class AudioManager {
     }
   }
 
-  static playBgs(bgs, pos) {
+  static playBgs(bgs: AudioWithPos | null, pos?: number) {
     if (this.isCurrentBgs(bgs)) {
       this.updateBgsParameters(bgs);
     } else {
@@ -300,7 +306,7 @@ export class AudioManager {
     this.stopSe();
   }
 
-  static saveBgm() {
+  static saveBgm(): AudioWithPos {
     if (this._currentBgm) {
       const bgm = this._currentBgm;
       return {
@@ -330,8 +336,8 @@ export class AudioManager {
     }
   }
 
-  static makeEmptyAudioObject() {
-    return { name: "", volume: 0, pitch: 0 };
+  static makeEmptyAudioObject(): AudioWithPos {
+    return { name: "", volume: 0, pitch: 0, pan: 0 };
   }
 
   static createBuffer(folder, name) {

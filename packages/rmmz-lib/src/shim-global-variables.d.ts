@@ -3,24 +3,24 @@ import type {
   Game_Map,
   Game_Message, Game_Party, Game_Player, Game_Screen, Game_SelfSwitches, Game_Switches, Game_System, Game_Temp, Game_Timer, Game_Troop, Game_Variables
 } from './objects'
-import type { DataActor, DataItem } from './types/database'
+import type { DataActor, DataItem, DataSystem, DataMap } from './types/database'
 
 declare global {
   declare var $dataActors: DataActor[]
   declare var $dataClasses: unknown[]
   declare var $dataSkills: DataItem[]
   declare var $dataItems: DataItem[]
-  declare var $dataWeapons: unknown[]
-  declare var $dataArmors: unknown[]
-  declare var $dataEnemies: unknown[]
-  declare var $dataTroops: unknown[]
-  declare var $dataStates: unknown[]
-  declare var $dataAnimations: unknown[]
-  declare var $dataTilesets: unknown[]
-  declare var $dataCommonEvents: unknown[]
-  declare var $dataSystem: unknown[]
-  declare var $dataMapInfos: unknown[]
-  declare var $dataMap: unknown[]
+  declare var $dataWeapons: unknown
+  declare var $dataArmors: unknown
+  declare var $dataEnemies: unknown
+  declare var $dataTroops: unknown
+  declare var $dataStates: unknown
+  declare var $dataAnimations: unknown
+  declare var $dataTilesets: unknown
+  declare var $dataCommonEvents: unknown
+  declare var $dataSystem: DataSystem
+  declare var $dataMapInfos: unknown
+  declare var $dataMap: DataMap
 
   declare var $gameTemp: Game_Temp
   declare var $gameSystem: Game_System

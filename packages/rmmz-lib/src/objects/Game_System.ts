@@ -1,12 +1,36 @@
+import { Graphics } from "../core";
+import { AudioManager } from "../managers/AudioManager";
+import type { DataSystem } from "../types/database";
+
 /**
  * The game object class for the system data.
  */
 class Game_System {
 
+  private _saveEnabled: boolean;
+  private _menuEnabled: boolean;
+  private _encounterEnabled: boolean;
+  private _formationEnabled: boolean;
+  private _battleCount: number;
+  private _winCount: number;
+  private _escapeCount: number;
+  private _saveCount: number;
+  private _versionId: number;
+  private _savefileId: number;
+  private _framesOnSave: number;
+  private _bgmOnSave: DataSystem.Audio | null;
+  private _bgsOnSave: DataSystem.Audio | null;
+  private _windowTone: string | null;
+  private _battleBgm: DataSystem.Audio | null;
+  private _victoryMe: DataSystem.Audio | null;
+  private _defeatMe: DataSystem.Audio | null;
+  private _savedBgm: DataSystem.Audio | null;
+  private _walkingBgm: DataSystem.Audio | null;
+
   /**
    * @param { Game_System } [gameSystem]
    */
-  constructor(gameSystem) {
+  constructor(gameSystem?: Game_System) {
     if (gameSystem) {
       this._saveEnabled = gameSystem._saveEnabled;
       this._menuEnabled = gameSystem._menuEnabled;
@@ -154,7 +178,7 @@ class Game_System {
     return this._savefileId || 0;
   }
 
-  setSavefileId(savefileId) {
+  setSavefileId(savefileId: number) {
     this._savefileId = savefileId;
   }
 
@@ -162,7 +186,7 @@ class Game_System {
     return this._windowTone || $dataSystem.windowTone;
   }
 
-  setWindowTone(value) {
+  setWindowTone(value: string | null) {
     this._windowTone = value;
   }
 
@@ -170,7 +194,7 @@ class Game_System {
     return this._battleBgm || $dataSystem.battleBgm;
   }
 
-  setBattleBgm(value) {
+  setBattleBgm(value: DataSystem.Audio | null) {
     this._battleBgm = value;
   }
 
@@ -178,7 +202,7 @@ class Game_System {
     return this._victoryMe || $dataSystem.victoryMe;
   }
 
-  setVictoryMe(value) {
+  setVictoryMe(value: DataSystem.Audio | null) {
     this._victoryMe = value;
   }
 
@@ -186,7 +210,7 @@ class Game_System {
     return this._defeatMe || $dataSystem.defeatMe;
   }
 
-  setDefeatMe(value) {
+  setDefeatMe(value: DataSystem.Audio | null) {
     this._defeatMe = value;
   }
 
