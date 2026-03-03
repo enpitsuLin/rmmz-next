@@ -4,7 +4,7 @@
 
 import { Graphics, Utils } from "../core";
 import { Game_Actors, Game_Map, Game_Message, Game_Party, Game_Player, Game_Screen, Game_SelfSwitches, Game_Switches, Game_System, Game_Temp, Game_Timer, Game_Troop, Game_Variables } from "../objects";
-import type { Database, MZ } from "../types";
+import type { MZ } from "../types";
 import { BattleManager } from "./BattleManager";
 import { StorageManager } from "./StorageManager";
 
@@ -157,7 +157,7 @@ export class DataManager {
   }
 
   static makeEmptyMap() {
-    $dataMap = {} as DataMap;
+    $dataMap = {} as MZ.Map;
     $dataMap.data = [];
     $dataMap.events = [];
     $dataMap.width = 100;
@@ -227,19 +227,19 @@ export class DataManager {
     return Utils.isOptionValid("tskip");
   }
 
-  static isSkill(a: MZ.Item | MZ.Weapon | MZ.Armor | MZ.Skill): a is MZ.Skill {
+  static isSkill(a: MZ.GeneralItem): a is MZ.Skill {
     return a && $dataSkills.includes(a as MZ.Skill);
   }
 
-  static isItem(a: MZ.Item | MZ.Weapon | MZ.Armor | MZ.Skill): a is MZ.Item {
+  static isItem(a: MZ.GeneralItem): a is MZ.Item {
     return a && $dataItems.includes(a as MZ.Item);
   }
 
-  static isWeapon(a: MZ.Item | MZ.Weapon | MZ.Armor | MZ.Skill): a is MZ.Weapon {
+  static isWeapon(a: MZ.GeneralItem): a is MZ.Weapon {
     return a && $dataWeapons.includes(a as MZ.Weapon);
   }
 
-  static isArmor(a: MZ.Item | MZ.Weapon | MZ.Armor | MZ.Skill): a is MZ.Armor {
+  static isArmor(a: MZ.GeneralItem): a is MZ.Armor {
     return a && $dataArmors.includes(a as MZ.Armor);
   }
 
@@ -421,4 +421,8 @@ export class DataManager {
   static correctDataErrors() {
     $gameParty.removeInvalidMembers();
   }
+}
+
+export namespace DataManager {
+  export type DatabaseFile<T> = [null, ...T[]]
 }

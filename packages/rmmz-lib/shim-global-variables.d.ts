@@ -15,23 +15,24 @@ import type {
 
   MZ
 } from './src'
+import type { DataManager } from './src/managers/DataManager'
 
 
 declare global {
-  declare var $dataActors: MZ.Actor[]
-  declare var $dataClasses: unknown[]
-  declare var $dataSkills: MZ.Skill[]
-  declare var $dataItems: MZ.Item[]
-  declare var $dataWeapons: MZ.Weapon[]
-  declare var $dataArmors: MZ.Armor[]
-  declare var $dataEnemies: MZ.Enemy[]
-  declare var $dataTroops: unknown
-  declare var $dataStates: MZ.State[]
-  declare var $dataAnimations: unknown
-  declare var $dataTilesets: MZ.Tileset[]
-  declare var $dataCommonEvents: MZ.CommonEvent[]
+  declare var $dataActors: DataManager.DatabaseFile<MZ.Actor>
+  declare var $dataClasses: DataManager.DatabaseFile<MZ.Class>
+  declare var $dataSkills: DataManager.DatabaseFile<MZ.Skill>
+  declare var $dataItems: DataManager.DatabaseFile<MZ.Item>
+  declare var $dataWeapons: DataManager.DatabaseFile<MZ.Weapon>
+  declare var $dataArmors: DataManager.DatabaseFile<MZ.Armor>
+  declare var $dataEnemies: DataManager.DatabaseFile<MZ.Enemy>
+  declare var $dataTroops: DataManager.DatabaseFile<MZ.Troop>
+  declare var $dataStates: DataManager.DatabaseFile<MZ.State>
+  declare var $dataAnimations: DataManager.DatabaseFile<MZ.Animation>
+  declare var $dataTilesets: DataManager.DatabaseFile<MZ.Tileset>
+  declare var $dataCommonEvents: DataManager.DatabaseFile<MZ.CommonEvent>
   declare var $dataSystem: MZ.System
-  declare var $dataMapInfos: MZ.MapInfo[]
+  declare var $dataMapInfos: DataManager.DatabaseFile<MZ.MapInfo>
   declare var $dataMap: MZ.Map
 
   declare var $gameTemp: Game_Temp

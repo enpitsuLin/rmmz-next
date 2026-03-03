@@ -374,7 +374,8 @@ export declare namespace MZ {
 
   type Equip = Armor | Weapon;
   type EquipOrItem = Item | Armor | Weapon;
-  type GeneralItem = Skill | Item | Armor | Weapon;
+  type UsableItem = Skill | Item;
+  type GeneralItem = UsableItem | Armor | Weapon;
   type Meta = { [key: string]: string | number | boolean | undefined };
   // type TraitObject = Actor | Class | Weapon | Armor | State;
 
@@ -677,6 +678,45 @@ export declare namespace MZ {
     parentId: number;
     scrollX: number;
     scrollY: number;
+  }
+
+  export interface Animation {
+    id: number;
+    displayType: number;
+    effectName: string;
+    flashTimings: Animation.FlashTiming[];
+    name: string;
+    offsetX: number;
+    offsetY: number;
+    // @ts-ignore
+    rotation: Rotation;
+    scale: number;
+    soundTimings: Animation.SoundTiming[];
+    speed: number;
+    timings: Animation.MVTiming[];
+    alignBottom: boolean;
+  }
+
+  namespace Animation {
+    export interface FlashTiming {
+      frame: number;
+      duration: number;
+      color: number[];
+    }
+    export interface Rotation {
+      x: number;
+      y: number;
+      z: number;
+    }
+
+    export interface SoundTiming {
+      frame: number;
+      se: MZ.AudioInfo;
+    }
+
+    export interface MVTiming {
+
+    }
   }
 }
 

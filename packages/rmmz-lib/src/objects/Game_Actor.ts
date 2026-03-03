@@ -387,7 +387,7 @@ class Game_Actor extends Game_Battler {
     $gameTemp.requestBattleRefresh();
   }
 
-  isActor() {
+  isActor(): this is Game_Actor {
     return true;
   }
 

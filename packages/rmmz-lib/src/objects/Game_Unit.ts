@@ -4,7 +4,7 @@ import type { Game_Battler } from "./Game_Battler";
 /**
  * The superclass of Game_Party and Game_Troop.
  */
-class Game_Unit {
+class Game_Unit<Member extends Game_Battler = Game_Battler> {
   _inBattle: boolean;
 
   constructor() {
@@ -15,7 +15,7 @@ class Game_Unit {
     return this._inBattle;
   }
 
-  members(): Game_Battler[] {
+  members(): Member[] {
     return [];
   }
 
@@ -100,7 +100,7 @@ class Game_Unit {
     }
   }
 
-  select(activeMember: Game_Battler) {
+  select(activeMember: Member) {
     for (const member of this.members()) {
       if (member === activeMember) {
         member.select();
@@ -114,7 +114,7 @@ class Game_Unit {
     return this.aliveMembers().length === 0;
   }
 
-  substituteBattler(target: Game_Battler) {
+  substituteBattler(target: Member) {
     for (const member of this.members()) {
       if (member.isSubstitute() && member !== target) {
         return member;

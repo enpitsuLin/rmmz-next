@@ -6,11 +6,11 @@ import type { MZ } from "../types";
  * 
  * It is required because save data should not include the database object itself.
  */
-class Game_Item {
+class Game_Item<Item extends MZ.GeneralItem = MZ.GeneralItem> {
   private _dataClass: "skill" | "item" | "weapon" | "armor" | "";
   private _itemId: number;
 
-  constructor(item?: MZ.Item) {
+  constructor(item?: Item) {
     this._dataClass = "";
     this._itemId = 0;
     if (item) {
@@ -18,31 +18,31 @@ class Game_Item {
     }
   }
 
-  isSkill() {
+  isSkill(): this is Game_Item<MZ.Skill> {
     return this._dataClass === "skill";
   }
 
-  isItem() {
+  isItem(): this is Game_Item<MZ.Item> {
     return this._dataClass === "item";
   }
 
-  isUsableItem() {
+  isUsableItem(): this is Game_Item<MZ.Item | MZ.Skill> {
     return this.isSkill() || this.isItem();
   }
 
-  isWeapon() {
+  isWeapon(): this is Game_Item<MZ.Weapon> {
     return this._dataClass === "weapon";
   }
 
-  isArmor() {
+  isArmor(): this is Game_Item<MZ.Armor> {
     return this._dataClass === "armor";
   }
 
-  isEquipItem() {
+  isEquipItem(): this is Game_Item<MZ.Weapon | MZ.Armor> {
     return this.isWeapon() || this.isArmor();
   }
 
-  isNull() {
+  isNull(): this is Game_Item<never> {
     return this._dataClass === "";
   }
 
@@ -50,21 +50,21 @@ class Game_Item {
     return this._itemId;
   }
 
-  object() {
+  object(): Item | null {
     if (this.isSkill()) {
-      return $dataSkills[this._itemId];
+      return $dataSkills[this._itemId] as Item;
     } else if (this.isItem()) {
-      return $dataItems[this._itemId];
+      return $dataItems[this._itemId] as Item;
     } else if (this.isWeapon()) {
-      return $dataWeapons[this._itemId];
+      return $dataWeapons[this._itemId] as Item;
     } else if (this.isArmor()) {
-      return $dataArmors[this._itemId];
+      return $dataArmors[this._itemId] as Item;
     } else {
       return null;
     }
   }
 
-  setObject(item: MZ.Item) {
+  setObject(item: MZ.GeneralItem) {
     if (DataManager.isSkill(item)) {
       this._dataClass = "skill";
     } else if (DataManager.isItem(item)) {

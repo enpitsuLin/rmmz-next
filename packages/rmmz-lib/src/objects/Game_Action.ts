@@ -1,19 +1,26 @@
+import { DataManager } from "../managers/DataManager";
 import type { MZ } from "../types";
-import type { Game_Battler } from "./Game_Battler";
+import type { Game_Actor } from "./Game_Actor";
+import type { Game_Enemy } from "./Game_Enemy";
 import { Game_Item } from "./Game_Item";
+import type { Game_Unit } from "./Game_Unit";
 
 /**
  * The game object class for a battle action.
  */
-class Game_Action {
+class Game_Action<
+  Item extends MZ.UsableItem = MZ.UsableItem,
+  ReflectionTarget extends Game_Actor | Game_Enemy = Game_Actor | Game_Enemy
+> {
+  _reflectionTarget?: ReflectionTarget;
 
   _subjectActorId!: number;
   _subjectEnemyIndex!: number;
   _forcing!: boolean;
-  _item!: Game_Item;
+  _item!: Game_Item<Item>;
   _targetIndex!: number;
 
-  constructor(subject: Game_Battler, forcing: boolean) {
+  constructor(subject: Game_Actor | Game_Enemy, forcing: boolean) {
     this._subjectActorId = 0;
     this._subjectEnemyIndex = -1;
     this._forcing = forcing || false;
@@ -40,11 +47,11 @@ class Game_Action {
   static HITTYPE_MAGICAL = 2;
 
   clear() {
-    this._item = new Game_Item();
+    this._item = new Game_Item<Item>();
     this._targetIndex = -1;
   }
 
-  setSubject(subject: Game_Battler) {
+  setSubject(subject: Game_Actor | Game_Enemy) {
     if (subject.isActor()) {
       this._subjectActorId = subject.actorId();
       this._subjectEnemyIndex = -1;
@@ -72,7 +79,7 @@ class Game_Action {
     return this.subject().opponentsUnit();
   }
 
-  setEnemyAction(action) {
+  setEnemyAction(action: MZ.Action) {
     if (action) {
       this.setSkill(action.skillId);
     } else {
@@ -105,14 +112,14 @@ class Game_Action {
   }
 
   item() {
-    return this._item.object();
+    return this._item.object() as MZ.UsableItem;
   }
 
-  isSkill() {
+  isSkill(): this is Game_Action<MZ.Skill> {
     return this._item.isSkill();
   }
 
-  isItem() {
+  isItem(): this is Game_Action<MZ.Item> {
     return this._item.isItem();
   }
 
@@ -124,7 +131,7 @@ class Game_Action {
     return Math.floor(repeats);
   }
 
-  checkItemScope(list) {
+  checkItemScope(list: number[]) {
     return list.includes(this.item().scope);
   }
 
@@ -172,7 +179,7 @@ class Game_Action {
     return this.isForRandom() ? this.item().scope - 2 : 0;
   }
 
-  checkDamageType(list) {
+  checkDamageType(list: number[]) {
     return list.includes(this.item().damage.type);
   }
 
@@ -226,6 +233,7 @@ class Game_Action {
 
   isMagicSkill() {
     if (this.isSkill()) {
+      // @ts-expect-error to fix
       return $dataSystem.magicSkills.includes(this.item().stypeId);
     } else {
       return false;
@@ -288,7 +296,7 @@ class Game_Action {
     return this.repeatTargets(targets);
   }
 
-  repeatTargets(targets) {
+  repeatTargets(targets: Game_Actor[] | Game_Enemy[]) {
     const repeatedTargets = [];
     const repeats = this.numRepeats();
     for (const target of targets) {
@@ -343,7 +351,7 @@ class Game_Action {
     }
   }
 
-  randomTargets(unit) {
+  randomTargets(unit: Game_Unit) {
     const targets = [];
     for (let i = 0; i < this.numTargets(); i++) {
       targets.push(unit.randomTarget());
@@ -351,7 +359,7 @@ class Game_Action {
     return targets;
   }
 
-  targetsForDead(unit) {
+  targetsForDead(unit: Game_Unit) {
     if (this.isForOne()) {
       return [unit.smoothDeadTarget(this._targetIndex)];
     } else {
@@ -359,7 +367,7 @@ class Game_Action {
     }
   }
 
-  targetsForAlive(unit) {
+  targetsForAlive(unit: Game_Unit) {
     if (this.isForOne()) {
       if (this._targetIndex < 0) {
         return [unit.randomTarget()];
@@ -371,7 +379,7 @@ class Game_Action {
     }
   }
 
-  targetsForDeadAndAlive(unit) {
+  targetsForDeadAndAlive(unit: Game_Unit) {
     if (this.isForOne()) {
       return [unit.members()[this._targetIndex]];
     } else {
@@ -384,8 +392,11 @@ class Game_Action {
     for (const target of this.itemTargetCandidates()) {
       const targetValue = this.evaluateWithTarget(target);
       if (this.isForAll()) {
+        // @ts-expect-error to fix
         value += targetValue;
+        // @ts-expect-error to fix
       } else if (targetValue > value) {
+        // @ts-expect-error to fix
         value = targetValue;
         this._targetIndex = target.index();
       }
@@ -411,7 +422,7 @@ class Game_Action {
     }
   }
 
-  evaluateWithTarget(target) {
+  evaluateWithTarget(target: Game_Actor | Game_Enemy) {
     if (this.isHpEffect()) {
       const value = this.makeDamageValue(target, false);
       if (this.isForOpponent()) {
@@ -423,7 +434,7 @@ class Game_Action {
     }
   }
 
-  testApply(target) {
+  testApply(target: Game_Actor | Game_Enemy) {
     return (
       this.testLifeAndDeath(target) &&
       ($gameParty.inBattle() ||
@@ -433,7 +444,7 @@ class Game_Action {
     );
   }
 
-  testLifeAndDeath(target) {
+  testLifeAndDeath(target: Game_Actor | Game_Enemy) {
     if (this.isForOpponent() || this.isForAliveFriend()) {
       return target.isAlive();
     } else if (this.isForDeadFriend()) {
@@ -443,13 +454,13 @@ class Game_Action {
     }
   }
 
-  hasItemAnyValidEffects(target) {
+  hasItemAnyValidEffects(target: Game_Actor | Game_Enemy) {
     return this.item().effects.some((effect) =>
       this.testItemEffect(target, effect)
     );
   }
 
-  testItemEffect(target, effect) {
+  testItemEffect(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     switch (effect.code) {
       case Game_Action.EFFECT_RECOVER_HP:
         return target.hp < target.mhp || effect.value1 < 0 || effect.value2 < 0;
@@ -474,7 +485,7 @@ class Game_Action {
     }
   }
 
-  itemCnt(target) {
+  itemCnt(target: Game_Actor | Game_Enemy) {
     if (this.isPhysical() && target.canMove()) {
       return target.cnt;
     } else {
@@ -482,7 +493,7 @@ class Game_Action {
     }
   }
 
-  itemMrf(target) {
+  itemMrf(target: Game_Actor | Game_Enemy) {
     if (this.isMagical()) {
       return target.mrf;
     } else {
@@ -490,7 +501,7 @@ class Game_Action {
     }
   }
 
-  itemHit(/*target*/) {
+  itemHit(_target?: Game_Actor | Game_Enemy) {
     const successRate = this.item().successRate;
     if (this.isPhysical()) {
       return successRate * 0.01 * this.subject().hit;
@@ -499,7 +510,7 @@ class Game_Action {
     }
   }
 
-  itemEva(target) {
+  itemEva(target: Game_Actor | Game_Enemy) {
     if (this.isPhysical()) {
       return target.eva;
     } else if (this.isMagical()) {
@@ -509,13 +520,13 @@ class Game_Action {
     }
   }
 
-  itemCri(target) {
+  itemCri(target: Game_Actor | Game_Enemy) {
     return this.item().damage.critical
       ? this.subject().cri * (1 - target.cev)
       : 0;
   }
 
-  apply(target) {
+  apply(target: Game_Actor | Game_Enemy) {
     const result = target.result();
     this.subject().clearResult();
     result.clear();
@@ -538,7 +549,7 @@ class Game_Action {
     this.updateLastTarget(target);
   }
 
-  makeDamageValue(target, critical) {
+  makeDamageValue(target: Game_Actor | Game_Enemy, critical: boolean) {
     const item = this.item();
     const baseValue = this.evalDamageFormula(target);
     let value = baseValue * this.calcElementRate(target);
@@ -560,7 +571,7 @@ class Game_Action {
     return value;
   }
 
-  evalDamageFormula(target) {
+  evalDamageFormula(target: Game_Actor | Game_Enemy) {
     try {
       const item = this.item();
       const a = this.subject();
@@ -574,7 +585,7 @@ class Game_Action {
     }
   }
 
-  calcElementRate(target) {
+  calcElementRate(target: Game_Actor | Game_Enemy) {
     if (this.item().damage.elementId < 0) {
       return this.elementsMaxRate(target, this.subject().attackElements());
     } else {
@@ -582,7 +593,7 @@ class Game_Action {
     }
   }
 
-  elementsMaxRate(target, elements) {
+  elementsMaxRate(target: Game_Actor | Game_Enemy, elements: number[]) {
     if (elements.length > 0) {
       const rates = elements.map((elementId) => target.elementRate(elementId));
       return Math.max(...rates);
@@ -591,21 +602,21 @@ class Game_Action {
     }
   }
 
-  applyCritical(damage) {
+  applyCritical(damage: number) {
     return damage * 3;
   }
 
-  applyVariance(damage, variance) {
+  applyVariance(damage: number, variance: number) {
     const amp = Math.floor(Math.max((Math.abs(damage) * variance) / 100, 0));
     const v = Math.randomInt(amp + 1) + Math.randomInt(amp + 1) - amp;
     return damage >= 0 ? damage + v : damage - v;
   }
 
-  applyGuard(damage, target) {
+  applyGuard(damage: number, target: Game_Actor | Game_Enemy) {
     return damage / (damage > 0 && target.isGuard() ? 2 * target.grd : 1);
   }
 
-  executeDamage(target, value) {
+  executeDamage(target: Game_Actor | Game_Enemy, value: number) {
     const result = target.result();
     if (value === 0) {
       result.critical = false;
@@ -618,7 +629,7 @@ class Game_Action {
     }
   }
 
-  executeHpDamage(target, value) {
+  executeHpDamage(target: Game_Actor | Game_Enemy, value: number) {
     if (this.isDrain()) {
       value = Math.min(target.hp, value);
     }
@@ -630,7 +641,7 @@ class Game_Action {
     this.gainDrainedHp(value);
   }
 
-  executeMpDamage(target, value) {
+  executeMpDamage(target: Game_Actor | Game_Enemy, value: number) {
     if (!this.isMpRecover()) {
       value = Math.min(target.mp, value);
     }
@@ -641,7 +652,7 @@ class Game_Action {
     this.gainDrainedMp(value);
   }
 
-  gainDrainedHp(value) {
+  gainDrainedHp(value: number) {
     if (this.isDrain()) {
       let gainTarget = this.subject();
       if (this._reflectionTarget) {
@@ -651,7 +662,7 @@ class Game_Action {
     }
   }
 
-  gainDrainedMp(value) {
+  gainDrainedMp(value: number) {
     if (this.isDrain()) {
       let gainTarget = this.subject();
       if (this._reflectionTarget) {
@@ -661,7 +672,7 @@ class Game_Action {
     }
   }
 
-  applyItemEffect(target, effect) {
+  applyItemEffect(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     switch (effect.code) {
       case Game_Action.EFFECT_RECOVER_HP:
         this.itemEffectRecoverHp(target, effect);
@@ -705,7 +716,7 @@ class Game_Action {
     }
   }
 
-  itemEffectRecoverHp(target, effect) {
+  itemEffectRecoverHp(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     let value = (target.mhp * effect.value1 + effect.value2) * target.rec;
     if (this.isItem()) {
       value *= this.subject().pha;
@@ -717,7 +728,7 @@ class Game_Action {
     }
   }
 
-  itemEffectRecoverMp(target, effect) {
+  itemEffectRecoverMp(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     let value = (target.mmp * effect.value1 + effect.value2) * target.rec;
     if (this.isItem()) {
       value *= this.subject().pha;
@@ -729,7 +740,7 @@ class Game_Action {
     }
   }
 
-  itemEffectGainTp(target, effect) {
+  itemEffectGainTp(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     let value = Math.floor(effect.value1);
     if (value !== 0) {
       target.gainTp(value);
@@ -737,7 +748,7 @@ class Game_Action {
     }
   }
 
-  itemEffectAddState(target, effect) {
+  itemEffectAddState(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     if (effect.dataId === 0) {
       this.itemEffectAddAttackState(target, effect);
     } else {
@@ -745,7 +756,7 @@ class Game_Action {
     }
   }
 
-  itemEffectAddAttackState(target, effect) {
+  itemEffectAddAttackState(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     for (const stateId of this.subject().attackStates()) {
       let chance = effect.value1;
       chance *= target.stateRate(stateId);
@@ -758,7 +769,7 @@ class Game_Action {
     }
   }
 
-  itemEffectAddNormalState(target, effect) {
+  itemEffectAddNormalState(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     let chance = effect.value1;
     if (!this.isCertainHit()) {
       chance *= target.stateRate(effect.dataId);
@@ -770,7 +781,7 @@ class Game_Action {
     }
   }
 
-  itemEffectRemoveState(target, effect) {
+  itemEffectRemoveState(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     let chance = effect.value1;
     if (Math.random() < chance) {
       target.removeState(effect.dataId);
@@ -778,12 +789,12 @@ class Game_Action {
     }
   }
 
-  itemEffectAddBuff(target, effect) {
+  itemEffectAddBuff(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     target.addBuff(effect.dataId, effect.value1);
     this.makeSuccess(target);
   }
 
-  itemEffectAddDebuff(target, effect) {
+  itemEffectAddDebuff(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     let chance = target.debuffRate(effect.dataId) * this.lukEffectRate(target);
     if (Math.random() < chance) {
       target.addDebuff(effect.dataId, effect.value1);
@@ -791,53 +802,53 @@ class Game_Action {
     }
   }
 
-  itemEffectRemoveBuff(target, effect) {
+  itemEffectRemoveBuff(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     if (target.isBuffAffected(effect.dataId)) {
       target.removeBuff(effect.dataId);
       this.makeSuccess(target);
     }
   }
 
-  itemEffectRemoveDebuff(target, effect) {
+  itemEffectRemoveDebuff(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     if (target.isDebuffAffected(effect.dataId)) {
       target.removeBuff(effect.dataId);
       this.makeSuccess(target);
     }
   }
 
-  itemEffectSpecial(target, effect) {
+  itemEffectSpecial(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     if (effect.dataId === Game_Action.SPECIAL_EFFECT_ESCAPE) {
       target.escape();
       this.makeSuccess(target);
     }
   }
 
-  itemEffectGrow(target, effect) {
+  itemEffectGrow(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     target.addParam(effect.dataId, Math.floor(effect.value1));
     this.makeSuccess(target);
   }
 
-  itemEffectLearnSkill(target, effect) {
+  itemEffectLearnSkill(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
     if (target.isActor()) {
       target.learnSkill(effect.dataId);
       this.makeSuccess(target);
     }
   }
 
-  itemEffectCommonEvent(/*target, effect*/) {
+  itemEffectCommonEvent(_target?: Game_Actor | Game_Enemy, _effect?: MZ.Effect) {
     //
   }
 
-  makeSuccess(target) {
+  makeSuccess(target: Game_Actor | Game_Enemy) {
     target.result().success = true;
   }
 
-  applyItemUserEffect(/*target*/) {
+  applyItemUserEffect(_target?: Game_Actor | Game_Enemy) {
     const value = Math.floor(this.item().tpGain * this.subject().tcr);
     this.subject().gainSilentTp(value);
   }
 
-  lukEffectRate(target) {
+  lukEffectRate(target: Game_Actor | Game_Enemy) {
     return Math.max(1.0 + (this.subject().luk - target.luk) * 0.001, 0.0);
   }
 
@@ -869,7 +880,7 @@ class Game_Action {
     }
   }
 
-  updateLastTarget(target) {
+  updateLastTarget(target: Game_Actor | Game_Enemy) {
     if (target.isActor()) {
       $gameTemp.setLastTargetActorId(target.actorId());
     } else {

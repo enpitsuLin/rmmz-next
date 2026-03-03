@@ -1,7 +1,22 @@
+import { Utils } from "../core";
+import type { Game_Actor } from "./Game_Actor";
+import type { Game_Enemy } from "./Game_Enemy";
+
 /**
  * The game object class for temporary data that is not included in save data.
  */
 class Game_Temp {
+  _isPlaytest!: boolean;
+  _destinationX!: number | null;
+  _destinationY!: number | null;
+  _touchTarget!: Game_Actor | Game_Enemy | null;
+  _touchState!: string;
+  _needsBattleRefresh!: boolean;
+  _commonEventQueue!: number[];
+  _animationQueue!: { targets: Game_Actor | Game_Enemy[]; animationId: number; mirror: boolean }[];
+  _balloonQueue!: { target: Game_Actor | Game_Enemy; balloonId: number }[];
+  _lastActionData!: number[];
+
   constructor() {
     this._isPlaytest = Utils.isOptionValid("test");
     this._destinationX = null;
@@ -19,7 +34,7 @@ class Game_Temp {
     return this._isPlaytest;
   }
 
-  setDestination(x, y) {
+  setDestination(x: number, y: number) {
     this._destinationX = x;
     this._destinationY = y;
   }
@@ -41,7 +56,7 @@ class Game_Temp {
     return this._destinationY;
   }
 
-  setTouchState(target, state) {
+  setTouchState(target: Game_Actor | Game_Enemy, state: string) {
     this._touchTarget = target;
     this._touchState = state;
   }
@@ -73,11 +88,12 @@ class Game_Temp {
     return this._needsBattleRefresh;
   }
 
-  reserveCommonEvent(commonEventId) {
+  reserveCommonEvent(commonEventId: number) {
     this._commonEventQueue.push(commonEventId);
   }
 
   retrieveCommonEvent() {
+    // @ts-expect-error to fix
     return $dataCommonEvents[this._commonEventQueue.shift()];
   }
 
@@ -90,7 +106,11 @@ class Game_Temp {
   }
 
   // prettier-ignore
-  requestAnimation(targets, animationId, mirror = false) {
+  requestAnimation(
+    targets: Game_Actor[] | Game_Enemy[],
+    animationId: number,
+    mirror = false
+  ) {
     if ($dataAnimations[animationId]) {
       const request = {
         targets: targets,
