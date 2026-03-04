@@ -2,7 +2,10 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": [
-      "es2023"
+      "ES2021",
+      "DOM",
+      "DOM.Iterable",
+      "DOM.AsyncIterable"
     ],
     "moduleDetection": "force",
     "module": "preserve",
