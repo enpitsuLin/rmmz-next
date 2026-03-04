@@ -14,7 +14,7 @@ export class ConfigManager {
     throw new Error('This is a static class')
   }
 
-  static get bgmVolume() {
+  static get bgmVolume(): number {
     return AudioManager._bgmVolume
   }
 
@@ -22,7 +22,7 @@ export class ConfigManager {
     AudioManager.bgmVolume = value
   }
 
-  static get bgsVolume() {
+  static get bgsVolume(): number {
     return AudioManager.bgsVolume
   }
 
@@ -30,7 +30,7 @@ export class ConfigManager {
     AudioManager.bgsVolume = value
   }
 
-  static get meVolume() {
+  static get meVolume(): number {
     return AudioManager.meVolume
   }
 
@@ -38,7 +38,7 @@ export class ConfigManager {
     AudioManager.meVolume = value
   }
 
-  static get seVolume() {
+  static get seVolume(): number {
     return AudioManager.seVolume
   }
 
@@ -46,7 +46,7 @@ export class ConfigManager {
     AudioManager.seVolume = value
   }
 
-  static load() {
+  static load(): void {
     StorageManager.loadObject('config')
       .then(config => this.applyData(config || {} as ConfigManager.ConfigData))
       .catch(() => 0)
@@ -57,15 +57,15 @@ export class ConfigManager {
       .catch(() => 0)
   }
 
-  static save() {
+  static save(): void {
     StorageManager.saveObject('config', this.makeData())
   }
 
-  static isLoaded() {
+  static isLoaded(): boolean {
     return this._isLoaded
   }
 
-  static makeData() {
+  static makeData(): ConfigManager.ConfigData {
     const config = {} as ConfigManager.ConfigData
     config.alwaysDash = this.alwaysDash
     config.commandRemember = this.commandRemember
@@ -77,7 +77,7 @@ export class ConfigManager {
     return config
   }
 
-  static applyData(config: Partial<ConfigManager.ConfigData>) {
+  static applyData(config: Partial<ConfigManager.ConfigData>): void {
     this.alwaysDash = this.readFlag(config, 'alwaysDash', false)
     this.commandRemember = this.readFlag(config, 'commandRemember', false)
     this.touchUI = this.readFlag(config, 'touchUI', true)
@@ -87,7 +87,7 @@ export class ConfigManager {
     this.seVolume = this.readVolume(config, 'seVolume')
   }
 
-  static readFlag(config: Partial<ConfigManager.ConfigData>, name: string, defaultValue: boolean) {
+  static readFlag(config: Partial<ConfigManager.ConfigData>, name: string, defaultValue: boolean): boolean {
     if (name in config) {
       return !!config[name as keyof ConfigManager.ConfigData]
     }
@@ -96,7 +96,7 @@ export class ConfigManager {
     }
   }
 
-  static readVolume(config: Partial<ConfigManager.ConfigData>, name: string) {
+  static readVolume(config: Partial<ConfigManager.ConfigData>, name: string): number {
     if (name in config) {
       return Number(config[name as keyof ConfigManager.ConfigData]).clamp(0, 100)
     }

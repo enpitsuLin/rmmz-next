@@ -1,3 +1,5 @@
+import { Utils } from '../core'
+
 /**
  * PluginManager
  *
