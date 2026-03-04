@@ -20,6 +20,9 @@ catalogs:
     '@types/nw.js':
       specifier: ^0.92.0
       version: 0.92.0
+    '@types/pako':
+      specifier: ^1.0.7
+      version: 1.0.7
 
 importers:
 
@@ -58,6 +61,15 @@ importers:
       '@rmmz-lib/database-types':
         specifier: workspace:*
         version: link:../database-types
+      '@types/pako':
+        specifier: catalog:types
+        version: 1.0.7
+      localforage:
+        specifier: ^1.10.0
+        version: 1.10.0
+      pako:
+        specifier: ^1.0.11
+        version: 1.0.11
       pixi.js:
         specifier: 7.4.3
         version: 7.4.3
@@ -815,6 +827,9 @@ packages:
   '@types/nw.js@0.92.0':
     resolution: {integrity: sha512-Lmang5tGGogfjSXx0DTeM3VN48rAX8wF/F+1fGbBd/NaU6RgPBogmzgjqsmqufRqpsZQD5d9fGfCyyzMg43ZkQ==}
 
+  '@types/pako@1.0.7':
+    resolution: {integrity: sha512-YBtzT2ztNF6R/9+UXj2wTGFnC9NklAnASt3sC0h2m1bbH7G6FyBIkt4AN8ThZpNfxUo1b2iMVO0UawiJymEt8A==}
+
   ansis@4.2.0:
     resolution: {integrity: sha512-HqZ5rWlFjGiV0tDm3UxxgNRqsOTniqoKZu0pIAfh7TZQMGuZK+hH0drySty0si0QXj1ieop4+SkSfPZBPPkHig==}
     engines: {node: '>=14'}
@@ -935,6 +950,9 @@ packages:
   hookable@6.0.1:
     resolution: {integrity: sha512-uKGyY8BuzN/a5gvzvA+3FVWo0+wUjgtfSdnmjtrOVwQCZPHpHDH2WRO3VZSOeluYrHoDCiXFffZXs8Dj1ULWtw==}
 
+  immediate@3.0.6:
+    resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
+
   import-without-cache@0.2.5:
     resolution: {integrity: sha512-B6Lc2s6yApwnD2/pMzFh/d5AVjdsDXjgkeJ766FmFuJELIGHNycKRj+l3A39yZPM4CchqNCB4RITEAYB1KUM6A==}
     engines: {node: '>=20.19.0'}
@@ -950,6 +968,9 @@ packages:
     resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
     engines: {node: '>=6'}
     hasBin: true
+
+  lie@3.1.1:
+    resolution: {integrity: sha512-RiNhHysUjhrDQntfYSfY4MU24coXXdEOgw9WGcKHNeEwffDYbF//u87M1EWaMGzuFoSbqW0C9C6lEEhDOAswfw==}
 
   lightningcss-android-arm64@1.31.1:
     resolution: {integrity: sha512-HXJF3x8w9nQ4jbXRiNppBCqeZPIAfUo8zE/kOEGbW5NZvGc/K7nMxbhIr+YlFlHW5mpbg/YFPdbnCh1wAXCKFg==}
@@ -1025,6 +1046,9 @@ packages:
     resolution: {integrity: sha512-l51N2r93WmGUye3WuFoN5k10zyvrVs0qfKBhyC5ogUQ6Ew6JUSswh78mbSO+IU3nTWsyOArqPCcShdQSadghBQ==}
     engines: {node: '>= 12.0.0'}
 
+  localforage@1.10.0:
+    resolution: {integrity: sha512-14/H1aX7hzBBmmh7sGPd+AOMkkIrHM3Z1PAyGgZigA1H1p5O5ANnMyWzvpAETtG68/dC4pC0ncy3+PPGzXZHPg==}
+
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
@@ -1040,6 +1064,9 @@ packages:
 
   obug@2.1.1:
     resolution: {integrity: sha512-uTqF9MuPraAQ+IsnPf366RG4cP9RtUi7MLO1N3KEc+wb0a6yKpeL0lmk2IB1jY5KHPAlTc6T/JRdC/YqxHNwkQ==}
+
+  pako@1.0.11:
+    resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
 
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
@@ -1759,6 +1786,8 @@ snapshots:
     dependencies:
       '@types/node': 25.3.3
 
+  '@types/pako@1.0.7': {}
+
   ansis@4.2.0: {}
 
   ast-kit@3.0.0-beta.1:
@@ -1884,6 +1913,8 @@ snapshots:
 
   hookable@6.0.1: {}
 
+  immediate@3.0.6: {}
+
   import-without-cache@0.2.5: {}
 
   ismobilejs@1.1.1: {}
@@ -1892,6 +1923,10 @@ snapshots:
     optional: true
 
   jsesc@3.1.0: {}
+
+  lie@3.1.1:
+    dependencies:
+      immediate: 3.0.6
 
   lightningcss-android-arm64@1.31.1:
     optional: true
@@ -1943,6 +1978,10 @@ snapshots:
       lightningcss-win32-x64-msvc: 1.31.1
     optional: true
 
+  localforage@1.10.0:
+    dependencies:
+      lie: 3.1.1
+
   math-intrinsics@1.1.0: {}
 
   nanoid@3.3.11: {}
@@ -1950,6 +1989,8 @@ snapshots:
   object-inspect@1.13.4: {}
 
   obug@2.1.1: {}
+
+  pako@1.0.11: {}
 
   pathe@2.0.3: {}
 

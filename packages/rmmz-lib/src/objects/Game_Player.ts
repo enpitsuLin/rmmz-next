@@ -1,4 +1,7 @@
+import { Input } from "../core";
+import { BattleManager } from "../managers/BattleManager";
 import { Game_Character } from "./Game_Character";
+import { Game_Followers } from "./Game_Followers";
 
 /**
  * The game object class for the player. 
@@ -6,10 +9,20 @@ import { Game_Character } from "./Game_Character";
  * It contains event starting determinants and map scrolling functions.
  */
 class Game_Player extends Game_Character {
+  _vehicleType!: string
+  _vehicleGettingOn!: boolean
+  _vehicleGettingOff!: boolean
+  _dashing!: boolean
+  _needsMapReload!: boolean
+  _transferring!: boolean
+  _newMapId!: number
+  _newX!: number
+  _newY!: number
+  _newDirection!: number
+  _fadeType!: number
+  _followers!: Game_Followers
+  _encounterCount!: number
 
-  /**
-   * @param { Game_Player } [gamePlayer]
-   */
   constructor() {
     super();
     this.setTransparent($dataSystem.optTransparent);
@@ -59,7 +72,7 @@ class Game_Player extends Game_Character {
     return super.isStopping();
   }
 
-  reserveTransfer(mapId, x, y, d, fadeType) {
+  reserveTransfer(mapId: number, x: number, y: number, d: number, fadeType: number) {
     this._transferring = true;
     this._newMapId = mapId;
     this._newX = x;
@@ -284,7 +297,7 @@ class Game_Player extends Game_Character {
     this.moveStraight(direction);
   }
 
-  update(sceneActive) {
+  update(sceneActive: boolean) {
     const lastScrolledX = this.scrolledX();
     const lastScrolledY = this.scrolledY();
     const wasMoving = this.isMoving();

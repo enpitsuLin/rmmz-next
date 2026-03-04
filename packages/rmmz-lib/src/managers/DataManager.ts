@@ -7,6 +7,8 @@ import { Game_Actors, Game_Map, Game_Message, Game_Party, Game_Player, Game_Scre
 import type { MZ } from '@rmmz-lib/database-types'
 import { BattleManager } from "./BattleManager";
 import { StorageManager } from "./StorageManager";
+import { SceneManager } from "./SceneManager";
+import { ImageManager } from "./ImageManager";
 
 // The static class that manages the database and game objects.
 export class DataManager {
@@ -55,8 +57,8 @@ export class DataManager {
     return instance;
   }
 
-  static _globalInfo = null;
-  static _errors = [];
+  static _globalInfo: DataManager.SavefileInfo[] | null;
+  static _errors: DataManager.ErrorInfo[] = [];
   static _databaseFiles = [
     { name: "$dataActors", src: "Actors.json" },
     { name: "$dataClasses", src: "Classes.json" },
@@ -75,7 +77,7 @@ export class DataManager {
   ];
 
   static loadGlobalInfo() {
-    StorageManager.loadObject("global")
+    StorageManager.loadObject<DataManager.SavefileInfo[]>("global")
       .then(a => {
         this._globalInfo = a;
         this.removeInvalidGlobalInfo();
@@ -87,7 +89,8 @@ export class DataManager {
   }
 
   static removeInvalidGlobalInfo() {
-    const a = this._globalInfo;
+    // TODO: improve this
+    const a = this._globalInfo!;
     for (const e of a) {
       const t = a.indexOf(e);
       if (!this.savefileExists(t)) {
@@ -114,9 +117,10 @@ export class DataManager {
     }
   }
 
-  static loadDataFile(name, src) {
+  static loadDataFile(name: string, src: string) {
     const t = new XMLHttpRequest();
     const n = "data/" + src;
+    //@ts-expect-error to fix
     window[name] = null;
     t.open("GET", n);
     t.overrideMimeType("application/json");
@@ -125,16 +129,18 @@ export class DataManager {
     t.send();
   }
 
-  static onXhrLoad(t, name, src, url) {
+  static onXhrLoad(t: XMLHttpRequest, name: string, src: string, url: string) {
     if (t.status < 400) {
+      //@ts-expect-error to fix
       window[name] = JSON.parse(t.responseText);
+      //@ts-expect-error to fix
       this.onLoad(window[name]);
     } else {
       this.onXhrError(name, src, url);
     }
   }
 
-  static onXhrError(name, src, url) {
+  static onXhrError(name: string, src: string, url: string) {
     const n = { name: name, src: src, url: url };
     this._errors.push(n);
   }
@@ -142,6 +148,7 @@ export class DataManager {
   static isDatabaseLoaded() {
     this.checkError();
     for (const a of this._databaseFiles) {
+      //@ts-expect-error to fix
       if (!window[a.name]) return false;
     }
     return true;
@@ -170,7 +177,9 @@ export class DataManager {
     return !!$dataMap;
   }
 
-  static onLoad(a) {
+
+  // TODO: improve this
+  static onLoad(a: any) {
     if (this.isMapObject(a)) {
       this.extractMetadata(a);
       this.extractArrayMetadata(a.events);
@@ -179,11 +188,12 @@ export class DataManager {
     }
   }
 
-  static isMapObject(a) {
+  static isMapObject(a: any): a is MZ.Map {
     return !(!a.data || !a.events);
   }
 
-  static extractArrayMetadata(a) {
+  // TODO: improve this
+  static extractArrayMetadata(a: any) {
     if (Array.isArray(a)) {
       for (const e of a) {
         if (e && "note" in e) {
@@ -193,7 +203,8 @@ export class DataManager {
     }
   }
 
-  static extractMetadata(a) {
+  // TODO: improve this
+  static extractMetadata(a: any) {
     const e = /<([^<>:]+)(:?)([^>]*)>/g;
     a.meta = {};
     for (; ;) {
@@ -209,7 +220,8 @@ export class DataManager {
 
   static checkError() {
     if (this._errors.length > 0) {
-      const a = this._errors.shift();
+      // TODO: improve this
+      const a = this._errors.shift()!;
       const e = () => { this.loadDataFile(a.name, a.src); };
       throw ["LoadError", a.url, e];
     }
@@ -279,16 +291,19 @@ export class DataManager {
     this.createGameObjects();
     this.selectSavefileForNewGame();
     $gameParty.setupStartingMembers();
+    // @ts-expect-error to fix
     $gamePlayer.reserveTransfer(-1, 8, 6);
     $gamePlayer.setTransparent(false);
   }
 
   static isAnySavefileExists() {
+    //@ts-expect-error to fix
     return this._globalInfo.some(a => a);
   }
 
   static latestSavefileId() {
-    const a = this._globalInfo;
+    // TODO: improve this
+    const a = this._globalInfo!;
     const e = a.slice(1).filter(a => a);
     const t = Math.max(...e.map(a => a.timestamp));
     const n = a.findIndex(a => a && a.timestamp === t);
@@ -296,7 +311,8 @@ export class DataManager {
   }
 
   static earliestSavefileId() {
-    const a = this._globalInfo;
+    // TODO: improve this
+    const a = this._globalInfo!;
     const e = a.slice(1).filter(a => a);
     const t = Math.min(...e.map(a => a.timestamp));
     const n = a.findIndex(a => a && a.timestamp === t);
@@ -304,7 +320,8 @@ export class DataManager {
   }
 
   static emptySavefileId() {
-    const a = this._globalInfo;
+    // TODO: improve this
+    const a = this._globalInfo!;
     const e = this.maxSavefiles();
     if (a.length < e) return Math.max(1, a.length);
     else {
@@ -314,12 +331,13 @@ export class DataManager {
   }
 
   static loadAllSavefileImages() {
-    for (const a of this._globalInfo.filter(a => a)) {
+    // TODO: improve this
+    for (const a of this._globalInfo!.filter(a => a)) {
       this.loadSavefileImages(a);
     }
   }
 
-  static loadSavefileImages(a) {
+  static loadSavefileImages(a: DataManager.SavefileInfo) {
     if (a.characters && Symbol.iterator in a.characters) {
       for (const e of a.characters) {
         ImageManager.loadCharacter(e[0]);
@@ -336,29 +354,31 @@ export class DataManager {
     return 20;
   }
 
-  static savefileInfo(a) {
-    const e = this._globalInfo;
+  static savefileInfo(a: number): DataManager.SavefileInfo | null {
+    // TODO: improve this
+    const e = this._globalInfo!;
     return e[a] ? e[a] : null;
   }
 
-  static savefileExists(a) {
+  static savefileExists(a: number) {
     const e = this.makeSavename(a);
     return StorageManager.exists(e);
   }
 
-  static saveGame(a) {
+  static saveGame(a: number) {
     const e = this.makeSaveContents();
     const t = this.makeSavename(a);
     return StorageManager.saveObject(t, e).then(() => {
-      this._globalInfo[a] = this.makeSavefileInfo();
+      // TODO: improve this
+      this._globalInfo![a] = this.makeSavefileInfo();
       this.saveGlobalInfo();
       return 0;
     });
   }
 
-  static loadGame(a) {
+  static loadGame(a: number) {
     const e = this.makeSavename(a);
-    return StorageManager.loadObject(e).then(a => {
+    return StorageManager.loadObject<DataManager.SaveContents>(e).then(a => {
       this.createGameObjects();
       this.extractSaveContents(a);
       this.correctDataErrors();
@@ -366,7 +386,7 @@ export class DataManager {
     });
   }
 
-  static makeSavename(a) {
+  static makeSavename(a: number) {
     return "file%1".format(a);
   }
 
@@ -377,7 +397,7 @@ export class DataManager {
   }
 
   static makeSavefileInfo() {
-    const a = {};
+    const a = {} as DataManager.SavefileInfo;
     a.title = $dataSystem.gameTitle;
     a.characters = $gameParty.charactersForSavefile();
     a.faces = $gameParty.facesForSavefile();
@@ -387,7 +407,7 @@ export class DataManager {
   }
 
   static makeSaveContents() {
-    const a = {};
+    const a = {} as DataManager.SaveContents;
     a.system = $gameSystem;
     a.screen = $gameScreen;
     a.timer = $gameTimer;
@@ -401,7 +421,7 @@ export class DataManager {
     return a;
   }
 
-  static extractSaveContents(a) {
+  static extractSaveContents(a: DataManager.SaveContents) {
     try {
       $gameSystem = DataManager._restoreInstance(new Game_System(), a.system);
       $gameScreen = DataManager._restoreInstance(new Game_Screen(), a.screen);
@@ -425,4 +445,31 @@ export class DataManager {
 
 export namespace DataManager {
   export type DatabaseFile<T> = [null, ...T[]]
+
+  export interface ErrorInfo {
+    name: string;
+    src: string;
+    url: string;
+  }
+
+  export interface SavefileInfo {
+    title: string;
+    characters: [string, number][];
+    faces: [string, number][];
+    playtime: string;
+    timestamp: number;
+  }
+
+  export interface SaveContents {
+    system: Game_System;
+    screen: Game_Screen;
+    timer: Game_Timer;
+    switches: Game_Switches;
+    variables: Game_Variables;
+    selfSwitches: Game_SelfSwitches;
+    actors: Game_Actors;
+    party: Game_Party;
+    map: Game_Map;
+    player: Game_Player;
+  }
 }

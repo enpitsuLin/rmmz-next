@@ -315,7 +315,7 @@ class Game_CharacterBase {
     return px >= -gw && px <= gw && py >= -gh && py <= gh;
   }
 
-  update() {
+  update(...args: any[]) {
     if (this.isStopping()) {
       this.updateStop();
     }

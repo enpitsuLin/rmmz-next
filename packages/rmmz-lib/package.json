@@ -28,7 +28,10 @@
     "vite": "catalog:dev"
   },
   "dependencies": {
-    "pixi.js": "7.4.3",
-    "@rmmz-lib/database-types": "workspace:*"
+    "@rmmz-lib/database-types": "workspace:*",
+    "@types/pako": "catalog:types",
+    "localforage": "^1.10.0",
+    "pako": "^1.0.11",
+    "pixi.js": "7.4.3"
   }
 }
