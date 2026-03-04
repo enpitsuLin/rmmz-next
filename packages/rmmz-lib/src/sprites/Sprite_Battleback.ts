@@ -1,3 +1,5 @@
+import { TilingSprite } from "../core"
+
 /**
  * Sprite_Battleback
  *

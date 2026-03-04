@@ -1,3 +1,5 @@
+import { Spriteset_Base } from "./Spriteset_Base"
+
 /**
  * Spriteset_Map
  *
@@ -165,7 +167,7 @@ export class Spriteset_Map extends Spriteset_Base {
   }
 
   processBalloonRequests() {
-    for (;;) {
+    for (; ;) {
       const request = $gameTemp.retrieveBalloon()
       if (request) {
         this.createBalloon(request)

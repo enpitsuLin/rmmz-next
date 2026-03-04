@@ -1,3 +1,5 @@
+import { Sprite_Battler } from "./Sprite_Battler"
+
 /**
  * Sprite_Actor
  *

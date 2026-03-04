@@ -1,3 +1,5 @@
+import { Spriteset_Base } from "./Spriteset_Base"
+
 /*
  /* Spriteset_Battle
  /*
