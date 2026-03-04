@@ -1,5 +1,5 @@
 import { DataManager } from "../managers/DataManager";
-import type { MZ } from "../types";
+import type { MZ } from '@rmmz-lib/database-types'
 
 /**
  * The game object class for handling skills, items, weapons, and armor. 

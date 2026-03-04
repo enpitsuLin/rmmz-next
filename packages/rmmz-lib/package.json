@@ -26,6 +26,7 @@
     "vite": "catalog:dev"
   },
   "dependencies": {
-    "pixi.js": "7.4.3"
+    "pixi.js": "7.4.3",
+    "@rmmz-lib/database-types": "workspace:*"
   }
 }

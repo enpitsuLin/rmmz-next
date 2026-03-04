@@ -1,4 +1,4 @@
-import type { MZ } from "../types";
+import type { MZ } from '@rmmz-lib/database-types'
 import { Game_Unit } from "./Game_Unit";
 
 /**

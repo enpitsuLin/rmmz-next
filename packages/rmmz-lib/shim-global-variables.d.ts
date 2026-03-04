@@ -12,10 +12,9 @@ import type {
   Game_Timer,
   Game_Troop,
   Game_Variables,
-
-  MZ
 } from './src'
 import type { DataManager } from './src/managers/DataManager'
+import type { MZ } from '@rmmz-lib/database-types'
 
 
 declare global {

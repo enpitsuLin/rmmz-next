@@ -1,5 +1,5 @@
 {
-  "name": "rmmz-lib-monorepo",
+  "name": "@rmmz-lib/monorepo",
   "private": true,
   "type": "module"
 }

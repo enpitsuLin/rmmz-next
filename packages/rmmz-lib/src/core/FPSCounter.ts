@@ -1,20 +1,20 @@
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-// FPSCounter
-//
-// This is based on Darsain's FPSMeter which is under the MIT license.
-// The original can be found at https://github.com/Darsain/fpsmeter.
+/**
+ * This is based on Darsain's FPSMeter which is under the MIT license.
+ * The original can be found at https://github.com/Darsain/fpsmeter.
+ */
 export class FPSCounter {
-  _tickCount: number = 0;
-  _frameTime: number = 100;
-  _frameStart: number = 0;
-  _lastLoop: number = performance.now() - 100;
-  _showFps: boolean = true;
-  fps: number = 0;
-  duration: number = 0;
+  _tickCount: number
+  _frameTime: number
+  _frameStart: number
+  _lastLoop: number
+  _showFps: boolean
 
-  _boxDiv: HTMLDivElement;
-  _labelDiv: HTMLDivElement;
-  _numberDiv: HTMLDivElement;
+  fps: number
+  duration: number
+
+  _boxDiv!: HTMLDivElement;
+  _labelDiv!: HTMLDivElement;
+  _numberDiv!: HTMLDivElement;
 
   constructor() {
     this._tickCount = 0;

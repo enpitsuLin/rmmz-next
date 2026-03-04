@@ -1,6 +1,6 @@
 import { Graphics } from "../core";
 import { AudioManager } from "../managers/AudioManager";
-import type { MZ } from "../types";
+import type { MZ } from '@rmmz-lib/database-types'
 
 /**
  * The game object class for the system data.

@@ -4,7 +4,7 @@
 
 import { Graphics, Utils } from "../core";
 import { Game_Actors, Game_Map, Game_Message, Game_Party, Game_Player, Game_Screen, Game_SelfSwitches, Game_Switches, Game_System, Game_Temp, Game_Timer, Game_Troop, Game_Variables } from "../objects";
-import type { MZ } from "../types";
+import type { MZ } from '@rmmz-lib/database-types'
 import { BattleManager } from "./BattleManager";
 import { StorageManager } from "./StorageManager";
 

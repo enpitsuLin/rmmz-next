@@ -1,5 +1,5 @@
 import { DataManager } from "../managers/DataManager";
-import type { MZ } from "../types";
+import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_Actor } from "./Game_Actor";
 import type { Game_Enemy } from "./Game_Enemy";
 
