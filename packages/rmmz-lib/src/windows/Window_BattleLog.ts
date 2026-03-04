@@ -1,4 +1,6 @@
-import { Window_Base } from "./Window_Base"
+import { Input, Rectangle, TouchInput } from '../core'
+import { DataManager, SoundManager, TextManager } from '../managers'
+import { Window_Base } from './Window_Base'
 
 /**
  * Window_BattleLog

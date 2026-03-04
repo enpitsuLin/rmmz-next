@@ -1,4 +1,6 @@
+import { BattleManager, SoundManager, TextManager } from '../managers'
 import { DataManager } from '../managers/DataManager'
+import { Game_Action } from './Game_Action'
 import { Game_Battler } from './Game_Battler'
 import { Game_Item } from './Game_Item'
 

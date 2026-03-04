@@ -1,3 +1,4 @@
+import { TextManager } from "../managers"
 import { Window_HorzCommand } from "./Window_HorzCommand"
 
 /**

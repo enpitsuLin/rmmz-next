@@ -1,4 +1,5 @@
-import { Window_StatusBase } from "./Window_StatusBase"
+import { ColorManager, ImageManager, TextManager } from '../managers'
+import { Window_StatusBase } from './Window_StatusBase'
 
 /**
  * Window_EquipStatus

@@ -1,4 +1,5 @@
-import { Window_Command } from "./Window_Command"
+import { ConfigManager, TextManager } from '../managers'
+import { Window_Command } from './Window_Command'
 
 /**
  * Window_ActorCommand
