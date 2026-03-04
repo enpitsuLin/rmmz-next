@@ -1,5 +1,4 @@
 import type { RGBA } from '../types'
-import { EasingType } from '../types'
 
 /**
  * The game object class for a picture.
@@ -22,7 +21,7 @@ class Game_Picture {
   _targetOpacity!: number
   _duration!: number
   _wholeDuration!: number
-  _easingType!: EasingType | 0
+  _easingType!: number
   _easingExponent!: number
 
   _tone!: RGBA | null

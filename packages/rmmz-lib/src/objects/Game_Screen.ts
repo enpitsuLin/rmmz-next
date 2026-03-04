@@ -1,4 +1,4 @@
-import type { EasingType, RGBA } from '../types'
+import type { RGBA } from '../types'
 import { Game_Picture } from './Game_Picture'
 
 /**
@@ -33,7 +33,7 @@ class Game_Screen {
     this.clear()
   }
 
-  clear() {
+  clear(): void {
     this.clearFade()
     this.clearTone()
     this.clearFlash()
@@ -168,7 +168,7 @@ class Game_Screen {
     this._fadeOutDuration = 0
   }
 
-  startTint(tone: number[], duration: number) {
+  startTint(tone: RGBA, duration: number) {
     this._toneTarget = tone.clone() as RGBA
     this._toneDuration = duration
     if (this._toneDuration === 0) {
@@ -345,7 +345,7 @@ class Game_Screen {
     opacity: number,
     blendMode: number,
     duration: number,
-    easingType: EasingType | 0,
+    easingType: number
   ) {
     const picture = this.picture(pictureId)
     if (picture) {
