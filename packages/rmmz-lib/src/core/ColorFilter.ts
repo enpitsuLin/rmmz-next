@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js'
+import type { RGBA } from '../types'
 
 /**
  * The color filter for WebGL.
@@ -30,7 +31,7 @@ export class ColorFilter extends PIXI.Filter {
    *
    * @param {array} tone - The color tone [r, g, b, gray].
    */
-  setColorTone(tone: [r: number, g: number, b: number, gray: number][]) {
+  setColorTone(tone: RGBA) {
     if (!(tone instanceof Array)) {
       throw new Error("Argument must be an array");
     }
@@ -42,7 +43,7 @@ export class ColorFilter extends PIXI.Filter {
    *
    * @param {array} color - The blend color [r, g, b, a].
    */
-  setBlendColor(color: [r: number, g: number, b: number, a: number][]) {
+  setBlendColor(color: RGBA) {
     if (!(color instanceof Array)) {
       throw new Error("Argument must be an array");
     }

@@ -6,6 +6,10 @@ import { Graphics } from './Graphics'
  * @namespace
  */
 export class Video {
+  static _element: HTMLVideoElement | null = null;
+  static _loading: boolean = false;
+  static _volume: number = 1;
+
   constructor() {
     throw new Error("This is a static class");
   }
@@ -16,7 +20,7 @@ export class Video {
    * @param {number} width - The width of the video.
    * @param {number} height - The height of the video.
    */
-  static initialize(width, height) {
+  static initialize(width: number, height: number) {
     this._element = null;
     this._loading = false;
     this._volume = 1;
@@ -31,7 +35,7 @@ export class Video {
    * @param {number} width - The width of the video.
    * @param {number} height - The height of the video.
    */
-  static resize(width, height) {
+  static resize(width: number, height: number) {
     if (this._element) {
       this._element.style.width = width + "px";
       this._element.style.height = height + "px";
@@ -43,12 +47,12 @@ export class Video {
    *
    * @param {string} src - The url of the video.
    */
-  static play(src) {
-    this._element.src = src;
-    this._element.onloadeddata = this._onLoad.bind(this);
-    this._element.onerror = this._onError.bind(this);
-    this._element.onended = this._onEnd.bind(this);
-    this._element.load();
+  static play(src: string) {
+    this._element!.src = src;
+    this._element!.onloadeddata = this._onLoad.bind(this);
+    this._element!.onerror = this._onError.bind(this);
+    this._element!.onended = this._onEnd.bind(this);
+    this._element!.load();
     this._loading = true;
   }
 
@@ -66,7 +70,7 @@ export class Video {
    *
    * @param {number} volume - The volume for videos (0 to 1).
    */
-  static setVolume(volume) {
+  static setVolume(volume: number) {
     this._volume = volume;
     if (this._element) {
       this._element.volume = this._volume;
@@ -78,20 +82,20 @@ export class Video {
     this._element.id = "gameVideo";
     this._element.style.position = "absolute";
     this._element.style.margin = "auto";
-    this._element.style.top = 0;
-    this._element.style.left = 0;
-    this._element.style.right = 0;
-    this._element.style.bottom = 0;
-    this._element.style.opacity = 0;
-    this._element.style.zIndex = 2;
+    this._element.style.top = "0px";
+    this._element.style.left = "0px";
+    this._element.style.right = "0px";
+    this._element.style.bottom = "0px";
+    this._element.style.opacity = "0";
+    this._element.style.zIndex = "2";
     this._element.setAttribute("playsinline", "");
     this._element.oncontextmenu = () => false;
     document.body.appendChild(this._element);
   }
 
   static _onLoad() {
-    this._element.volume = this._volume;
-    this._element.play();
+    this._element!.volume = this._volume;
+    this._element!.play();
     this._updateVisibility(true);
     this._loading = false;
   }
@@ -99,26 +103,26 @@ export class Video {
   static _onError() {
     this._updateVisibility(false);
     const retry = () => {
-      this._element.load();
+      this._element!.load();
     };
-    throw ["LoadError", this._element.src, retry];
+    throw ["LoadError", this._element!.src, retry];
   }
 
   static _onEnd() {
     this._updateVisibility(false);
   }
 
-  static _updateVisibility(videoVisible) {
+  static _updateVisibility(videoVisible: boolean) {
     if (videoVisible) {
       Graphics.hideScreen();
     } else {
       Graphics.showScreen();
     }
-    this._element.style.opacity = videoVisible ? 1 : 0;
+    this._element!.style.opacity = videoVisible ? "1" : "0";
   }
 
   static _isVisible() {
-    return this._element.style.opacity > 0;
+    return Number(this._element!.style.opacity) > 0;
   }
 
   static _setupEventHandlers() {
@@ -129,8 +133,8 @@ export class Video {
   }
 
   static _onUserGesture() {
-    if (!this._element.src && this._element.paused) {
-      this._element.play().catch(() => 0);
+    if (!this._element!.src && this._element!.paused) {
+      this._element!.play().catch(() => 0);
     }
   }
 }

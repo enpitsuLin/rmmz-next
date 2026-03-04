@@ -4,6 +4,18 @@
  * @namespace
  */
 export class Input {
+  static _currentState: Record<string, boolean>
+  static _previousState: Record<string, boolean>
+  /** Per-gamepad button/axis state: [gamepadIndex] => boolean[] (indices 0-15: buttons 0-11, up/down/left/right from axes) */
+  static _gamepadStates: (boolean[] | undefined)[];
+  static _latestButton: null | string
+  static _pressedTime: number;
+  static _dir4: number;
+  static _dir8: number;
+  static _preferredAxis: string
+  static _date: number;
+  static _virtualButton: null | string
+
   constructor() {
     throw new Error("This is a static class");
   }
@@ -35,7 +47,7 @@ export class Input {
   *
   * @type Object
   */
-  static keyMapper = {
+  static keyMapper: Record<number, string> = {
     9: "tab",
     13: "ok",
     16: "shift",
@@ -67,7 +79,7 @@ export class Input {
    *
    * @type Object
    */
-  static gamepadMapper = {
+  static gamepadMapper: Record<number, string> = {
     0: "ok",
     1: "cancel",
     2: "shift",
@@ -101,7 +113,7 @@ export class Input {
    */
   static update() {
     this._pollGamepads();
-    if (this._currentState[this._latestButton]) {
+    if (this._currentState[this._latestButton!]) {
       this._pressedTime++;
     } else {
       this._latestButton = null;
@@ -128,7 +140,7 @@ export class Input {
    * @param {string} keyName - The mapped name of the key.
    * @returns {boolean} True if the key is pressed.
    */
-  static isPressed(keyName) {
+  static isPressed(keyName: string): boolean {
     if (this._isEscapeCompatible(keyName) && this.isPressed("escape")) {
       return true;
     } else {
@@ -142,7 +154,7 @@ export class Input {
    * @param {string} keyName - The mapped name of the key.
    * @returns {boolean} True if the key is triggered.
    */
-  static isTriggered(keyName) {
+  static isTriggered(keyName: string): boolean {
     if (this._isEscapeCompatible(keyName) && this.isTriggered("escape")) {
       return true;
     } else {
@@ -156,7 +168,7 @@ export class Input {
    * @param {string} keyName - The mapped name of the key.
    * @returns {boolean} True if the key is repeated.
    */
-  static isRepeated(keyName) {
+  static isRepeated(keyName: string): boolean {
     if (this._isEscapeCompatible(keyName) && this.isRepeated("escape")) {
       return true;
     } else {
@@ -176,7 +188,7 @@ export class Input {
    * @param {string} keyName - The mapped name of the key.
    * @returns {boolean} True if the key is long-pressed.
    */
-  static isLongPressed(keyName) {
+  static isLongPressed(keyName: string): boolean {
     if (this._isEscapeCompatible(keyName) && this.isLongPressed("escape")) {
       return true;
     } else {
@@ -193,7 +205,7 @@ export class Input {
    * @type number
    * @name Input.dir4
    */
-  static get dir4() {
+  static get dir4(): number {
     return this._dir4;
   }
 
@@ -204,7 +216,7 @@ export class Input {
    * @type number
    * @name Input.dir8
    */
-  static get dir8() {
+  static get dir8(): number {
     return this._dir8;
   }
 
@@ -215,11 +227,11 @@ export class Input {
    * @type number
    * @name Input.date
    */
-  static get date() {
+  static get date(): number {
     return this._date;
   }
 
-  static virtualClick(buttonName) {
+  static virtualClick(buttonName: string) {
     this._virtualButton = buttonName;
   }
 
@@ -229,7 +241,7 @@ export class Input {
     window.addEventListener("blur", this._onLostFocus.bind(this));
   }
 
-  static _onKeyDown(event) {
+  static _onKeyDown(event: KeyboardEvent) {
     if (this._shouldPreventDefault(event.keyCode)) {
       event.preventDefault();
     }
@@ -242,7 +254,7 @@ export class Input {
     }
   }
 
-  static _shouldPreventDefault(keyCode) {
+  static _shouldPreventDefault(keyCode: number): boolean {
     switch (keyCode) {
       case 8:  // backspace
       case 9:  // tab
@@ -257,7 +269,7 @@ export class Input {
     return false;
   }
 
-  static _onKeyUp(event) {
+  static _onKeyUp(event: KeyboardEvent) {
     const buttonName = this.keyMapper[event.keyCode];
     if (buttonName) {
       this._currentState[buttonName] = false;
@@ -281,9 +293,9 @@ export class Input {
     }
   }
 
-  static _updateGamepadState(gamepad) {
+  static _updateGamepadState(gamepad: Gamepad) {
     const lastState = this._gamepadStates[gamepad.index] || [];
-    const newState = [];
+    const newState: boolean[] = [];
     const buttons = gamepad.buttons;
     const axes = gamepad.axes;
     const threshold = 0.5;
@@ -333,19 +345,19 @@ export class Input {
     this._dir4 = this._makeNumpadDirection(x, y);
   }
 
-  static _signX() {
+  static _signX(): number {
     const left = this.isPressed("left") ? 1 : 0;
     const right = this.isPressed("right") ? 1 : 0;
     return right - left;
   }
 
-  static _signY() {
+  static _signY(): number {
     const up = this.isPressed("up") ? 1 : 0;
     const down = this.isPressed("down") ? 1 : 0;
     return down - up;
   }
 
-  static _makeNumpadDirection(x, y) {
+  static _makeNumpadDirection(x: number, y: number): number {
     if (x === 0 && y === 0) {
       return 0;
     } else {
@@ -353,7 +365,7 @@ export class Input {
     }
   }
 
-  static _isEscapeCompatible(keyName) {
+  static _isEscapeCompatible(keyName: string): boolean {
     return keyName === "cancel" || keyName === "menu";
   }
 }

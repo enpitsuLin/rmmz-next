@@ -1,4 +1,8 @@
 import * as PIXI from 'pixi.js'
+import type { Bitmap } from './Bitmap'
+import { ColorFilter } from './ColorFilter'
+import { Rectangle } from './Rectangle'
+import type { RGBA } from '../types'
 
 /**
  * The basic object that is rendered to the game screen.
@@ -8,7 +12,21 @@ import * as PIXI from 'pixi.js'
  * @param {Bitmap} bitmap - The image for the sprite.
  */
 export class Sprite extends PIXI.Sprite {
-  constructor(bitmap) {
+  spriteId!: number
+  _bitmap: Bitmap | null = null
+  _frame!: Rectangle
+  _hue: number
+  _blendColor: RGBA
+  _colorTone: RGBA
+  _colorFilter: ColorFilter | null = null
+  _blendMode: number
+  _hidden: boolean
+  _refreshFrame!: boolean
+
+  static _emptyBaseTexture: PIXI.BaseTexture | null = null
+  static _counter: number = 0
+
+  constructor(bitmap?: Bitmap | null) {
     super();
 
     if (!Sprite._emptyBaseTexture) {
@@ -20,7 +38,7 @@ export class Sprite extends PIXI.Sprite {
     const texture = new PIXI.Texture(Sprite._emptyBaseTexture, frame);
     this.texture = texture;
     this.spriteId = Sprite._counter++;
-    this._bitmap = bitmap;
+    this._bitmap = bitmap ?? null;
     this._frame = frame;
     this._hue = 0;
     this._blendColor = [0, 0, 0, 0];
@@ -31,47 +49,46 @@ export class Sprite extends PIXI.Sprite {
     this._onBitmapChange();
   }
 
-  static _emptyBaseTexture = null;
-  static _counter = 0;
-
-  get bitmap() {
+  get bitmap(): Bitmap | null {
     return this._bitmap;
   }
 
-  set bitmap(value) {
+  set bitmap(value: Bitmap | null) {
     if (this._bitmap !== value) {
       this._bitmap = value;
       this._onBitmapChange();
     }
   }
 
-  get width() {
+  get width(): number {
     return this._frame.width;
   }
 
-  set width(value) {
+  set width(value: number) {
     this._frame.width = value;
     this._refresh();
   }
 
-  get height() {
+  get height(): number {
     return this._frame.height;
   }
 
-  set height(value) {
+  set height(value: number) {
     this._frame.height = value;
     this._refresh();
   }
 
-  get opacity() {
+  get opacity(): number {
     return this.alpha * 255;
   }
 
-  set opacity(value) {
+  set opacity(value: number) {
     this.alpha = value.clamp(0, 255) / 255;
   }
 
-  get blendMode() {
+  // PIXI.Sprite has blendMode as property; we override with accessor for ColorFilter sync
+  // @ts-expect-error - overriding parent property with accessor is intentional
+  get blendMode(): number {
     if (this._colorFilter) {
       return this._colorFilter.blendMode;
     } else {
@@ -79,46 +96,47 @@ export class Sprite extends PIXI.Sprite {
     }
   }
 
-  set blendMode(value) {
+  set blendMode(value: number) {
     this._blendMode = value;
     if (this._colorFilter) {
       this._colorFilter.blendMode = value;
     }
   }
 
-  destroy() {
-    const options = { children: true, texture: true };
+  destroy(): void {
+    const options: PIXI.IDestroyOptions = { children: true, texture: true };
     super.destroy(options);
   }
 
-  update() {
+  update(): void {
     for (const child of this.children) {
-      if (child.update) {
-        child.update();
+      const c = child as PIXI.DisplayObject & { update?: () => void };
+      if (c.update) {
+        c.update();
       }
     }
   }
 
-  hide() {
+  hide(): void {
     this._hidden = true;
     this.updateVisibility();
   }
 
-  show() {
+  show(): void {
     this._hidden = false;
     this.updateVisibility();
   }
 
-  updateVisibility() {
+  updateVisibility(): void {
     this.visible = !this._hidden;
   }
 
-  move(x, y) {
+  move(x: number, y: number): void {
     this.x = x;
     this.y = y;
   }
 
-  setFrame(x, y, width, height) {
+  setFrame(x: number, y: number, width: number, height: number): void {
     this._refreshFrame = false;
     const frame = this._frame;
     if (
@@ -135,42 +153,42 @@ export class Sprite extends PIXI.Sprite {
     }
   }
 
-  setHue(hue) {
+  setHue(hue: number): void {
     if (this._hue !== Number(hue)) {
       this._hue = Number(hue);
       this._updateColorFilter();
     }
   }
 
-  getBlendColor() {
-    return this._blendColor.clone();
+  getBlendColor(): RGBA {
+    return this._blendColor.clone() as RGBA;
   }
 
-  setBlendColor(color) {
+  setBlendColor(color: RGBA): void {
     if (!(color instanceof Array)) {
       throw new Error("Argument must be an array");
     }
     if (!this._blendColor.equals(color)) {
-      this._blendColor = color.clone();
+      this._blendColor = color.clone() as RGBA;
       this._updateColorFilter();
     }
   }
 
-  getColorTone() {
-    return this._colorTone.clone();
+  getColorTone(): RGBA {
+    return this._colorTone.clone() as RGBA;
   }
 
-  setColorTone(tone) {
+  setColorTone(tone: RGBA): void {
     if (!(tone instanceof Array)) {
       throw new Error("Argument must be an array");
     }
     if (!this._colorTone.equals(tone)) {
-      this._colorTone = tone.clone();
+      this._colorTone = tone.clone() as RGBA;
       this._updateColorFilter();
     }
   }
 
-  _onBitmapChange() {
+  _onBitmapChange(): void {
     if (this._bitmap) {
       this._refreshFrame = true;
       this._bitmap.addLoadListener(this._onBitmapLoad.bind(this));
@@ -180,7 +198,7 @@ export class Sprite extends PIXI.Sprite {
     }
   }
 
-  _onBitmapLoad(bitmapLoaded) {
+  _onBitmapLoad(bitmapLoaded: Bitmap): void {
     if (bitmapLoaded === this._bitmap) {
       if (this._refreshFrame && this._bitmap) {
         this._refreshFrame = false;
@@ -191,7 +209,7 @@ export class Sprite extends PIXI.Sprite {
     this._refresh();
   }
 
-  _refresh() {
+  _refresh(): void {
     const texture = this.texture;
     const frameX = Math.floor(this._frame.x);
     const frameY = Math.floor(this._frame.y);
@@ -220,7 +238,7 @@ export class Sprite extends PIXI.Sprite {
     }
   }
 
-  _createColorFilter() {
+  _createColorFilter(): void {
     this._colorFilter = new ColorFilter();
     if (!this.filters) {
       this.filters = [];
@@ -228,12 +246,14 @@ export class Sprite extends PIXI.Sprite {
     this.filters.push(this._colorFilter);
   }
 
-  _updateColorFilter() {
+  _updateColorFilter(): void {
     if (!this._colorFilter) {
       this._createColorFilter();
     }
-    this._colorFilter.setHue(this._hue);
-    this._colorFilter.setBlendColor(this._blendColor);
-    this._colorFilter.setColorTone(this._colorTone);
+    const filter = this._colorFilter!;
+    filter.setHue(this._hue);
+    // ColorFilter expects tuple types; RGBA is compatible at runtime
+    filter.setBlendColor(this._blendColor);
+    filter.setColorTone(this._colorTone);
   }
 }

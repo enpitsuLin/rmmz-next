@@ -1,5 +1,3 @@
-import type { database } from "./database";
-
 export type RGBA = [r: number, g: number, b: number, a: number];
 
 export const enum EasingType {
