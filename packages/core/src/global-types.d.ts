@@ -2,6 +2,7 @@
 /// <reference types="./shim-monkey-patches.d.ts" />
 /// <reference types="./shim-global-variables.d.ts" />
 /// <reference types="./shim-pixi.d.ts" />
+/// <reference types="nw.js" />
 
 interface HTMLScriptElement {
   _url?: string

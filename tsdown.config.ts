@@ -11,10 +11,10 @@ export default defineConfig({
     async customExports(exports, context) {
       if (context.pkg.name === '@rmmz-lib/core') {
         if (context.isPublish) {
-          exports['./types'] = './dist/types.d.ts'
+          exports['./global-types'] = './dist/global-types.d.ts'
         }
         else {
-          exports['./types'] = './src/types.d.ts'
+          exports['./global-types'] = './src/global-types.d.ts'
         }
       }
       return exports

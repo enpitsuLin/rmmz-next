@@ -1,3 +1,204 @@
-export function fn() {
-  return 'Hello, tsdown!'
+import { PluginManager, Scene_Boot, SceneManager } from '@rmmz-lib/core'
+
+$dataActors = null
+$dataClasses = null
+$dataSkills = null
+$dataItems = null
+$dataWeapons = null
+$dataArmors = null
+$dataEnemies = null
+$dataTroops = null
+$dataStates = null
+$dataAnimations = null
+$dataTilesets = null
+$dataCommonEvents = null
+$dataSystem = null
+$dataMapInfos = null
+$dataMap = null
+$gameTemp = null
+$gameSystem = null
+$gameScreen = null
+$gameTimer = null
+$gameMessage = null
+$gameSwitches = null
+$gameVariables = null
+$gameSelfSwitches = null
+$gameActors = null
+$gameParty = null
+$gameTroop = null
+$gameMap = null
+$gamePlayer = null
+$testEvent = null
+
+$plugins = []
+
+// ts-expect-error global PIXI type
+// globalThis.PIXI = PIXI
+
+// =============================================================================
+// main.js v1.10.0
+// =============================================================================
+
+const scriptUrls = [
+  // 'js/libs/pixi.js',
+  // 'js/libs/pako.min.js',
+  // 'js/libs/localforage.min.js',
+  'js/libs/effekseer.min.js',
+  'js/libs/vorbisdecoder.js',
+  // 'js/rmmz_core.js',
+  // 'js/rmmz_managers.js',
+  // 'js/rmmz_objects.js',
+  // 'js/rmmz_scenes.js',
+  // 'js/rmmz_sprites.js',
+  // 'js/rmmz_windows.js',
+  'js/plugins.js',
+]
+const effekseerWasmUrl = 'js/libs/effekseer.wasm'
+
+class Main {
+  error: Error | null = null
+  xhrSucceeded: boolean = false
+  loadCount: number = 0
+
+  numScripts: number | undefined
+
+  constructor() {
+    this.xhrSucceeded = false
+    this.loadCount = 0
+    this.error = null
+  }
+
+  run(): void {
+    this.showLoadingSpinner()
+    this.testXhr()
+    this.hookNwjsClose()
+    this.loadMainScripts()
+  }
+
+  showLoadingSpinner(): void {
+    const loadingSpinner = document.createElement('div')
+    const loadingSpinnerImage = document.createElement('div')
+    loadingSpinner.id = 'loadingSpinner'
+    loadingSpinnerImage.id = 'loadingSpinnerImage'
+    loadingSpinner.appendChild(loadingSpinnerImage)
+    document.body.appendChild(loadingSpinner)
+  }
+
+  eraseLoadingSpinner(): void {
+    const loadingSpinner = document.getElementById('loadingSpinner')
+    if (loadingSpinner) {
+      document.body.removeChild(loadingSpinner)
+    }
+  }
+
+  testXhr(): void {
+    const xhr = new XMLHttpRequest()
+    xhr.open('GET', import.meta.url)
+    xhr.onload = () => (this.xhrSucceeded = true)
+    xhr.send()
+  }
+
+  hookNwjsClose(): void {
+    // [Note] When closing the window, the NW.js process sometimes does
+    //   not terminate properly. This code is a workaround for that.
+    if (typeof nw === 'object') {
+      nw.Window.get().on('close', () => nw.App.quit())
+    }
+  }
+
+  loadMainScripts(): void {
+    for (const url of scriptUrls) {
+      const script = document.createElement('script')
+      script.type = 'text/javascript'
+      script.src = url
+      script.async = false
+      script.defer = true
+      script.onload = this.onScriptLoad.bind(this)
+      script.onerror = this.onScriptError.bind(this)
+      script._url = url
+      document.body.appendChild(script)
+    }
+    this.numScripts = scriptUrls.length
+    window.addEventListener('load', this.onWindowLoad.bind(this))
+    window.addEventListener('error', this.onWindowError.bind(this))
+  }
+
+  onScriptLoad(): void {
+    if (++this.loadCount === this.numScripts) {
+      PluginManager.setup($plugins)
+    }
+  }
+
+  onScriptError(e: ErrorEvent) {
+    this.printError('Failed to load', (e.target as HTMLScriptElement)._url!)
+  }
+
+  printError(name: string, message: string) {
+    this.eraseLoadingSpinner()
+    if (!document.getElementById('errorPrinter')) {
+      const errorPrinter = document.createElement('div')
+      errorPrinter.id = 'errorPrinter'
+      errorPrinter.innerHTML = this.makeErrorHtml(name, message)
+      document.body.appendChild(errorPrinter)
+    }
+  }
+
+  makeErrorHtml(name: string, message: string) {
+    const nameDiv = document.createElement('div')
+    const messageDiv = document.createElement('div')
+    nameDiv.id = 'errorName'
+    messageDiv.id = 'errorMessage'
+    nameDiv.innerHTML = name
+    messageDiv.innerHTML = message
+    return nameDiv.outerHTML + messageDiv.outerHTML
+  }
+
+  onWindowLoad(): void {
+    if (!this.xhrSucceeded) {
+      const message = 'Your browser does not allow to read local files.'
+      this.printError('Error', message)
+    }
+    else if (this.isPathRandomized()) {
+      const message = 'Please move the Game.app to a different folder.'
+      this.printError('Error', message)
+    }
+    else if (this.error) {
+      this.printError(this.error.name, this.error.message)
+    }
+    else {
+      this.initEffekseerRuntime()
+    }
+  }
+
+  onWindowError(event): void {
+    if (!this.error) {
+      this.error = event.error
+    }
+  }
+
+  isPathRandomized(): boolean {
+    // [Note] We cannot save the game properly when Gatekeeper Path
+    //   Randomization is in effect.
+    return (
+      typeof process === 'object'
+      && process.mainModule.filename.startsWith('/private/var')
+    )
+  }
+
+  initEffekseerRuntime(): void {
+    const onLoad = this.onEffekseerLoad.bind(this)
+    const onError = this.onEffekseerError.bind(this)
+    effekseer.initRuntime(effekseerWasmUrl, onLoad, onError)
+  }
+
+  onEffekseerLoad(): void {
+    this.eraseLoadingSpinner()
+    SceneManager.run(Scene_Boot)
+  }
+
+  onEffekseerError(): void {
+    this.printError('Failed to load', effekseerWasmUrl)
+  }
 }
+
+export { Main }

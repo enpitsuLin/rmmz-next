@@ -13,14 +13,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown",
-    "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build"
-  },
-  "devDependencies": {
-    "tsdown": "catalog:build",
-    "typescript": "catalog:dev"
   },
   "publishConfig": {
     "exports": {

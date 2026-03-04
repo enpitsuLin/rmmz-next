@@ -10,8 +10,8 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "types": [
-      "rmmz-lib/types",
-      "nw.js"
+      "nw.js",
+      "@rmmz-lib/core/global-types"
     ],
     "allowJs": true,
     "strict": true,

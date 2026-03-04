@@ -1,7 +1,4 @@
-// import * as PIXI from 'pixi.js'
-// import '../../packages/rmmz-lib/src/shim'
-
-import { PluginManager, Scene_Boot, SceneManager } from 'rmmz-lib'
+import { PluginManager, Scene_Boot, SceneManager } from '@rmmz-lib/core'
 
 $dataActors = null
 $dataClasses = null

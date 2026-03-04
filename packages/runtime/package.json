@@ -22,13 +22,14 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown",
-    "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build"
   },
+  "dependencies": {
+    "@rmmz-lib/core": "workspace:*"
+  },
   "devDependencies": {
-    "tsdown": "catalog:build"
+    "@types/nw.js": "catalog:types"
   },
   "publishConfig": {
     "exports": {

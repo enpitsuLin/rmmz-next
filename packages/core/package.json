@@ -7,7 +7,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json",
-    "./types": "./src/types.d.ts"
+    "./global-types": "./src/global-types.d.ts"
   },
   "types": "./dist/index.d.ts",
   "files": [
@@ -27,16 +27,13 @@
     "pixi.js": "catalog:"
   },
   "devDependencies": {
-    "@types/nw.js": "catalog:types",
-    "tsdown": "catalog:build",
-    "typescript": "catalog:dev",
-    "vite": "catalog:dev"
+    "@types/nw.js": "catalog:types"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.js",
       "./package.json": "./package.json",
-      "./types": "./dist/types.d.ts"
+      "./global-types": "./dist/global-types.d.ts"
     }
   }
 }

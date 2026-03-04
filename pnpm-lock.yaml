@@ -10,9 +10,6 @@ catalogs:
       specifier: ^0.20.3
       version: 0.20.3
   default:
-    cac:
-      specifier: ^7.0.0
-      version: 7.0.0
     localforage:
       specifier: ^1.10.0
       version: 1.10.0
@@ -71,16 +68,10 @@ importers:
       '@rmmz-lib/core':
         specifier: workspace:*
         version: link:../packages/core
-      pixi.js:
-        specifier: 'catalog:'
-        version: 7.4.3
+      '@rmmz-lib/runtime':
+        specifier: workspace:*
+        version: link:../packages/runtime
     devDependencies:
-      '@types/nw.js':
-        specifier: catalog:types
-        version: 0.92.0
-      cac:
-        specifier: 'catalog:'
-        version: 7.0.0
       vite:
         specifier: catalog:dev
         version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
@@ -106,30 +97,18 @@ importers:
       '@types/nw.js':
         specifier: catalog:types
         version: 0.92.0
-      tsdown:
-        specifier: catalog:build
-        version: 0.20.3(synckit@0.11.12)(typescript@5.9.3)
-      typescript:
-        specifier: catalog:dev
-        version: 5.9.3
-      vite:
-        specifier: catalog:dev
-        version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
 
-  packages/database-types:
-    devDependencies:
-      tsdown:
-        specifier: catalog:build
-        version: 0.20.3(synckit@0.11.12)(typescript@5.9.3)
-      typescript:
-        specifier: catalog:dev
-        version: 5.9.3
+  packages/database-types: {}
 
   packages/runtime:
+    dependencies:
+      '@rmmz-lib/core':
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
-      tsdown:
-        specifier: catalog:build
-        version: 0.20.3(synckit@0.11.12)(typescript@5.9.3)
+      '@types/nw.js':
+        specifier: catalog:types
+        version: 0.92.0
 
 packages:
 
@@ -1230,10 +1209,6 @@ packages:
   cac@6.7.14:
     resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
     engines: {node: '>=8'}
-
-  cac@7.0.0:
-    resolution: {integrity: sha512-tixWYgm5ZoOD+3g6UTea91eow5z6AAHaho3g0V9CNSNb45gM8SmflpAc+GRd1InC4AqN/07Unrgp56Y94N9hJQ==}
-    engines: {node: '>=20.19.0'}
 
   call-bind-apply-helpers@1.0.2:
     resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
@@ -3336,8 +3311,6 @@ snapshots:
   builtin-modules@5.0.0: {}
 
   cac@6.7.14: {}
-
-  cac@7.0.0: {}
 
   call-bind-apply-helpers@1.0.2:
     dependencies:

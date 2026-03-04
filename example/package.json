@@ -13,12 +13,9 @@
   },
   "dependencies": {
     "@rmmz-lib/core": "workspace:*",
-    "@rmmz-lib/runtime": "workspace:*",
-    "pixi.js": "catalog:"
+    "@rmmz-lib/runtime": "workspace:*"
   },
   "devDependencies": {
-    "@types/nw.js": "catalog:types",
-    "cac": "catalog:",
     "vite": "catalog:dev"
   }
 }
