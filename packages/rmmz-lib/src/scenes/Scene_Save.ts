@@ -5,46 +5,47 @@
  */
 export class Scene_Save extends Scene_File {
   constructor() {
-    super();
+    super()
   }
 
   mode() {
-    return "save";
+    return 'save'
   }
 
   helpWindowText() {
-    return TextManager.saveMessage;
+    return TextManager.saveMessage
   }
 
   firstSavefileId() {
-    return $gameSystem.savefileId();
+    return $gameSystem.savefileId()
   }
 
   onSavefileOk() {
-    super.onSavefileOk();
-    const savefileId = this.savefileId();
+    super.onSavefileOk()
+    const savefileId = this.savefileId()
     if (this.isSavefileEnabled(savefileId)) {
-      this.executeSave(savefileId);
-    } else {
-      this.onSaveFailure();
+      this.executeSave(savefileId)
+    }
+    else {
+      this.onSaveFailure()
     }
   }
 
   executeSave(savefileId) {
-    $gameSystem.setSavefileId(savefileId);
-    $gameSystem.onBeforeSave();
+    $gameSystem.setSavefileId(savefileId)
+    $gameSystem.onBeforeSave()
     DataManager.saveGame(savefileId)
       .then(() => this.onSaveSuccess())
-      .catch(() => this.onSaveFailure());
+      .catch(() => this.onSaveFailure())
   }
 
   onSaveSuccess() {
-    SoundManager.playSave();
-    this.popScene();
+    SoundManager.playSave()
+    this.popScene()
   }
 
   onSaveFailure() {
-    SoundManager.playBuzzer();
-    this.activateListWindow();
+    SoundManager.playBuzzer()
+    this.activateListWindow()
   }
 }

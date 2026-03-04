@@ -43,9 +43,7 @@ const rl = readline.createInterface({
 })
 
 rl.question('Write files to target? (Yes/No) ', (answer) => {
-
   if (['yes', 'y'].includes(answer.trim().toLowerCase())) {
-
     for (const [key, value] of collections.entries()) {
       fs.writeFileSync(join(targetDir, `${key}.ts`), value)
     }
@@ -56,7 +54,6 @@ rl.question('Write files to target? (Yes/No) ', (answer) => {
     // eslint-disable-next-line no-console
     console.log('Skipped writing files.')
   }
-
 
   rl.question('Write breale modules to target? (Yes/No) ', (answer) => {
     if (['yes', 'y'].includes(answer.trim().toLowerCase())) {
@@ -69,6 +66,3 @@ rl.question('Write files to target? (Yes/No) ', (answer) => {
     rl.close()
   })
 })
-
-
-

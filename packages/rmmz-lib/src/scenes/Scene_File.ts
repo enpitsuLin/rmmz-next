@@ -5,85 +5,85 @@
  */
 export class Scene_File extends Scene_MenuBase {
   constructor() {
-    super();
+    super()
   }
 
   create() {
-    super.create();
-    DataManager.loadAllSavefileImages();
-    this.createHelpWindow();
-    this.createListWindow();
-    this._helpWindow.setText(this.helpWindowText());
+    super.create()
+    DataManager.loadAllSavefileImages()
+    this.createHelpWindow()
+    this.createListWindow()
+    this._helpWindow.setText(this.helpWindowText())
   }
 
   helpAreaHeight() {
-    return 0;
+    return 0
   }
 
   start() {
-    super.start();
-    this._listWindow.refresh();
+    super.start()
+    this._listWindow.refresh()
   }
 
   savefileId() {
-    return this._listWindow.savefileId();
+    return this._listWindow.savefileId()
   }
 
   isSavefileEnabled(savefileId) {
-    return this._listWindow.isEnabled(savefileId);
+    return this._listWindow.isEnabled(savefileId)
   }
 
   createHelpWindow() {
-    const rect = this.helpWindowRect();
-    this._helpWindow = new Window_Help(rect);
-    this.addWindow(this._helpWindow);
+    const rect = this.helpWindowRect()
+    this._helpWindow = new Window_Help(rect)
+    this.addWindow(this._helpWindow)
   }
 
   helpWindowRect() {
-    const wx = 0;
-    const wy = this.mainAreaTop();
-    const ww = Graphics.boxWidth;
-    const wh = this.calcWindowHeight(1, false);
-    return new Rectangle(wx, wy, ww, wh);
+    const wx = 0
+    const wy = this.mainAreaTop()
+    const ww = Graphics.boxWidth
+    const wh = this.calcWindowHeight(1, false)
+    return new Rectangle(wx, wy, ww, wh)
   }
 
   createListWindow() {
-    const rect = this.listWindowRect();
-    this._listWindow = new Window_SavefileList(rect);
-    this._listWindow.setHandler("ok", this.onSavefileOk.bind(this));
-    this._listWindow.setHandler("cancel", this.popScene.bind(this));
-    this._listWindow.setMode(this.mode(), this.needsAutosave());
-    this._listWindow.selectSavefile(this.firstSavefileId());
-    this._listWindow.refresh();
-    this.addWindow(this._listWindow);
+    const rect = this.listWindowRect()
+    this._listWindow = new Window_SavefileList(rect)
+    this._listWindow.setHandler('ok', this.onSavefileOk.bind(this))
+    this._listWindow.setHandler('cancel', this.popScene.bind(this))
+    this._listWindow.setMode(this.mode(), this.needsAutosave())
+    this._listWindow.selectSavefile(this.firstSavefileId())
+    this._listWindow.refresh()
+    this.addWindow(this._listWindow)
   }
 
   listWindowRect() {
-    const wx = 0;
-    const wy = this.mainAreaTop() + this._helpWindow.height;
-    const ww = Graphics.boxWidth;
-    const wh = this.mainAreaHeight() - this._helpWindow.height;
-    return new Rectangle(wx, wy, ww, wh);
+    const wx = 0
+    const wy = this.mainAreaTop() + this._helpWindow.height
+    const ww = Graphics.boxWidth
+    const wh = this.mainAreaHeight() - this._helpWindow.height
+    return new Rectangle(wx, wy, ww, wh)
   }
 
   mode() {
-    return null;
+    return null
   }
 
   needsAutosave() {
-    return $gameSystem.isAutosaveEnabled();
+    return $gameSystem.isAutosaveEnabled()
   }
 
   activateListWindow() {
-    this._listWindow.activate();
+    this._listWindow.activate()
   }
 
   helpWindowText() {
-    return "";
+    return ''
   }
 
   firstSavefileId() {
-    return 0;
+    return 0
   }
 
   onSavefileOk() {

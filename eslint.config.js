@@ -4,6 +4,6 @@ export default antfu({
   ignores: ['example/project/**/*.{js,json}'],
   type: 'lib',
   rules: {
-    'ts/no-namespace': 'off'
-  }
+    'ts/no-namespace': 'off',
+  },
 })

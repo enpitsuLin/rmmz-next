@@ -5,41 +5,41 @@
  */
 export class Scene_Options extends Scene_MenuBase {
   constructor() {
-    super();
+    super()
   }
 
   create() {
-    super.create();
-    this.createOptionsWindow();
+    super.create()
+    this.createOptionsWindow()
   }
 
   terminate() {
-    super.terminate();
-    ConfigManager.save();
+    super.terminate()
+    ConfigManager.save()
   }
 
   createOptionsWindow() {
-    const rect = this.optionsWindowRect();
-    this._optionsWindow = new Window_Options(rect);
-    this._optionsWindow.setHandler("cancel", this.popScene.bind(this));
-    this.addWindow(this._optionsWindow);
+    const rect = this.optionsWindowRect()
+    this._optionsWindow = new Window_Options(rect)
+    this._optionsWindow.setHandler('cancel', this.popScene.bind(this))
+    this.addWindow(this._optionsWindow)
   }
 
   optionsWindowRect() {
-    const n = Math.min(this.maxCommands(), this.maxVisibleCommands());
-    const ww = 400;
-    const wh = this.calcWindowHeight(n, true);
-    const wx = (Graphics.boxWidth - ww) / 2;
-    const wy = (Graphics.boxHeight - wh) / 2;
-    return new Rectangle(wx, wy, ww, wh);
+    const n = Math.min(this.maxCommands(), this.maxVisibleCommands())
+    const ww = 400
+    const wh = this.calcWindowHeight(n, true)
+    const wx = (Graphics.boxWidth - ww) / 2
+    const wy = (Graphics.boxHeight - wh) / 2
+    return new Rectangle(wx, wy, ww, wh)
   }
 
   maxCommands() {
     // Increase this value when adding option items.
-    return 7;
+    return 7
   }
 
   maxVisibleCommands() {
-    return 12;
+    return 12
   }
 }

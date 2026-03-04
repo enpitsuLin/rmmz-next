@@ -5,66 +5,67 @@
  */
 export class Scene_Load extends Scene_File {
   constructor() {
-    super();
-    this._loadSuccess = false;
+    super()
+    this._loadSuccess = false
   }
 
   terminate() {
-    super.terminate();
+    super.terminate()
     if (this._loadSuccess) {
-      $gameSystem.onAfterLoad();
+      $gameSystem.onAfterLoad()
     }
   }
 
   mode() {
-    return "load";
+    return 'load'
   }
 
   helpWindowText() {
-    return TextManager.loadMessage;
+    return TextManager.loadMessage
   }
 
   firstSavefileId() {
-    return DataManager.latestSavefileId();
+    return DataManager.latestSavefileId()
   }
 
   onSavefileOk() {
-    super.onSavefileOk();
-    const savefileId = this.savefileId();
+    super.onSavefileOk()
+    const savefileId = this.savefileId()
     if (this.isSavefileEnabled(savefileId)) {
-      this.executeLoad(savefileId);
-    } else {
-      this.onLoadFailure();
+      this.executeLoad(savefileId)
+    }
+    else {
+      this.onLoadFailure()
     }
   }
 
   executeLoad(savefileId) {
     DataManager.loadGame(savefileId)
       .then(() => this.onLoadSuccess())
-      .catch(() => this.onLoadFailure());
+      .catch(() => this.onLoadFailure())
   }
 
   onLoadSuccess() {
-    SoundManager.playLoad();
-    this.fadeOutAll();
-    this.reloadMapIfUpdated();
-    SceneManager.goto(Scene_Map);
-    this._loadSuccess = true;
+    SoundManager.playLoad()
+    this.fadeOutAll()
+    this.reloadMapIfUpdated()
+    SceneManager.goto(Scene_Map)
+    this._loadSuccess = true
   }
 
   onLoadFailure() {
-    SoundManager.playBuzzer();
-    this.activateListWindow();
+    SoundManager.playBuzzer()
+    this.activateListWindow()
   }
 
   reloadMapIfUpdated() {
     if ($gameSystem.versionId() !== $dataSystem.versionId) {
-      const mapId = $gameMap.mapId();
-      const x = $gamePlayer.x;
-      const y = $gamePlayer.y;
-      const d = $gamePlayer.direction();
-      $gamePlayer.reserveTransfer(mapId, x, y, d, 0);
-      $gamePlayer.requestMapReload();
+      const mapId = $gameMap.mapId()
+      const x = $gamePlayer.x
+      const y = $gamePlayer.y
+      const d = $gamePlayer.direction()
+      $gamePlayer.reserveTransfer(mapId, x, y, d, 0)
+      $gamePlayer.requestMapReload()
     }
   }
 }

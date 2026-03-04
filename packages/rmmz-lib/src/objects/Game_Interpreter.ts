@@ -1,13 +1,13 @@
 import type { MZ } from '@rmmz-lib/database-types'
+import type { RGBA, VehicleType } from '../types'
+import type { Game_Battler } from './Game_Battler'
+import type { Game_Character } from './Game_Character'
 import { Graphics, Input, Point, Utils, Video } from '../core'
 import { AudioManager } from '../managers/AudioManager'
 import { BattleManager } from '../managers/BattleManager'
 import { ImageManager } from '../managers/ImageManager'
 import { PluginManager } from '../managers/PluginManager'
 import { SceneManager } from '../managers/SceneManager'
-import type { RGBA, VehicleType } from '../types'
-import type { Game_Battler } from './Game_Battler'
-import type { Game_Character } from './Game_Character'
 
 /**
  * The interpreter for running event commands.
@@ -1887,25 +1887,25 @@ namespace Game_Interpreter {
    */
   export type Command101Parameters
     = | [0, number, number]
-    | [1, number, number, number, 0 | 1 | 2 | 3 | 4 | 5]
-    | [2, number, number]
-    | [3, number, number]
-    | [4, number, 0 | 1 | 2 | 3 | 4 | 5 | 6, nameOrIndex: number | string, undefined]
-    | [5, enemyIndex: number, deathOrState: 0 | 1, stateId: number, undefined]
-    | [6, number, number]
-    | [7, number, 0 | 1 | 2]
-    | [8, itemId: number]
-    | [9, weaponId: number, includeEquip: boolean]
-    | [10, armorId: number, includeEquip: boolean]
-    | [11, string, number]
-    | [12, string]
-    | [13, number | VehicleType]
+      | [1, number, number, number, 0 | 1 | 2 | 3 | 4 | 5]
+      | [2, number, number]
+      | [3, number, number]
+      | [4, number, 0 | 1 | 2 | 3 | 4 | 5 | 6, nameOrIndex: number | string, undefined]
+      | [5, enemyIndex: number, deathOrState: 0 | 1, stateId: number, undefined]
+      | [6, number, number]
+      | [7, number, 0 | 1 | 2]
+      | [8, itemId: number]
+      | [9, weaponId: number, includeEquip: boolean]
+      | [10, armorId: number, includeEquip: boolean]
+      | [11, string, number]
+      | [12, string]
+      | [13, number | VehicleType]
 
   export type Command122Parameters
     = | [startId: number, endId: number, operationType: number, operand: 0 | 1, value: number]
-    | [startId: number, endId: number, operationType: number, operand: 2, value: number, randomMax: number]
-    | [startId: number, endId: number, operationType: number, operand: 3, type: number, param1: number, param2: number]
-    | [startId: number, endId: number, operationType: number, operand: 4, value: string]
+      | [startId: number, endId: number, operationType: number, operand: 2, value: number, randomMax: number]
+      | [startId: number, endId: number, operationType: number, operand: 3, type: number, param1: number, param2: number]
+      | [startId: number, endId: number, operationType: number, operand: 4, value: string]
 }
 
 export { Game_Interpreter }

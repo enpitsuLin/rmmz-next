@@ -5,158 +5,162 @@
  */
 export class Scene_MenuBase extends Scene_Base {
   constructor() {
-    super();
+    super()
   }
 
   create() {
-    super.create();
-    this.createBackground();
-    this.updateActor();
-    this.createWindowLayer();
-    this.createButtons();
+    super.create()
+    this.createBackground()
+    this.updateActor()
+    this.createWindowLayer()
+    this.createButtons()
   }
 
   update() {
-    super.update();
-    this.updatePageButtons();
+    super.update()
+    this.updatePageButtons()
   }
 
   helpAreaTop() {
     if (this.isBottomHelpMode()) {
-      return this.mainAreaBottom();
-    } else if (this.isBottomButtonMode()) {
-      return 0;
-    } else {
-      return this.buttonAreaBottom();
+      return this.mainAreaBottom()
+    }
+    else if (this.isBottomButtonMode()) {
+      return 0
+    }
+    else {
+      return this.buttonAreaBottom()
     }
   }
 
   helpAreaBottom() {
-    return this.helpAreaTop() + this.helpAreaHeight();
+    return this.helpAreaTop() + this.helpAreaHeight()
   }
 
   helpAreaHeight() {
-    return this.calcWindowHeight(2, false);
+    return this.calcWindowHeight(2, false)
   }
 
   mainAreaTop() {
     if (!this.isBottomHelpMode()) {
-      return this.helpAreaBottom();
-    } else if (this.isBottomButtonMode()) {
-      return 0;
-    } else {
-      return this.buttonAreaBottom();
+      return this.helpAreaBottom()
+    }
+    else if (this.isBottomButtonMode()) {
+      return 0
+    }
+    else {
+      return this.buttonAreaBottom()
     }
   }
 
   mainAreaBottom() {
-    return this.mainAreaTop() + this.mainAreaHeight();
+    return this.mainAreaTop() + this.mainAreaHeight()
   }
 
   mainAreaHeight() {
-    return Graphics.boxHeight - this.buttonAreaHeight() - this.helpAreaHeight();
+    return Graphics.boxHeight - this.buttonAreaHeight() - this.helpAreaHeight()
   }
 
   actor() {
-    return this._actor;
+    return this._actor
   }
 
   updateActor() {
-    this._actor = $gameParty.menuActor();
+    this._actor = $gameParty.menuActor()
   }
 
   createBackground() {
-    this._backgroundFilter = new PIXI.BlurFilter();
-    this._backgroundSprite = new Sprite();
-    this._backgroundSprite.bitmap = SceneManager.backgroundBitmap();
-    this._backgroundSprite.filters = [this._backgroundFilter];
-    this.addChild(this._backgroundSprite);
-    this.setBackgroundOpacity(192);
+    this._backgroundFilter = new PIXI.BlurFilter()
+    this._backgroundSprite = new Sprite()
+    this._backgroundSprite.bitmap = SceneManager.backgroundBitmap()
+    this._backgroundSprite.filters = [this._backgroundFilter]
+    this.addChild(this._backgroundSprite)
+    this.setBackgroundOpacity(192)
   }
 
   setBackgroundOpacity(opacity) {
-    this._backgroundSprite.opacity = opacity;
+    this._backgroundSprite.opacity = opacity
   }
 
   createHelpWindow() {
-    const rect = this.helpWindowRect();
-    this._helpWindow = new Window_Help(rect);
-    this.addWindow(this._helpWindow);
+    const rect = this.helpWindowRect()
+    this._helpWindow = new Window_Help(rect)
+    this.addWindow(this._helpWindow)
   }
 
   helpWindowRect() {
-    const wx = 0;
-    const wy = this.helpAreaTop();
-    const ww = Graphics.boxWidth;
-    const wh = this.helpAreaHeight();
-    return new Rectangle(wx, wy, ww, wh);
+    const wx = 0
+    const wy = this.helpAreaTop()
+    const ww = Graphics.boxWidth
+    const wh = this.helpAreaHeight()
+    return new Rectangle(wx, wy, ww, wh)
   }
 
   createButtons() {
     if (ConfigManager.touchUI) {
       if (this.needsCancelButton()) {
-        this.createCancelButton();
+        this.createCancelButton()
       }
       if (this.needsPageButtons()) {
-        this.createPageButtons();
+        this.createPageButtons()
       }
     }
   }
 
   needsCancelButton() {
-    return true;
+    return true
   }
 
   createCancelButton() {
-    this._cancelButton = new Sprite_Button("cancel");
-    this._cancelButton.x = Graphics.boxWidth - this._cancelButton.width - 4;
-    this._cancelButton.y = this.buttonY();
-    this.addWindow(this._cancelButton);
+    this._cancelButton = new Sprite_Button('cancel')
+    this._cancelButton.x = Graphics.boxWidth - this._cancelButton.width - 4
+    this._cancelButton.y = this.buttonY()
+    this.addWindow(this._cancelButton)
   }
 
   needsPageButtons() {
-    return false;
+    return false
   }
 
   createPageButtons() {
-    this._pageupButton = new Sprite_Button("pageup");
-    this._pageupButton.x = 4;
-    this._pageupButton.y = this.buttonY();
-    const pageupRight = this._pageupButton.x + this._pageupButton.width;
-    this._pagedownButton = new Sprite_Button("pagedown");
-    this._pagedownButton.x = pageupRight + 4;
-    this._pagedownButton.y = this.buttonY();
-    this.addWindow(this._pageupButton);
-    this.addWindow(this._pagedownButton);
-    this._pageupButton.setClickHandler(this.previousActor.bind(this));
-    this._pagedownButton.setClickHandler(this.nextActor.bind(this));
+    this._pageupButton = new Sprite_Button('pageup')
+    this._pageupButton.x = 4
+    this._pageupButton.y = this.buttonY()
+    const pageupRight = this._pageupButton.x + this._pageupButton.width
+    this._pagedownButton = new Sprite_Button('pagedown')
+    this._pagedownButton.x = pageupRight + 4
+    this._pagedownButton.y = this.buttonY()
+    this.addWindow(this._pageupButton)
+    this.addWindow(this._pagedownButton)
+    this._pageupButton.setClickHandler(this.previousActor.bind(this))
+    this._pagedownButton.setClickHandler(this.nextActor.bind(this))
   }
 
   updatePageButtons() {
     if (this._pageupButton && this._pagedownButton) {
-      const enabled = this.arePageButtonsEnabled();
-      this._pageupButton.visible = enabled;
-      this._pagedownButton.visible = enabled;
+      const enabled = this.arePageButtonsEnabled()
+      this._pageupButton.visible = enabled
+      this._pagedownButton.visible = enabled
     }
   }
 
   arePageButtonsEnabled() {
-    return true;
+    return true
   }
 
   nextActor() {
-    $gameParty.makeMenuActorNext();
-    this.updateActor();
-    this.onActorChange();
+    $gameParty.makeMenuActorNext()
+    this.updateActor()
+    this.onActorChange()
   }
 
   previousActor() {
-    $gameParty.makeMenuActorPrevious();
-    this.updateActor();
-    this.onActorChange();
+    $gameParty.makeMenuActorPrevious()
+    this.updateActor()
+    this.onActorChange()
   }
 
   onActorChange() {
-    SoundManager.playCursor();
+    SoundManager.playCursor()
   }
 }

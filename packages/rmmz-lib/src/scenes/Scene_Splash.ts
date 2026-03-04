@@ -5,80 +5,81 @@
  */
 export class Scene_Splash extends Scene_Base {
   constructor() {
-    super();
-    this.initWaitCount();
+    super()
+    this.initWaitCount()
   }
 
   create() {
-    super.create();
+    super.create()
     if (this.isEnabled()) {
-      this.createBackground();
+      this.createBackground()
     }
   }
 
   start() {
-    super.start();
+    super.start()
     if (this.isEnabled()) {
-      this.adjustBackground();
-      this.startFadeIn(this.fadeSpeed(), false);
+      this.adjustBackground()
+      this.startFadeIn(this.fadeSpeed(), false)
     }
   }
 
   update() {
-    super.update();
+    super.update()
     if (this.isActive()) {
       if (!this.updateWaitCount()) {
-        this.gotoTitle();
+        this.gotoTitle()
       }
-      this.checkSkip();
+      this.checkSkip()
     }
   }
 
   stop() {
-    super.stop();
+    super.stop()
     if (this.isEnabled()) {
-      this.startFadeOut(this.fadeSpeed());
+      this.startFadeOut(this.fadeSpeed())
     }
   }
 
   createBackground() {
-    this._backSprite = new Sprite();
-    this._backSprite.bitmap = ImageManager.loadSystem("Splash");
-    this.addChild(this._backSprite);
+    this._backSprite = new Sprite()
+    this._backSprite.bitmap = ImageManager.loadSystem('Splash')
+    this.addChild(this._backSprite)
   }
 
   adjustBackground() {
-    this.scaleSprite(this._backSprite);
-    this.centerSprite(this._backSprite);
+    this.scaleSprite(this._backSprite)
+    this.centerSprite(this._backSprite)
   }
 
   isEnabled() {
-    return $dataSystem.optSplashScreen;
+    return $dataSystem.optSplashScreen
   }
 
   initWaitCount() {
     if (this.isEnabled()) {
-      this._waitCount = 120;
-    } else {
-      this._waitCount = 0;
+      this._waitCount = 120
+    }
+    else {
+      this._waitCount = 0
     }
   }
 
   updateWaitCount() {
     if (this._waitCount > 0) {
-      this._waitCount--;
-      return true;
+      this._waitCount--
+      return true
     }
-    return false;
+    return false
   }
 
   checkSkip() {
-    if (Input.isTriggered("ok") || TouchInput.isTriggered()) {
-      this._waitCount = 0;
+    if (Input.isTriggered('ok') || TouchInput.isTriggered()) {
+      this._waitCount = 0
     }
   }
 
   gotoTitle() {
-    SceneManager.goto(Scene_Title);
+    SceneManager.goto(Scene_Title)
   }
 }
