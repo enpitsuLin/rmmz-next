@@ -12,6 +12,7 @@ import type { RGBA } from '../types'
  * @param {Bitmap} bitmap - The image for the sprite.
  */
 export class Sprite extends PIXI.Sprite {
+
   spriteId!: number
   _bitmap: Bitmap | null = null
   _frame!: Rectangle
@@ -108,11 +109,11 @@ export class Sprite extends PIXI.Sprite {
     super.destroy(options);
   }
 
+  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
   update(): void {
     for (const child of this.children) {
-      const c = child as PIXI.DisplayObject & { update?: () => void };
-      if (c.update) {
-        c.update();
+      if (child.update) {
+        child.update();
       }
     }
   }

@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js'
+import type { Window } from './Window';
 
 /**
  * The layer which contains game windows.
@@ -7,6 +8,8 @@ import * as PIXI from 'pixi.js'
  * @extends PIXI.Container
  */
 export class WindowLayer extends PIXI.Container {
+  children!: Window[]
+
   constructor() {
     super();
   }
@@ -27,7 +30,7 @@ export class WindowLayer extends PIXI.Container {
    *
    * @param {PIXI.Renderer} renderer - The renderer.
    */
-  render(renderer) {
+  render(renderer: PIXI.Renderer) {
     if (!this.visible) {
       return;
     }
@@ -43,7 +46,7 @@ export class WindowLayer extends PIXI.Container {
 
     while (children.length > 0) {
       const win = children.pop();
-      if (win._isWindow && win.visible && win.openness > 0) {
+      if (win && win._isWindow && win.visible && win.openness > 0) {
         gl.stencilFunc(gl.EQUAL, 0, ~0);
         gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
         win.render(renderer);

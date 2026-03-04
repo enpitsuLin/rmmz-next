@@ -25,9 +25,6 @@
   },
   "include": [
     "src",
-    "shim-global-variables.d.ts",
-    "shim-effekseer.d.ts",
     "types.d.ts",
-    "shim-monkey-patches.d.ts",
   ]
 }

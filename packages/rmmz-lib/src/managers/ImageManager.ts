@@ -1,3 +1,5 @@
+import { Bitmap, Utils } from "../core";
+
 /**
  * ImageManager
  *

@@ -489,7 +489,7 @@ export class Bitmap {
    *
    * @param {function} listener - The callback function.
    */
-  addLoadListener(listener) {
+  addLoadListener(listener: (bitmap: Bitmap) => void) {
     if (!this.isReady()) {
       this._loadListeners.push(listener);
     } else {

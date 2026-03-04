@@ -159,13 +159,13 @@ export class Tilemap extends PIXI.Container {
   /**
    * Updates the tilemap for each frame.
    */
+  //@ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
   update(): void {
     this.animationCount++;
     this.animationFrame = Math.floor(this.animationCount / 30);
     for (const child of this.children) {
-      const c = child as PIXI.DisplayObject & { update?: () => void };
-      if (c.update) {
-        c.update();
+      if (child.update) {
+        child.update();
       }
     }
   }

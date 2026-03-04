@@ -1,6 +1,7 @@
-import * as PIXI from 'pixi.js'
-import { Rectangle } from './Rectangle'
-import { Point } from './Point'
+import * as PIXI from 'pixi.js';
+import type { Bitmap } from './Bitmap';
+import { Point } from './Point';
+import { Rectangle } from './Rectangle';
 
 /**
  * The sprite object for a tiling image.
@@ -10,7 +11,15 @@ import { Point } from './Point'
  * @param {Bitmap} bitmap - The image for the tiling sprite.
  */
 export class TilingSprite extends PIXI.TilingSprite {
-  constructor(bitmap) {
+  _bitmap?: Bitmap
+  _frame: Rectangle
+
+  /**
+   * The origin point of the tiling sprite for scrolling.
+   */
+  origin: Point
+
+  constructor(bitmap?: Bitmap) {
     if (!TilingSprite._emptyBaseTexture) {
       TilingSprite._emptyBaseTexture = new PIXI.BaseTexture();
       TilingSprite._emptyBaseTexture.setSize(1, 1);
@@ -23,17 +32,12 @@ export class TilingSprite extends PIXI.TilingSprite {
     this._height = 0;
     this._frame = frame;
 
-    /**
-     * The origin point of the tiling sprite for scrolling.
-     *
-     * @type Point
-     */
     this.origin = new Point();
 
     this._onBitmapChange();
   }
 
-  static _emptyBaseTexture = null;
+  static _emptyBaseTexture: PIXI.BaseTexture | null = null;
 
   /**
    * The image for the tiling sprite.
@@ -88,10 +92,10 @@ export class TilingSprite extends PIXI.TilingSprite {
   /**
    * Sets the x, y, width, and height all at once.
    *
-   * @param {number} x - The x coordinate of the tiling sprite.
-   * @param {number} y - The y coordinate of the tiling sprite.
-   * @param {number} width - The width of the tiling sprite.
-   * @param {number} height - The height of the tiling sprite.
+   * @param x - The x coordinate of the tiling sprite.
+   * @param y - The y coordinate of the tiling sprite.
+   * @param width - The width of the tiling sprite.
+   * @param height - The height of the tiling sprite.
    */
   move(x = 0, y = 0, width = 0, height = 0) {
     this.x = x;
@@ -103,12 +107,12 @@ export class TilingSprite extends PIXI.TilingSprite {
   /**
    * Specifies the region of the image that the tiling sprite will use.
    *
-   * @param {number} x - The x coordinate of the frame.
-   * @param {number} y - The y coordinate of the frame.
-   * @param {number} width - The width of the frame.
-   * @param {number} height - The height of the frame.
+   * @param x - The x coordinate of the frame.
+   * @param y - The y coordinate of the frame.
+   * @param width - The width of the frame.
+   * @param height - The height of the frame.
    */
-  setFrame(x, y, width, height) {
+  setFrame(x: number, y: number, width: number, height: number) {
     this._frame.x = x;
     this._frame.y = y;
     this._frame.width = width;
@@ -134,7 +138,7 @@ export class TilingSprite extends PIXI.TilingSprite {
   }
 
   _onBitmapLoad() {
-    this.texture.baseTexture = this._bitmap.baseTexture;
+    this.texture.baseTexture = this._bitmap!.baseTexture;
     this._refresh();
   }
 
