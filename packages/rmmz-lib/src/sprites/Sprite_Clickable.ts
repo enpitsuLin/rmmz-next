@@ -1,4 +1,4 @@
-import { Sprite } from "../core"
+import { Point, Rectangle, Sprite, TouchInput } from "../core"
 
 /**
  * Sprite_Clickable

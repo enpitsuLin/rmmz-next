@@ -1,3 +1,8 @@
+import * as PIXI from 'pixi.js'
+import { Graphics } from './Graphics'
+import { Rectangle } from './Rectangle'
+import { Utils } from './Utils'
+
 /**
  * The basic object that represents an image.
  *

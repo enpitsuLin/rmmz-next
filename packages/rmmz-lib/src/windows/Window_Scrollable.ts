@@ -1,4 +1,5 @@
-import { Window_Base } from "./Window_Base"
+import { Input, Point, TouchInput } from '../core'
+import { Window_Base } from './Window_Base'
 
 /**
  * Window_Scrollable

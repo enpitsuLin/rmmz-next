@@ -1,4 +1,7 @@
-import { Window_Selectable } from "./Window_Selectable"
+import { Graphics, Input, Rectangle } from '../core'
+import { ConfigManager } from '../managers'
+import { Sprite_Button } from '../sprites'
+import { Window_Selectable } from './Window_Selectable'
 
 /**
  * Window_NumberInput
@@ -6,7 +9,7 @@ import { Window_Selectable } from "./Window_Selectable"
  * The window used for the event command [Input Number].
  */
 export class Window_NumberInput extends Window_Selectable {
-  constructor(rect) {
+  constructor(rect?: Rectangle) {
     rect = rect || new Rectangle()
     super(rect)
     this._number = 0

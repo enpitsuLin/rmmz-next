@@ -1,3 +1,8 @@
+import { Graphics, Rectangle } from '../core'
+import { SoundManager } from '../managers/SoundManager'
+import { Window_EquipCommand, Window_EquipItem, Window_EquipSlot, Window_EquipStatus } from '../windows'
+import { Scene_MenuBase } from './Scene_MenuBase'
+
 /*
  /* Scene_Equip
  /*

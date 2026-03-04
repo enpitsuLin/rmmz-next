@@ -1,7 +1,8 @@
-// -----------------------------------------------------------------------------
-// SoundManager
-//
-// The static class that plays sound effects defined in the database.
+import { AudioManager } from "./AudioManager"
+
+/**
+ * The static class that plays sound effects defined in the database.
+ */
 export class SoundManager {
   constructor() {
     throw new Error('This is a static class')

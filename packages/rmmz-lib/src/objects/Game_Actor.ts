@@ -1,6 +1,6 @@
-import type { Game_Item } from './Game_Item'
 import { DataManager } from '../managers/DataManager'
 import { Game_Battler } from './Game_Battler'
+import { Game_Item } from './Game_Item'
 
 /**
  * The game object class for an actor.

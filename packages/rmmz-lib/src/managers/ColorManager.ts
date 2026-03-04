@@ -1,3 +1,5 @@
+import { ImageManager } from "./ImageManager"
+
 /**
  * ColorManager
  *

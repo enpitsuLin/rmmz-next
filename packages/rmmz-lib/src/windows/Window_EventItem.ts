@@ -1,4 +1,7 @@
-import { Window_ItemList } from "./Window_ItemList"
+import { Graphics } from '../core'
+import { ConfigManager, DataManager } from '../managers'
+import { Sprite_Button } from '../sprites'
+import { Window_ItemList } from './Window_ItemList'
 
 /**
  * Window_EventItem

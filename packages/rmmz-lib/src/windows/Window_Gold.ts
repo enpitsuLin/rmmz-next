@@ -1,4 +1,5 @@
-import { Window_Selectable } from "./Window_Selectable"
+import { TextManager } from '../managers'
+import { Window_Selectable } from './Window_Selectable'
 
 /**
  * Window_Gold

@@ -1,4 +1,5 @@
-import { Sprite } from "../core"
+import { Sprite } from '../core'
+import { ImageManager } from '../managers'
 
 /**
  * Sprite_Character

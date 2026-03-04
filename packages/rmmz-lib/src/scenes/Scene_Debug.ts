@@ -1,3 +1,7 @@
+import { Graphics, Rectangle } from '../core'
+import { Window_Base, Window_DebugRange } from '../windows'
+import { Scene_MenuBase } from './Scene_MenuBase'
+
 /*
  /* Scene_Debug
  /*

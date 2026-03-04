@@ -1,3 +1,4 @@
+import { Rectangle, Graphics } from "../core"
 import { Window_Base } from "./Window_Base"
 
 /**
@@ -6,7 +7,7 @@ import { Window_Base } from "./Window_Base"
  * The window for displaying a speaker name above the message window.
  */
 export class Window_NameBox extends Window_Base {
-  constructor(rect) {
+  constructor(rect?: Rectangle) {
     rect = rect || new Rectangle()
     super(rect)
 

@@ -1,5 +1,5 @@
-import type { TextManager } from '../managers/TextManager'
 import { DataManager } from '../managers/DataManager'
+import { TextManager } from '../managers/TextManager'
 import { Window_Command } from './Window_Command'
 
 /**

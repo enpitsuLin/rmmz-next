@@ -1,4 +1,8 @@
-import { Sprite } from "../core"
+import { ColorFilter, Graphics, Rectangle, ScreenSprite, Sprite } from '../core'
+import { Sprite_Animation } from './Sprite_Animation'
+import { Sprite_AnimationMV } from './Sprite_AnimationMV'
+import { Sprite_Picture } from './Sprite_Picture'
+import { Sprite_Timer } from './Sprite_Timer'
 
 /**
  * Spriteset_Base

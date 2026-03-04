@@ -1,4 +1,4 @@
-import { Graphics, Input, TouchInput, Utils, Video, WebAudio } from '../core'
+import { Bitmap, Graphics, Input, TouchInput, Utils, Video, WebAudio } from '../core'
 import { AudioManager } from './AudioManager'
 import { EffectManager } from './EffectManager'
 import { ImageManager } from './ImageManager'

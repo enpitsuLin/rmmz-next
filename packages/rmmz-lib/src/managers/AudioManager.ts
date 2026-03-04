@@ -1,4 +1,5 @@
 import type { MZ } from '@rmmz-lib/database-types'
+import { Graphics, Utils, WebAudio } from '../core'
 
 export interface AudioWithPos extends MZ.AudioInfo {
   pos?: number

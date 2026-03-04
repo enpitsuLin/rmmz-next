@@ -1,4 +1,6 @@
-import { Window_Scrollable } from "./Window_Scrollable"
+import { Input, Point, Rectangle, TouchInput } from '../core'
+import { ColorManager, SoundManager } from '../managers'
+import { Window_Scrollable } from './Window_Scrollable'
 
 /**
  * Window_Selectable

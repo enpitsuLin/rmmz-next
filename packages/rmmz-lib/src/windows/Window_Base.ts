@@ -1,4 +1,5 @@
-import { Window } from "../core"
+import { Bitmap, Rectangle, Sprite, Utils, Window } from '../core'
+import { ColorManager, ImageManager, SoundManager, TextManager } from '../managers'
 
 /**
  * Window_Base

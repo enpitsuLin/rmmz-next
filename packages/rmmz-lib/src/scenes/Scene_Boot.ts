@@ -1,4 +1,5 @@
 import { Graphics, Utils } from '../core'
+import { StorageManager } from '../managers'
 import { ColorManager } from '../managers/ColorManager'
 import { ConfigManager } from '../managers/ConfigManager'
 import { DataManager } from '../managers/DataManager'
