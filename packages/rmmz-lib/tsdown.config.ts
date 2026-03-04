@@ -11,6 +11,7 @@ export default defineConfig({
       exports['./types'] = './dist/types.d.ts'
       return exports
     },
+    devExports: true
   },
   platform: "browser",
   copy: [

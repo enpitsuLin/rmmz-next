@@ -1,6 +1,8 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  exports: true,
+  exports: {
+    devExports: true
+  },
   // ...config options
 })
