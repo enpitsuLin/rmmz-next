@@ -94,7 +94,7 @@ export class Bitmap {
    * @param {string} url - The image url of the texture.
    * @returns {Bitmap} The new bitmap object.
    */
-  static load(url) {
+  static load(url: string): Bitmap {
     const bitmap = new Bitmap()
     bitmap._url = url
     bitmap._startLoading()
@@ -107,7 +107,7 @@ export class Bitmap {
    * @param {Stage} stage - The stage object.
    * @returns {Bitmap} The new bitmap object.
    */
-  static snap(stage) {
+  static snap(stage: PIXI.Container): Bitmap {
     const width = Graphics.width
     const height = Graphics.height
     const bitmap = new Bitmap(width, height)
@@ -277,7 +277,7 @@ export class Bitmap {
    * @param {number} width - The new width of the bitmap.
    * @param {number} height - The new height of the bitmap.
    */
-  resize(width, height) {
+  resize(width: number, height: number): void {
     width = Math.max(width || 0, 1)
     height = Math.max(height || 0, 1)
     this.canvas.width = width
@@ -299,14 +299,16 @@ export class Bitmap {
    * @param {number} [dw] The width to draw the image in the destination.
    * @param {number} [dh] The height to draw the image in the destination.
    */
-  blt(source, sx, sy, sw, sh, dx, dy, dw, dh) {
+  blt(source: Bitmap, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw?: number, dh?: number): void {
     dw = dw || sw
     dh = dh || sh
     try {
       const image = source._canvas || source._image
-      this.context.globalCompositeOperation = 'source-over'
-      this.context.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh)
-      this._baseTexture.update()
+      if (image) {
+        this.context!.globalCompositeOperation = 'source-over'
+        this.context!.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh)
+        this._baseTexture!.update()
+      }
     }
     catch (e) {
       // Handle error
@@ -320,7 +322,7 @@ export class Bitmap {
    * @param {number} y - The y coordinate of the pixel in the bitmap.
    * @returns {string} The pixel color (hex format).
    */
-  getPixel(x, y) {
+  getPixel(x: number, y: number): string {
     const data = this.context.getImageData(x, y, 1, 1).data
     let result = '#'
     for (let i = 0; i < 3; i++) {
@@ -336,7 +338,7 @@ export class Bitmap {
    * @param {number} y - The y coordinate of the pixel in the bitmap.
    * @returns {number} The alpha value.
    */
-  getAlphaPixel(x, y) {
+  getAlphaPixel(x: number, y: number): number {
     const data = this.context.getImageData(x, y, 1, 1).data
     return data[3]
   }
@@ -349,7 +351,7 @@ export class Bitmap {
    * @param {number} width - The width of the rectangle to clear.
    * @param {number} height - The height of the rectangle to clear.
    */
-  clearRect(x, y, width, height) {
+  clearRect(x: number, y: number, width: number, height: number): void {
     this.context.clearRect(x, y, width, height)
     this._baseTexture.update()
   }
@@ -370,7 +372,7 @@ export class Bitmap {
    * @param {number} height - The height of the rectangle to fill.
    * @param {string} color - The color of the rectangle in CSS format.
    */
-  fillRect(x, y, width, height, color) {
+  fillRect(x: number, y: number, width: number, height: number, color: string): void {
     const context = this.context
     context.save()
     context.fillStyle = color
@@ -384,7 +386,7 @@ export class Bitmap {
    *
    * @param {string} color - The color of the rectangle in CSS format.
    */
-  fillAll(color) {
+  fillAll(color: string): void {
     this.fillRect(0, 0, this.width, this.height, color)
   }
 
@@ -397,7 +399,7 @@ export class Bitmap {
    * @param {number} height - The height of the rectangle to stroke.
    * @param {string} color - The color of the rectangle in CSS format.
    */
-  strokeRect(x, y, width, height, color) {
+  strokeRect(x: number, y: number, width: number, height: number, color: string): void {
     const context = this.context
     context.save()
     context.strokeStyle = color
@@ -417,7 +419,7 @@ export class Bitmap {
    * @param {string} color2 - The gradient ending color.
    * @param {boolean} vertical - True for a vertical gradient, false for horizontal.
    */
-  gradientFillRect(x, y, width, height, color1, color2, vertical) {
+  gradientFillRect(x: number, y: number, width: number, height: number, color1: string, color2: string, vertical: boolean): void {
     const context = this.context
     const x1 = vertical ? x : x + width
     const y1 = vertical ? y + height : y
@@ -439,7 +441,7 @@ export class Bitmap {
    * @param {number} radius - The radius of the circle.
    * @param {string} color - The color of the circle in CSS format.
    */
-  drawCircle(x, y, radius, color) {
+  drawCircle(x: number, y: number, radius: number, color: string): void {
     const context = this.context
     context.save()
     context.fillStyle = color
@@ -460,7 +462,7 @@ export class Bitmap {
    * @param {number} lineHeight - The line height of the text.
    * @param {string} align - The alignment of the text ('left', 'center', 'right').
    */
-  drawText(text, x, y, maxWidth, lineHeight, align) {
+  drawText(text: string, x: number, y: number, maxWidth: number, lineHeight: number, align: CanvasTextAlign): void {
     // [Note] Different browser makes different rendering with
     //   textBaseline == 'top'. So we use 'alphabetic' here.
     const context = this.context
@@ -492,7 +494,7 @@ export class Bitmap {
    * @param {string} text - The text to measure.
    * @returns {number} The width of the text in pixels.
    */
-  measureTextWidth(text) {
+  measureTextWidth(text: string): number {
     const context = this.context
     context.save()
     context.font = this._makeFontNameText()
@@ -528,7 +530,7 @@ export class Bitmap {
     return `${italic}${bold}${this.fontSize}px ${this.fontFace}`
   }
 
-  _drawTextOutline(text, tx, ty, maxWidth) {
+  _drawTextOutline(text: string, tx: number, ty: number, maxWidth: number): void {
     const context = this.context
     context.strokeStyle = this.outlineColor
     context.lineWidth = this.outlineWidth
@@ -536,7 +538,7 @@ export class Bitmap {
     context.strokeText(text, tx, ty, maxWidth)
   }
 
-  _drawTextBody(text, tx, ty, maxWidth) {
+  _drawTextBody(text: string, tx: number, ty: number, maxWidth: number): void {
     const context = this.context
     context.fillStyle = this.textColor
     context.fillText(text, tx, ty, maxWidth)
@@ -570,7 +572,7 @@ export class Bitmap {
     }
   }
 
-  _createBaseTexture(source) {
+  _createBaseTexture(source: HTMLCanvasElement | HTMLImageElement): void {
     this._baseTexture = new PIXI.BaseTexture(source)
     this._baseTexture.mipmap = false
     this._baseTexture.width = source.width
@@ -613,7 +615,7 @@ export class Bitmap {
     xhr.send()
   }
 
-  _onXhrLoad(xhr) {
+  _onXhrLoad(xhr: XMLHttpRequest): void {
     if (xhr.status < 400) {
       const arrayBuffer = Utils.decryptArrayBuffer(xhr.response)
       const blob = new Blob([arrayBuffer])
@@ -626,17 +628,16 @@ export class Bitmap {
 
   _onLoad() {
     if (Utils.hasEncryptedImages()) {
-      URL.revokeObjectURL(this._image.src)
+      URL.revokeObjectURL(this._image!.src)
     }
     this._loadingState = 'loaded'
-    this._createBaseTexture(this._image)
+    this._createBaseTexture(this._image!)
     this._callLoadListeners()
   }
 
   _callLoadListeners() {
     while (this._loadListeners.length > 0) {
-      const listener = this._loadListeners.shift()
-      listener(this)
+      this._loadListeners.shift()!(this)
     }
   }
 
