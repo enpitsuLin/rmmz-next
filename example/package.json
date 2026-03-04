@@ -16,6 +16,7 @@
     "@rmmz-lib/runtime": "workspace:*"
   },
   "devDependencies": {
+    "cac": "catalog:",
     "vite": "catalog:dev"
   }
 }
