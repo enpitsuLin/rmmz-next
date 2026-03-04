@@ -338,7 +338,7 @@ class Game_Screen {
     opacity: number,
     blendMode: number,
     duration: number,
-    easingType: EasingType,
+    easingType: EasingType | 0,
   ) {
     const picture = this.picture(pictureId);
     if (picture) {

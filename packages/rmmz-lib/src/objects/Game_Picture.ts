@@ -21,7 +21,7 @@ class Game_Picture {
   _targetOpacity!: number
   _duration!: number
   _wholeDuration!: number
-  _easingType!: EasingType
+  _easingType!: EasingType | 0
   _easingExponent!: number
 
   _tone!: RGBA | null
@@ -149,7 +149,7 @@ class Game_Picture {
     opacity: number,
     blendMode: number,
     duration: number,
-    easingType: number,
+    easingType: EasingType | 0,
   ) {
     this._origin = origin;
     this._targetX = x;

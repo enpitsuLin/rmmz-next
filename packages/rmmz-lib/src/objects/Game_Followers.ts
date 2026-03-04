@@ -1,7 +1,13 @@
+import { Game_Follower } from "./Game_Follower";
+
 /**
  * The wrapper class for a follower array.
  */
 class Game_Followers {
+  _visible: boolean
+  _gathering: boolean
+  _data: Game_Follower[]
+
   constructor() {
     this._visible = $dataSystem.optFollowers;
     this._gathering = false;
@@ -36,7 +42,7 @@ class Game_Followers {
     return this._data.clone().reverse();
   }
 
-  follower(index) {
+  follower(index: number) {
     return this._data[index];
   }
 
@@ -77,7 +83,7 @@ class Game_Followers {
     }
   }
 
-  synchronize(x, y, d) {
+  synchronize(x: number, y: number, d: number) {
     for (const follower of this._data) {
       follower.locate(x, y);
       follower.setDirection(d);
@@ -104,7 +110,7 @@ class Game_Followers {
     return this.visibleFollowers().every((follower) => follower.isGathered());
   }
 
-  isSomeoneCollided(x, y) {
+  isSomeoneCollided(x:number, y:number) {
     return this.visibleFollowers().some((follower) => follower.pos(x, y));
   }
 }

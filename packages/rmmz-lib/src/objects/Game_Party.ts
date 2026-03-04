@@ -240,9 +240,9 @@ class Game_Party extends Game_Unit<Game_Actor> {
     this._steps++
   }
 
-  numItems(item: MZ.EquipOrItem): number {
+  numItems(item: MZ.EquipOrItem | null): number {
     const container = this.itemContainer(item)
-    return container ? container[item.id] || 0 : 0
+    return container ? container[item!.id] || 0 : 0
   }
 
   maxItems(_item: MZ.EquipOrItem): number {
@@ -253,7 +253,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
     return this.numItems(item) >= this.maxItems(item)
   }
 
-  hasItem(item: MZ.EquipOrItem, includeEquip?: boolean): boolean {
+  hasItem(item: MZ.EquipOrItem | null, includeEquip?: boolean): boolean {
     if (this.numItems(item) > 0) {
       return true
     } else if (includeEquip && this.isAnyMemberEquipped(item as MZ.Equip)) {

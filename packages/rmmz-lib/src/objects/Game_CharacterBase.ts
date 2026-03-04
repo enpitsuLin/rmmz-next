@@ -315,7 +315,7 @@ class Game_CharacterBase {
     return px >= -gw && px <= gw && py >= -gh && py <= gh;
   }
 
-  update(...args: any[]) {
+  update() {
     if (this.isStopping()) {
       this.updateStop();
     }
@@ -481,8 +481,8 @@ class Game_CharacterBase {
     this.checkEventTriggerTouch(x2, y2);
   }
 
-  checkEventTriggerTouch(_x: number, _y: number) {
-    return false;
+  checkEventTriggerTouch(_x: number, _y: number): void {
+    throw new TypeError("Method not implemented in Game_CharacterBase.");
   }
 
   isMovementSucceeded() {

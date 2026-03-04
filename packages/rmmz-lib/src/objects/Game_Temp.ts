@@ -1,3 +1,4 @@
+import type { MZ } from "@rmmz-lib/database-types";
 import { Utils } from "../core";
 import type { Game_CharacterBase } from "./Game_CharacterBase";
 
@@ -91,7 +92,7 @@ class Game_Temp {
     this._commonEventQueue.push(commonEventId);
   }
 
-  retrieveCommonEvent() {
+  retrieveCommonEvent(): MZ.CommonEvent | undefined {
     // @ts-expect-error to fix
     return $dataCommonEvents[this._commonEventQueue.shift()];
   }

@@ -5,6 +5,8 @@ import { Game_Character } from "./Game_Character";
 switching and running parallel process events.
  */
 class Game_Event extends Game_Character {
+  _trigger!: number
+
   constructor(mapId, eventId) {
     super();
     if (mapId && eventId) {
@@ -165,7 +167,7 @@ class Game_Event extends Game_Character {
     this._starting = false;
   }
 
-  isTriggerIn(triggers) {
+  isTriggerIn(triggers: number[]) {
     return triggers.includes(this._trigger);
   }
 

@@ -1,7 +1,10 @@
-import { Input } from "../core";
+import type { MZ } from "@rmmz-lib/database-types";
+import { Input, TouchInput } from "../core";
 import { BattleManager } from "../managers/BattleManager";
+import type { VehicleType } from "../types";
 import { Game_Character } from "./Game_Character";
 import { Game_Followers } from "./Game_Followers";
+import { ConfigManager } from "../managers/ConfigManager";
 
 /**
  * The game object class for the player. 
@@ -9,7 +12,7 @@ import { Game_Followers } from "./Game_Followers";
  * It contains event starting determinants and map scrolling functions.
  */
 class Game_Player extends Game_Character {
-  _vehicleType!: string
+  _vehicleType!: VehicleType
   _vehicleGettingOn!: boolean
   _vehicleGettingOff!: boolean
   _dashing!: boolean
@@ -117,7 +120,7 @@ class Game_Player extends Game_Character {
     }
   }
 
-  isMapPassable(x, y, d) {
+  isMapPassable(x: number, y: number, d: number) {
     const vehicle = this.vehicle();
     if (vehicle) {
       return vehicle.isMapPassable(x, y, d);
@@ -158,7 +161,7 @@ class Game_Player extends Game_Character {
     return Input.isPressed("control") && $gameTemp.isPlaytest();
   }
 
-  isCollided(x, y) {
+  isCollided(x: number, y: number) {
     if (this.isThrough()) {
       return false;
     } else {
@@ -174,16 +177,16 @@ class Game_Player extends Game_Character {
     return ($gameMap.screenTileY() - 1) / 2;
   }
 
-  center(x, y) {
+  center(x: number, y: number) {
     return $gameMap.setDisplayPos(x - this.centerX(), y - this.centerY());
   }
 
-  locate(x, y) {
+  locate(x: number, y: number) {
     super.locate(x, y);
     this.center(x, y);
     this.makeEncounterCount();
     if (this.isInVehicle()) {
-      this.vehicle().refresh();
+      this.vehicle()!.refresh();
     }
     this._followers.synchronize(x, y, this.direction());
   }
@@ -221,7 +224,7 @@ class Game_Player extends Game_Character {
     return 0;
   }
 
-  meetsEncounterConditions(encounter) {
+  meetsEncounterConditions(encounter: MZ.Map.EncounterList) {
     return (
       encounter.regionSet.length === 0 ||
       encounter.regionSet.includes(this.regionId())
@@ -244,7 +247,7 @@ class Game_Player extends Game_Character {
     }
   }
 
-  startMapEvent(x, y, triggers, normal) {
+  startMapEvent(x: number, y: number, triggers: number[], normal: boolean) {
     if (!$gameMap.isEventRunning()) {
       for (const event of $gameMap.eventsXy(x, y)) {
         if (
@@ -283,7 +286,7 @@ class Game_Player extends Game_Character {
     if (this._vehicleGettingOn || this._vehicleGettingOff) {
       return false;
     }
-    if (this.isInVehicle() && !this.vehicle().canMove()) {
+    if (this.isInVehicle() && !this.vehicle()!.canMove()) {
       return false;
     }
     return true;
@@ -293,11 +296,11 @@ class Game_Player extends Game_Character {
     return Input.dir4;
   }
 
-  executeMove(direction) {
+  executeMove(direction: number) {
     this.moveStraight(direction);
   }
 
-  update(sceneActive: boolean) {
+  update(sceneActive = false) {
     const lastScrolledX = this.scrolledX();
     const lastScrolledY = this.scrolledY();
     const wasMoving = this.isMoving();
@@ -331,7 +334,7 @@ class Game_Player extends Game_Character {
     return ConfigManager.alwaysDash ? !shift : shift;
   }
 
-  updateScroll(lastScrolledX, lastScrolledY) {
+  updateScroll(lastScrolledX: number, lastScrolledY: number) {
     const x1 = lastScrolledX;
     const y1 = lastScrolledY;
     const x2 = this.scrolledX();
@@ -357,33 +360,33 @@ class Game_Player extends Game_Character {
       } else if (this._vehicleGettingOff) {
         this.updateVehicleGetOff();
       } else {
-        this.vehicle().syncWithPlayer();
+        this.vehicle()!.syncWithPlayer();
       }
     }
   }
 
   updateVehicleGetOn() {
     if (!this.areFollowersGathering() && !this.isMoving()) {
-      this.setDirection(this.vehicle().direction());
-      this.setMoveSpeed(this.vehicle().moveSpeed());
+      this.setDirection(this.vehicle()!.direction());
+      this.setMoveSpeed(this.vehicle()!.moveSpeed());
       this._vehicleGettingOn = false;
       this.setTransparent(true);
       if (this.isInAirship()) {
         this.setThrough(true);
       }
-      this.vehicle().getOn();
+      this.vehicle()!.getOn();
     }
   }
 
   updateVehicleGetOff() {
-    if (!this.areFollowersGathering() && this.vehicle().isLowest()) {
+    if (!this.areFollowersGathering() && this.vehicle()!.isLowest()) {
       this._vehicleGettingOff = false;
       this._vehicleType = "walk";
       this.setTransparent(false);
     }
   }
 
-  updateNonmoving(wasMoving, sceneActive) {
+  updateNonmoving(wasMoving: boolean, sceneActive: boolean) {
     if (!$gameMap.isEventRunning()) {
       if (wasMoving) {
         $gameParty.onPlayerWalk();
@@ -454,7 +457,7 @@ class Game_Player extends Game_Character {
     return false;
   }
 
-  triggerTouchActionD1(x1, y1) {
+  triggerTouchActionD1(x1: number, y1: number) {
     if ($gameMap.airship().pos(x1, y1)) {
       if (TouchInput.isTriggered() && this.getOnOffVehicle()) {
         return true;
@@ -464,7 +467,7 @@ class Game_Player extends Game_Character {
     return $gameMap.setupStartingEvent();
   }
 
-  triggerTouchActionD2(x2, y2) {
+  triggerTouchActionD2(x2: number, y2: number) {
     if ($gameMap.boat().pos(x2, y2) || $gameMap.ship().pos(x2, y2)) {
       if (TouchInput.isTriggered() && this.getOnVehicle()) {
         return true;
@@ -479,7 +482,7 @@ class Game_Player extends Game_Character {
     return $gameMap.setupStartingEvent();
   }
 
-  triggerTouchActionD3(x2, y2) {
+  triggerTouchActionD3(x2: number, y2: number) {
     if ($gameMap.isCounter(x2, y2)) {
       this.checkEventTriggerThere([0, 1, 2]);
     }
@@ -513,13 +516,13 @@ class Game_Player extends Game_Character {
     return value;
   }
 
-  checkEventTriggerHere(triggers) {
+  checkEventTriggerHere(triggers: number[]) {
     if (this.canStartLocalEvents()) {
       this.startMapEvent(this.x, this.y, triggers, false);
     }
   }
 
-  checkEventTriggerThere(triggers) {
+  checkEventTriggerThere(triggers: number[]) {
     if (this.canStartLocalEvents()) {
       const direction = this.direction();
       const x1 = this.x;
@@ -535,7 +538,7 @@ class Game_Player extends Game_Character {
     }
   }
 
-  checkEventTriggerTouch(x, y) {
+  checkEventTriggerTouch(x: number, y: number) {
     if (this.canStartLocalEvents()) {
       this.startMapEvent(x, y, [1, 2], true);
     }
@@ -577,12 +580,12 @@ class Game_Player extends Game_Character {
   }
 
   getOffVehicle() {
-    if (this.vehicle().isLandOk(this.x, this.y, this.direction())) {
+    if (this.vehicle()?.isLandOk(this.x, this.y, this.direction())) {
       if (this.isInAirship()) {
         this.setDirection(2);
       }
       this._followers.synchronize(this.x, this.y, this.direction());
-      this.vehicle().getOff();
+      this.vehicle()!.getOff();
       if (!this.isInAirship()) {
         this.forceMoveForward();
         this.setTransparent(false);
@@ -606,21 +609,21 @@ class Game_Player extends Game_Character {
     return $gameMap.isDamageFloor(this.x, this.y) && !this.isInAirship();
   }
 
-  moveStraight(d) {
+  moveStraight(d: number) {
     if (this.canPass(this.x, this.y, d)) {
       this._followers.updateMove();
     }
     super.moveStraight(d);
   }
 
-  moveDiagonally(horz, vert) {
+  moveDiagonally(horz: number, vert: number) {
     if (this.canPassDiagonally(this.x, this.y, horz, vert)) {
       this._followers.updateMove();
     }
     super.moveDiagonally(horz, vert);
   }
 
-  jump(xPlus, yPlus) {
+  jump(xPlus: number, yPlus: number) {
     super.jump(xPlus, yPlus);
     this._followers.jumpAll();
   }

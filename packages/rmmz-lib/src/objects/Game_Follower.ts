@@ -1,3 +1,5 @@
+import { Game_Character } from "./Game_Character";
+
 /**
  * The game object class for a follower. 
  * 

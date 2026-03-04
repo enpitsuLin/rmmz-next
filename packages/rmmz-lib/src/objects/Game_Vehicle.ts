@@ -1,8 +1,13 @@
+import type { VehicleType } from "../types";
+import { Game_Character } from "./Game_Character";
+
 /**
  * The game object class for a vehicle.
  */
 class Game_Vehicle extends Game_Character {
-  constructor(type) {
+  _type!: VehicleType | ''
+
+  constructor(type: VehicleType) {
     super();
     if (type) {
       this._type = type;

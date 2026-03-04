@@ -1,8 +1,16 @@
-//-----------------------------------------------------------------------------
-// ConfigManager
-//
-// The static class that manages the configuration data.
+import { AudioManager } from "./AudioManager";
+import { StorageManager } from "./StorageManager";
+
+/**
+ * The static class that manages the configuration data.
+ */
 export class ConfigManager {
+
+  static alwaysDash = false;
+  static commandRemember = false;
+  static touchUI = true;
+  static _isLoaded = false;
+
   constructor() {
     throw new Error("This is a static class");
   }
@@ -37,7 +45,7 @@ export class ConfigManager {
 
   static load() {
     StorageManager.loadObject("config")
-      .then((config) => this.applyData(config || {}))
+      .then((config) => this.applyData(config || {} as ConfigManager.ConfigData))
       .catch(() => 0)
       .then(() => {
         this._isLoaded = true;
@@ -55,7 +63,7 @@ export class ConfigManager {
   }
 
   static makeData() {
-    const config = {};
+    const config = {} as ConfigManager.ConfigData;
     config.alwaysDash = this.alwaysDash;
     config.commandRemember = this.commandRemember;
     config.touchUI = this.touchUI;
@@ -66,7 +74,7 @@ export class ConfigManager {
     return config;
   }
 
-  static applyData(config) {
+  static applyData(config: Partial<ConfigManager.ConfigData>) {
     this.alwaysDash = this.readFlag(config, "alwaysDash", false);
     this.commandRemember = this.readFlag(config, "commandRemember", false);
     this.touchUI = this.readFlag(config, "touchUI", true);
@@ -76,24 +84,31 @@ export class ConfigManager {
     this.seVolume = this.readVolume(config, "seVolume");
   }
 
-  static readFlag(config, name, defaultValue) {
+  static readFlag(config: Partial<ConfigManager.ConfigData>, name: string, defaultValue: boolean) {
     if (name in config) {
-      return !!config[name];
+      return !!config[name as keyof ConfigManager.ConfigData];
     } else {
       return defaultValue;
     }
   }
 
-  static readVolume(config, name) {
+  static readVolume(config: Partial<ConfigManager.ConfigData>, name: string) {
     if (name in config) {
-      return Number(config[name]).clamp(0, 100);
+      return Number(config[name as keyof ConfigManager.ConfigData]).clamp(0, 100);
     } else {
       return 100;
     }
   }
 }
 
-ConfigManager.alwaysDash = false;
-ConfigManager.commandRemember = false;
-ConfigManager.touchUI = true;
-ConfigManager._isLoaded = false;
+export namespace ConfigManager {
+  export type ConfigData = {
+    alwaysDash: boolean;
+    commandRemember: boolean;
+    touchUI: boolean;
+    bgmVolume: number;
+    bgsVolume: number;
+    meVolume: number;
+    seVolume: number;
+  }
+}

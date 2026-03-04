@@ -1,7 +1,13 @@
+import type { Game_Enemy } from "./Game_Enemy";
+import { Game_Interpreter } from "./Game_Interpreter";
+import { Game_Unit } from "./Game_Unit";
+
 /**
  * The game object class for a troop and the battle-related data.
  */
-class Game_Troop extends Game_Unit {
+class Game_Troop extends Game_Unit<Game_Enemy> {
+  _enemies!: Game_Enemy[]
+  
   constructor() {
     super();
     this._interpreter = new Game_Interpreter();
