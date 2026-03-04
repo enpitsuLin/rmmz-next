@@ -20,7 +20,7 @@ class Game_Action<
   _item!: Game_Item<Item>
   _targetIndex!: number
 
-  constructor(subject: Game_Actor | Game_Enemy, forcing: boolean) {
+  constructor(subject: Game_Actor | Game_Enemy, forcing?: boolean) {
     this._subjectActorId = 0
     this._subjectEnemyIndex = -1
     this._forcing = forcing || false

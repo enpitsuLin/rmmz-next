@@ -1,3 +1,5 @@
+import { DataManager } from "../managers"
+import { Game_Action } from "../objects"
 import { Window_MenuStatus } from "./Window_MenuStatus"
 
 /**

@@ -1,5 +1,5 @@
 import type { EffectType, MotionType } from '../types'
-import type { Game_Action } from './Game_Action'
+import { Game_Action } from './Game_Action'
 import { Game_ActionResult } from './Game_ActionResult'
 import { Game_BattlerBase } from './Game_BattlerBase'
 

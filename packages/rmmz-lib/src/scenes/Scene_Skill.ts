@@ -1,4 +1,4 @@
-import type { Graphics, Rectangle } from '../core'
+import { Graphics, Rectangle } from '../core'
 import { SoundManager } from '../managers/SoundManager'
 import { Window_SkillList, Window_SkillStatus, Window_SkillType } from '../windows'
 import { Scene_ItemBase } from './Scene_ItemBase'

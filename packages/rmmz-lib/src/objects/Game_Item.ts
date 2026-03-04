@@ -46,7 +46,7 @@ class Game_Item<Item extends MZ.GeneralItem = MZ.GeneralItem> {
     return this._dataClass === ''
   }
 
-  itemId() {
+  itemId(): number {
     return this._itemId
   }
 
@@ -68,7 +68,7 @@ class Game_Item<Item extends MZ.GeneralItem = MZ.GeneralItem> {
     }
   }
 
-  setObject(item: MZ.GeneralItem) {
+  setObject(item: MZ.GeneralItem): void {
     if (DataManager.isSkill(item)) {
       this._dataClass = 'skill'
     }
@@ -87,7 +87,7 @@ class Game_Item<Item extends MZ.GeneralItem = MZ.GeneralItem> {
     this._itemId = item ? item.id : 0
   }
 
-  setEquip(isWeapon: boolean, itemId: number) {
+  setEquip(isWeapon: boolean, itemId: number): void {
     this._dataClass = isWeapon ? 'weapon' : 'armor'
     this._itemId = itemId
   }
