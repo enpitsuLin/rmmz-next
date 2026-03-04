@@ -5,94 +5,94 @@
  */
 export class Sprite_Name extends Sprite {
   constructor() {
-    super();
-    this.initMembers();
-    this.createBitmap();
+    super()
+    this.initMembers()
+    this.createBitmap()
   }
 
   initMembers() {
-    this._battler = null;
-    this._name = "";
-    this._textColor = "";
+    this._battler = null
+    this._name = ''
+    this._textColor = ''
   }
 
   destroy(options) {
-    this.bitmap.destroy();
-    super.destroy(options);
+    this.bitmap.destroy()
+    super.destroy(options)
   }
 
   createBitmap() {
-    const width = this.bitmapWidth();
-    const height = this.bitmapHeight();
-    this.bitmap = new Bitmap(width, height);
+    const width = this.bitmapWidth()
+    const height = this.bitmapHeight()
+    this.bitmap = new Bitmap(width, height)
   }
 
   bitmapWidth() {
-    return 128;
+    return 128
   }
 
   bitmapHeight() {
-    return 24;
+    return 24
   }
 
   fontFace() {
-    return $gameSystem.mainFontFace();
+    return $gameSystem.mainFontFace()
   }
 
   fontSize() {
-    return $gameSystem.mainFontSize();
+    return $gameSystem.mainFontSize()
   }
 
   setup(battler) {
-    this._battler = battler;
-    this.updateBitmap();
+    this._battler = battler
+    this.updateBitmap()
   }
 
   update() {
-    super.update();
-    this.updateBitmap();
+    super.update()
+    this.updateBitmap()
   }
 
   updateBitmap() {
-    const name = this.name();
-    const color = this.textColor();
+    const name = this.name()
+    const color = this.textColor()
     if (name !== this._name || color !== this._textColor) {
-      this._name = name;
-      this._textColor = color;
-      this.redraw();
+      this._name = name
+      this._textColor = color
+      this.redraw()
     }
   }
 
   name() {
-    return this._battler ? this._battler.name() : "";
+    return this._battler ? this._battler.name() : ''
   }
 
   textColor() {
-    return ColorManager.hpColor(this._battler);
+    return ColorManager.hpColor(this._battler)
   }
 
   outlineColor() {
-    return ColorManager.outlineColor();
+    return ColorManager.outlineColor()
   }
 
   outlineWidth() {
-    return 3;
+    return 3
   }
 
   redraw() {
-    const name = this.name();
-    const width = this.bitmapWidth();
-    const height = this.bitmapHeight();
-    this.setupFont();
-    this.bitmap.clear();
-    this.bitmap.drawText(name, 0, 0, width, height, "left");
+    const name = this.name()
+    const width = this.bitmapWidth()
+    const height = this.bitmapHeight()
+    this.setupFont()
+    this.bitmap.clear()
+    this.bitmap.drawText(name, 0, 0, width, height, 'left')
   }
 
   setupFont() {
-    this.bitmap.fontFace = this.fontFace();
-    this.bitmap.fontSize = this.fontSize();
-    this.bitmap.textColor = this.textColor();
-    this.bitmap.outlineColor = this.outlineColor();
-    this.bitmap.outlineWidth = this.outlineWidth();
+    this.bitmap.fontFace = this.fontFace()
+    this.bitmap.fontSize = this.fontSize()
+    this.bitmap.textColor = this.textColor()
+    this.bitmap.outlineColor = this.outlineColor()
+    this.bitmap.outlineWidth = this.outlineWidth()
   }
 }

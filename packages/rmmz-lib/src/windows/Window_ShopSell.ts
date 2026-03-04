@@ -5,10 +5,10 @@
  */
 export class Window_ShopSell extends Window_ItemList {
   constructor(rect) {
-    super(rect);
+    super(rect)
   }
 
   isEnabled(item) {
-    return item && item.price > 0;
+    return item && item.price > 0
   }
 }

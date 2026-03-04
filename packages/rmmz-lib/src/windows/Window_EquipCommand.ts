@@ -5,16 +5,16 @@
  */
 export class Window_EquipCommand extends Window_HorzCommand {
   constructor(rect) {
-    super(rect);
+    super(rect)
   }
 
   maxCols() {
-    return 3;
+    return 3
   }
 
   makeCommandList() {
-    this.addCommand(TextManager.equip2, "equip");
-    this.addCommand(TextManager.optimize, "optimize");
-    this.addCommand(TextManager.clear, "clear");
+    this.addCommand(TextManager.equip2, 'equip')
+    this.addCommand(TextManager.optimize, 'optimize')
+    this.addCommand(TextManager.clear, 'clear')
   }
 }

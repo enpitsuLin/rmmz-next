@@ -6,107 +6,111 @@
  */
 export class Window_ScrollText extends Window_Base {
   constructor(rect) {
-    super(new Rectangle());
-    this.opacity = 0;
-    this.hide();
-    this._reservedRect = rect;
-    this._text = "";
-    this._maxBitmapHeight = 2048;
-    this._allTextHeight = 0;
-    this._blockHeight = 0;
-    this._blockIndex = 0;
-    this._scrollY = 0;
+    super(new Rectangle())
+    this.opacity = 0
+    this.hide()
+    this._reservedRect = rect
+    this._text = ''
+    this._maxBitmapHeight = 2048
+    this._allTextHeight = 0
+    this._blockHeight = 0
+    this._blockIndex = 0
+    this._scrollY = 0
   }
 
   update() {
-    super.update();
+    super.update()
     if ($gameMessage.scrollMode()) {
       if (this._text) {
-        this.updateMessage();
+        this.updateMessage()
       }
       if (!this._text && $gameMessage.hasText()) {
-        this.startMessage();
+        this.startMessage()
       }
     }
   }
 
   startMessage() {
-    this._text = $gameMessage.allText();
+    this._text = $gameMessage.allText()
     if (this._text) {
-      this.updatePlacement();
-      this._allTextHeight = this.textSizeEx(this._text).height;
-      this._blockHeight = this._maxBitmapHeight - this.height;
-      this._blockIndex = 0;
-      this.origin.y = this._scrollY = -this.height;
-      this.createContents();
-      this.refresh();
-      this.show();
-    } else {
-      $gameMessage.clear();
+      this.updatePlacement()
+      this._allTextHeight = this.textSizeEx(this._text).height
+      this._blockHeight = this._maxBitmapHeight - this.height
+      this._blockIndex = 0
+      this.origin.y = this._scrollY = -this.height
+      this.createContents()
+      this.refresh()
+      this.show()
+    }
+    else {
+      $gameMessage.clear()
     }
   }
 
   refresh() {
-    const rect = this.baseTextRect();
-    const y = rect.y - this._scrollY + (this._scrollY % this._blockHeight);
-    this.contents.clear();
-    this.drawTextEx(this._text, rect.x, y, rect.width);
+    const rect = this.baseTextRect()
+    const y = rect.y - this._scrollY + (this._scrollY % this._blockHeight)
+    this.contents.clear()
+    this.drawTextEx(this._text, rect.x, y, rect.width)
   }
 
   updatePlacement() {
-    const rect = this._reservedRect;
-    this.move(rect.x, rect.y, rect.width, rect.height);
+    const rect = this._reservedRect
+    this.move(rect.x, rect.y, rect.width, rect.height)
   }
 
   contentsHeight() {
     if (this._allTextHeight > 0) {
-      return Math.min(this._allTextHeight, this._maxBitmapHeight);
-    } else {
-      return 0;
+      return Math.min(this._allTextHeight, this._maxBitmapHeight)
+    }
+    else {
+      return 0
     }
   }
 
   updateMessage() {
-    this._scrollY += this.scrollSpeed();
+    this._scrollY += this.scrollSpeed()
     if (this._scrollY >= this._allTextHeight) {
-      this.terminateMessage();
-    } else {
-      const blockIndex = Math.floor(this._scrollY / this._blockHeight);
+      this.terminateMessage()
+    }
+    else {
+      const blockIndex = Math.floor(this._scrollY / this._blockHeight)
       if (blockIndex > this._blockIndex) {
-        this._blockIndex = blockIndex;
-        this.refresh();
+        this._blockIndex = blockIndex
+        this.refresh()
       }
-      this.origin.y = this._scrollY % this._blockHeight;
+      this.origin.y = this._scrollY % this._blockHeight
     }
   }
 
   scrollSpeed() {
-    let speed = $gameMessage.scrollSpeed() / 2;
+    let speed = $gameMessage.scrollSpeed() / 2
     if (this.isFastForward()) {
-      speed *= this.fastForwardRate();
+      speed *= this.fastForwardRate()
     }
-    return speed;
+    return speed
   }
 
   isFastForward() {
     if ($gameMessage.scrollNoFast()) {
-      return false;
-    } else {
+      return false
+    }
+    else {
       return (
-        Input.isPressed("ok") ||
-        Input.isPressed("shift") ||
-        TouchInput.isPressed()
-      );
+        Input.isPressed('ok')
+        || Input.isPressed('shift')
+        || TouchInput.isPressed()
+      )
     }
   }
 
   fastForwardRate() {
-    return 3;
+    return 3
   }
 
   terminateMessage() {
-    this._text = null;
-    $gameMessage.clear();
-    this.hide();
+    this._text = null
+    $gameMessage.clear()
+    this.hide()
   }
 }

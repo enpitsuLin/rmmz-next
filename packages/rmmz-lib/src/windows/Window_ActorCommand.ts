@@ -5,73 +5,74 @@
  */
 export class Window_ActorCommand extends Window_Command {
   constructor(rect) {
-    super(rect);
-    this.openness = 0;
-    this.deactivate();
-    this._actor = null;
+    super(rect)
+    this.openness = 0
+    this.deactivate()
+    this._actor = null
   }
 
   makeCommandList() {
     if (this._actor) {
-      this.addAttackCommand();
-      this.addSkillCommands();
-      this.addGuardCommand();
-      this.addItemCommand();
+      this.addAttackCommand()
+      this.addSkillCommands()
+      this.addGuardCommand()
+      this.addItemCommand()
     }
   }
 
   addAttackCommand() {
-    this.addCommand(TextManager.attack, "attack", this._actor.canAttack());
+    this.addCommand(TextManager.attack, 'attack', this._actor.canAttack())
   }
 
   addSkillCommands() {
-    const skillTypes = this._actor.skillTypes();
+    const skillTypes = this._actor.skillTypes()
     for (const stypeId of skillTypes) {
-      const name = $dataSystem.skillTypes[stypeId];
-      this.addCommand(name, "skill", true, stypeId);
+      const name = $dataSystem.skillTypes[stypeId]
+      this.addCommand(name, 'skill', true, stypeId)
     }
   }
 
   addGuardCommand() {
-    this.addCommand(TextManager.guard, "guard", this._actor.canGuard());
+    this.addCommand(TextManager.guard, 'guard', this._actor.canGuard())
   }
 
   addItemCommand() {
-    this.addCommand(TextManager.item, "item");
+    this.addCommand(TextManager.item, 'item')
   }
 
   setup(actor) {
-    this._actor = actor;
-    this.refresh();
-    this.selectLast();
-    this.activate();
-    this.open();
+    this._actor = actor
+    this.refresh()
+    this.selectLast()
+    this.activate()
+    this.open()
   }
 
   actor() {
-    return this._actor;
+    return this._actor
   }
 
   processOk() {
     if (this._actor) {
       if (ConfigManager.commandRemember) {
-        this._actor.setLastCommandSymbol(this.currentSymbol());
-      } else {
-        this._actor.setLastCommandSymbol("");
+        this._actor.setLastCommandSymbol(this.currentSymbol())
+      }
+      else {
+        this._actor.setLastCommandSymbol('')
       }
     }
-    super.processOk();
+    super.processOk()
   }
 
   selectLast() {
-    this.forceSelect(0);
+    this.forceSelect(0)
     if (this._actor && ConfigManager.commandRemember) {
-      const symbol = this._actor.lastCommandSymbol();
-      this.selectSymbol(symbol);
-      if (symbol === "skill") {
-        const skill = this._actor.lastBattleSkill();
+      const symbol = this._actor.lastCommandSymbol()
+      this.selectSymbol(symbol)
+      if (symbol === 'skill') {
+        const skill = this._actor.lastBattleSkill()
         if (skill) {
-          this.selectExt(skill.stypeId);
+          this.selectExt(skill.stypeId)
         }
       }
     }

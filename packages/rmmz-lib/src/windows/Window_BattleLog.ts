@@ -6,562 +6,578 @@
  */
 export class Window_BattleLog extends Window_Base {
   constructor(rect) {
-    super(rect);
-    this.opacity = 0;
-    this._lines = [];
-    this._methods = [];
-    this._waitCount = 0;
-    this._waitMode = "";
-    this._baseLineStack = [];
-    this._spriteset = null;
-    this.refresh();
+    super(rect)
+    this.opacity = 0
+    this._lines = []
+    this._methods = []
+    this._waitCount = 0
+    this._waitMode = ''
+    this._baseLineStack = []
+    this._spriteset = null
+    this.refresh()
   }
 
   setSpriteset(spriteset) {
-    this._spriteset = spriteset;
+    this._spriteset = spriteset
   }
 
   maxLines() {
-    return 10;
+    return 10
   }
 
   numLines() {
-    return this._lines.length;
+    return this._lines.length
   }
 
   messageSpeed() {
-    return 16;
+    return 16
   }
 
   isBusy() {
-    return this._waitCount > 0 || this._waitMode || this._methods.length > 0;
+    return this._waitCount > 0 || this._waitMode || this._methods.length > 0
   }
 
   update() {
     if (!this.updateWait()) {
-      this.callNextMethod();
+      this.callNextMethod()
     }
   }
 
   updateWait() {
-    return this.updateWaitCount() || this.updateWaitMode();
+    return this.updateWaitCount() || this.updateWaitMode()
   }
 
   updateWaitCount() {
     if (this._waitCount > 0) {
-      this._waitCount -= this.isFastForward() ? 3 : 1;
+      this._waitCount -= this.isFastForward() ? 3 : 1
       if (this._waitCount < 0) {
-        this._waitCount = 0;
+        this._waitCount = 0
       }
-      return true;
+      return true
     }
-    return false;
+    return false
   }
 
   updateWaitMode() {
-    let waiting = false;
+    let waiting = false
     switch (this._waitMode) {
-      case "effect":
-        waiting = this._spriteset.isEffecting();
-        break;
-      case "movement":
-        waiting = this._spriteset.isAnyoneMoving();
-        break;
+      case 'effect':
+        waiting = this._spriteset.isEffecting()
+        break
+      case 'movement':
+        waiting = this._spriteset.isAnyoneMoving()
+        break
     }
     if (!waiting) {
-      this._waitMode = "";
+      this._waitMode = ''
     }
-    return waiting;
+    return waiting
   }
 
   setWaitMode(waitMode) {
-    this._waitMode = waitMode;
+    this._waitMode = waitMode
   }
 
   callNextMethod() {
     if (this._methods.length > 0) {
-      const method = this._methods.shift();
+      const method = this._methods.shift()
       if (method.name && this[method.name]) {
-        this[method.name].apply(this, method.params);
-      } else {
-        throw new Error("Method not found: " + method.name);
+        this[method.name].apply(this, method.params)
+      }
+      else {
+        throw new Error(`Method not found: ${method.name}`)
       }
     }
   }
 
   isFastForward() {
     return (
-      Input.isLongPressed("ok") ||
-      Input.isPressed("shift") ||
-      TouchInput.isLongPressed()
-    );
+      Input.isLongPressed('ok')
+      || Input.isPressed('shift')
+      || TouchInput.isLongPressed()
+    )
   }
 
   push(methodName, ...methodArgs) {
-    this._methods.push({ name: methodName, params: methodArgs });
+    this._methods.push({ name: methodName, params: methodArgs })
   }
 
   clear() {
-    this._lines = [];
-    this._baseLineStack = [];
-    this.refresh();
+    this._lines = []
+    this._baseLineStack = []
+    this.refresh()
   }
 
   wait() {
-    this._waitCount = this.messageSpeed();
+    this._waitCount = this.messageSpeed()
   }
 
   waitForEffect() {
-    this.setWaitMode("effect");
+    this.setWaitMode('effect')
   }
 
   waitForMovement() {
-    this.setWaitMode("movement");
+    this.setWaitMode('movement')
   }
 
   addText(text) {
-    this._lines.push(text);
-    this.refresh();
-    this.wait();
+    this._lines.push(text)
+    this.refresh()
+    this.wait()
   }
 
   pushBaseLine() {
-    this._baseLineStack.push(this._lines.length);
+    this._baseLineStack.push(this._lines.length)
   }
 
   popBaseLine() {
-    const baseLine = this._baseLineStack.pop();
+    const baseLine = this._baseLineStack.pop()
     while (this._lines.length > baseLine) {
-      this._lines.pop();
+      this._lines.pop()
     }
   }
 
   waitForNewLine() {
-    let baseLine = 0;
+    let baseLine = 0
     if (this._baseLineStack.length > 0) {
-      baseLine = this._baseLineStack[this._baseLineStack.length - 1];
+      baseLine = this._baseLineStack[this._baseLineStack.length - 1]
     }
     if (this._lines.length > baseLine) {
-      this.wait();
+      this.wait()
     }
   }
 
   popupDamage(target) {
     if (target.shouldPopupDamage()) {
-      target.startDamagePopup();
+      target.startDamagePopup()
     }
   }
 
   performActionStart(subject, action) {
-    subject.performActionStart(action);
+    subject.performActionStart(action)
   }
 
   performAction(subject, action) {
-    subject.performAction(action);
+    subject.performAction(action)
   }
 
   performActionEnd(subject) {
-    subject.performActionEnd();
+    subject.performActionEnd()
   }
 
   performDamage(target) {
-    target.performDamage();
+    target.performDamage()
   }
 
   performMiss(target) {
-    target.performMiss();
+    target.performMiss()
   }
 
   performRecovery(target) {
-    target.performRecovery();
+    target.performRecovery()
   }
 
   performEvasion(target) {
-    target.performEvasion();
+    target.performEvasion()
   }
 
   performMagicEvasion(target) {
-    target.performMagicEvasion();
+    target.performMagicEvasion()
   }
 
   performCounter(target) {
-    target.performCounter();
+    target.performCounter()
   }
 
   performReflection(target) {
-    target.performReflection();
+    target.performReflection()
   }
 
   performSubstitute(substitute, target) {
-    substitute.performSubstitute(target);
+    substitute.performSubstitute(target)
   }
 
   performCollapse(target) {
-    target.performCollapse();
+    target.performCollapse()
   }
 
   showAnimation(subject, targets, animationId) {
     if (animationId < 0) {
-      this.showAttackAnimation(subject, targets);
-    } else {
-      this.showNormalAnimation(targets, animationId);
+      this.showAttackAnimation(subject, targets)
+    }
+    else {
+      this.showNormalAnimation(targets, animationId)
     }
   }
 
   showAttackAnimation(subject, targets) {
     if (subject.isActor()) {
-      this.showActorAttackAnimation(subject, targets);
-    } else {
-      this.showEnemyAttackAnimation(subject, targets);
+      this.showActorAttackAnimation(subject, targets)
+    }
+    else {
+      this.showEnemyAttackAnimation(subject, targets)
     }
   }
 
   showActorAttackAnimation(subject, targets) {
-    this.showNormalAnimation(targets, subject.attackAnimationId1(), false);
-    this.showNormalAnimation(targets, subject.attackAnimationId2(), true);
+    this.showNormalAnimation(targets, subject.attackAnimationId1(), false)
+    this.showNormalAnimation(targets, subject.attackAnimationId2(), true)
   }
 
   showEnemyAttackAnimation() {
-    SoundManager.playEnemyAttack();
+    SoundManager.playEnemyAttack()
   }
 
   showNormalAnimation(targets, animationId, mirror) {
-    const animation = $dataAnimations[animationId];
+    const animation = $dataAnimations[animationId]
     if (animation) {
-      $gameTemp.requestAnimation(targets, animationId, mirror);
+      $gameTemp.requestAnimation(targets, animationId, mirror)
     }
   }
 
   refresh() {
-    this.drawBackground();
-    this.contents.clear();
+    this.drawBackground()
+    this.contents.clear()
     for (let i = 0; i < this._lines.length; i++) {
-      this.drawLineText(i);
+      this.drawLineText(i)
     }
   }
 
   drawBackground() {
-    const rect = this.backRect();
-    const color = this.backColor();
-    this.contentsBack.clear();
-    this.contentsBack.paintOpacity = this.backPaintOpacity();
-    this.contentsBack.fillRect(rect.x, rect.y, rect.width, rect.height, color);
-    this.contentsBack.paintOpacity = 255;
+    const rect = this.backRect()
+    const color = this.backColor()
+    this.contentsBack.clear()
+    this.contentsBack.paintOpacity = this.backPaintOpacity()
+    this.contentsBack.fillRect(rect.x, rect.y, rect.width, rect.height, color)
+    this.contentsBack.paintOpacity = 255
   }
 
   backRect() {
-    const height = this.numLines() * this.itemHeight();
-    return new Rectangle(0, 0, this.innerWidth, height);
+    const height = this.numLines() * this.itemHeight()
+    return new Rectangle(0, 0, this.innerWidth, height)
   }
 
   lineRect(index) {
-    const itemHeight = this.itemHeight();
-    const padding = this.itemPadding();
-    const x = padding;
-    const y = index * itemHeight;
-    const width = this.innerWidth - padding * 2;
-    const height = itemHeight;
-    return new Rectangle(x, y, width, height);
+    const itemHeight = this.itemHeight()
+    const padding = this.itemPadding()
+    const x = padding
+    const y = index * itemHeight
+    const width = this.innerWidth - padding * 2
+    const height = itemHeight
+    return new Rectangle(x, y, width, height)
   }
 
   backColor() {
-    return "#000000";
+    return '#000000'
   }
 
   backPaintOpacity() {
-    return 64;
+    return 64
   }
 
   drawLineText(index) {
-    const rect = this.lineRect(index);
-    this.contents.clearRect(rect.x, rect.y, rect.width, rect.height);
-    this.drawTextEx(this._lines[index], rect.x, rect.y, rect.width);
+    const rect = this.lineRect(index)
+    this.contents.clearRect(rect.x, rect.y, rect.width, rect.height)
+    this.drawTextEx(this._lines[index], rect.x, rect.y, rect.width)
   }
 
   startTurn() {
-    this.push("wait");
+    this.push('wait')
   }
 
   startAction(subject, action, targets) {
-    const item = action.item();
-    this.push("performActionStart", subject, action);
-    this.push("waitForMovement");
-    this.push("performAction", subject, action);
-    this.push("showAnimation", subject, targets.slice(), item.animationId);
-    this.displayAction(subject, item);
+    const item = action.item()
+    this.push('performActionStart', subject, action)
+    this.push('waitForMovement')
+    this.push('performAction', subject, action)
+    this.push('showAnimation', subject, targets.slice(), item.animationId)
+    this.displayAction(subject, item)
   }
 
   endAction(subject) {
-    this.push("waitForNewLine");
-    this.push("clear");
-    this.push("performActionEnd", subject);
+    this.push('waitForNewLine')
+    this.push('clear')
+    this.push('performActionEnd', subject)
   }
 
   displayCurrentState(subject) {
-    const stateText = subject.mostImportantStateText();
+    const stateText = subject.mostImportantStateText()
     if (stateText) {
-      this.push("addText", stateText.format(subject.name()));
-      this.push("wait");
-      this.push("clear");
+      this.push('addText', stateText.format(subject.name()))
+      this.push('wait')
+      this.push('clear')
     }
   }
 
   displayRegeneration(subject) {
-    this.push("popupDamage", subject);
+    this.push('popupDamage', subject)
   }
 
   displayAction(subject, item) {
-    const numMethods = this._methods.length;
+    const numMethods = this._methods.length
     if (DataManager.isSkill(item)) {
-      this.displayItemMessage(item.message1, subject, item);
-      this.displayItemMessage(item.message2, subject, item);
-    } else {
-      this.displayItemMessage(TextManager.useItem, subject, item);
+      this.displayItemMessage(item.message1, subject, item)
+      this.displayItemMessage(item.message2, subject, item)
+    }
+    else {
+      this.displayItemMessage(TextManager.useItem, subject, item)
     }
     if (this._methods.length === numMethods) {
-      this.push("wait");
+      this.push('wait')
     }
   }
 
   displayItemMessage(fmt, subject, item) {
     if (fmt) {
-      this.push("addText", fmt.format(subject.name(), item.name));
+      this.push('addText', fmt.format(subject.name(), item.name))
     }
   }
 
   displayCounter(target) {
-    this.push("performCounter", target);
-    this.push("addText", TextManager.counterAttack.format(target.name()));
+    this.push('performCounter', target)
+    this.push('addText', TextManager.counterAttack.format(target.name()))
   }
 
   displayReflection(target) {
-    this.push("performReflection", target);
-    this.push("addText", TextManager.magicReflection.format(target.name()));
+    this.push('performReflection', target)
+    this.push('addText', TextManager.magicReflection.format(target.name()))
   }
 
   displaySubstitute(substitute, target) {
-    const substName = substitute.name();
-    const text = TextManager.substitute.format(substName, target.name());
-    this.push("performSubstitute", substitute, target);
-    this.push("addText", text);
+    const substName = substitute.name()
+    const text = TextManager.substitute.format(substName, target.name())
+    this.push('performSubstitute', substitute, target)
+    this.push('addText', text)
   }
 
   displayActionResults(subject, target) {
     if (target.result().used) {
-      this.push("pushBaseLine");
-      this.displayCritical(target);
-      this.push("popupDamage", target);
-      this.push("popupDamage", subject);
-      this.displayDamage(target);
-      this.displayAffectedStatus(target);
-      this.displayFailure(target);
-      this.push("waitForNewLine");
-      this.push("popBaseLine");
+      this.push('pushBaseLine')
+      this.displayCritical(target)
+      this.push('popupDamage', target)
+      this.push('popupDamage', subject)
+      this.displayDamage(target)
+      this.displayAffectedStatus(target)
+      this.displayFailure(target)
+      this.push('waitForNewLine')
+      this.push('popBaseLine')
     }
   }
 
   displayFailure(target) {
     if (target.result().isHit() && !target.result().success) {
-      this.push("addText", TextManager.actionFailure.format(target.name()));
+      this.push('addText', TextManager.actionFailure.format(target.name()))
     }
   }
 
   displayCritical(target) {
     if (target.result().critical) {
       if (target.isActor()) {
-        this.push("addText", TextManager.criticalToActor);
-      } else {
-        this.push("addText", TextManager.criticalToEnemy);
+        this.push('addText', TextManager.criticalToActor)
+      }
+      else {
+        this.push('addText', TextManager.criticalToEnemy)
       }
     }
   }
 
   displayDamage(target) {
     if (target.result().missed) {
-      this.displayMiss(target);
-    } else if (target.result().evaded) {
-      this.displayEvasion(target);
-    } else {
-      this.displayHpDamage(target);
-      this.displayMpDamage(target);
-      this.displayTpDamage(target);
+      this.displayMiss(target)
+    }
+    else if (target.result().evaded) {
+      this.displayEvasion(target)
+    }
+    else {
+      this.displayHpDamage(target)
+      this.displayMpDamage(target)
+      this.displayTpDamage(target)
     }
   }
 
   displayMiss(target) {
-    let fmt;
+    let fmt
     if (target.result().physical) {
-      const isActor = target.isActor();
-      fmt = isActor ? TextManager.actorNoHit : TextManager.enemyNoHit;
-      this.push("performMiss", target);
-    } else {
-      fmt = TextManager.actionFailure;
+      const isActor = target.isActor()
+      fmt = isActor ? TextManager.actorNoHit : TextManager.enemyNoHit
+      this.push('performMiss', target)
     }
-    this.push("addText", fmt.format(target.name()));
+    else {
+      fmt = TextManager.actionFailure
+    }
+    this.push('addText', fmt.format(target.name()))
   }
 
   displayEvasion(target) {
-    let fmt;
+    let fmt
     if (target.result().physical) {
-      fmt = TextManager.evasion;
-      this.push("performEvasion", target);
-    } else {
-      fmt = TextManager.magicEvasion;
-      this.push("performMagicEvasion", target);
+      fmt = TextManager.evasion
+      this.push('performEvasion', target)
     }
-    this.push("addText", fmt.format(target.name()));
+    else {
+      fmt = TextManager.magicEvasion
+      this.push('performMagicEvasion', target)
+    }
+    this.push('addText', fmt.format(target.name()))
   }
 
   displayHpDamage(target) {
     if (target.result().hpAffected) {
       if (target.result().hpDamage > 0 && !target.result().drain) {
-        this.push("performDamage", target);
+        this.push('performDamage', target)
       }
       if (target.result().hpDamage < 0) {
-        this.push("performRecovery", target);
+        this.push('performRecovery', target)
       }
-      this.push("addText", this.makeHpDamageText(target));
+      this.push('addText', this.makeHpDamageText(target))
     }
   }
 
   displayMpDamage(target) {
     if (target.isAlive() && target.result().mpDamage !== 0) {
       if (target.result().mpDamage < 0) {
-        this.push("performRecovery", target);
+        this.push('performRecovery', target)
       }
-      this.push("addText", this.makeMpDamageText(target));
+      this.push('addText', this.makeMpDamageText(target))
     }
   }
 
   displayTpDamage(target) {
     if (target.isAlive() && target.result().tpDamage !== 0) {
       if (target.result().tpDamage < 0) {
-        this.push("performRecovery", target);
+        this.push('performRecovery', target)
       }
-      this.push("addText", this.makeTpDamageText(target));
+      this.push('addText', this.makeTpDamageText(target))
     }
   }
 
   displayAffectedStatus(target) {
     if (target.result().isStatusAffected()) {
-      this.push("pushBaseLine");
-      this.displayChangedStates(target);
-      this.displayChangedBuffs(target);
-      this.push("waitForNewLine");
-      this.push("popBaseLine");
+      this.push('pushBaseLine')
+      this.displayChangedStates(target)
+      this.displayChangedBuffs(target)
+      this.push('waitForNewLine')
+      this.push('popBaseLine')
     }
   }
 
   displayAutoAffectedStatus(target) {
     if (target.result().isStatusAffected()) {
-      this.displayAffectedStatus(target, null);
-      this.push("clear");
+      this.displayAffectedStatus(target, null)
+      this.push('clear')
     }
   }
 
   displayChangedStates(target) {
-    this.displayAddedStates(target);
-    this.displayRemovedStates(target);
+    this.displayAddedStates(target)
+    this.displayRemovedStates(target)
   }
 
   displayAddedStates(target) {
-    const result = target.result();
-    const states = result.addedStateObjects();
+    const result = target.result()
+    const states = result.addedStateObjects()
     for (const state of states) {
-      const stateText = target.isActor() ? state.message1 : state.message2;
+      const stateText = target.isActor() ? state.message1 : state.message2
       if (state.id === target.deathStateId()) {
-        this.push("performCollapse", target);
+        this.push('performCollapse', target)
       }
       if (stateText) {
-        this.push("popBaseLine");
-        this.push("pushBaseLine");
-        this.push("addText", stateText.format(target.name()));
-        this.push("waitForEffect");
+        this.push('popBaseLine')
+        this.push('pushBaseLine')
+        this.push('addText', stateText.format(target.name()))
+        this.push('waitForEffect')
       }
     }
   }
 
   displayRemovedStates(target) {
-    const result = target.result();
-    const states = result.removedStateObjects();
+    const result = target.result()
+    const states = result.removedStateObjects()
     for (const state of states) {
       if (state.message4) {
-        this.push("popBaseLine");
-        this.push("pushBaseLine");
-        this.push("addText", state.message4.format(target.name()));
+        this.push('popBaseLine')
+        this.push('pushBaseLine')
+        this.push('addText', state.message4.format(target.name()))
       }
     }
   }
 
   displayChangedBuffs(target) {
-    const result = target.result();
-    this.displayBuffs(target, result.addedBuffs, TextManager.buffAdd);
-    this.displayBuffs(target, result.addedDebuffs, TextManager.debuffAdd);
-    this.displayBuffs(target, result.removedBuffs, TextManager.buffRemove);
+    const result = target.result()
+    this.displayBuffs(target, result.addedBuffs, TextManager.buffAdd)
+    this.displayBuffs(target, result.addedDebuffs, TextManager.debuffAdd)
+    this.displayBuffs(target, result.removedBuffs, TextManager.buffRemove)
   }
 
   displayBuffs(target, buffs, fmt) {
     for (const paramId of buffs) {
-      const text = fmt.format(target.name(), TextManager.param(paramId));
-      this.push("popBaseLine");
-      this.push("pushBaseLine");
-      this.push("addText", text);
+      const text = fmt.format(target.name(), TextManager.param(paramId))
+      this.push('popBaseLine')
+      this.push('pushBaseLine')
+      this.push('addText', text)
     }
   }
 
   makeHpDamageText(target) {
-    const result = target.result();
-    const damage = result.hpDamage;
-    const isActor = target.isActor();
-    let fmt;
+    const result = target.result()
+    const damage = result.hpDamage
+    const isActor = target.isActor()
+    let fmt
     if (damage > 0 && result.drain) {
-      fmt = isActor ? TextManager.actorDrain : TextManager.enemyDrain;
-      return fmt.format(target.name(), TextManager.hp, damage);
-    } else if (damage > 0) {
-      fmt = isActor ? TextManager.actorDamage : TextManager.enemyDamage;
-      return fmt.format(target.name(), damage);
-    } else if (damage < 0) {
-      fmt = isActor ? TextManager.actorRecovery : TextManager.enemyRecovery;
-      return fmt.format(target.name(), TextManager.hp, -damage);
-    } else {
-      fmt = isActor ? TextManager.actorNoDamage : TextManager.enemyNoDamage;
-      return fmt.format(target.name());
+      fmt = isActor ? TextManager.actorDrain : TextManager.enemyDrain
+      return fmt.format(target.name(), TextManager.hp, damage)
+    }
+    else if (damage > 0) {
+      fmt = isActor ? TextManager.actorDamage : TextManager.enemyDamage
+      return fmt.format(target.name(), damage)
+    }
+    else if (damage < 0) {
+      fmt = isActor ? TextManager.actorRecovery : TextManager.enemyRecovery
+      return fmt.format(target.name(), TextManager.hp, -damage)
+    }
+    else {
+      fmt = isActor ? TextManager.actorNoDamage : TextManager.enemyNoDamage
+      return fmt.format(target.name())
     }
   }
 
   makeMpDamageText(target) {
-    const result = target.result();
-    const damage = result.mpDamage;
-    const isActor = target.isActor();
-    let fmt;
+    const result = target.result()
+    const damage = result.mpDamage
+    const isActor = target.isActor()
+    let fmt
     if (damage > 0 && result.drain) {
-      fmt = isActor ? TextManager.actorDrain : TextManager.enemyDrain;
-      return fmt.format(target.name(), TextManager.mp, damage);
-    } else if (damage > 0) {
-      fmt = isActor ? TextManager.actorLoss : TextManager.enemyLoss;
-      return fmt.format(target.name(), TextManager.mp, damage);
-    } else if (damage < 0) {
-      fmt = isActor ? TextManager.actorRecovery : TextManager.enemyRecovery;
-      return fmt.format(target.name(), TextManager.mp, -damage);
-    } else {
-      return "";
+      fmt = isActor ? TextManager.actorDrain : TextManager.enemyDrain
+      return fmt.format(target.name(), TextManager.mp, damage)
+    }
+    else if (damage > 0) {
+      fmt = isActor ? TextManager.actorLoss : TextManager.enemyLoss
+      return fmt.format(target.name(), TextManager.mp, damage)
+    }
+    else if (damage < 0) {
+      fmt = isActor ? TextManager.actorRecovery : TextManager.enemyRecovery
+      return fmt.format(target.name(), TextManager.mp, -damage)
+    }
+    else {
+      return ''
     }
   }
 
   makeTpDamageText(target) {
-    const result = target.result();
-    const damage = result.tpDamage;
-    const isActor = target.isActor();
-    let fmt;
+    const result = target.result()
+    const damage = result.tpDamage
+    const isActor = target.isActor()
+    let fmt
     if (damage > 0) {
-      fmt = isActor ? TextManager.actorLoss : TextManager.enemyLoss;
-      return fmt.format(target.name(), TextManager.tp, damage);
-    } else if (damage < 0) {
-      fmt = isActor ? TextManager.actorGain : TextManager.enemyGain;
-      return fmt.format(target.name(), TextManager.tp, -damage);
-    } else {
-      return "";
+      fmt = isActor ? TextManager.actorLoss : TextManager.enemyLoss
+      return fmt.format(target.name(), TextManager.tp, damage)
+    }
+    else if (damage < 0) {
+      fmt = isActor ? TextManager.actorGain : TextManager.enemyGain
+      return fmt.format(target.name(), TextManager.tp, -damage)
+    }
+    else {
+      return ''
     }
   }
-
 }
