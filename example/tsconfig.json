@@ -10,6 +10,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "types": [
+      "vite/client",
       "nw.js",
       "@rmmz-lib/core/global-types"
     ],

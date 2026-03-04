@@ -225,7 +225,7 @@ function getProjectPath(customPath = null) {
   if (customPath && existsSync(customPath))
     return customPath
 
-  const defaultPath = join(__dirname, '..', 'project')
+  const defaultPath = join(__dirname, '..', 'src', 'project')
   if (existsSync(defaultPath))
     return defaultPath
 

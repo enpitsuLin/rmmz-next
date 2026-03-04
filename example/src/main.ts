@@ -1,4 +1,5 @@
-import { PluginManager, Scene_Boot, SceneManager } from '@rmmz-lib/core'
+import { DataManager, PluginManager, Scene_Boot, SceneManager } from '@rmmz-lib/core'
+import { $plugins } from 'virtual:rmmz-plugins'
 
 globalThis.$dataActors = null
 globalThis.$dataClasses = null
@@ -30,21 +31,47 @@ globalThis.$gameMap = null
 globalThis.$gamePlayer = null
 globalThis.$testEvent = null
 
-globalThis.$plugins = []
+const availablePlugins = new Map(
+  Object.entries(
+    import.meta.glob<string>('../project/js/plugins/*.js', { eager: true, query: '?url', import: 'default' }),
+  ).map(([url, mod]) => {
+    const name = url.split('/').pop()?.replace(/\.js$/, '') ?? ''
+    return [name, mod]
+  }),
+)
 
-// ts-expect-error global PIXI type
-// globalThis.PIXI = PIXI
+const allData = new Map(
+  Object.entries(
+    import.meta.glob<string>('../project/data/*.json', { eager: true, query: '?raw', import: 'default' }),
+  ).map(([url, mod]) => {
+    const name = url.split('/').pop() ?? ''
+    return [name, mod]
+  }),
+)
 
-// =============================================================================
-// main.js v1.10.0
-// =============================================================================
+PluginManager.loadScript = function (filename: string): void {
+  if (availablePlugins.has(filename)) {
+    import(availablePlugins.get(filename)!)
+      .catch((_err) => {
+        this.onError.bind(this)
+      })
+  }
+}
+
+DataManager.loadDataFile = function (name: string, src: string): void {
+  if (allData.has(src)) {
+    /// @ts-expect-error to fix
+    window[name] = JSON.parse(allData.get(src)!)
+    // @ts-expect-error to fix
+    this.onLoad(window[name])
+  }
+}
 
 const scriptUrls = [
-  'js/libs/effekseer.min.js',
-  'js/libs/vorbisdecoder.js',
-  'js/plugins.js',
+  new URL('/project/js/libs/effekseer.min.js', import.meta.url).href,
+  new URL('/project/js/libs/vorbisdecoder.js', import.meta.url).href,
 ]
-const effekseerWasmUrl = 'js/libs/effekseer.wasm'
+const effekseerWasmUrl = new URL('/project/js/libs/effekseer.wasm', import.meta.url).href
 
 class Main {
   error: Error | null = null
@@ -195,5 +222,3 @@ class Main {
 
 const main = new Main()
 main.run()
-
-// -----------------------------------------------------------------------------
