@@ -1,5 +1,11 @@
 /* eslint-disable vars-on-top */
 import type { MZ } from '@rmmz-lib/database-types'
+
+import type {
+  DataManager,
+  PluginManager,
+} from './managers'
+
 import type {
   Game_Actors,
   Game_Map,
@@ -14,8 +20,7 @@ import type {
   Game_Timer,
   Game_Troop,
   Game_Variables,
-} from '.'
-import type { DataManager } from './managers/DataManager'
+} from './objects'
 
 declare global {
   interface Window {
@@ -82,6 +87,8 @@ declare global {
   var $gamePlayer: Game_Player
 
   var $testEvent: any
+
+  var $plugins: PluginManager.PluginConfig[]
 }
 
 export { }

@@ -105,6 +105,7 @@ class Main {
       script.async = false
       script.defer = true
       script.onload = this.onScriptLoad.bind(this)
+      // @ts-expect-error to fix this
       script.onerror = this.onScriptError.bind(this)
       script._url = url
       document.body.appendChild(script)
@@ -120,11 +121,11 @@ class Main {
     }
   }
 
-  onScriptError(e: ErrorEvent) {
+  onScriptError(e: ErrorEvent): void {
     this.printError('Failed to load', (e.target as HTMLScriptElement)._url!)
   }
 
-  printError(name: string, message: string) {
+  printError(name: string, message: string): void {
     this.eraseLoadingSpinner()
     if (!document.getElementById('errorPrinter')) {
       const errorPrinter = document.createElement('div')
@@ -134,7 +135,7 @@ class Main {
     }
   }
 
-  makeErrorHtml(name: string, message: string) {
+  makeErrorHtml(name: string, message: string): string {
     const nameDiv = document.createElement('div')
     const messageDiv = document.createElement('div')
     nameDiv.id = 'errorName'
@@ -161,7 +162,7 @@ class Main {
     }
   }
 
-  onWindowError(event): void {
+  onWindowError(event: ErrorEvent): void {
     if (!this.error) {
       this.error = event.error
     }
