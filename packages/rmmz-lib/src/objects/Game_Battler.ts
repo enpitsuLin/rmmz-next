@@ -181,7 +181,7 @@ class Game_Battler extends Game_BattlerBase {
     this._tpbChargeTime -= 1;
   }
 
-  initTpbChargeTime(advantageous: boolean) {
+  initTpbChargeTime(advantageous?: boolean) {
     const speed = this.tpbRelativeSpeed();
     this._tpbState = "charging";
     this._tpbChargeTime = advantageous ? 1 : speed * Math.random() * 0.5;
@@ -612,7 +612,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  onBattleStart(advantageous) {
+  onBattleStart(advantageous?: boolean) {
     this.setActionState("undecided");
     this.clearMotion();
     this.initTpbChargeTime(advantageous);

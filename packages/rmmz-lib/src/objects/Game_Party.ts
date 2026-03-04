@@ -1,39 +1,36 @@
 import type { MZ } from '@rmmz-lib/database-types'
-import { Game_Unit } from "./Game_Unit";
+import { DataManager } from "../managers/DataManager"
+import type { Game_Actor } from "./Game_Actor"
+import { Game_Item } from "./Game_Item"
+import { Game_Unit } from "./Game_Unit"
+import { TextManager } from '../managers/TextManager'
+
 
 /**
- * The game object class for the party. 
- * 
+ * The game object class for the party.
+ *
  * Information such as gold and items is included.
  */
-class Game_Party extends Game_Unit {
+class Game_Party extends Game_Unit<Game_Actor> {
+  _gold: number
+  _steps: number
+  _lastItem: Game_Item
+  _menuActorId: number
+  _targetActorId: number
+  _actors: number[]
+  _items!: Game_Party.ItemContainer
+  _weapons!: Game_Party.ItemContainer
+  _armors!: Game_Party.ItemContainer
 
-  /**
-   * @param { Game_Party } [gameParty]
-   */
-  constructor(gameParty) {
-    super();
-
-    if (gameParty) {
-      this._gold = gameParty._gold;
-      this._steps = gameParty._steps;
-      this._lastItem = new Game_Item(gameParty._lastItem);
-      this._menuActorId = gameParty._menuActorId;
-      this._targetActorId = gameParty._targetActorId;
-      this._actors = gameParty._actors?.clone();
-
-      Object.deepAssign(this._items, gameParty._items);
-      Object.deepAssign(this._weapons, gameParty._weapons);
-      Object.deepAssign(this._armors, gameParty._armors);
-    } else {
-      this._gold = 0;
-      this._steps = 0;
-      this._lastItem = new Game_Item();
-      this._menuActorId = 0;
-      this._targetActorId = 0;
-      this._actors = [];
-      this.initAllItems();
-    }
+  constructor(_gameParty?: Game_Party) {
+    super()
+    this._gold = 0
+    this._steps = 0
+    this._lastItem = new Game_Item()
+    this._menuActorId = 0
+    this._targetActorId = 0
+    this._actors = []
+    this.initAllItems()
   }
 
   static ABILITY_ENCOUNTER_HALF = 0;
@@ -43,152 +40,152 @@ class Game_Party extends Game_Unit {
   static ABILITY_GOLD_DOUBLE = 4;
   static ABILITY_DROP_ITEM_DOUBLE = 5;
 
-  initAllItems() {
-    this._items = {};
-    this._weapons = {};
-    this._armors = {};
+  initAllItems(): void {
+    this._items = {}
+    this._weapons = {}
+    this._armors = {}
   }
 
-  exists() {
-    return this._actors.length > 0;
+  exists(): boolean {
+    return this._actors.length > 0
   }
 
-  size() {
-    return this.members().length;
+  size(): number {
+    return this.members().length
   }
 
-  isEmpty() {
-    return this.size() === 0;
+  isEmpty(): boolean {
+    return this.size() === 0
   }
 
-  members() {
-    return this.inBattle() ? this.battleMembers() : this.allMembers();
+  members(): Game_Actor[] {
+    return this.inBattle() ? this.battleMembers() : this.allMembers()
   }
 
-  allMembers() {
-    return this._actors.map((id) => $gameActors.actor(id));
+  allMembers(): Game_Actor[] {
+    return this._actors.map((id) => $gameActors.actor(id)).filter((a): a is Game_Actor => a !== null)
   }
 
-  battleMembers() {
-    return this.allBattleMembers().filter((actor) => actor.isAppeared());
+  battleMembers(): Game_Actor[] {
+    return this.allBattleMembers().filter((actor) => actor.isAppeared())
   }
 
-  hiddenBattleMembers() {
-    return this.allBattleMembers().filter((actor) => actor.isHidden());
+  hiddenBattleMembers(): Game_Actor[] {
+    return this.allBattleMembers().filter((actor) => actor.isHidden())
   }
 
-  allBattleMembers() {
-    return this.allMembers().slice(0, this.maxBattleMembers());
+  allBattleMembers(): Game_Actor[] {
+    return this.allMembers().slice(0, this.maxBattleMembers())
   }
 
-  maxBattleMembers() {
-    return 4;
+  maxBattleMembers(): number {
+    return 4
   }
 
-  leader() {
-    return this.battleMembers()[0];
+  leader(): Game_Actor | undefined {
+    return this.battleMembers()[0]
   }
 
-  removeInvalidMembers() {
+  removeInvalidMembers(): void {
     for (const actorId of this._actors) {
       if (!$dataActors[actorId]) {
-        this._actors.splice(this._actors.indexOf(actorId), 1);
+        this._actors.splice(this._actors.indexOf(actorId), 1)
       }
     }
   }
 
-  reviveBattleMembers() {
+  reviveBattleMembers(): void {
     for (const actor of this.battleMembers()) {
       if (actor.isDead()) {
-        actor.setHp(1);
+        actor.setHp(1)
       }
     }
   }
 
-  items() {
-    return Object.keys(this._items).map((id) => $dataItems[id]);
+  items(): MZ.Item[] {
+    return Object.keys(this._items).map((id) => $dataItems[Number(id)]).filter(Boolean)
   }
 
-  weapons() {
-    return Object.keys(this._weapons).map((id) => $dataWeapons[id]);
+  weapons(): MZ.Weapon[] {
+    return Object.keys(this._weapons).map((id) => $dataWeapons[Number(id)]).filter(Boolean)
   }
 
-  armors() {
-    return Object.keys(this._armors).map((id) => $dataArmors[id]);
+  armors(): MZ.Armor[] {
+    return Object.keys(this._armors).map((id) => $dataArmors[Number(id)]).filter(Boolean)
   }
 
-  equipItems() {
-    return this.weapons().concat(this.armors());
+  equipItems(): MZ.Equip[] {
+    return (this.weapons() as MZ.Equip[]).concat(this.armors())
   }
 
-  allItems() {
-    return this.items().concat(this.equipItems());
+  allItems(): (MZ.EquipOrItem)[] {
+    return (this.items() as MZ.EquipOrItem[]).concat(this.equipItems())
   }
 
-  itemContainer(item) {
+  itemContainer(item: MZ.EquipOrItem | null): Game_Party.ItemContainer | null {
     if (!item) {
-      return null;
+      return null
     } else if (DataManager.isItem(item)) {
-      return this._items;
+      return this._items
     } else if (DataManager.isWeapon(item)) {
-      return this._weapons;
+      return this._weapons
     } else if (DataManager.isArmor(item)) {
-      return this._armors;
+      return this._armors
     } else {
-      return null;
+      return null
     }
   }
 
-  setupStartingMembers() {
-    this._actors = [];
+  setupStartingMembers(): void {
+    this._actors = []
     for (const actorId of $dataSystem.partyMembers) {
       if ($gameActors.actor(actorId)) {
-        this._actors.push(actorId);
+        this._actors.push(actorId)
       }
     }
   }
 
-  name() {
-    const numBattleMembers = this.battleMembers().length;
+  name(): string {
+    const numBattleMembers = this.battleMembers().length
     if (numBattleMembers === 0) {
-      return "";
+      return ""
     } else if (numBattleMembers === 1) {
-      return this.leader().name();
+      return this.leader()!.name()
     } else {
-      return TextManager.partyName.format(this.leader().name());
+      return TextManager.partyName.format(this.leader()!.name())
     }
   }
 
-  setupBattleTest() {
-    this.setupBattleTestMembers();
-    this.setupBattleTestItems();
+  setupBattleTest(): void {
+    this.setupBattleTestMembers()
+    this.setupBattleTestItems()
   }
 
-  setupBattleTestMembers() {
+  setupBattleTestMembers(): void {
     for (const battler of $dataSystem.testBattlers) {
-      const actor = $gameActors.actor(battler.actorId);
+      const actor = $gameActors.actor(battler.actorId)
       if (actor) {
-        actor.changeLevel(battler.level, false);
-        actor.initEquips(battler.equips);
-        actor.recoverAll();
-        this.addActor(battler.actorId);
+        actor.changeLevel(battler.level, false)
+        actor.initEquips(battler.equips)
+        actor.recoverAll()
+        this.addActor(battler.actorId)
       }
     }
   }
 
-  setupBattleTestItems() {
+  setupBattleTestItems(): void {
     for (const item of $dataItems) {
       if (item && item.name.length > 0) {
-        this.gainItem(item, this.maxItems(item));
+        this.gainItem(item, this.maxItems(item))
       }
     }
   }
 
-  highestLevel() {
-    return Math.max(...this.members().map((actor) => actor.level));
+  highestLevel(): number {
+    return Math.max(...this.members().map((actor) => actor.level))
   }
 
-  addActor(actorId) {
+  addActor(actorId: number): void {
     if (!this._actors.includes(actorId)) {
       this._actors.push(actorId);
       $gamePlayer.refresh();
@@ -196,218 +193,225 @@ class Game_Party extends Game_Unit {
       $gameTemp.requestBattleRefresh();
       if (this.inBattle()) {
         const actor = $gameActors.actor(actorId);
-        if (this.battleMembers().includes(actor)) {
-          actor.onBattleStart();
+        // TODO improve this
+        if (this.battleMembers().includes(actor!)) {
+          // TODO improve this
+          actor!.onBattleStart();
         }
       }
     }
   }
 
-  removeActor(actorId) {
+  removeActor(actorId: number): void {
     if (this._actors.includes(actorId)) {
-      const actor = $gameActors.actor(actorId);
-      const wasBattleMember = this.battleMembers().includes(actor);
-      this._actors.splice(this._actors.indexOf(actorId), 1);
-      $gamePlayer.refresh();
-      $gameMap.requestRefresh();
-      $gameTemp.requestBattleRefresh();
-      if (this.inBattle() && wasBattleMember) {
-        actor.onBattleEnd();
+      const actor = $gameActors.actor(actorId)
+      const wasBattleMember = actor !== null && this.battleMembers().includes(actor)
+      this._actors.splice(this._actors.indexOf(actorId), 1)
+      $gamePlayer.refresh()
+      $gameMap.requestRefresh()
+      $gameTemp.requestBattleRefresh()
+      if (this.inBattle() && wasBattleMember && actor) {
+        actor.onBattleEnd()
       }
     }
   }
 
-  gold() {
-    return this._gold;
+  gold(): number {
+    return this._gold
   }
 
-  gainGold(amount) {
-    this._gold = Math.min(Math.max(this._gold + amount, 0), this.maxGold());
+  gainGold(amount: number): void {
+    this._gold = Math.min(Math.max(this._gold + amount, 0), this.maxGold())
   }
 
-  loseGold(amount) {
-    this.gainGold(-amount);
+  loseGold(amount: number): void {
+    this.gainGold(-amount)
   }
 
-  maxGold() {
-    return 99999999;
+  maxGold(): number {
+    return 99999999
   }
 
-  steps() {
-    return this._steps;
+  steps(): number {
+    return this._steps
   }
 
-  increaseSteps() {
-    this._steps++;
+  increaseSteps(): void {
+    this._steps++
   }
 
-  numItems(item) {
-    const container = this.itemContainer(item);
-    return container ? container[item.id] || 0 : 0;
+  numItems(item: MZ.EquipOrItem): number {
+    const container = this.itemContainer(item)
+    return container ? container[item.id] || 0 : 0
   }
 
-  maxItems(item) {
-    return 99;
+  maxItems(_item: MZ.EquipOrItem): number {
+    return 99
   }
 
-  hasMaxItems(item) {
-    return this.numItems(item) >= this.maxItems(item);
+  hasMaxItems(item: MZ.EquipOrItem): boolean {
+    return this.numItems(item) >= this.maxItems(item)
   }
 
-  hasItem(item: MZ.Item | MZ.Weapon | MZ.Armor, includeEquip?: boolean) {
+  hasItem(item: MZ.EquipOrItem, includeEquip?: boolean): boolean {
     if (this.numItems(item) > 0) {
-      return true;
-    } else if (includeEquip && this.isAnyMemberEquipped(item)) {
-      return true;
+      return true
+    } else if (includeEquip && this.isAnyMemberEquipped(item as MZ.Equip)) {
+      return true
     } else {
-      return false;
+      return false
     }
   }
 
-  isAnyMemberEquipped(item) {
-    return this.members().some((actor) => actor.equips().includes(item));
+  isAnyMemberEquipped(item: MZ.Equip): boolean {
+    return this.members().some((actor) => actor.equips().includes(item))
   }
 
-  gainItem(item, amount, includeEquip) {
-    const container = this.itemContainer(item);
+  gainItem(
+    item: MZ.EquipOrItem,
+    amount: number,
+    includeEquip?: boolean
+  ): void {
+    const container = this.itemContainer(item)
     if (container) {
-      const lastNumber = this.numItems(item);
-      const newNumber = lastNumber + amount;
-      container[item.id] = Math.min(
-        Math.max(newNumber, 0),
-        this.maxItems(item)
-      );
+      const lastNumber = this.numItems(item)
+      const newNumber = lastNumber + amount
+      container[item.id] = Math.min(Math.max(newNumber, 0), this.maxItems(item))
       if (container[item.id] === 0) {
-        delete container[item.id];
+        delete container[item.id]
       }
       if (includeEquip && newNumber < 0) {
-        this.discardMembersEquip(item, -newNumber);
+        this.discardMembersEquip(item as MZ.Equip, -newNumber)
       }
-      $gameMap.requestRefresh();
+      $gameMap.requestRefresh()
     }
   }
 
-  discardMembersEquip(item, amount) {
-    let n = amount;
+  discardMembersEquip(item: MZ.Equip, amount: number): void {
+    let n = amount
     for (const actor of this.members()) {
       while (n > 0 && actor.isEquipped(item)) {
-        actor.discardEquip(item);
-        n--;
+        actor.discardEquip(item)
+        n--
       }
     }
   }
 
-  loseItem(item, amount, includeEquip) {
-    this.gainItem(item, -amount, includeEquip);
+  loseItem(
+    item: MZ.Item | MZ.Weapon | MZ.Armor,
+    amount: number,
+    includeEquip?: boolean
+  ): void {
+    this.gainItem(item, -amount, includeEquip)
   }
 
-  consumeItem(item) {
+  consumeItem(item: MZ.Item | MZ.Weapon | MZ.Armor): void {
     if (DataManager.isItem(item) && item.consumable) {
-      this.loseItem(item, 1);
+      this.loseItem(item, 1)
     }
   }
 
-  canUse(item) {
-    return this.members().some((actor) => actor.canUse(item));
+  canUse(item: MZ.Item | MZ.Skill): boolean {
+    return this.members().some((actor) => actor.canUse(item))
   }
 
-  canInput() {
-    return this.members().some((actor) => actor.canInput());
+  canInput(): boolean {
+    return this.members().some((actor) => actor.canInput())
   }
 
-  isAllDead() {
+  isAllDead(): boolean {
     if (super.isAllDead()) {
-      return this.inBattle() || !this.isEmpty();
+      return this.inBattle() || !this.isEmpty()
     } else {
-      return false;
+      return false
     }
   }
 
-  isEscaped() {
-    return this.isAllDead() && this.hiddenBattleMembers().length > 0;
+  isEscaped(): boolean {
+    return this.isAllDead() && this.hiddenBattleMembers().length > 0
   }
 
-  onPlayerWalk() {
+  onPlayerWalk(): void {
     for (const actor of this.members()) {
-      actor.onPlayerWalk();
+      actor.onPlayerWalk()
     }
   }
 
-  menuActor() {
-    let actor = $gameActors.actor(this._menuActorId);
-    if (!this.members().includes(actor)) {
-      actor = this.members()[0];
+  menuActor(): Game_Actor {
+    let actor = $gameActors.actor(this._menuActorId)
+    if (!actor || !this.members().includes(actor)) {
+      actor = this.members()[0]
     }
-    return actor;
+    return actor!
   }
 
-  setMenuActor(actor) {
-    this._menuActorId = actor.actorId();
+  setMenuActor(actor: Game_Actor): void {
+    this._menuActorId = actor.actorId()
   }
 
-  makeMenuActorNext() {
-    let index = this.members().indexOf(this.menuActor());
+  makeMenuActorNext(): void {
+    const index = this.members().indexOf(this.menuActor())
     if (index >= 0) {
-      index = (index + 1) % this.members().length;
-      this.setMenuActor(this.members()[index]);
+      const nextIndex = (index + 1) % this.members().length
+      this.setMenuActor(this.members()[nextIndex])
     } else {
-      this.setMenuActor(this.members()[0]);
+      this.setMenuActor(this.members()[0])
     }
   }
 
-  makeMenuActorPrevious() {
-    let index = this.members().indexOf(this.menuActor());
+  makeMenuActorPrevious(): void {
+    const index = this.members().indexOf(this.menuActor())
     if (index >= 0) {
-      index = (index + this.members().length - 1) % this.members().length;
-      this.setMenuActor(this.members()[index]);
+      const prevIndex = (index + this.members().length - 1) % this.members().length
+      this.setMenuActor(this.members()[prevIndex])
     } else {
-      this.setMenuActor(this.members()[0]);
+      this.setMenuActor(this.members()[0])
     }
   }
 
-  targetActor() {
-    let actor = $gameActors.actor(this._targetActorId);
-    if (!this.members().includes(actor)) {
-      actor = this.members()[0];
+  targetActor(): Game_Actor {
+    let actor = $gameActors.actor(this._targetActorId)
+    if (!actor || !this.members().includes(actor)) {
+      actor = this.members()[0]
     }
-    return actor;
+    return actor!
   }
 
-  setTargetActor(actor) {
-    this._targetActorId = actor.actorId();
+  setTargetActor(actor: Game_Actor): void {
+    this._targetActorId = actor.actorId()
   }
 
-  lastItem() {
-    return this._lastItem.object();
+  lastItem(): MZ.GeneralItem | null {
+    return this._lastItem.object()
   }
 
-  setLastItem(item) {
-    this._lastItem.setObject(item);
+  setLastItem(item: MZ.GeneralItem | null): void {
+    this._lastItem.setObject(item as MZ.GeneralItem)
   }
 
-  swapOrder(index1, index2) {
-    const temp = this._actors[index1];
-    this._actors[index1] = this._actors[index2];
-    this._actors[index2] = temp;
-    $gamePlayer.refresh();
+  swapOrder(index1: number, index2: number): void {
+    const temp = this._actors[index1]
+    this._actors[index1] = this._actors[index2]
+    this._actors[index2] = temp
+    $gamePlayer.refresh()
   }
 
-  charactersForSavefile() {
+  charactersForSavefile(): [string, number][] {
     return this.battleMembers().map((actor) => [
       actor.characterName(),
       actor.characterIndex(),
-    ]);
+    ])
   }
 
-  facesForSavefile() {
+  facesForSavefile(): [string, number][] {
     return this.battleMembers().map((actor) => [
       actor.faceName(),
       actor.faceIndex(),
-    ]);
+    ])
   }
 
-  partyAbility(abilityId) {
-    return this.battleMembers().some((actor) => actor.partyAbility(abilityId));
+  partyAbility(abilityId: number): boolean {
+    return this.battleMembers().some((actor) => actor.partyAbility(abilityId))
   }
 
   hasEncounterHalf() {
@@ -434,51 +438,56 @@ class Game_Party extends Game_Unit {
     return this.partyAbility(Game_Party.ABILITY_DROP_ITEM_DOUBLE);
   }
 
-  ratePreemptive(troopAgi) {
-    let rate = this.agility() >= troopAgi ? 0.05 : 0.03;
+  ratePreemptive(troopAgi: number): number {
+    let rate = this.agility() >= troopAgi ? 0.05 : 0.03
     if (this.hasRaisePreemptive()) {
-      rate *= 4;
+      rate *= 4
     }
-    return rate;
+    return rate
   }
 
-  rateSurprise(troopAgi) {
-    let rate = this.agility() >= troopAgi ? 0.03 : 0.05;
+  rateSurprise(troopAgi: number): number {
+    let rate = this.agility() >= troopAgi ? 0.03 : 0.05
     if (this.hasCancelSurprise()) {
-      rate = 0;
+      rate = 0
     }
-    return rate;
+    return rate
   }
 
-  performVictory() {
+  performVictory(): void {
     for (const actor of this.members()) {
-      actor.performVictory();
-    }
-  }
-
-  performEscape() {
-    for (const actor of this.members()) {
-      actor.performEscape();
+      actor.performVictory()
     }
   }
 
-  removeBattleStates() {
+  performEscape(): void {
     for (const actor of this.members()) {
-      actor.removeBattleStates();
+      actor.performEscape()
     }
   }
 
-  requestMotionRefresh() {
+  removeBattleStates(): void {
     for (const actor of this.members()) {
-      actor.requestMotionRefresh();
+      actor.removeBattleStates()
     }
   }
 
-  onEscapeFailure() {
+  requestMotionRefresh(): void {
     for (const actor of this.members()) {
-      actor.onEscapeFailure();
+      actor.requestMotionRefresh()
     }
   }
+
+  onEscapeFailure(): void {
+    for (const actor of this.members()) {
+      actor.onEscapeFailure()
+    }
+  }
+}
+
+namespace Game_Party {
+  /** Item container: itemId -> count */
+  export type ItemContainer = Record<number, number>
 }
 
 export { Game_Party };
