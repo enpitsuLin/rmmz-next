@@ -1,59 +1,58 @@
-/*
- /* Window_MapName
- /*
- /* The window for displaying the map name on the map screen.
+/**
+ * Window_MapName
+ *
+ * The window for displaying the map name on the map screen.
  */
 export class Window_MapName extends Window_Base {
   constructor(rect) {
-    super(rect)
-    this.opacity = 0
-    this.contentsOpacity = 0
-    this._showCount = 0
-    this.refresh()
+    super(rect);
+    this.opacity = 0;
+    this.contentsOpacity = 0;
+    this._showCount = 0;
+    this.refresh();
   }
 
   update() {
-    super.update()
+    super.update();
     if (this._showCount > 0 && $gameMap.isNameDisplayEnabled()) {
-      this.updateFadeIn()
-      this._showCount--
-    }
-    else {
-      this.updateFadeOut()
+      this.updateFadeIn();
+      this._showCount--;
+    } else {
+      this.updateFadeOut();
     }
   }
 
   updateFadeIn() {
-    this.contentsOpacity += 16
+    this.contentsOpacity += 16;
   }
 
   updateFadeOut() {
-    this.contentsOpacity -= 16
+    this.contentsOpacity -= 16;
   }
 
   open() {
-    this.refresh()
-    this._showCount = 150
+    this.refresh();
+    this._showCount = 150;
   }
 
   close() {
-    this._showCount = 0
+    this._showCount = 0;
   }
 
   refresh() {
-    this.contents.clear()
+    this.contents.clear();
     if ($gameMap.displayName()) {
-      const width = this.innerWidth
-      this.drawBackground(0, 0, width, this.lineHeight())
-      this.drawText($gameMap.displayName(), 0, 0, width, 'center')
+      const width = this.innerWidth;
+      this.drawBackground(0, 0, width, this.lineHeight());
+      this.drawText($gameMap.displayName(), 0, 0, width, "center");
     }
   }
 
   drawBackground(x, y, width, height) {
-    const color1 = ColorManager.dimColor1()
-    const color2 = ColorManager.dimColor2()
-    const half = width / 2
-    this.contents.gradientFillRect(x, y, half, height, color2, color1)
-    this.contents.gradientFillRect(x + half, y, half, height, color1, color2)
+    const color1 = ColorManager.dimColor1();
+    const color2 = ColorManager.dimColor2();
+    const half = width / 2;
+    this.contents.gradientFillRect(x, y, half, height, color2, color1);
+    this.contents.gradientFillRect(x + half, y, half, height, color1, color2);
   }
 }

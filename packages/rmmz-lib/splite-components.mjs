@@ -5,7 +5,7 @@ import readline from 'node:readline'
 
 const __dirname = import.meta.dirname
 
-const targetDir = join(__dirname, 'src/windows')
+const targetDir = join(__dirname, 'src/sprites')
 
 const content = fs.readFileSync(join(targetDir, 'index.ts'), 'utf8')
 
@@ -17,14 +17,14 @@ const curFile = []
 for (const line of lines) {
   if (line.startsWith('//-----------------------------------------------------------------------------')) {
     if (curFile.length > 0) {
-      collections.set(curFile.at(1).replace(' \/* ', ''), curFile.join('\n'))
+      collections.set(curFile.at(1).replace(' * ', ''), curFile.join('\n'))
     }
     curFile.splice(0, curFile.length)
-    curFile.push('/*')
+    curFile.push('/**')
   }
   else {
     if (line.startsWith('//')) {
-      curFile.push(line.replace('\/\/', ' \/*'))
+      curFile.push(line.replace('\/\/', ' *'))
     }
     else if (line.startsWith('class ')) {
       curFile.push(line.replace('class ', ' *\/\nexport class '))

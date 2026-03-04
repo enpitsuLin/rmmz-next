@@ -1,133 +1,128 @@
-/*
- /* Window_Options
- /*
- /* The window for changing various settings on the options screen.
+/**
+ * Window_Options
+ *
+ * The window for changing various settings on the options screen.
  */
 export class Window_Options extends Window_Command {
   constructor(rect) {
-    super(rect)
+    super(rect);
   }
 
   makeCommandList() {
-    this.addGeneralOptions()
-    this.addVolumeOptions()
+    this.addGeneralOptions();
+    this.addVolumeOptions();
   }
 
   addGeneralOptions() {
-    this.addCommand(TextManager.alwaysDash, 'alwaysDash')
-    this.addCommand(TextManager.commandRemember, 'commandRemember')
-    this.addCommand(TextManager.touchUI, 'touchUI')
+    this.addCommand(TextManager.alwaysDash, "alwaysDash");
+    this.addCommand(TextManager.commandRemember, "commandRemember");
+    this.addCommand(TextManager.touchUI, "touchUI");
   }
 
   addVolumeOptions() {
-    this.addCommand(TextManager.bgmVolume, 'bgmVolume')
-    this.addCommand(TextManager.bgsVolume, 'bgsVolume')
-    this.addCommand(TextManager.meVolume, 'meVolume')
-    this.addCommand(TextManager.seVolume, 'seVolume')
+    this.addCommand(TextManager.bgmVolume, "bgmVolume");
+    this.addCommand(TextManager.bgsVolume, "bgsVolume");
+    this.addCommand(TextManager.meVolume, "meVolume");
+    this.addCommand(TextManager.seVolume, "seVolume");
   }
 
   drawItem(index) {
-    const title = this.commandName(index)
-    const status = this.statusText(index)
-    const rect = this.itemLineRect(index)
-    const statusWidth = this.statusWidth()
-    const titleWidth = rect.width - statusWidth
-    this.resetTextColor()
-    this.changePaintOpacity(this.isCommandEnabled(index))
-    this.drawText(title, rect.x, rect.y, titleWidth, 'left')
-    this.drawText(status, rect.x + titleWidth, rect.y, statusWidth, 'right')
+    const title = this.commandName(index);
+    const status = this.statusText(index);
+    const rect = this.itemLineRect(index);
+    const statusWidth = this.statusWidth();
+    const titleWidth = rect.width - statusWidth;
+    this.resetTextColor();
+    this.changePaintOpacity(this.isCommandEnabled(index));
+    this.drawText(title, rect.x, rect.y, titleWidth, "left");
+    this.drawText(status, rect.x + titleWidth, rect.y, statusWidth, "right");
   }
 
   statusWidth() {
-    return 120
+    return 120;
   }
 
   statusText(index) {
-    const symbol = this.commandSymbol(index)
-    const value = this.getConfigValue(symbol)
+    const symbol = this.commandSymbol(index);
+    const value = this.getConfigValue(symbol);
     if (this.isVolumeSymbol(symbol)) {
-      return this.volumeStatusText(value)
-    }
-    else {
-      return this.booleanStatusText(value)
+      return this.volumeStatusText(value);
+    } else {
+      return this.booleanStatusText(value);
     }
   }
 
   isVolumeSymbol(symbol) {
-    return symbol.includes('Volume')
+    return symbol.includes("Volume");
   }
 
   booleanStatusText(value) {
-    return value ? 'ON' : 'OFF'
+    return value ? "ON" : "OFF";
   }
 
   volumeStatusText(value) {
-    return `${value}%`
+    return value + "%";
   }
 
   processOk() {
-    const index = this.index()
-    const symbol = this.commandSymbol(index)
+    const index = this.index();
+    const symbol = this.commandSymbol(index);
     if (this.isVolumeSymbol(symbol)) {
-      this.changeVolume(symbol, true, true)
-    }
-    else {
-      this.changeValue(symbol, !this.getConfigValue(symbol))
+      this.changeVolume(symbol, true, true);
+    } else {
+      this.changeValue(symbol, !this.getConfigValue(symbol));
     }
   }
 
   cursorRight() {
-    const index = this.index()
-    const symbol = this.commandSymbol(index)
+    const index = this.index();
+    const symbol = this.commandSymbol(index);
     if (this.isVolumeSymbol(symbol)) {
-      this.changeVolume(symbol, true, false)
-    }
-    else {
-      this.changeValue(symbol, true)
+      this.changeVolume(symbol, true, false);
+    } else {
+      this.changeValue(symbol, true);
     }
   }
 
   cursorLeft() {
-    const index = this.index()
-    const symbol = this.commandSymbol(index)
+    const index = this.index();
+    const symbol = this.commandSymbol(index);
     if (this.isVolumeSymbol(symbol)) {
-      this.changeVolume(symbol, false, false)
-    }
-    else {
-      this.changeValue(symbol, false)
+      this.changeVolume(symbol, false, false);
+    } else {
+      this.changeValue(symbol, false);
     }
   }
 
   changeVolume(symbol, forward, wrap) {
-    const lastValue = this.getConfigValue(symbol)
-    const offset = this.volumeOffset()
-    const value = lastValue + (forward ? offset : -offset)
+    const lastValue = this.getConfigValue(symbol);
+    const offset = this.volumeOffset();
+    const value = lastValue + (forward ? offset : -offset);
     if (value > 100 && wrap) {
-      this.changeValue(symbol, 0)
-    }
-    else {
-      this.changeValue(symbol, value.clamp(0, 100))
+      this.changeValue(symbol, 0);
+    } else {
+      this.changeValue(symbol, value.clamp(0, 100));
     }
   }
 
   volumeOffset() {
-    return 20
+    return 20;
   }
 
   changeValue(symbol, value) {
-    const lastValue = this.getConfigValue(symbol)
+    const lastValue = this.getConfigValue(symbol);
     if (lastValue !== value) {
-      this.setConfigValue(symbol, value)
-      this.redrawItem(this.findSymbol(symbol))
-      this.playCursorSound()
+      this.setConfigValue(symbol, value);
+      this.redrawItem(this.findSymbol(symbol));
+      this.playCursorSound();
     }
   }
 
   getConfigValue(symbol) {
-    return ConfigManager[symbol]
+    return ConfigManager[symbol];
   }
 
   setConfigValue(symbol, volume) {
-    ConfigManager[symbol] = volume
+    ConfigManager[symbol] = volume;
   }
 }

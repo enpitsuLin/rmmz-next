@@ -1,18 +1,18 @@
-/*
- /* Window_HorzCommand
- /*
- /* The command window for the horizontal selection format.
+/**
+ * Window_HorzCommand
+ *
+ * The command window for the horizontal selection format.
  */
 export class Window_HorzCommand extends Window_Command {
   constructor(rect) {
-    super(rect)
+    super(rect);
   }
 
   maxCols() {
-    return 4
+    return 4;
   }
 
   itemTextAlign() {
-    return 'center'
+    return "center";
   }
 }

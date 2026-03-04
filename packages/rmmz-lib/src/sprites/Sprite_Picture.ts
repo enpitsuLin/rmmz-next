@@ -1,91 +1,88 @@
-/*
- /* Sprite_Picture
- /*
- /* The sprite for displaying a picture.
+/**
+ * Sprite_Picture
+ *
+ * The sprite for displaying a picture.
  */
 export class Sprite_Picture extends Sprite_Clickable {
   constructor(pictureId) {
-    super()
-    this._pictureId = pictureId
-    this._pictureName = ''
-    this.update()
+    super();
+    this._pictureId = pictureId;
+    this._pictureName = "";
+    this.update();
   }
 
   picture() {
-    return $gameScreen.picture(this._pictureId)
+    return $gameScreen.picture(this._pictureId);
   }
 
   update() {
-    super.update()
-    this.updateBitmap()
+    super.update();
+    this.updateBitmap();
     if (this.visible) {
-      this.updateOrigin()
-      this.updatePosition()
-      this.updateScale()
-      this.updateTone()
-      this.updateOther()
+      this.updateOrigin();
+      this.updatePosition();
+      this.updateScale();
+      this.updateTone();
+      this.updateOther();
     }
   }
 
   updateBitmap() {
-    const picture = this.picture()
+    const picture = this.picture();
     if (picture) {
-      const pictureName = picture.name()
+      const pictureName = picture.name();
       if (this._pictureName !== pictureName) {
-        this._pictureName = pictureName
-        this.loadBitmap()
+        this._pictureName = pictureName;
+        this.loadBitmap();
       }
-      this.visible = true
-    }
-    else {
-      this._pictureName = ''
-      this.bitmap = null
-      this.visible = false
+      this.visible = true;
+    } else {
+      this._pictureName = "";
+      this.bitmap = null;
+      this.visible = false;
     }
   }
 
   updateOrigin() {
-    const picture = this.picture()
+    const picture = this.picture();
     if (picture.origin() === 0) {
-      this.anchor.x = 0
-      this.anchor.y = 0
-    }
-    else {
-      this.anchor.x = 0.5
-      this.anchor.y = 0.5
+      this.anchor.x = 0;
+      this.anchor.y = 0;
+    } else {
+      this.anchor.x = 0.5;
+      this.anchor.y = 0.5;
     }
   }
 
   updatePosition() {
-    const picture = this.picture()
-    this.x = Math.round(picture.x())
-    this.y = Math.round(picture.y())
+    const picture = this.picture();
+    this.x = Math.round(picture.x());
+    this.y = Math.round(picture.y());
   }
 
   updateScale() {
-    const picture = this.picture()
-    this.scale.x = picture.scaleX() / 100
-    this.scale.y = picture.scaleY() / 100
+    const picture = this.picture();
+    this.scale.x = picture.scaleX() / 100;
+    this.scale.y = picture.scaleY() / 100;
   }
 
   updateTone() {
-    const picture = this.picture()
+    const picture = this.picture();
     if (picture.tone()) {
-      this.setColorTone(picture.tone())
-    }
-    else {
-      this.setColorTone([0, 0, 0, 0])
+      this.setColorTone(picture.tone());
+    } else {
+      this.setColorTone([0, 0, 0, 0]);
     }
   }
 
   updateOther() {
-    const picture = this.picture()
-    this.opacity = picture.opacity()
-    this.blendMode = picture.blendMode()
-    this.rotation = (picture.angle() * Math.PI) / 180
+    const picture = this.picture();
+    this.opacity = picture.opacity();
+    this.blendMode = picture.blendMode();
+    this.rotation = (picture.angle() * Math.PI) / 180;
   }
 
   loadBitmap() {
-    this.bitmap = ImageManager.loadPicture(this._pictureName)
+    this.bitmap = ImageManager.loadPicture(this._pictureName);
   }
 }

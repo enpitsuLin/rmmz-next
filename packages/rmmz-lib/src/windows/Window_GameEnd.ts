@@ -1,17 +1,17 @@
-/*
- /* Window_GameEnd
- /*
- /* The window for selecting "Go to Title" on the game end screen.
+/**
+ * Window_GameEnd
+ *
+ * The window for selecting "Go to Title" on the game end screen.
  */
 export class Window_GameEnd extends Window_Command {
   constructor(rect) {
-    super(rect)
-    this.openness = 0
-    this.open()
+    super(rect);
+    this.openness = 0;
+    this.open();
   }
 
   makeCommandList() {
-    this.addCommand(TextManager.toTitle, 'toTitle')
-    this.addCommand(TextManager.cancel, 'cancel')
+    this.addCommand(TextManager.toTitle, "toTitle");
+    this.addCommand(TextManager.cancel, "cancel");
   }
 }
