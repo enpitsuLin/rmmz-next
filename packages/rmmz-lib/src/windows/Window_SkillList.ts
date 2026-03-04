@@ -1,5 +1,5 @@
-import { ColorManager } from "../managers/ColorManager"
-import { Window_Selectable } from "./Window_Selectable"
+import { ColorManager } from '../managers/ColorManager'
+import { Window_Selectable } from './Window_Selectable'
 
 /**
  * Window_SkillList

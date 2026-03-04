@@ -1,4 +1,4 @@
-import { Window_Command } from "./Window_Command"
+import { Window_Command } from './Window_Command'
 
 /**
  * Window_HorzCommand

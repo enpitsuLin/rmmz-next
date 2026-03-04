@@ -3,38 +3,37 @@
 
 import { PluginManager, Scene_Boot, SceneManager } from 'rmmz-lib'
 
-globalThis.$dataActors = null;
-globalThis.$dataClasses = null;
-globalThis.$dataSkills = null;
-globalThis.$dataItems = null;
-globalThis.$dataWeapons = null;
-globalThis.$dataArmors = null;
-globalThis.$dataEnemies = null;
-globalThis.$dataTroops = null;
-globalThis.$dataStates = null;
-globalThis.$dataAnimations = null;
-globalThis.$dataTilesets = null;
-globalThis.$dataCommonEvents = null;
-globalThis.$dataSystem = null;
-globalThis.$dataMapInfos = null;
-globalThis.$dataMap = null;
-globalThis.$gameTemp = null;
-globalThis.$gameSystem = null;
-globalThis.$gameScreen = null;
-globalThis.$gameTimer = null;
-globalThis.$gameMessage = null;
-globalThis.$gameSwitches = null;
-globalThis.$gameVariables = null;
-globalThis.$gameSelfSwitches = null;
-globalThis.$gameActors = null;
-globalThis.$gameParty = null;
-globalThis.$gameTroop = null;
-globalThis.$gameMap = null;
-globalThis.$gamePlayer = null;
-globalThis.$testEvent = null;
+globalThis.$dataActors = null
+globalThis.$dataClasses = null
+globalThis.$dataSkills = null
+globalThis.$dataItems = null
+globalThis.$dataWeapons = null
+globalThis.$dataArmors = null
+globalThis.$dataEnemies = null
+globalThis.$dataTroops = null
+globalThis.$dataStates = null
+globalThis.$dataAnimations = null
+globalThis.$dataTilesets = null
+globalThis.$dataCommonEvents = null
+globalThis.$dataSystem = null
+globalThis.$dataMapInfos = null
+globalThis.$dataMap = null
+globalThis.$gameTemp = null
+globalThis.$gameSystem = null
+globalThis.$gameScreen = null
+globalThis.$gameTimer = null
+globalThis.$gameMessage = null
+globalThis.$gameSwitches = null
+globalThis.$gameVariables = null
+globalThis.$gameSelfSwitches = null
+globalThis.$gameActors = null
+globalThis.$gameParty = null
+globalThis.$gameTroop = null
+globalThis.$gameMap = null
+globalThis.$gamePlayer = null
+globalThis.$testEvent = null
 
-
-globalThis.$plugins = [];
+globalThis.$plugins = []
 
 // ts-expect-error global PIXI type
 // globalThis.PIXI = PIXI
@@ -125,7 +124,6 @@ class Main {
     this.numScripts = scriptUrls.length
     window.addEventListener('load', this.onWindowLoad.bind(this))
     window.addEventListener('error', this.onWindowError.bind(this))
-
   }
 
   onScriptLoad() {

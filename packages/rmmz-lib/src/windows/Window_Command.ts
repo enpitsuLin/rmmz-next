@@ -1,4 +1,4 @@
-import { Window_Selectable } from "./Window_Selectable"
+import { Window_Selectable } from './Window_Selectable'
 
 /**
  * Window_Command

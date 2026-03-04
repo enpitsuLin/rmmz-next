@@ -1,8 +1,8 @@
-import { Graphics, Rectangle } from "../core"
-import { SceneManager } from "../managers/SceneManager"
-import { Window_GameEnd, Window_TitleCommand } from "../windows"
-import { Scene_MenuBase } from "./Scene_MenuBase"
-import { Scene_Title } from "./Scene_Title"
+import { Graphics, Rectangle } from '../core'
+import { SceneManager } from '../managers/SceneManager'
+import { Window_GameEnd, Window_TitleCommand } from '../windows'
+import { Scene_MenuBase } from './Scene_MenuBase'
+import { Scene_Title } from './Scene_Title'
 
 /*
  /* Scene_GameEnd

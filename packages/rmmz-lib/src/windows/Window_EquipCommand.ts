@@ -1,5 +1,5 @@
-import { TextManager } from "../managers/TextManager"
-import { Window_HorzCommand } from "./Window_HorzCommand"
+import { TextManager } from '../managers/TextManager'
+import { Window_HorzCommand } from './Window_HorzCommand'
 
 /**
  * Window_EquipCommand

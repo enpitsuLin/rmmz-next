@@ -1,6 +1,6 @@
-import type { Rectangle } from "../core"
-import { DataManager } from "../managers"
-import { Window_Selectable } from "./Window_Selectable"
+import type { Rectangle } from '../core'
+import { DataManager } from '../managers'
+import { Window_Selectable } from './Window_Selectable'
 
 /**
  * Window_ItemList

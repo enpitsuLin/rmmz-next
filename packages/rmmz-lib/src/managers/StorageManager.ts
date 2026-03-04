@@ -163,7 +163,7 @@ export class StorageManager {
   }
 
   static localFileExists(saveName: string): boolean {
-    const fs = require('fs')
+    const fs = require('node:fs')
     return fs.existsSync(this.filePath(saveName))
   }
 
@@ -212,28 +212,28 @@ export class StorageManager {
   }
 
   static fsMkdir(path: string) {
-    const fs = require('fs')
+    const fs = require('node:fs')
     if (!fs.existsSync(path)) {
       fs.mkdirSync(path)
     }
   }
 
   static fsRename(oldPath: string, newPath: string) {
-    const fs = require('fs')
+    const fs = require('node:fs')
     if (fs.existsSync(oldPath)) {
       fs.renameSync(oldPath, newPath)
     }
   }
 
   static fsUnlink(path: string) {
-    const fs = require('fs')
+    const fs = require('node:fs')
     if (fs.existsSync(path)) {
       fs.unlinkSync(path)
     }
   }
 
   static fsReadFile(path: string) {
-    const fs = require('fs')
+    const fs = require('node:fs')
     if (fs.existsSync(path)) {
       return fs.readFileSync(path, { encoding: 'utf8' })
     }
@@ -243,12 +243,12 @@ export class StorageManager {
   }
 
   static fsWriteFile(path: string, data: string) {
-    const fs = require('fs')
+    const fs = require('node:fs')
     fs.writeFileSync(path, data)
   }
 
   static fileDirectoryPath() {
-    const path = require('path')
+    const path = require('node:path')
     // @ts-expect-error to fix
     const base = path.dirname(process.mainModule.filename)
     return path.join(base, 'save/')

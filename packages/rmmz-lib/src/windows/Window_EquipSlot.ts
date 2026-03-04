@@ -1,5 +1,5 @@
-import { ColorManager } from "../managers"
-import { Window_StatusBase } from "./Window_StatusBase"
+import { ColorManager } from '../managers'
+import { Window_StatusBase } from './Window_StatusBase'
 
 /**
  * Window_EquipSlot

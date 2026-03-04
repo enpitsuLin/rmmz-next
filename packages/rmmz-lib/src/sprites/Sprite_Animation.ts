@@ -1,4 +1,4 @@
-import { Graphics, Sprite } from "../core"
+import { Graphics, Sprite } from '../core'
 
 /**
  * Sprite_Animation

@@ -1,5 +1,5 @@
-import { Bitmap, Graphics, Sprite } from "../core"
-import { ColorManager } from "../managers"
+import { Bitmap, Graphics, Sprite } from '../core'
+import { ColorManager } from '../managers'
 
 /**
  * Sprite_Timer

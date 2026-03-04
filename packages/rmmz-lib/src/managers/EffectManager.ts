@@ -1,4 +1,4 @@
-import { Graphics, Utils } from "../core"
+import { Graphics, Utils } from '../core'
 
 /**
  * EffectManager

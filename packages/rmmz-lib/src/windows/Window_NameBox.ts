@@ -1,5 +1,5 @@
-import { Rectangle, Graphics } from "../core"
-import { Window_Base } from "./Window_Base"
+import { Graphics, Rectangle } from '../core'
+import { Window_Base } from './Window_Base'
 
 /**
  * Window_NameBox

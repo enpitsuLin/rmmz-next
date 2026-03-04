@@ -1,4 +1,4 @@
-import { TilingSprite } from "../core"
+import { TilingSprite } from '../core'
 
 /**
  * Sprite_Battleback

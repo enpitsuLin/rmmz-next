@@ -1,4 +1,4 @@
-import { Window_ItemList } from "./Window_ItemList"
+import { Window_ItemList } from './Window_ItemList'
 
 /**
  * Window_BattleItem

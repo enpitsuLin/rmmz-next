@@ -1,6 +1,6 @@
-import { Rectangle } from "../core"
-import { ImageManager, ColorManager } from "../managers"
-import { Window_StatusBase } from "./Window_StatusBase"
+import { Rectangle } from '../core'
+import { ColorManager, ImageManager } from '../managers'
+import { Window_StatusBase } from './Window_StatusBase'
 
 /**
  * Window_NameEdit

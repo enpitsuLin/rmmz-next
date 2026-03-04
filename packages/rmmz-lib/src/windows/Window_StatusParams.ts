@@ -1,6 +1,6 @@
-import { ColorManager } from "../managers/ColorManager"
-import { TextManager } from "../managers/TextManager"
-import { Window_StatusBase } from "./Window_StatusBase"
+import { ColorManager } from '../managers/ColorManager'
+import { TextManager } from '../managers/TextManager'
+import { Window_StatusBase } from './Window_StatusBase'
 
 /**
  * Window_StatusParams

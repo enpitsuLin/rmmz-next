@@ -1,5 +1,5 @@
-import { DataManager, TextManager } from "../managers"
-import { Window_Selectable } from "./Window_Selectable"
+import { DataManager, TextManager } from '../managers'
+import { Window_Selectable } from './Window_Selectable'
 
 /**
  * Window_SavefileList

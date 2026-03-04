@@ -1,4 +1,4 @@
-import { Sprite_Clickable } from "./Sprite_Clickable"
+import { Sprite_Clickable } from './Sprite_Clickable'
 
 /**
  * Sprite_Battler

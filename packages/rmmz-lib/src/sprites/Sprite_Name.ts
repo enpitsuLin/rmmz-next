@@ -1,5 +1,5 @@
-import { Bitmap, Sprite } from "../core"
-import type { ColorManager } from "../managers"
+import type { ColorManager } from '../managers'
+import { Bitmap, Sprite } from '../core'
 
 /**
  * Sprite_Name

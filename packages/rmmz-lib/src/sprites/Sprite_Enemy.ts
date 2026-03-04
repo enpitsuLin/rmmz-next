@@ -1,4 +1,4 @@
-import { Sprite_Battler } from "./Sprite_Battler"
+import { Sprite_Battler } from './Sprite_Battler'
 
 /**
  * Sprite_Enemy

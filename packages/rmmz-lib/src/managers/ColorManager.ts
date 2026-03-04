@@ -1,4 +1,4 @@
-import { ImageManager } from "./ImageManager"
+import { ImageManager } from './ImageManager'
 
 /**
  * ColorManager

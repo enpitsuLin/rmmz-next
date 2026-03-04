@@ -1,4 +1,4 @@
-import { Window_Base } from "./Window_Base"
+import { Window_Base } from './Window_Base'
 
 /**
  * Window_Message

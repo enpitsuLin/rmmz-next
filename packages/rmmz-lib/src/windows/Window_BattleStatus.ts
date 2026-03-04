@@ -1,4 +1,4 @@
-import { Window_StatusBase } from "./Window_StatusBase"
+import { Window_StatusBase } from './Window_StatusBase'
 
 /**
  * Window_BattleStatus
