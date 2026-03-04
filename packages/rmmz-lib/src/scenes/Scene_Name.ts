@@ -1,3 +1,8 @@
+import { Graphics, Rectangle } from "../core"
+import { ImageManager } from "../managers/ImageManager"
+import { Window_NameEdit, Window_NameInput } from "../windows"
+import { Scene_MenuBase } from "./Scene_MenuBase"
+
 /*
  /* Scene_Name
  /*

@@ -1,3 +1,15 @@
+import { Graphics, Rectangle } from "../core"
+import { SceneManager } from "../managers/SceneManager"
+import { Window_MenuCommand, Window_Gold, Window_MenuStatus } from "../windows"
+import { Scene_Equip } from "./Scene_Equip"
+import { Scene_GameEnd } from "./Scene_GameEnd"
+import { Scene_Item } from "./Scene_Item"
+import { Scene_MenuBase } from "./Scene_MenuBase"
+import { Scene_Options } from "./Scene_Options"
+import { Scene_Save } from "./Scene_Save"
+import { Scene_Skill } from "./Scene_Skill"
+import { Scene_Status } from "./Scene_Status"
+
 /*
  /* Scene_Menu
  /*

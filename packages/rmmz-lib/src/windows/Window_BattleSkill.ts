@@ -1,3 +1,5 @@
+import { Window_SkillList } from "./Window_SkillList"
+
 /**
  * Window_BattleSkill
  *

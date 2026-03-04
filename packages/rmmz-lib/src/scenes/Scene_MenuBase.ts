@@ -1,3 +1,12 @@
+import { PIXI } from '..'
+import { Graphics, Rectangle, Sprite } from '../core'
+import { ConfigManager } from '../managers/ConfigManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SoundManager } from '../managers/SoundManager'
+import { Sprite_Button } from '../sprites'
+import { Window_Help } from '../windows'
+import { Scene_Base } from './Scene_Base'
+
 /*
  /* Scene_MenuBase
  /*

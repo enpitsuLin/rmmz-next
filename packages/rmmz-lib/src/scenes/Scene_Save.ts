@@ -1,3 +1,8 @@
+import { DataManager } from '../managers/DataManager'
+import { SoundManager } from '../managers/SoundManager'
+import { TextManager } from '../managers/TextManager'
+import { Scene_File } from './Scene_File'
+
 /*
  /* Scene_Save
  /*

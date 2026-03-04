@@ -1,3 +1,15 @@
+import { Graphics, Rectangle } from '../core'
+import { AudioManager } from '../managers/AudioManager'
+import { BattleManager } from '../managers/BattleManager'
+import { ConfigManager } from '../managers/ConfigManager'
+import { SceneManager } from '../managers/SceneManager'
+import { Sprite_Button } from '../sprites'
+import { Spriteset_Battle } from '../sprites/Spriteset_Battle'
+import { Window_ActorCommand, Window_BattleActor, Window_BattleEnemy, Window_BattleItem, Window_BattleLog, Window_BattleSkill, Window_BattleStatus, Window_Help, Window_PartyCommand } from '../windows'
+import { Scene_Map } from './Scene_Map'
+import { Scene_Message } from './Scene_Message'
+import { Scene_Title } from './Scene_Title'
+
 /*
  /* Scene_Battle
  /*

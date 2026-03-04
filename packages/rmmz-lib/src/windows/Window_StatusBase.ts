@@ -1,3 +1,10 @@
+import type { ColorManager } from '../managers/ColorManager'
+import type { ImageManager } from '../managers/ImageManager'
+import { BattleManager } from '../managers/BattleManager'
+import { TextManager } from '../managers/TextManager'
+import { Sprite_Gauge, Sprite_Name, Sprite_StateIcon } from '../sprites'
+import { Window_Selectable } from './Window_Selectable'
+
 /**
  * Window_StatusBase
  *

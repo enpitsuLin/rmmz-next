@@ -1,3 +1,8 @@
+import { Graphics, Rectangle } from '../core'
+import { ConfigManager } from '../managers/ConfigManager'
+import { Window_Options } from '../windows'
+import { Scene_MenuBase } from './Scene_MenuBase'
+
 /*
  /* Scene_Options
  /*

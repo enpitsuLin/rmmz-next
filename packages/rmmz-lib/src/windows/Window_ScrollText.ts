@@ -1,3 +1,5 @@
+import { Window_Base } from "./Window_Base"
+
 /**
  * Window_ScrollText
  *

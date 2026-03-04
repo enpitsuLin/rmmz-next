@@ -1,3 +1,5 @@
+import { Window_Scrollable } from "./Window_Scrollable"
+
 /**
  * Window_Selectable
  *

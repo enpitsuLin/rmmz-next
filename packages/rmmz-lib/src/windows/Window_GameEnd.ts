@@ -1,3 +1,6 @@
+import { TextManager } from "../managers/TextManager"
+import { Window_Command } from "./Window_Command"
+
 /**
  * Window_GameEnd
  *

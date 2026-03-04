@@ -1,3 +1,17 @@
+import { Graphics, Utils } from '../core'
+import { ColorManager } from '../managers/ColorManager'
+import { ConfigManager } from '../managers/ConfigManager'
+import { DataManager } from '../managers/DataManager'
+import { FontManager } from '../managers/FontManager'
+import { ImageManager } from '../managers/ImageManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SoundManager } from '../managers/SoundManager'
+import { Window_TitleCommand } from '../windows'
+import { Scene_Base } from './Scene_Base'
+import { Scene_Battle } from './Scene_Battle'
+import { Scene_Map } from './Scene_Map'
+import { Scene_Splash } from './Scene_Splash'
+
 /*
  /* Scene_Boot
  /*

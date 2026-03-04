@@ -1,3 +1,8 @@
+import { Graphics, Rectangle } from '../core'
+import { ConfigManager } from '../managers/ConfigManager'
+import { Sprite_Button } from '../sprites'
+import { Window_Command } from './Window_Command'
+
 /**
  * Window_ChoiceList
  *

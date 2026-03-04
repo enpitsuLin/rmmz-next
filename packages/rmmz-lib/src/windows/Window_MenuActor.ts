@@ -1,3 +1,5 @@
+import { Window_MenuStatus } from "./Window_MenuStatus"
+
 /**
  * Window_MenuActor
  *

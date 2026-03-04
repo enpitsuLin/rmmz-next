@@ -1,3 +1,9 @@
+import { Input, Sprite, TouchInput } from '../core'
+import { ImageManager } from '../managers/ImageManager'
+import { SceneManager } from '../managers/SceneManager'
+import { Scene_Base } from './Scene_Base'
+import { Scene_Title } from './Scene_Title'
+
 /*
  /* Scene_Splash
  /*

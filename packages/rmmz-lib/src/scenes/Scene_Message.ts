@@ -1,3 +1,7 @@
+import { Graphics, Rectangle } from '../core'
+import { Window_ChoiceList, Window_EventItem, Window_Gold, Window_Message, Window_NameBox, Window_NumberInput, Window_ScrollText } from '../windows'
+import { Scene_Base } from './Scene_Base'
+
 /*
  /* Scene_Message
  /*

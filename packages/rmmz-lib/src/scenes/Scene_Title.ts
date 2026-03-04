@@ -1,3 +1,14 @@
+import { Bitmap, Graphics, Rectangle, Sprite } from '../core'
+import { AudioManager } from '../managers/AudioManager'
+import { DataManager } from '../managers/DataManager'
+import { ImageManager } from '../managers/ImageManager'
+import { SceneManager } from '../managers/SceneManager'
+import { Window_TitleCommand } from '../windows'
+import { Scene_Base } from './Scene_Base'
+import { Scene_Load } from './Scene_Load'
+import { Scene_Map } from './Scene_Map'
+import { Scene_Options } from './Scene_Options'
+
 /*
  /* Scene_Title
  /*

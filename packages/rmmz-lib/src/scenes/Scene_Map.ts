@@ -1,3 +1,21 @@
+import { Graphics, Input, Rectangle, TouchInput } from '../core'
+import { AudioManager } from '../managers/AudioManager'
+import { BattleManager } from '../managers/BattleManager'
+import { ConfigManager } from '../managers/ConfigManager'
+import { DataManager } from '../managers/DataManager'
+import { EffectManager } from '../managers/EffectManager'
+import { ImageManager } from '../managers/ImageManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SoundManager } from '../managers/SoundManager'
+import { Sprite_Button, Spriteset_Map } from '../sprites'
+import { Window_MapName, Window_MenuCommand } from '../windows'
+import { Scene_Battle } from './Scene_Battle'
+import { Scene_Debug } from './Scene_Debug'
+import { Scene_Load } from './Scene_Load'
+import { Scene_Menu } from './Scene_Menu'
+import { Scene_Message } from './Scene_Message'
+import { Scene_Title } from './Scene_Title'
+
 /*
  /* Scene_Map
  /*

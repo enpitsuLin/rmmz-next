@@ -1,3 +1,5 @@
+import { Window_ItemList } from "./Window_ItemList"
+
 /**
  * Window_EquipItem
  *

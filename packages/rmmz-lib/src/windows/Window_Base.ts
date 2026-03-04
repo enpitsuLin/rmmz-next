@@ -1,3 +1,5 @@
+import { Window } from "../core"
+
 /**
  * Window_Base
  *

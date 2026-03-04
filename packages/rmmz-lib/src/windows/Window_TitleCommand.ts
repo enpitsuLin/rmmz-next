@@ -1,3 +1,7 @@
+import type { TextManager } from '../managers/TextManager'
+import { DataManager } from '../managers/DataManager'
+import { Window_Command } from './Window_Command'
+
 /**
  * Window_TitleCommand
  *

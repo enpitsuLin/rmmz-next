@@ -1,3 +1,12 @@
+import { ColorFilter, Graphics, Stage, WindowLayer } from '../core'
+import { AudioManager } from '../managers/AudioManager'
+import { DataManager } from '../managers/DataManager'
+import { EffectManager } from '../managers/EffectManager'
+import { FontManager } from '../managers/FontManager'
+import { ImageManager } from '../managers/ImageManager'
+import { SceneManager } from '../managers/SceneManager'
+import { Window_Base, Window_Selectable } from '../windows'
+
 /*
  /* Scene_Base
  /*

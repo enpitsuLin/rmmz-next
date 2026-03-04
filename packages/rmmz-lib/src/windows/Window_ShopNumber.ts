@@ -1,3 +1,6 @@
+import { TextManager } from "../managers/TextManager"
+import { Window_Selectable } from "./Window_Selectable"
+
 /**
  * Window_ShopNumber
  *

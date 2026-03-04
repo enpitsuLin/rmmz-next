@@ -1,3 +1,9 @@
+import type { ColorManager } from '../managers/ColorManager'
+import type { DataManager } from '../managers/DataManager'
+import { Input, TouchInput } from '../core'
+import { TextManager } from '../managers/TextManager'
+import { Window_StatusBase } from './Window_StatusBase'
+
 /**
  * Window_ShopStatus
  *

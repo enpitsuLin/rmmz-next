@@ -1,3 +1,7 @@
+import { Graphics, Rectangle } from '../core'
+import { Window_Help, Window_Status, Window_StatusEquip, Window_StatusParams } from '../windows'
+import { Scene_MenuBase } from './Scene_MenuBase'
+
 /*
  /* Scene_Status
  /*
