@@ -3,37 +3,37 @@
 
 import { PluginManager, Scene_Boot, SceneManager } from 'rmmz-lib'
 
-globalThis.$dataActors = null
-globalThis.$dataClasses = null
-globalThis.$dataSkills = null
-globalThis.$dataItems = null
-globalThis.$dataWeapons = null
-globalThis.$dataArmors = null
-globalThis.$dataEnemies = null
-globalThis.$dataTroops = null
-globalThis.$dataStates = null
-globalThis.$dataAnimations = null
-globalThis.$dataTilesets = null
-globalThis.$dataCommonEvents = null
-globalThis.$dataSystem = null
-globalThis.$dataMapInfos = null
-globalThis.$dataMap = null
-globalThis.$gameTemp = null
-globalThis.$gameSystem = null
-globalThis.$gameScreen = null
-globalThis.$gameTimer = null
-globalThis.$gameMessage = null
-globalThis.$gameSwitches = null
-globalThis.$gameVariables = null
-globalThis.$gameSelfSwitches = null
-globalThis.$gameActors = null
-globalThis.$gameParty = null
-globalThis.$gameTroop = null
-globalThis.$gameMap = null
-globalThis.$gamePlayer = null
-globalThis.$testEvent = null
+$dataActors = null
+$dataClasses = null
+$dataSkills = null
+$dataItems = null
+$dataWeapons = null
+$dataArmors = null
+$dataEnemies = null
+$dataTroops = null
+$dataStates = null
+$dataAnimations = null
+$dataTilesets = null
+$dataCommonEvents = null
+$dataSystem = null
+$dataMapInfos = null
+$dataMap = null
+$gameTemp = null
+$gameSystem = null
+$gameScreen = null
+$gameTimer = null
+$gameMessage = null
+$gameSwitches = null
+$gameVariables = null
+$gameSelfSwitches = null
+$gameActors = null
+$gameParty = null
+$gameTroop = null
+$gameMap = null
+$gamePlayer = null
+$testEvent = null
 
-globalThis.$plugins = []
+$plugins = []
 
 // ts-expect-error global PIXI type
 // globalThis.PIXI = PIXI
