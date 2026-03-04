@@ -1,3 +1,5 @@
+import { Graphics, Utils } from "../core"
+
 /**
  * EffectManager
  *

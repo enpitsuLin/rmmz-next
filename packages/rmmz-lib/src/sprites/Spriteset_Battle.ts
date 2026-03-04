@@ -1,4 +1,10 @@
-import { Spriteset_Base } from "./Spriteset_Base"
+import { PIXI } from '..'
+import { Graphics, Sprite } from '../core'
+import { ImageManager, SceneManager } from '../managers'
+import { Sprite_Actor } from './Sprite_Actor'
+import { Sprite_Battleback } from './Sprite_Battleback'
+import { Sprite_Enemy } from './Sprite_Enemy'
+import { Spriteset_Base } from './Spriteset_Base'
 
 /*
  /* Spriteset_Battle

@@ -1,3 +1,5 @@
+import { Rectangle } from "../core"
+import { ImageManager, ColorManager } from "../managers"
 import { Window_StatusBase } from "./Window_StatusBase"
 
 /**

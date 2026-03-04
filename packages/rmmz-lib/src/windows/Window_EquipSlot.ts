@@ -1,3 +1,4 @@
+import { ColorManager } from "../managers"
 import { Window_StatusBase } from "./Window_StatusBase"
 
 /**
