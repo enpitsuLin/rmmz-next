@@ -1,4 +1,4 @@
-import type { ColorManager } from "../managers/ColorManager"
+import { ColorManager } from "../managers/ColorManager"
 import { Window_Selectable } from "./Window_Selectable"
 
 /**

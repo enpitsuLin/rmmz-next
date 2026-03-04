@@ -1,4 +1,5 @@
-import { Sprite } from "../core"
+import { Bitmap, Sprite } from '../core'
+import { ColorManager, TextManager } from '../managers'
 
 /**
  * Sprite_Gauge

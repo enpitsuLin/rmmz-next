@@ -11,7 +11,17 @@ import { Utils } from './Utils'
  * @param {number} height - The height of the bitmap.
  */
 export class Bitmap {
-  constructor(width, height) {
+  _canvas: HTMLCanvasElement | null = null
+  _context: CanvasRenderingContext2D | null = null
+  _baseTexture: PIXI.BaseTexture | null = null
+  _image: HTMLImageElement | null = null
+  _url: string = ''
+  _paintOpacity: number = 255
+  _smooth: boolean = true
+  _loadListeners: ((bitmap: Bitmap) => void)[] = []
+  _loadingState: 'none' | 'loading' | 'loaded' | 'error' = 'none'
+
+  constructor(width?: number, height?: number) {
     this._canvas = null
     this._context = null
     this._baseTexture = null
@@ -532,7 +542,7 @@ export class Bitmap {
     context.fillText(text, tx, ty, maxWidth)
   }
 
-  _createCanvas(width, height) {
+  _createCanvas(width: number, height: number) {
     this._canvas = document.createElement('canvas')
     this._context = this._canvas.getContext('2d')
     this._canvas.width = width

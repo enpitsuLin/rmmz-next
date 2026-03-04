@@ -1,4 +1,5 @@
-import { Window_Command } from "./Window_Command"
+import { DataManager, TextManager } from '../managers'
+import { Window_Command } from './Window_Command'
 
 /**
  * Window_MenuCommand
