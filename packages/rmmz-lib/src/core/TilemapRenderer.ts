@@ -77,7 +77,7 @@ export class TilemapRenderer extends PIXI.ObjectRenderer {
         + '    color = texture2D(uSampler2, textureCoord / 2048.0);'
         + '  }'
         + '  gl_FragColor = color;'
-      + '}'
+        + '}'
 
     return new PIXI.Shader(PIXI.Program.from(vertexSrc, fragmentSrc), {
       uSampler0: 0,
