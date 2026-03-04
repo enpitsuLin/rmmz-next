@@ -1,15 +1,15 @@
-import * as PIXI from 'pixi.js'
-import 'rmmz-lib'
+// import * as PIXI from 'pixi.js'
+import '../../packages/rmmz-lib/src/shim'
 
-// @ts-expect-error global PIXI type
-globalThis.PIXI = PIXI
+// ts-expect-error global PIXI type
+// globalThis.PIXI = PIXI
 
 // =============================================================================
 // main.js v1.10.0
 // =============================================================================
 
 const scriptUrls = [
-  // "js/libs/pixi.js",
+  "js/libs/pixi.js",
   'js/libs/pako.min.js',
   'js/libs/localforage.min.js',
   'js/libs/effekseer.min.js',
