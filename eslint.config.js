@@ -6,6 +6,6 @@ export default antfu({
   rules: {
     'ts/no-namespace': 'off',
     'ts/no-require-imports': 'warn',
-    'unicorn/prefer-node-protocol': 'warn',
+    'unicorn/prefer-node-protocol': 'off',
   },
 })
