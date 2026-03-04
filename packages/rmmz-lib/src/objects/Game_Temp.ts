@@ -1,178 +1,178 @@
-import type { MZ } from "@rmmz-lib/database-types";
-import { Utils } from "../core";
-import type { Game_CharacterBase } from "./Game_CharacterBase";
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Game_CharacterBase } from './Game_CharacterBase'
+import { Utils } from '../core'
 
 /**
  * The game object class for temporary data that is not included in save data.
  */
 class Game_Temp {
-  _isPlaytest!: boolean;
-  _destinationX!: number | null;
-  _destinationY!: number | null;
-  _touchTarget!: unknown | null;
-  _touchState!: string;
-  _needsBattleRefresh!: boolean;
-  _commonEventQueue!: number[];
+  _isPlaytest!: boolean
+  _destinationX!: number | null
+  _destinationY!: number | null
+  _touchTarget!: unknown | null
+  _touchState!: string
+  _needsBattleRefresh!: boolean
+  _commonEventQueue!: number[]
   _animationQueue!: unknown[]
-  _balloonQueue!: unknown[];
-  _lastActionData!: number[];
+  _balloonQueue!: unknown[]
+  _lastActionData!: number[]
 
   constructor() {
-    this._isPlaytest = Utils.isOptionValid("test");
-    this._destinationX = null;
-    this._destinationY = null;
-    this._touchTarget = null;
-    this._touchState = "";
-    this._needsBattleRefresh = false;
-    this._commonEventQueue = [];
-    this._animationQueue = [];
-    this._balloonQueue = [];
-    this._lastActionData = [0, 0, 0, 0, 0, 0];
+    this._isPlaytest = Utils.isOptionValid('test')
+    this._destinationX = null
+    this._destinationY = null
+    this._touchTarget = null
+    this._touchState = ''
+    this._needsBattleRefresh = false
+    this._commonEventQueue = []
+    this._animationQueue = []
+    this._balloonQueue = []
+    this._lastActionData = [0, 0, 0, 0, 0, 0]
   }
 
   isPlaytest() {
-    return this._isPlaytest;
+    return this._isPlaytest
   }
 
   setDestination(x: number, y: number) {
-    this._destinationX = x;
-    this._destinationY = y;
+    this._destinationX = x
+    this._destinationY = y
   }
 
   clearDestination() {
-    this._destinationX = null;
-    this._destinationY = null;
+    this._destinationX = null
+    this._destinationY = null
   }
 
   isDestinationValid() {
-    return this._destinationX !== null;
+    return this._destinationX !== null
   }
 
   destinationX() {
-    return this._destinationX;
+    return this._destinationX
   }
 
   destinationY() {
-    return this._destinationY;
+    return this._destinationY
   }
 
   setTouchState(target: unknown, state: string) {
-    this._touchTarget = target;
-    this._touchState = state;
+    this._touchTarget = target
+    this._touchState = state
   }
 
   clearTouchState() {
-    this._touchTarget = null;
-    this._touchState = "";
+    this._touchTarget = null
+    this._touchState = ''
   }
 
   touchTarget() {
-    return this._touchTarget;
+    return this._touchTarget
   }
 
   touchState() {
-    return this._touchState;
+    return this._touchState
   }
 
   requestBattleRefresh() {
     if ($gameParty.inBattle()) {
-      this._needsBattleRefresh = true;
+      this._needsBattleRefresh = true
     }
   }
 
   clearBattleRefreshRequest() {
-    this._needsBattleRefresh = false;
+    this._needsBattleRefresh = false
   }
 
   isBattleRefreshRequested() {
-    return this._needsBattleRefresh;
+    return this._needsBattleRefresh
   }
 
   reserveCommonEvent(commonEventId: number) {
-    this._commonEventQueue.push(commonEventId);
+    this._commonEventQueue.push(commonEventId)
   }
 
   retrieveCommonEvent(): MZ.CommonEvent | undefined {
     // @ts-expect-error to fix
-    return $dataCommonEvents[this._commonEventQueue.shift()];
+    return $dataCommonEvents[this._commonEventQueue.shift()]
   }
 
   clearCommonEventReservation() {
-    this._commonEventQueue.length = 0;
+    this._commonEventQueue.length = 0
   }
 
   isCommonEventReserved() {
-    return this._commonEventQueue.length > 0;
+    return this._commonEventQueue.length > 0
   }
 
   // prettier-ignore
   requestAnimation(
     targets: Game_CharacterBase[],
     animationId: number,
-    mirror = false
+    mirror = false,
   ) {
     if ($dataAnimations[animationId]) {
       const request = {
-        targets: targets,
-        animationId: animationId,
-        mirror: mirror
-      };
-      this._animationQueue.push(request);
+        targets,
+        animationId,
+        mirror,
+      }
+      this._animationQueue.push(request)
       for (const target of targets) {
         if (target.startAnimation) {
-          target.startAnimation();
+          target.startAnimation()
         }
       }
     }
   }
 
   retrieveAnimation() {
-    return this._animationQueue.shift();
+    return this._animationQueue.shift()
   }
 
   requestBalloon(target, balloonId) {
-    const request = { target: target, balloonId: balloonId };
-    this._balloonQueue.push(request);
+    const request = { target, balloonId }
+    this._balloonQueue.push(request)
     if (target.startBalloon) {
-      target.startBalloon();
+      target.startBalloon()
     }
   }
 
   retrieveBalloon() {
-    return this._balloonQueue.shift();
+    return this._balloonQueue.shift()
   }
 
   lastActionData(type) {
-    return this._lastActionData[type] || 0;
+    return this._lastActionData[type] || 0
   }
 
   setLastActionData(type, value) {
-    this._lastActionData[type] = value;
+    this._lastActionData[type] = value
   }
 
   setLastUsedSkillId(skillID) {
-    this.setLastActionData(0, skillID);
+    this.setLastActionData(0, skillID)
   }
 
   setLastUsedItemId(itemID) {
-    this.setLastActionData(1, itemID);
+    this.setLastActionData(1, itemID)
   }
 
   setLastSubjectActorId(actorID) {
-    this.setLastActionData(2, actorID);
+    this.setLastActionData(2, actorID)
   }
 
   setLastSubjectEnemyIndex(enemyIndex) {
-    this.setLastActionData(3, enemyIndex);
+    this.setLastActionData(3, enemyIndex)
   }
 
   setLastTargetActorId(actorID) {
-    this.setLastActionData(4, actorID);
+    this.setLastActionData(4, actorID)
   }
 
   setLastTargetEnemyIndex(enemyIndex) {
-    this.setLastActionData(5, enemyIndex);
+    this.setLastActionData(5, enemyIndex)
   }
 }
 
-export { Game_Temp };
+export { Game_Temp }

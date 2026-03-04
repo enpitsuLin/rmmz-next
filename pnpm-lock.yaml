@@ -9,6 +9,19 @@ catalogs:
     tsdown:
       specifier: ^0.20.0
       version: 0.20.3
+  default:
+    cac:
+      specifier: ^7.0.0
+      version: 7.0.0
+    localforage:
+      specifier: ^1.10.0
+      version: 1.10.0
+    pako:
+      specifier: ^1.0.11
+      version: 1.0.11
+    pixi.js:
+      specifier: 7.4.3
+      version: 7.4.3
   dev:
     '@antfu/eslint-config':
       specifier: ^7.6.1
@@ -40,11 +53,14 @@ importers:
       eslint:
         specifier: catalog:dev
         version: 10.0.2(jiti@2.6.1)
+      typescript:
+        specifier: catalog:dev
+        version: 5.9.3
 
   example:
     dependencies:
       pixi.js:
-        specifier: 7.4.3
+        specifier: 'catalog:'
         version: 7.4.3
       rmmz-lib:
         specifier: workspace:*
@@ -54,7 +70,7 @@ importers:
         specifier: catalog:types
         version: 0.92.0
       cac:
-        specifier: ^7.0.0
+        specifier: 'catalog:'
         version: 7.0.0
       vite:
         specifier: catalog:dev
@@ -78,13 +94,13 @@ importers:
         specifier: catalog:types
         version: 1.0.7
       localforage:
-        specifier: ^1.10.0
+        specifier: 'catalog:'
         version: 1.10.0
       pako:
-        specifier: ^1.0.11
+        specifier: 'catalog:'
         version: 1.0.11
       pixi.js:
-        specifier: 7.4.3
+        specifier: 'catalog:'
         version: 7.4.3
     devDependencies:
       '@types/nw.js':

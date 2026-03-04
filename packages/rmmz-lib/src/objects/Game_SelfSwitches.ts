@@ -5,29 +5,30 @@ class Game_SelfSwitches {
   _data!: Record<string, true>
 
   constructor() {
-    this.clear();
+    this.clear()
   }
 
   clear() {
-    this._data = {};
+    this._data = {}
   }
 
   value(key: string) {
-    return !!this._data[key];
+    return !!this._data[key]
   }
 
   setValue(key: string, value: boolean) {
     if (value) {
-      this._data[key] = true;
-    } else {
-      delete this._data[key];
+      this._data[key] = true
     }
-    this.onChange();
+    else {
+      delete this._data[key]
+    }
+    this.onChange()
   }
 
   onChange() {
-    $gameMap.requestRefresh();
+    $gameMap.requestRefresh()
   }
 }
 
-export { Game_SelfSwitches };
+export { Game_SelfSwitches }

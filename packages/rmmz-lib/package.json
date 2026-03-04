@@ -21,17 +21,17 @@
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build"
   },
+  "dependencies": {
+    "@rmmz-lib/database-types": "workspace:*",
+    "@types/pako": "catalog:types",
+    "localforage": "catalog:",
+    "pako": "catalog:",
+    "pixi.js": "catalog:"
+  },
   "devDependencies": {
     "@types/nw.js": "catalog:types",
     "tsdown": "catalog:build",
     "typescript": "catalog:dev",
     "vite": "catalog:dev"
-  },
-  "dependencies": {
-    "@rmmz-lib/database-types": "workspace:*",
-    "@types/pako": "catalog:types",
-    "localforage": "^1.10.0",
-    "pako": "^1.0.11",
-    "pixi.js": "7.4.3"
   }
 }

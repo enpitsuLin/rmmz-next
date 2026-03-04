@@ -1,7 +1,16 @@
+shellEmulator: true
+
+trustPolicy: no-downgrade
+
 packages:
   - example
   - packages/*
 
+catalog:
+  cac: ^7.0.0
+  localforage: ^1.10.0
+  pako: ^1.0.11
+  pixi.js: 7.4.3
 catalogs:
   build:
     tsdown: ^0.20.0
@@ -13,6 +22,3 @@ catalogs:
   types:
     '@types/nw.js': ^0.92.0
     '@types/pako': ^1.0.7
-catalog:
-  cac: ^7.0.0
-  pixi.js: 7.4.3

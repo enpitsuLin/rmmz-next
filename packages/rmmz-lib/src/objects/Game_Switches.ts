@@ -5,27 +5,27 @@ class Game_Switches {
   _data!: boolean[]
 
   constructor() {
-    this.clear();
+    this.clear()
   }
 
   clear() {
-    this._data = [];
+    this._data = []
   }
 
   value(switchId: number) {
-    return !!this._data[switchId];
+    return !!this._data[switchId]
   }
 
   setValue(switchId: number, value: boolean) {
     if (switchId > 0 && switchId < $dataSystem.switches.length) {
-      this._data[switchId] = value;
-      this.onChange();
+      this._data[switchId] = value
+      this.onChange()
     }
   }
 
   onChange() {
-    $gameMap.requestRefresh();
+    $gameMap.requestRefresh()
   }
 }
 
-export { Game_Switches };
+export { Game_Switches }

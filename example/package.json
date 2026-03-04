@@ -1,8 +1,9 @@
 {
   "name": "rmmz-lib-example",
-  "private": true,
   "type": "module",
   "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -11,14 +12,13 @@
     "build": "vite build",
     "preview": "vite preview"
   },
-  "packageManager": "pnpm@10.30.3",
   "dependencies": {
-    "pixi.js": "7.4.3",
+    "pixi.js": "catalog:",
     "rmmz-lib": "workspace:*"
   },
   "devDependencies": {
     "@types/nw.js": "catalog:types",
-    "cac": "^7.0.0",
+    "cac": "catalog:",
     "vite": "catalog:dev"
   }
 }

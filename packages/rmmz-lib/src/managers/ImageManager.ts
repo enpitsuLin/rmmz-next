@@ -1,4 +1,4 @@
-import { Bitmap, Utils } from "../core";
+import { Bitmap, Utils } from '../core'
 
 /**
  * ImageManager
@@ -7,162 +7,165 @@ import { Bitmap, Utils } from "../core";
  */
 export class ImageManager {
   constructor() {
-    throw new Error("This is a static class");
+    throw new Error('This is a static class')
   }
 
-  static standardIconWidth = 32;
-  static standardIconHeight = 32;
-  static standardFaceWidth = 144;
-  static standardFaceHeight = 144;
+  static standardIconWidth = 32
+  static standardIconHeight = 32
+  static standardFaceWidth = 144
+  static standardFaceHeight = 144
 
-  static _cache = {};
-  static _system = {};
-  static _emptyBitmap = new Bitmap(1, 1);
+  static _cache = {}
+  static _system = {}
+  static _emptyBitmap = new Bitmap(1, 1)
 
   static get iconWidth() {
-    return this.getIconSize();
+    return this.getIconSize()
   }
 
   static get iconHeight() {
-    return this.getIconSize();
+    return this.getIconSize()
   }
 
   static get faceWidth() {
-    return this.getFaceSize();
+    return this.getFaceSize()
   }
 
   static get faceHeight() {
-    return this.getFaceSize();
+    return this.getFaceSize()
   }
 
   static getIconSize() {
-    if ("iconSize" in $dataSystem) {
-      return $dataSystem.iconSize;
-    } else {
-      return this.standardIconWidth;
+    if ('iconSize' in $dataSystem) {
+      return $dataSystem.iconSize
+    }
+    else {
+      return this.standardIconWidth
     }
   }
 
   static getFaceSize() {
-    if ("faceSize" in $dataSystem) {
-      return $dataSystem.faceSize;
-    } else {
-      return this.standardFaceWidth;
+    if ('faceSize' in $dataSystem) {
+      return $dataSystem.faceSize
+    }
+    else {
+      return this.standardFaceWidth
     }
   }
 
   static loadAnimation(filename) {
-    return this.loadBitmap("img/animations/", filename);
+    return this.loadBitmap('img/animations/', filename)
   }
 
   static loadBattleback1(filename) {
-    return this.loadBitmap("img/battlebacks1/", filename);
+    return this.loadBitmap('img/battlebacks1/', filename)
   }
 
   static loadBattleback2(filename) {
-    return this.loadBitmap("img/battlebacks2/", filename);
+    return this.loadBitmap('img/battlebacks2/', filename)
   }
 
   static loadEnemy(filename) {
-    return this.loadBitmap("img/enemies/", filename);
+    return this.loadBitmap('img/enemies/', filename)
   }
 
   static loadCharacter(filename) {
-    return this.loadBitmap("img/characters/", filename);
+    return this.loadBitmap('img/characters/', filename)
   }
 
   static loadFace(filename) {
-    return this.loadBitmap("img/faces/", filename);
+    return this.loadBitmap('img/faces/', filename)
   }
 
   static loadParallax(filename) {
-    return this.loadBitmap("img/parallaxes/", filename);
+    return this.loadBitmap('img/parallaxes/', filename)
   }
 
   static loadPicture(filename) {
-    return this.loadBitmap("img/pictures/", filename);
+    return this.loadBitmap('img/pictures/', filename)
   }
 
   static loadSvActor(filename) {
-    return this.loadBitmap("img/sv_actors/", filename);
+    return this.loadBitmap('img/sv_actors/', filename)
   }
 
   static loadSvEnemy(filename) {
-    return this.loadBitmap("img/sv_enemies/", filename);
+    return this.loadBitmap('img/sv_enemies/', filename)
   }
 
   static loadSystem(filename) {
-    return this.loadBitmap("img/system/", filename);
+    return this.loadBitmap('img/system/', filename)
   }
 
   static loadTileset(filename) {
-    return this.loadBitmap("img/tilesets/", filename);
+    return this.loadBitmap('img/tilesets/', filename)
   }
 
   static loadTitle1(filename) {
-    return this.loadBitmap("img/titles1/", filename);
+    return this.loadBitmap('img/titles1/', filename)
   }
 
   static loadTitle2(filename) {
-    return this.loadBitmap("img/titles2/", filename);
+    return this.loadBitmap('img/titles2/', filename)
   }
 
   static loadBitmap(folder, filename) {
     if (filename) {
-      const url = folder + Utils.encodeURI(filename) + ".png";
-      return this.loadBitmapFromUrl(url);
-    } else {
-      return this._emptyBitmap;
+      const url = `${folder + Utils.encodeURI(filename)}.png`
+      return this.loadBitmapFromUrl(url)
+    }
+    else {
+      return this._emptyBitmap
     }
   }
 
   static loadBitmapFromUrl(url) {
-    const cache = url.includes("/system/") ? this._system : this._cache;
+    const cache = url.includes('/system/') ? this._system : this._cache
     if (!cache[url]) {
-      cache[url] = Bitmap.load(url);
+      cache[url] = Bitmap.load(url)
     }
-    return cache[url];
+    return cache[url]
   }
 
   static clear() {
-    const cache = this._cache;
+    const cache = this._cache
     for (const url in cache) {
-      cache[url].destroy();
+      cache[url].destroy()
     }
-    this._cache = {};
+    this._cache = {}
   }
 
   static isReady() {
     for (const cache of [this._cache, this._system]) {
       for (const url in cache) {
-        const bitmap = cache[url];
+        const bitmap = cache[url]
         if (bitmap.isError()) {
-          this.throwLoadError(bitmap);
+          this.throwLoadError(bitmap)
         }
         if (!bitmap.isReady()) {
-          return false;
+          return false
         }
       }
     }
-    return true;
+    return true
   }
 
   static throwLoadError(bitmap) {
-    const retry = bitmap.retry.bind(bitmap);
-    throw ["LoadError", bitmap.url, retry];
+    const retry = bitmap.retry.bind(bitmap)
+    throw ['LoadError', bitmap.url, retry]
   }
 
   static isObjectCharacter(filename) {
-    const sign = Utils.extractFileName(filename).match(/^[!$]+/);
-    return sign && sign[0].includes("!");
+    const sign = Utils.extractFileName(filename).match(/^[!$]+/)
+    return sign && sign[0].includes('!')
   }
 
   static isBigCharacter(filename) {
-    const sign = Utils.extractFileName(filename).match(/^[!$]+/);
-    return sign && sign[0].includes("$");
+    const sign = Utils.extractFileName(filename).match(/^[!$]+/)
+    return sign && sign[0].includes('$')
   }
 
   static isZeroParallax(filename) {
-    return Utils.extractFileName(filename).charAt(0) === "!";
+    return Utils.extractFileName(filename).charAt(0) === '!'
   }
 }

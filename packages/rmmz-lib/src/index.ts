@@ -1,10 +1,9 @@
 import './shim'
 
+export * from './core'
+
+export * from './managers'
+export * from './objects'
 export type * from './types'
 
-export * from './core'
-export * from './objects'
-export * from './managers'
-
 export * as PIXI from 'pixi.js'
-

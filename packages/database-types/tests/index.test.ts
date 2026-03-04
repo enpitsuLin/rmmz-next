@@ -1,6 +1,6 @@
-import { expect, test } from 'vitest'
+import { expect, it } from 'vitest'
 import { fn } from '../src'
 
-test('fn', () => {
+it('fn', () => {
   expect(fn()).toBe('Hello, tsdown!')
 })

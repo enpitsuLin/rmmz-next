@@ -2,11 +2,10 @@ import * as PIXI from 'pixi.js'
 import { TilemapRenderer } from './TilemapRenderer'
 
 PIXI.extensions.add({
-  name: "rpgtilemap",
+  name: 'rpgtilemap',
   type: PIXI.ExtensionType.RendererPlugin,
   ref: TilemapRenderer,
-});
-
+})
 
 export * from './Bitmap'
 export * from './ColorFilter'

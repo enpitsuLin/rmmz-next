@@ -1,142 +1,143 @@
-import { BattleManager } from "../managers/BattleManager";
-import type { Game_Battler } from "./Game_Battler";
+import type { Game_Battler } from './Game_Battler'
+import { BattleManager } from '../managers/BattleManager'
 
 /**
  * The superclass of Game_Party and Game_Troop.
  */
 class Game_Unit<Member extends Game_Battler = Game_Battler> {
-  _inBattle: boolean;
+  _inBattle: boolean
 
   constructor() {
-    this._inBattle = false;
+    this._inBattle = false
   }
 
   inBattle() {
-    return this._inBattle;
+    return this._inBattle
   }
 
   members(): Member[] {
-    return [];
+    return []
   }
 
   aliveMembers() {
-    return this.members().filter((member) => member.isAlive());
+    return this.members().filter(member => member.isAlive())
   }
 
   deadMembers() {
-    return this.members().filter((member) => member.isDead());
+    return this.members().filter(member => member.isDead())
   }
 
   movableMembers() {
-    return this.members().filter((member) => member.canMove());
+    return this.members().filter(member => member.canMove())
   }
 
   clearActions() {
     for (const member of this.members()) {
-      member.clearActions();
+      member.clearActions()
     }
   }
 
   agility() {
-    const members = this.members();
-    const sum = members.reduce((r, member) => r + member.agi, 0);
-    return Math.max(1, sum / Math.max(1, members.length));
+    const members = this.members()
+    const sum = members.reduce((r, member) => r + member.agi, 0)
+    return Math.max(1, sum / Math.max(1, members.length))
   }
 
   tgrSum() {
-    return this.aliveMembers().reduce((r, member) => r + member.tgr, 0);
+    return this.aliveMembers().reduce((r, member) => r + member.tgr, 0)
   }
 
   randomTarget() {
-    let tgrRand = Math.random() * this.tgrSum();
-    let target = null;
+    let tgrRand = Math.random() * this.tgrSum()
+    let target = null
     for (const member of this.aliveMembers()) {
-      tgrRand -= member.tgr;
+      tgrRand -= member.tgr
       if (tgrRand <= 0 && !target) {
-        target = member;
+        target = member
       }
     }
-    return target;
+    return target
   }
 
   randomDeadTarget() {
-    const members = this.deadMembers();
-    return members.length ? members[Math.randomInt(members.length)] : null;
+    const members = this.deadMembers()
+    return members.length ? members[Math.randomInt(members.length)] : null
   }
 
   smoothTarget(index: number) {
-    const member = this.members()[Math.max(0, index)];
-    return member && member.isAlive() ? member : this.aliveMembers()[0];
+    const member = this.members()[Math.max(0, index)]
+    return member && member.isAlive() ? member : this.aliveMembers()[0]
   }
 
   smoothDeadTarget(index: number) {
-    const member = this.members()[Math.max(0, index)];
-    return member && member.isDead() ? member : this.deadMembers()[0];
+    const member = this.members()[Math.max(0, index)]
+    return member && member.isDead() ? member : this.deadMembers()[0]
   }
 
   clearResults() {
     for (const member of this.members()) {
-      member.clearResult();
+      member.clearResult()
     }
   }
 
   onBattleStart(advantageous: boolean) {
     for (const member of this.members()) {
-      member.onBattleStart(advantageous);
+      member.onBattleStart(advantageous)
     }
-    this._inBattle = true;
+    this._inBattle = true
   }
 
   onBattleEnd() {
-    this._inBattle = false;
+    this._inBattle = false
     for (const member of this.members()) {
-      member.onBattleEnd();
+      member.onBattleEnd()
     }
   }
 
   makeActions() {
     for (const member of this.members()) {
-      member.makeActions();
+      member.makeActions()
     }
   }
 
   select(activeMember: Member) {
     for (const member of this.members()) {
       if (member === activeMember) {
-        member.select();
-      } else {
-        member.deselect();
+        member.select()
+      }
+      else {
+        member.deselect()
       }
     }
   }
 
   isAllDead() {
-    return this.aliveMembers().length === 0;
+    return this.aliveMembers().length === 0
   }
 
   substituteBattler(target: Member) {
     for (const member of this.members()) {
       if (member.isSubstitute() && member !== target) {
-        return member;
+        return member
       }
     }
-    return null;
+    return null
   }
 
   tpbBaseSpeed() {
-    const members = this.members();
-    return Math.max(...members.map((member) => member.tpbBaseSpeed()));
+    const members = this.members()
+    return Math.max(...members.map(member => member.tpbBaseSpeed()))
   }
 
   tpbReferenceTime() {
-    return BattleManager.isActiveTpb() ? 240 : 60;
+    return BattleManager.isActiveTpb() ? 240 : 60
   }
 
   updateTpb() {
     for (const member of this.members()) {
-      member.updateTpb();
+      member.updateTpb()
     }
   }
 }
 
-export { Game_Unit };
+export { Game_Unit }

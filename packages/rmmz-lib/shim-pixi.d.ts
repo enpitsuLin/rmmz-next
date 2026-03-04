@@ -4,6 +4,6 @@ declare namespace GlobalMixins {
   }
 
   interface DisplayObject extends RMMZDisplayObject {
-    
+
   }
 }

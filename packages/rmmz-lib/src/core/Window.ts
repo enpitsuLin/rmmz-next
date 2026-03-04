@@ -1,10 +1,10 @@
+import type { RGBA } from '../types'
+import type { Bitmap } from './Bitmap'
 import * as PIXI from 'pixi.js'
+import { Point } from './Point'
+import { Rectangle } from './Rectangle'
 import { Sprite } from './Sprite'
 import { TilingSprite } from './TilingSprite'
-import { Rectangle } from './Rectangle'
-import { Point } from './Point'
-import type { Bitmap } from './Bitmap'
-import type { RGBA } from '../types'
 
 /**
  * The window in the game.
@@ -13,7 +13,6 @@ import type { RGBA } from '../types'
  * @extends PIXI.Container
  */
 export class Window extends PIXI.Container<PIXI.Container> {
-
   _isWindow: true
   _windowskin: Bitmap | null
   _cursorRect: Rectangle
@@ -69,87 +68,86 @@ export class Window extends PIXI.Container<PIXI.Container> {
   /**
    * The visibility of the pause sign.
    */
-  pause: boolean;
+  pause: boolean
 
   // TODO: should no more initialize sprites to null type, because this._createAllParts() will create them
   constructor() {
-    super();
+    super()
 
-    this._isWindow = true;
-    this._windowskin = null;
-    this._width = 0;
-    this._height = 0;
-    this._cursorRect = new Rectangle();
-    this._openness = 255;
-    this._animationCount = 0;
+    this._isWindow = true
+    this._windowskin = null
+    this._width = 0
+    this._height = 0
+    this._cursorRect = new Rectangle()
+    this._openness = 255
+    this._animationCount = 0
 
-    this._padding = 12;
-    this._margin = 4;
-    this._colorTone = [0, 0, 0, 0];
-    this._innerChildren = [];
+    this._padding = 12
+    this._margin = 4
+    this._colorTone = [0, 0, 0, 0]
+    this._innerChildren = []
 
-    this._container = null;
-    this._backSprite = null;
-    this._frameSprite = null;
-    this._contentsBackSprite = null;
-    this._cursorSprite = null;
-    this._contentsSprite = null;
-    this._downArrowSprite = null;
-    this._upArrowSprite = null;
-    this._pauseSignSprite = null;
+    this._container = null
+    this._backSprite = null
+    this._frameSprite = null
+    this._contentsBackSprite = null
+    this._cursorSprite = null
+    this._contentsSprite = null
+    this._downArrowSprite = null
+    this._upArrowSprite = null
+    this._pauseSignSprite = null
 
-    this._createAllParts();
+    this._createAllParts()
 
     /**
      * The origin point of the window for scrolling.
      *
      * @type Point
      */
-    this.origin = new Point();
+    this.origin = new Point()
 
     /**
      * The active state for the window.
      *
      * @type boolean
      */
-    this.active = true;
+    this.active = true
 
     /**
      * The visibility of the frame.
      *
      * @type boolean
      */
-    this.frameVisible = true;
+    this.frameVisible = true
 
     /**
      * The visibility of the cursor.
      *
      * @type boolean
      */
-    this.cursorVisible = true;
+    this.cursorVisible = true
 
     /**
      * The visibility of the down scroll arrow.
      *
      * @type boolean
      */
-    this.downArrowVisible = false;
+    this.downArrowVisible = false
 
     /**
      * The visibility of the up scroll arrow.
      *
      * @type boolean
      */
-    this.upArrowVisible = false;
+    this.upArrowVisible = false
 
     /**
      * The visibility of the pause sign.
      *
      * @type boolean
      */
-    this.pause = false;
+    this.pause = false
   }
-
 
   /**
    * The image used as a window skin.
@@ -158,13 +156,13 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#windowskin
    */
   get windowskin() {
-    return this._windowskin;
+    return this._windowskin
   }
 
   set windowskin(value) {
     if (this._windowskin !== value) {
-      this._windowskin = value;
-      this._windowskin!.addLoadListener(this._onWindowskinLoad.bind(this));
+      this._windowskin = value
+      this._windowskin!.addLoadListener(this._onWindowskinLoad.bind(this))
     }
   }
 
@@ -175,11 +173,11 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#contents
    */
   get contents() {
-    return this._contentsSprite!.bitmap;
+    return this._contentsSprite!.bitmap
   }
 
   set contents(value) {
-    this._contentsSprite!.bitmap = value;
+    this._contentsSprite!.bitmap = value
   }
 
   /**
@@ -189,11 +187,11 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#contentsBack
    */
   get contentsBack() {
-    return this._contentsBackSprite!.bitmap;
+    return this._contentsBackSprite!.bitmap
   }
 
   set contentsBack(value) {
-    this._contentsBackSprite!.bitmap = value;
+    this._contentsBackSprite!.bitmap = value
   }
 
   /**
@@ -203,12 +201,12 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#width
    */
   get width() {
-    return this._width;
+    return this._width
   }
 
   set width(value) {
-    this._width = value;
-    this._refreshAllParts();
+    this._width = value
+    this._refreshAllParts()
   }
 
   /**
@@ -218,12 +216,12 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#height
    */
   get height() {
-    return this._height;
+    return this._height
   }
 
   set height(value) {
-    this._height = value;
-    this._refreshAllParts();
+    this._height = value
+    this._refreshAllParts()
   }
 
   /**
@@ -233,12 +231,12 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#padding
    */
   get padding() {
-    return this._padding;
+    return this._padding
   }
 
   set padding(value) {
-    this._padding = value;
-    this._refreshAllParts();
+    this._padding = value
+    this._refreshAllParts()
   }
 
   /**
@@ -248,12 +246,12 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#margin
    */
   get margin() {
-    return this._margin;
+    return this._margin
   }
 
   set margin(value) {
-    this._margin = value;
-    this._refreshAllParts();
+    this._margin = value
+    this._refreshAllParts()
   }
 
   /**
@@ -263,11 +261,11 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#opacity
    */
   get opacity() {
-    return this._container!.alpha * 255;
+    return this._container!.alpha * 255
   }
 
   set opacity(value) {
-    this._container!.alpha = value.clamp(0, 255) / 255;
+    this._container!.alpha = value.clamp(0, 255) / 255
   }
 
   /**
@@ -277,11 +275,11 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#backOpacity
    */
   get backOpacity() {
-    return this._backSprite!.alpha * 255;
+    return this._backSprite!.alpha * 255
   }
 
   set backOpacity(value) {
-    this._backSprite!.alpha = value.clamp(0, 255) / 255;
+    this._backSprite!.alpha = value.clamp(0, 255) / 255
   }
 
   /**
@@ -291,11 +289,11 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#contentsOpacity
    */
   get contentsOpacity() {
-    return this._contentsSprite!.alpha * 255;
+    return this._contentsSprite!.alpha * 255
   }
 
   set contentsOpacity(value) {
-    this._contentsSprite!.alpha = value.clamp(0, 255) / 255;
+    this._contentsSprite!.alpha = value.clamp(0, 255) / 255
   }
 
   /**
@@ -305,16 +303,17 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#openness
    */
   get openness() {
-    return this._openness;
+    return this._openness
   }
 
   set openness(value) {
     if (this._openness !== value) {
-      this._openness = value.clamp(0, 255);
-      this._container!.scale.y = this._openness / 255;
-      this._container!.y = (this.height / 2) * (1 - this._openness / 255);
+      this._openness = value.clamp(0, 255)
+      this._container!.scale.y = this._openness / 255
+      this._container!.y = (this.height / 2) * (1 - this._openness / 255)
     }
   }
+
   /**
    * The width of the content area in pixels.
    *
@@ -323,7 +322,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#innerWidth
    */
   get innerWidth() {
-    return Math.max(0, this._width - this._padding * 2);
+    return Math.max(0, this._width - this._padding * 2)
   }
 
   /**
@@ -334,7 +333,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @name Window#innerHeight
    */
   get innerHeight() {
-    return Math.max(0, this._height - this._padding * 2);
+    return Math.max(0, this._height - this._padding * 2)
   }
 
   /**
@@ -349,29 +348,29 @@ export class Window extends PIXI.Container<PIXI.Container> {
       this._padding,
       this._padding,
       this.innerWidth,
-      this.innerHeight
-    );
+      this.innerHeight,
+    )
   }
 
   /**
    * Destroys the window.
    */
   destroy() {
-    const options = { children: true, texture: true };
-    super.destroy(options);
+    const options = { children: true, texture: true }
+    super.destroy(options)
   }
 
   /**
    * Updates the window for each frame.
    */
-  //@ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
+  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
   update() {
     if (this.active) {
-      this._animationCount++;
+      this._animationCount++
     }
     for (const child of this.children) {
       if (child.update) {
-        child.update();
+        child.update()
       }
     }
   }
@@ -385,12 +384,12 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @param height - The height of the window.
    */
   move(x: number, y: number, width: number, height: number) {
-    this.x = x || 0;
-    this.y = y || 0;
+    this.x = x || 0
+    this.y = y || 0
     if (this._width !== width || this._height !== height) {
-      this._width = width || 0;
-      this._height = height || 0;
-      this._refreshAllParts();
+      this._width = width || 0
+      this._height = height || 0
+      this._refreshAllParts()
     }
   }
 
@@ -400,7 +399,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @returns True if the window is open.
    */
   isOpen() {
-    return this._openness >= 255;
+    return this._openness >= 255
   }
 
   /**
@@ -409,7 +408,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @returns True if the window is closed.
    */
   isClosed() {
-    return this._openness <= 0;
+    return this._openness <= 0
   }
 
   /**
@@ -421,14 +420,14 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @param height - The height of the cursor.
    */
   setCursorRect(x: number, y: number, width: number, height: number) {
-    const cw = Math.floor(width || 0);
-    const ch = Math.floor(height || 0);
-    this._cursorRect.x = Math.floor(x || 0);
-    this._cursorRect.y = Math.floor(y || 0);
+    const cw = Math.floor(width || 0)
+    const ch = Math.floor(height || 0)
+    this._cursorRect.x = Math.floor(x || 0)
+    this._cursorRect.y = Math.floor(y || 0)
     if (this._cursorRect.width !== cw || this._cursorRect.height !== ch) {
-      this._cursorRect.width = cw;
-      this._cursorRect.height = ch;
-      this._refreshCursor();
+      this._cursorRect.width = cw
+      this._cursorRect.height = ch
+      this._refreshCursor()
     }
   }
 
@@ -439,8 +438,8 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @param y - The amount of vertical movement.
    */
   moveCursorBy(x: number, y: number) {
-    this._cursorRect.x += x;
-    this._cursorRect.y += y;
+    this._cursorRect.x += x
+    this._cursorRect.y += y
   }
 
   /**
@@ -451,8 +450,8 @@ export class Window extends PIXI.Container<PIXI.Container> {
    */
   moveInnerChildrenBy(x: number, y: number) {
     for (const child of this._innerChildren) {
-      child.x += x;
-      child.y += y;
+      child.x += x
+      child.y += y
     }
   }
 
@@ -464,10 +463,10 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @param b - The blue value in the range (-255, 255).
    */
   setTone(r: number, g: number, b: number) {
-    const tone = this._colorTone;
+    const tone = this._colorTone
     if (r !== tone[0] || g !== tone[1] || b !== tone[2]) {
-      this._colorTone = [r, g, b, 0];
-      this._refreshBack();
+      this._colorTone = [r, g, b, 0]
+      this._refreshBack()
     }
   }
 
@@ -479,8 +478,8 @@ export class Window extends PIXI.Container<PIXI.Container> {
    */
   addChildToBack(child: Sprite) {
     // TODO: Is this hack to get the index of the container working?
-    const containerIndex = this.children.indexOf(this._container as Sprite);
-    return this.addChildAt(child, containerIndex + 1);
+    const containerIndex = this.children.indexOf(this._container as Sprite)
+    return this.addChildAt(child, containerIndex + 1)
   }
 
   /**
@@ -490,23 +489,23 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @returns The child that was added.
    */
   addInnerChild(child: Sprite) {
-    this._innerChildren.push(child);
-    return this._clientArea!.addChild(child);
+    this._innerChildren.push(child)
+    return this._clientArea!.addChild(child)
   }
 
   /**
    * Updates the transform on all children of this container for rendering.
    */
   updateTransform() {
-    this._updateClientArea();
-    this._updateFrame();
-    this._updateContentsBack();
-    this._updateCursor();
-    this._updateContents();
-    this._updateArrows();
-    this._updatePauseSign();
-    super.updateTransform();
-    this._updateFilterArea();
+    this._updateClientArea()
+    this._updateFrame()
+    this._updateContentsBack()
+    this._updateCursor()
+    this._updateContents()
+    this._updateArrows()
+    this._updatePauseSign()
+    super.updateTransform()
+    this._updateFilterArea()
   }
 
   /**
@@ -514,295 +513,298 @@ export class Window extends PIXI.Container<PIXI.Container> {
    */
   drawShape(graphics: PIXI.Graphics) {
     if (graphics) {
-      const width = this.width;
-      const height = (this.height * this._openness) / 255;
-      const x = this.x;
-      const y = this.y + (this.height - height) / 2;
-      graphics.beginFill(0xffffff);
-      graphics.drawRoundedRect(x, y, width, height, 0);
-      graphics.endFill();
+      const width = this.width
+      const height = (this.height * this._openness) / 255
+      const x = this.x
+      const y = this.y + (this.height - height) / 2
+      graphics.beginFill(0xFFFFFF)
+      graphics.drawRoundedRect(x, y, width, height, 0)
+      graphics.endFill()
     }
   }
 
   _createAllParts() {
-    this._createContainer();
-    this._createBackSprite();
-    this._createFrameSprite();
-    this._createClientArea();
-    this._createContentsBackSprite();
-    this._createCursorSprite();
-    this._createContentsSprite();
-    this._createArrowSprites();
-    this._createPauseSignSprites();
+    this._createContainer()
+    this._createBackSprite()
+    this._createFrameSprite()
+    this._createClientArea()
+    this._createContentsBackSprite()
+    this._createCursorSprite()
+    this._createContentsSprite()
+    this._createArrowSprites()
+    this._createPauseSignSprites()
   }
 
   _createContainer() {
-    this._container = new PIXI.Container();
-    this.addChild(this._container);
+    this._container = new PIXI.Container()
+    this.addChild(this._container)
   }
 
   _createBackSprite() {
-    this._backSprite = new Sprite();
-    this._backSprite.addChild(new TilingSprite());
-    this._container!.addChild(this._backSprite);
+    this._backSprite = new Sprite()
+    this._backSprite.addChild(new TilingSprite())
+    this._container!.addChild(this._backSprite)
   }
 
   _createFrameSprite() {
-    this._frameSprite = new Sprite();
+    this._frameSprite = new Sprite()
     for (let i = 0; i < 8; i++) {
-      this._frameSprite.addChild(new Sprite());
+      this._frameSprite.addChild(new Sprite())
     }
-    this._container!.addChild(this._frameSprite);
+    this._container!.addChild(this._frameSprite)
   }
 
   _createClientArea() {
-    this._clientArea = new Sprite();
-    this._clientArea.filters = [new PIXI.AlphaFilter()];
-    this._clientArea.filterArea = new Rectangle();
-    this._clientArea.move(this._padding, this._padding);
-    this.addChild(this._clientArea);
+    this._clientArea = new Sprite()
+    this._clientArea.filters = [new PIXI.AlphaFilter()]
+    this._clientArea.filterArea = new Rectangle()
+    this._clientArea.move(this._padding, this._padding)
+    this.addChild(this._clientArea)
   }
 
   _createContentsBackSprite() {
-    this._contentsBackSprite = new Sprite();
-    this._clientArea!.addChild(this._contentsBackSprite);
+    this._contentsBackSprite = new Sprite()
+    this._clientArea!.addChild(this._contentsBackSprite)
   }
 
   _createCursorSprite() {
-    this._cursorSprite = new Sprite();
+    this._cursorSprite = new Sprite()
     for (let i = 0; i < 9; i++) {
-      this._cursorSprite.addChild(new Sprite());
+      this._cursorSprite.addChild(new Sprite())
     }
-    this._clientArea!.addChild(this._cursorSprite);
+    this._clientArea!.addChild(this._cursorSprite)
   }
 
   _createContentsSprite() {
-    this._contentsSprite = new Sprite();
-    this._clientArea!.addChild(this._contentsSprite);
+    this._contentsSprite = new Sprite()
+    this._clientArea!.addChild(this._contentsSprite)
   }
 
   _createArrowSprites() {
-    this._downArrowSprite = new Sprite();
-    this.addChild(this._downArrowSprite);
-    this._upArrowSprite = new Sprite();
-    this.addChild(this._upArrowSprite);
+    this._downArrowSprite = new Sprite()
+    this.addChild(this._downArrowSprite)
+    this._upArrowSprite = new Sprite()
+    this.addChild(this._upArrowSprite)
   }
 
   _createPauseSignSprites() {
-    this._pauseSignSprite = new Sprite();
-    this.addChild(this._pauseSignSprite);
+    this._pauseSignSprite = new Sprite()
+    this.addChild(this._pauseSignSprite)
   }
 
   _onWindowskinLoad() {
-    this._refreshAllParts();
+    this._refreshAllParts()
   }
 
   _refreshAllParts() {
-    this._refreshBack();
-    this._refreshFrame();
-    this._refreshCursor();
-    this._refreshArrows();
-    this._refreshPauseSign();
+    this._refreshBack()
+    this._refreshFrame()
+    this._refreshCursor()
+    this._refreshArrows()
+    this._refreshPauseSign()
   }
 
   _refreshBack() {
-    const m = this._margin;
-    const w = Math.max(0, this._width - m * 2);
-    const h = Math.max(0, this._height - m * 2);
-    const sprite = this._backSprite!;
-    const tilingSprite = sprite.children[0];
+    const m = this._margin
+    const w = Math.max(0, this._width - m * 2)
+    const h = Math.max(0, this._height - m * 2)
+    const sprite = this._backSprite!
+    const tilingSprite = sprite.children[0]
     // [Note] We use 95 instead of 96 here to avoid blurring edges.
-    sprite.bitmap = this._windowskin;
-    sprite.setFrame(0, 0, 95, 95);
-    sprite.move(m, m);
-    sprite.scale.x = w / 95;
-    sprite.scale.y = h / 95;
-    tilingSprite.bitmap = this._windowskin;
-    tilingSprite.setFrame(0, 96, 96, 96);
-    tilingSprite.move(0, 0, w, h);
-    tilingSprite.scale.x = 1 / sprite.scale.x;
-    tilingSprite.scale.y = 1 / sprite.scale.y;
-    sprite.setColorTone(this._colorTone);
+    sprite.bitmap = this._windowskin
+    sprite.setFrame(0, 0, 95, 95)
+    sprite.move(m, m)
+    sprite.scale.x = w / 95
+    sprite.scale.y = h / 95
+    tilingSprite.bitmap = this._windowskin
+    tilingSprite.setFrame(0, 96, 96, 96)
+    tilingSprite.move(0, 0, w, h)
+    tilingSprite.scale.x = 1 / sprite.scale.x
+    tilingSprite.scale.y = 1 / sprite.scale.y
+    sprite.setColorTone(this._colorTone)
   }
 
   _refreshFrame() {
-    const drect = { x: 0, y: 0, width: this._width, height: this._height };
-    const srect = { x: 96, y: 0, width: 96, height: 96 };
-    const m = 24;
+    const drect = { x: 0, y: 0, width: this._width, height: this._height }
+    const srect = { x: 96, y: 0, width: 96, height: 96 }
+    const m = 24
     for (const child of this._frameSprite.children) {
-      child.bitmap = this._windowskin;
+      child.bitmap = this._windowskin
     }
-    this._setRectPartsGeometry(this._frameSprite, srect, drect, m);
+    this._setRectPartsGeometry(this._frameSprite, srect, drect, m)
   }
 
   _refreshCursor() {
-    const drect = this._cursorRect.clone();
-    const srect = { x: 96, y: 96, width: 48, height: 48 };
-    const m = 4;
+    const drect = this._cursorRect.clone()
+    const srect = { x: 96, y: 96, width: 48, height: 48 }
+    const m = 4
     for (const child of this._cursorSprite.children) {
-      child.bitmap = this._windowskin;
+      child.bitmap = this._windowskin
     }
-    this._setRectPartsGeometry(this._cursorSprite, srect, drect, m);
+    this._setRectPartsGeometry(this._cursorSprite, srect, drect, m)
   }
 
   _setRectPartsGeometry(sprite, srect, drect, m) {
-    const sx = srect.x;
-    const sy = srect.y;
-    const sw = srect.width;
-    const sh = srect.height;
-    const dx = drect.x;
-    const dy = drect.y;
-    const dw = drect.width;
-    const dh = drect.height;
-    const smw = sw - m * 2;
-    const smh = sh - m * 2;
-    const dmw = dw - m * 2;
-    const dmh = dh - m * 2;
-    const children = sprite.children;
-    sprite.setFrame(0, 0, dw, dh);
-    sprite.move(dx, dy);
+    const sx = srect.x
+    const sy = srect.y
+    const sw = srect.width
+    const sh = srect.height
+    const dx = drect.x
+    const dy = drect.y
+    const dw = drect.width
+    const dh = drect.height
+    const smw = sw - m * 2
+    const smh = sh - m * 2
+    const dmw = dw - m * 2
+    const dmh = dh - m * 2
+    const children = sprite.children
+    sprite.setFrame(0, 0, dw, dh)
+    sprite.move(dx, dy)
     // corner
-    children[0].setFrame(sx, sy, m, m);
-    children[1].setFrame(sx + sw - m, sy, m, m);
-    children[2].setFrame(sx, sy + sw - m, m, m);
-    children[3].setFrame(sx + sw - m, sy + sw - m, m, m);
-    children[0].move(0, 0);
-    children[1].move(dw - m, 0);
-    children[2].move(0, dh - m);
-    children[3].move(dw - m, dh - m);
+    children[0].setFrame(sx, sy, m, m)
+    children[1].setFrame(sx + sw - m, sy, m, m)
+    children[2].setFrame(sx, sy + sw - m, m, m)
+    children[3].setFrame(sx + sw - m, sy + sw - m, m, m)
+    children[0].move(0, 0)
+    children[1].move(dw - m, 0)
+    children[2].move(0, dh - m)
+    children[3].move(dw - m, dh - m)
     // edge
-    children[4].move(m, 0);
-    children[5].move(m, dh - m);
-    children[6].move(0, m);
-    children[7].move(dw - m, m);
-    children[4].setFrame(sx + m, sy, smw, m);
-    children[5].setFrame(sx + m, sy + sw - m, smw, m);
-    children[6].setFrame(sx, sy + m, m, smh);
-    children[7].setFrame(sx + sw - m, sy + m, m, smh);
-    children[4].scale.x = dmw / smw;
-    children[5].scale.x = dmw / smw;
-    children[6].scale.y = dmh / smh;
-    children[7].scale.y = dmh / smh;
+    children[4].move(m, 0)
+    children[5].move(m, dh - m)
+    children[6].move(0, m)
+    children[7].move(dw - m, m)
+    children[4].setFrame(sx + m, sy, smw, m)
+    children[5].setFrame(sx + m, sy + sw - m, smw, m)
+    children[6].setFrame(sx, sy + m, m, smh)
+    children[7].setFrame(sx + sw - m, sy + m, m, smh)
+    children[4].scale.x = dmw / smw
+    children[5].scale.x = dmw / smw
+    children[6].scale.y = dmh / smh
+    children[7].scale.y = dmh / smh
     // center
     if (children[8]) {
-      children[8].setFrame(sx + m, sy + m, smw, smh);
-      children[8].move(m, m);
-      children[8].scale.x = dmw / smw;
-      children[8].scale.y = dmh / smh;
+      children[8].setFrame(sx + m, sy + m, smw, smh)
+      children[8].move(m, m)
+      children[8].scale.x = dmw / smw
+      children[8].scale.y = dmh / smh
     }
     for (const child of children) {
-      child.visible = dw > 0 && dh > 0;
+      child.visible = dw > 0 && dh > 0
     }
   }
 
   _refreshArrows() {
-    const w = this._width;
-    const h = this._height;
-    const p = 24;
-    const q = p / 2;
-    const sx = 96 + p;
-    const sy = 0 + p;
-    this._downArrowSprite.bitmap = this._windowskin;
-    this._downArrowSprite.anchor.x = 0.5;
-    this._downArrowSprite.anchor.y = 0.5;
-    this._downArrowSprite.setFrame(sx + q, sy + q + p, p, q);
-    this._downArrowSprite.move(w / 2, h - q);
-    this._upArrowSprite.bitmap = this._windowskin;
-    this._upArrowSprite.anchor.x = 0.5;
-    this._upArrowSprite.anchor.y = 0.5;
-    this._upArrowSprite.setFrame(sx + q, sy, p, q);
-    this._upArrowSprite.move(w / 2, q);
+    const w = this._width
+    const h = this._height
+    const p = 24
+    const q = p / 2
+    const sx = 96 + p
+    const sy = 0 + p
+    this._downArrowSprite.bitmap = this._windowskin
+    this._downArrowSprite.anchor.x = 0.5
+    this._downArrowSprite.anchor.y = 0.5
+    this._downArrowSprite.setFrame(sx + q, sy + q + p, p, q)
+    this._downArrowSprite.move(w / 2, h - q)
+    this._upArrowSprite.bitmap = this._windowskin
+    this._upArrowSprite.anchor.x = 0.5
+    this._upArrowSprite.anchor.y = 0.5
+    this._upArrowSprite.setFrame(sx + q, sy, p, q)
+    this._upArrowSprite.move(w / 2, q)
   }
 
   _refreshPauseSign() {
-    const sx = 144;
-    const sy = 96;
-    const p = 24;
-    this._pauseSignSprite.bitmap = this._windowskin;
-    this._pauseSignSprite.anchor.x = 0.5;
-    this._pauseSignSprite.anchor.y = 1;
-    this._pauseSignSprite.move(this._width / 2, this._height);
-    this._pauseSignSprite.setFrame(sx, sy, p, p);
-    this._pauseSignSprite.alpha = 0;
+    const sx = 144
+    const sy = 96
+    const p = 24
+    this._pauseSignSprite.bitmap = this._windowskin
+    this._pauseSignSprite.anchor.x = 0.5
+    this._pauseSignSprite.anchor.y = 1
+    this._pauseSignSprite.move(this._width / 2, this._height)
+    this._pauseSignSprite.setFrame(sx, sy, p, p)
+    this._pauseSignSprite.alpha = 0
   }
 
   _updateClientArea() {
-    const pad = this._padding;
-    this._clientArea.move(pad, pad);
-    this._clientArea.x = pad - this.origin.x;
-    this._clientArea.y = pad - this.origin.y;
+    const pad = this._padding
+    this._clientArea.move(pad, pad)
+    this._clientArea.x = pad - this.origin.x
+    this._clientArea.y = pad - this.origin.y
     if (this.innerWidth > 0 && this.innerHeight > 0) {
-      this._clientArea.visible = this.isOpen();
-    } else {
-      this._clientArea.visible = false;
+      this._clientArea.visible = this.isOpen()
+    }
+    else {
+      this._clientArea.visible = false
     }
   }
 
   _updateFrame() {
-    this._frameSprite.visible = this.frameVisible;
+    this._frameSprite.visible = this.frameVisible
   }
 
   _updateContentsBack() {
-    const bitmap = this._contentsBackSprite.bitmap;
+    const bitmap = this._contentsBackSprite.bitmap
     if (bitmap) {
-      this._contentsBackSprite.setFrame(0, 0, bitmap.width, bitmap.height);
+      this._contentsBackSprite.setFrame(0, 0, bitmap.width, bitmap.height)
     }
   }
 
   _updateCursor() {
-    this._cursorSprite.alpha = this._makeCursorAlpha();
-    this._cursorSprite.visible = this.isOpen() && this.cursorVisible;
-    this._cursorSprite.x = this._cursorRect.x;
-    this._cursorSprite.y = this._cursorRect.y;
+    this._cursorSprite.alpha = this._makeCursorAlpha()
+    this._cursorSprite.visible = this.isOpen() && this.cursorVisible
+    this._cursorSprite.x = this._cursorRect.x
+    this._cursorSprite.y = this._cursorRect.y
   }
 
   _makeCursorAlpha() {
-    const blinkCount = this._animationCount % 40;
-    const baseAlpha = this.contentsOpacity / 255;
+    const blinkCount = this._animationCount % 40
+    const baseAlpha = this.contentsOpacity / 255
     if (this.active) {
       if (blinkCount < 20) {
-        return baseAlpha - blinkCount / 32;
-      } else {
-        return baseAlpha - (40 - blinkCount) / 32;
+        return baseAlpha - blinkCount / 32
+      }
+      else {
+        return baseAlpha - (40 - blinkCount) / 32
       }
     }
-    return baseAlpha;
+    return baseAlpha
   }
 
   _updateContents() {
-    const bitmap = this._contentsSprite.bitmap;
+    const bitmap = this._contentsSprite.bitmap
     if (bitmap) {
-      this._contentsSprite.setFrame(0, 0, bitmap.width, bitmap.height);
+      this._contentsSprite.setFrame(0, 0, bitmap.width, bitmap.height)
     }
   }
 
   _updateArrows() {
-    this._downArrowSprite.visible = this.isOpen() && this.downArrowVisible;
-    this._upArrowSprite.visible = this.isOpen() && this.upArrowVisible;
+    this._downArrowSprite.visible = this.isOpen() && this.downArrowVisible
+    this._upArrowSprite.visible = this.isOpen() && this.upArrowVisible
   }
 
   _updatePauseSign() {
-    const sprite = this._pauseSignSprite;
-    const x = Math.floor(this._animationCount / 16) % 2;
-    const y = Math.floor(this._animationCount / 16 / 2) % 2;
-    const sx = 144;
-    const sy = 96;
-    const p = 24;
+    const sprite = this._pauseSignSprite
+    const x = Math.floor(this._animationCount / 16) % 2
+    const y = Math.floor(this._animationCount / 16 / 2) % 2
+    const sx = 144
+    const sy = 96
+    const p = 24
     if (!this.pause) {
-      sprite.alpha = 0;
-    } else if (sprite.alpha < 1) {
-      sprite.alpha = Math.min(sprite.alpha + 0.1, 1);
+      sprite.alpha = 0
     }
-    sprite.setFrame(sx + x * p, sy + y * p, p, p);
-    sprite.visible = this.isOpen();
+    else if (sprite.alpha < 1) {
+      sprite.alpha = Math.min(sprite.alpha + 0.1, 1)
+    }
+    sprite.setFrame(sx + x * p, sy + y * p, p, p)
+    sprite.visible = this.isOpen()
   }
 
   _updateFilterArea() {
-    const pos = this._clientArea.worldTransform.apply(new Point(0, 0));
-    const filterArea = this._clientArea.filterArea;
-    filterArea.x = pos.x + this.origin.x;
-    filterArea.y = pos.y + this.origin.y;
-    filterArea.width = this.innerWidth;
-    filterArea.height = this.innerHeight;
+    const pos = this._clientArea.worldTransform.apply(new Point(0, 0))
+    const filterArea = this._clientArea.filterArea
+    filterArea.x = pos.x + this.origin.x
+    filterArea.y = pos.y + this.origin.y
+    filterArea.width = this.innerWidth
+    filterArea.height = this.innerHeight
   }
 }

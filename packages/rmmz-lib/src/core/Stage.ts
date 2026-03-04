@@ -8,14 +8,14 @@ import * as PIXI from 'pixi.js'
  */
 export class Stage extends PIXI.Container {
   constructor() {
-    super();
+    super()
   }
 
   /**
    * Destroys the stage.
    */
   destroy() {
-    const options = { children: true, texture: true };
-    super.destroy(options);
+    const options = { children: true, texture: true }
+    super.destroy(options)
   }
 }

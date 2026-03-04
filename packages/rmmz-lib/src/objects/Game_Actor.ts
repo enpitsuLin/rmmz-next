@@ -1,765 +1,779 @@
-import { DataManager } from "../managers/DataManager";
-import { Game_Battler } from "./Game_Battler";
-import type { Game_Item } from "./Game_Item";
+import type { Game_Item } from './Game_Item'
+import { DataManager } from '../managers/DataManager'
+import { Game_Battler } from './Game_Battler'
 
 /**
  * The game object class for an actor.
  */
 class Game_Actor extends Game_Battler {
-  _actorId!: number;
-  _name!: string;
-  _nickname!: string;
-  _profile!: string;
-  _classId!: number;
-  _level!: number;
-  _characterName!: string;
-  _characterIndex!: number;
-  _faceName!: string;
-  _faceIndex!: number;
-  _battlerName!: string;
-  _exp!: Record<number, number>;
-  _skills!: number[];
-  _equips!: Game_Item[];
-  _actionInputIndex!: number;
-  _lastMenuSkill!: Game_Item;
-  _lastBattleSkill!: Game_Item;
-  _lastCommandSymbol!: string;
+  _actorId!: number
+  _name!: string
+  _nickname!: string
+  _profile!: string
+  _classId!: number
+  _level!: number
+  _characterName!: string
+  _characterIndex!: number
+  _faceName!: string
+  _faceIndex!: number
+  _battlerName!: string
+  _exp!: Record<number, number>
+  _skills!: number[]
+  _equips!: Game_Item[]
+  _actionInputIndex!: number
+  _lastMenuSkill!: Game_Item
+  _lastBattleSkill!: Game_Item
+  _lastCommandSymbol!: string
 
   constructor(actorId?: number) {
-    super();
-    if (actorId) this.setup(actorId);
+    super()
+    if (actorId)
+      this.setup(actorId)
   }
 
   // Level getter
   get level() {
-    return this._level;
+    return this._level
   }
 
   initMembers() {
-    super.initMembers();
-    this._actorId = 0;
-    this._name = "";
-    this._nickname = "";
-    this._classId = 0;
-    this._level = 0;
-    this._characterName = "";
-    this._characterIndex = 0;
-    this._faceName = "";
-    this._faceIndex = 0;
-    this._battlerName = "";
-    this._exp = {};
-    this._skills = [];
-    this._equips = [];
-    this._actionInputIndex = 0;
-    this._lastMenuSkill = new Game_Item();
-    this._lastBattleSkill = new Game_Item();
-    this._lastCommandSymbol = "";
+    super.initMembers()
+    this._actorId = 0
+    this._name = ''
+    this._nickname = ''
+    this._classId = 0
+    this._level = 0
+    this._characterName = ''
+    this._characterIndex = 0
+    this._faceName = ''
+    this._faceIndex = 0
+    this._battlerName = ''
+    this._exp = {}
+    this._skills = []
+    this._equips = []
+    this._actionInputIndex = 0
+    this._lastMenuSkill = new Game_Item()
+    this._lastBattleSkill = new Game_Item()
+    this._lastCommandSymbol = ''
   }
 
   setup(actorId: number) {
-    const actor = $dataActors[actorId];
-    this._actorId = actorId;
-    this._name = actor.name;
-    this._nickname = actor.nickname;
-    this._profile = actor.profile;
-    this._classId = actor.classId;
-    this._level = actor.initialLevel;
-    this.initImages();
-    this.initExp();
-    this.initSkills();
-    this.initEquips(actor.equips);
-    this.clearParamPlus();
-    this.recoverAll();
+    const actor = $dataActors[actorId]
+    this._actorId = actorId
+    this._name = actor.name
+    this._nickname = actor.nickname
+    this._profile = actor.profile
+    this._classId = actor.classId
+    this._level = actor.initialLevel
+    this.initImages()
+    this.initExp()
+    this.initSkills()
+    this.initEquips(actor.equips)
+    this.clearParamPlus()
+    this.recoverAll()
   }
 
   actorId() {
-    return this._actorId;
+    return this._actorId
   }
 
   actor() {
-    return $dataActors[this._actorId];
+    return $dataActors[this._actorId]
   }
 
   name() {
-    return this._name;
+    return this._name
   }
 
   setName(name: string) {
-    this._name = name;
+    this._name = name
   }
 
   nickname() {
-    return this._nickname;
+    return this._nickname
   }
 
   setNickname(nickname: string) {
-    this._nickname = nickname;
+    this._nickname = nickname
   }
 
   profile() {
-    return this._profile;
+    return this._profile
   }
 
   setProfile(profile: string) {
-    this._profile = profile;
+    this._profile = profile
   }
 
   characterName() {
-    return this._characterName;
+    return this._characterName
   }
 
   characterIndex() {
-    return this._characterIndex;
+    return this._characterIndex
   }
 
   faceName() {
-    return this._faceName;
+    return this._faceName
   }
 
   faceIndex() {
-    return this._faceIndex;
+    return this._faceIndex
   }
 
   battlerName() {
-    return this._battlerName;
+    return this._battlerName
   }
 
   clearStates() {
-    super.clearStates();
-    this._stateSteps = {};
+    super.clearStates()
+    this._stateSteps = {}
   }
 
   eraseState(stateId) {
-    super.eraseState(stateId);
-    delete this._stateSteps[stateId];
+    super.eraseState(stateId)
+    delete this._stateSteps[stateId]
   }
 
   resetStateCounts(stateId) {
-    super.resetStateCounts(stateId);
-    this._stateSteps[stateId] = $dataStates[stateId].stepsToRemove;
+    super.resetStateCounts(stateId)
+    this._stateSteps[stateId] = $dataStates[stateId].stepsToRemove
   }
 
   initImages() {
-    const actor = this.actor();
-    this._characterName = actor.characterName;
-    this._characterIndex = actor.characterIndex;
-    this._faceName = actor.faceName;
-    this._faceIndex = actor.faceIndex;
-    this._battlerName = actor.battlerName;
+    const actor = this.actor()
+    this._characterName = actor.characterName
+    this._characterIndex = actor.characterIndex
+    this._faceName = actor.faceName
+    this._faceIndex = actor.faceIndex
+    this._battlerName = actor.battlerName
   }
 
   expForLevel(level: number) {
-    const c = this.currentClass();
-    const basis = c.expParams[0];
-    const extra = c.expParams[1];
-    const acc_a = c.expParams[2];
-    const acc_b = c.expParams[3];
+    const c = this.currentClass()
+    const basis = c.expParams[0]
+    const extra = c.expParams[1]
+    const acc_a = c.expParams[2]
+    const acc_b = c.expParams[3]
     return Math.round(
-      (basis * Math.pow(level - 1, 0.9 + acc_a / 250) * level * (level + 1)) /
-      (6 + Math.pow(level, 2) / 50 / acc_b) +
-      (level - 1) * extra
-    );
+      (basis * (level - 1) ** (0.9 + acc_a / 250) * level * (level + 1))
+      / (6 + level ** 2 / 50 / acc_b)
+      + (level - 1) * extra,
+    )
   }
 
   initExp() {
-    this._exp[this._classId] = this.currentLevelExp();
+    this._exp[this._classId] = this.currentLevelExp()
   }
 
   currentExp() {
-    return this._exp[this._classId];
+    return this._exp[this._classId]
   }
 
   currentLevelExp() {
-    return this.expForLevel(this._level);
+    return this.expForLevel(this._level)
   }
 
   nextLevelExp() {
-    return this.expForLevel(this._level + 1);
+    return this.expForLevel(this._level + 1)
   }
 
   nextRequiredExp() {
-    return this.nextLevelExp() - this.currentExp();
+    return this.nextLevelExp() - this.currentExp()
   }
 
   maxLevel() {
-    return this.actor().maxLevel;
+    return this.actor().maxLevel
   }
 
   isMaxLevel() {
-    return this._level >= this.maxLevel();
+    return this._level >= this.maxLevel()
   }
 
   initSkills() {
-    this._skills = [];
+    this._skills = []
     for (const learning of this.currentClass().learnings) {
       if (learning.level <= this._level) {
-        this.learnSkill(learning.skillId);
+        this.learnSkill(learning.skillId)
       }
     }
   }
 
   initEquips(equips: number[]) {
-    const slots = this.equipSlots();
-    const maxSlots = slots.length;
-    this._equips = [];
+    const slots = this.equipSlots()
+    const maxSlots = slots.length
+    this._equips = []
     for (let i = 0; i < maxSlots; i++) {
-      this._equips[i] = new Game_Item();
+      this._equips[i] = new Game_Item()
     }
     for (let j = 0; j < equips.length; j++) {
       if (j < maxSlots) {
-        this._equips[j].setEquip(slots[j] === 1, equips[j]);
+        this._equips[j].setEquip(slots[j] === 1, equips[j])
       }
     }
-    this.releaseUnequippableItems(true);
-    this.refresh();
+    this.releaseUnequippableItems(true)
+    this.refresh()
   }
 
   equipSlots() {
-    const slots = [];
+    const slots = []
     for (let i = 1; i < $dataSystem.equipTypes.length; i++) {
-      slots.push(i);
+      slots.push(i)
     }
     if (slots.length >= 2 && this.isDualWield()) {
-      slots[1] = 1;
+      slots[1] = 1
     }
-    return slots;
+    return slots
   }
 
   equips() {
-    return this._equips.map((item) => item.object());
+    return this._equips.map(item => item.object())
   }
 
   weapons() {
-    return this.equips().filter((item) => item && DataManager.isWeapon(item));
+    return this.equips().filter(item => item && DataManager.isWeapon(item))
   }
 
   armors() {
-    return this.equips().filter((item) => item && DataManager.isArmor(item));
+    return this.equips().filter(item => item && DataManager.isArmor(item))
   }
 
   hasWeapon(weapon) {
-    return this.weapons().includes(weapon);
+    return this.weapons().includes(weapon)
   }
 
   hasArmor(armor) {
-    return this.armors().includes(armor);
+    return this.armors().includes(armor)
   }
 
   isEquipChangeOk(slotId) {
     return (
-      !this.isEquipTypeLocked(this.equipSlots()[slotId]) &&
-      !this.isEquipTypeSealed(this.equipSlots()[slotId])
-    );
+      !this.isEquipTypeLocked(this.equipSlots()[slotId])
+      && !this.isEquipTypeSealed(this.equipSlots()[slotId])
+    )
   }
 
   changeEquip(slotId, item) {
     if (
-      this.tradeItemWithParty(item, this.equips()[slotId]) &&
-      (!item || this.equipSlots()[slotId] === item.etypeId)
+      this.tradeItemWithParty(item, this.equips()[slotId])
+      && (!item || this.equipSlots()[slotId] === item.etypeId)
     ) {
-      this._equips[slotId].setObject(item);
-      this.refresh();
+      this._equips[slotId].setObject(item)
+      this.refresh()
     }
   }
 
   forceChangeEquip(slotId, item) {
-    this._equips[slotId].setObject(item);
-    this.releaseUnequippableItems(true);
-    this.refresh();
+    this._equips[slotId].setObject(item)
+    this.releaseUnequippableItems(true)
+    this.refresh()
   }
 
   tradeItemWithParty(newItem, oldItem) {
     if (newItem && !$gameParty.hasItem(newItem)) {
-      return false;
-    } else {
-      $gameParty.gainItem(oldItem, 1);
-      $gameParty.loseItem(newItem, 1);
-      return true;
+      return false
+    }
+    else {
+      $gameParty.gainItem(oldItem, 1)
+      $gameParty.loseItem(newItem, 1)
+      return true
     }
   }
 
   changeEquipById(etypeId, itemId) {
-    const slotId = etypeId - 1;
+    const slotId = etypeId - 1
     if (this.equipSlots()[slotId] === 1) {
-      this.changeEquip(slotId, $dataWeapons[itemId]);
-    } else {
-      this.changeEquip(slotId, $dataArmors[itemId]);
+      this.changeEquip(slotId, $dataWeapons[itemId])
+    }
+    else {
+      this.changeEquip(slotId, $dataArmors[itemId])
     }
   }
 
   isEquipped(item) {
-    return this.equips().includes(item);
+    return this.equips().includes(item)
   }
 
   discardEquip(item) {
-    const slotId = this.equips().indexOf(item);
+    const slotId = this.equips().indexOf(item)
     if (slotId >= 0) {
-      this._equips[slotId].setObject(null);
+      this._equips[slotId].setObject(null)
     }
   }
 
   releaseUnequippableItems(forcing) {
     for (; ;) {
-      const slots = this.equipSlots();
-      const equips = this.equips();
-      let changed = false;
+      const slots = this.equipSlots()
+      const equips = this.equips()
+      let changed = false
       for (let i = 0; i < equips.length; i++) {
-        const item = equips[i];
+        const item = equips[i]
         if (item && (!this.canEquip(item) || item.etypeId !== slots[i])) {
           if (!forcing) {
-            this.tradeItemWithParty(null, item);
+            this.tradeItemWithParty(null, item)
           }
-          this._equips[i].setObject(null);
-          changed = true;
+          this._equips[i].setObject(null)
+          changed = true
         }
       }
       if (!changed) {
-        break;
+        break
       }
     }
   }
 
   clearEquipments() {
-    const maxSlots = this.equipSlots().length;
+    const maxSlots = this.equipSlots().length
     for (let i = 0; i < maxSlots; i++) {
       if (this.isEquipChangeOk(i)) {
-        this.changeEquip(i, null);
+        this.changeEquip(i, null)
       }
     }
   }
 
   optimizeEquipments() {
-    const maxSlots = this.equipSlots().length;
-    this.clearEquipments();
+    const maxSlots = this.equipSlots().length
+    this.clearEquipments()
     for (let i = 0; i < maxSlots; i++) {
       if (this.isEquipChangeOk(i)) {
-        this.changeEquip(i, this.bestEquipItem(i));
+        this.changeEquip(i, this.bestEquipItem(i))
       }
     }
   }
 
   bestEquipItem(slotId) {
-    const etypeId = this.equipSlots()[slotId];
+    const etypeId = this.equipSlots()[slotId]
     const items = $gameParty
       .equipItems()
-      .filter((item) => item.etypeId === etypeId && this.canEquip(item));
-    let bestItem = null;
-    let bestPerformance = -1000;
+      .filter(item => item.etypeId === etypeId && this.canEquip(item))
+    let bestItem = null
+    let bestPerformance = -1000
     for (let i = 0; i < items.length; i++) {
-      const performance = this.calcEquipItemPerformance(items[i]);
+      const performance = this.calcEquipItemPerformance(items[i])
       if (performance > bestPerformance) {
-        bestPerformance = performance;
-        bestItem = items[i];
+        bestPerformance = performance
+        bestItem = items[i]
       }
     }
-    return bestItem;
+    return bestItem
   }
 
   calcEquipItemPerformance(item) {
-    return item.params.reduce((a, b) => a + b);
+    return item.params.reduce((a, b) => a + b)
   }
 
   isSkillWtypeOk(skill) {
-    const wtypeId1 = skill.requiredWtypeId1;
-    const wtypeId2 = skill.requiredWtypeId2;
+    const wtypeId1 = skill.requiredWtypeId1
+    const wtypeId2 = skill.requiredWtypeId2
     if (
-      (wtypeId1 === 0 && wtypeId2 === 0) ||
-      (wtypeId1 > 0 && this.isWtypeEquipped(wtypeId1)) ||
-      (wtypeId2 > 0 && this.isWtypeEquipped(wtypeId2))
+      (wtypeId1 === 0 && wtypeId2 === 0)
+      || (wtypeId1 > 0 && this.isWtypeEquipped(wtypeId1))
+      || (wtypeId2 > 0 && this.isWtypeEquipped(wtypeId2))
     ) {
-      return true;
-    } else {
-      return false;
+      return true
+    }
+    else {
+      return false
     }
   }
 
   isWtypeEquipped(wtypeId) {
-    return this.weapons().some((weapon) => weapon.wtypeId === wtypeId);
+    return this.weapons().some(weapon => weapon.wtypeId === wtypeId)
   }
 
   refresh() {
-    this.releaseUnequippableItems(false);
-    super.refresh();
+    this.releaseUnequippableItems(false)
+    super.refresh()
   }
 
   hide() {
-    super.hide();
-    $gameTemp.requestBattleRefresh();
+    super.hide()
+    $gameTemp.requestBattleRefresh()
   }
 
   isActor(): this is Game_Actor {
-    return true;
+    return true
   }
 
   friendsUnit() {
-    return $gameParty;
+    return $gameParty
   }
 
   opponentsUnit() {
-    return $gameTroop;
+    return $gameTroop
   }
 
   index() {
-    return $gameParty.members().indexOf(this);
+    return $gameParty.members().indexOf(this)
   }
 
   isBattleMember() {
-    return $gameParty.battleMembers().includes(this);
+    return $gameParty.battleMembers().includes(this)
   }
 
   isFormationChangeOk() {
-    return true;
+    return true
   }
 
   currentClass() {
-    return $dataClasses[this._classId];
+    return $dataClasses[this._classId]
   }
 
   isClass(gameClass) {
-    return gameClass && this._classId === gameClass.id;
+    return gameClass && this._classId === gameClass.id
   }
 
   skillTypes() {
-    const skillTypes = this.addedSkillTypes().sort((a, b) => a - b);
-    return skillTypes.filter((x, i, self) => self.indexOf(x) === i);
+    const skillTypes = this.addedSkillTypes().sort((a, b) => a - b)
+    return skillTypes.filter((x, i, self) => self.indexOf(x) === i)
   }
 
   skills() {
-    const list = [];
+    const list = []
     for (const id of this._skills.concat(this.addedSkills())) {
       if (!list.includes($dataSkills[id])) {
-        list.push($dataSkills[id]);
+        list.push($dataSkills[id])
       }
     }
-    return list;
+    return list
   }
 
   usableSkills() {
-    return this.skills().filter((skill) => this.canUse(skill));
+    return this.skills().filter(skill => this.canUse(skill))
   }
 
   traitObjects() {
-    const objects = super.traitObjects();
-    objects.push(this.actor(), this.currentClass());
+    const objects = super.traitObjects()
+    objects.push(this.actor(), this.currentClass())
     for (const item of this.equips()) {
       if (item) {
-        objects.push(item);
+        objects.push(item)
       }
     }
-    return objects;
+    return objects
   }
 
   attackElements() {
-    const set = super.attackElements();
+    const set = super.attackElements()
     if (this.hasNoWeapons() && !set.includes(this.bareHandsElementId())) {
-      set.push(this.bareHandsElementId());
+      set.push(this.bareHandsElementId())
     }
-    return set;
+    return set
   }
 
   hasNoWeapons() {
-    return this.weapons().length === 0;
+    return this.weapons().length === 0
   }
 
   bareHandsElementId() {
-    return 1;
+    return 1
   }
 
   paramBase(paramId) {
-    return this.currentClass().params[paramId][this._level];
+    return this.currentClass().params[paramId][this._level]
   }
 
   paramPlus(paramId) {
-    let value = super.paramPlus(paramId);
+    let value = super.paramPlus(paramId)
     for (const item of this.equips()) {
       if (item) {
-        value += item.params[paramId];
+        value += item.params[paramId]
       }
     }
-    return value;
+    return value
   }
 
   attackAnimationId1() {
     if (this.hasNoWeapons()) {
-      return this.bareHandsAnimationId();
-    } else {
-      const weapons = this.weapons();
-      return weapons[0] ? weapons[0].animationId : 0;
+      return this.bareHandsAnimationId()
+    }
+    else {
+      const weapons = this.weapons()
+      return weapons[0] ? weapons[0].animationId : 0
     }
   }
 
   attackAnimationId2() {
-    const weapons = this.weapons();
-    return weapons[1] ? weapons[1].animationId : 0;
+    const weapons = this.weapons()
+    return weapons[1] ? weapons[1].animationId : 0
   }
 
   bareHandsAnimationId() {
-    return 1;
+    return 1
   }
 
   changeExp(exp, show) {
-    this._exp[this._classId] = Math.max(exp, 0);
-    const lastLevel = this._level;
-    const lastSkills = this.skills();
+    this._exp[this._classId] = Math.max(exp, 0)
+    const lastLevel = this._level
+    const lastSkills = this.skills()
     while (!this.isMaxLevel() && this.currentExp() >= this.nextLevelExp()) {
-      this.levelUp();
+      this.levelUp()
     }
     while (this.currentExp() < this.currentLevelExp()) {
-      this.levelDown();
+      this.levelDown()
     }
     if (show && this._level > lastLevel) {
-      this.displayLevelUp(this.findNewSkills(lastSkills));
+      this.displayLevelUp(this.findNewSkills(lastSkills))
     }
-    this.refresh();
+    this.refresh()
   }
 
   levelUp() {
-    this._level++;
+    this._level++
     for (const learning of this.currentClass().learnings) {
       if (learning.level === this._level) {
-        this.learnSkill(learning.skillId);
+        this.learnSkill(learning.skillId)
       }
     }
   }
 
   levelDown() {
-    this._level--;
+    this._level--
   }
 
   findNewSkills(lastSkills) {
-    const newSkills = this.skills();
+    const newSkills = this.skills()
     for (const lastSkill of lastSkills) {
-      newSkills.remove(lastSkill);
+      newSkills.remove(lastSkill)
     }
-    return newSkills;
+    return newSkills
   }
 
   displayLevelUp(newSkills) {
     const text = TextManager.levelUp.format(
       this._name,
       TextManager.level,
-      this._level
-    );
-    $gameMessage.newPage();
-    $gameMessage.add(text);
+      this._level,
+    )
+    $gameMessage.newPage()
+    $gameMessage.add(text)
     for (const skill of newSkills) {
-      $gameMessage.add(TextManager.obtainSkill.format(skill.name));
+      $gameMessage.add(TextManager.obtainSkill.format(skill.name))
     }
   }
 
   gainExp(exp) {
-    const newExp = this.currentExp() + Math.round(exp * this.finalExpRate());
-    this.changeExp(newExp, this.shouldDisplayLevelUp());
+    const newExp = this.currentExp() + Math.round(exp * this.finalExpRate())
+    this.changeExp(newExp, this.shouldDisplayLevelUp())
   }
 
   finalExpRate() {
-    return this.exr * (this.isBattleMember() ? 1 : this.benchMembersExpRate());
+    return this.exr * (this.isBattleMember() ? 1 : this.benchMembersExpRate())
   }
 
   benchMembersExpRate() {
-    return $dataSystem.optExtraExp ? 1 : 0;
+    return $dataSystem.optExtraExp ? 1 : 0
   }
 
   shouldDisplayLevelUp() {
-    return true;
+    return true
   }
 
   changeLevel(level, show) {
-    level = level.clamp(1, this.maxLevel());
-    this.changeExp(this.expForLevel(level), show);
+    level = level.clamp(1, this.maxLevel())
+    this.changeExp(this.expForLevel(level), show)
   }
 
   learnSkill(skillId) {
     if (!this.isLearnedSkill(skillId)) {
-      this._skills.push(skillId);
-      this._skills.sort((a, b) => a - b);
+      this._skills.push(skillId)
+      this._skills.sort((a, b) => a - b)
     }
   }
 
   forgetSkill(skillId) {
-    this._skills.remove(skillId);
+    this._skills.remove(skillId)
   }
 
   isLearnedSkill(skillId) {
-    return this._skills.includes(skillId);
+    return this._skills.includes(skillId)
   }
 
   hasSkill(skillId) {
-    return this.skills().includes($dataSkills[skillId]);
+    return this.skills().includes($dataSkills[skillId])
   }
 
   changeClass(classId, keepExp) {
     if (keepExp) {
-      this._exp[classId] = this.currentExp();
+      this._exp[classId] = this.currentExp()
     }
-    this._classId = classId;
-    this._level = 0;
-    this.changeExp(this._exp[this._classId] || 0, false);
-    this.refresh();
+    this._classId = classId
+    this._level = 0
+    this.changeExp(this._exp[this._classId] || 0, false)
+    this.refresh()
   }
 
   setCharacterImage(characterName, characterIndex) {
-    this._characterName = characterName;
-    this._characterIndex = characterIndex;
+    this._characterName = characterName
+    this._characterIndex = characterIndex
   }
 
   setFaceImage(faceName, faceIndex) {
-    this._faceName = faceName;
-    this._faceIndex = faceIndex;
-    $gameTemp.requestBattleRefresh();
+    this._faceName = faceName
+    this._faceIndex = faceIndex
+    $gameTemp.requestBattleRefresh()
   }
 
   setBattlerImage(battlerName) {
-    this._battlerName = battlerName;
+    this._battlerName = battlerName
   }
 
   isSpriteVisible() {
-    return $gameSystem.isSideView();
+    return $gameSystem.isSideView()
   }
 
   performActionStart(action) {
-    super.performActionStart(action);
+    super.performActionStart(action)
   }
 
   performAction(action) {
-    super.performAction(action);
+    super.performAction(action)
     if (action.isAttack()) {
-      this.performAttack();
-    } else if (action.isGuard()) {
-      this.requestMotion("guard");
-    } else if (action.isMagicSkill()) {
-      this.requestMotion("spell");
-    } else if (action.isSkill()) {
-      this.requestMotion("skill");
-    } else if (action.isItem()) {
-      this.requestMotion("item");
+      this.performAttack()
+    }
+    else if (action.isGuard()) {
+      this.requestMotion('guard')
+    }
+    else if (action.isMagicSkill()) {
+      this.requestMotion('spell')
+    }
+    else if (action.isSkill()) {
+      this.requestMotion('skill')
+    }
+    else if (action.isItem()) {
+      this.requestMotion('item')
     }
   }
 
   performActionEnd() {
-    super.performActionEnd();
+    super.performActionEnd()
   }
 
   performAttack() {
-    const weapons = this.weapons();
-    const wtypeId = weapons[0] ? weapons[0].wtypeId : 0;
-    const attackMotion = $dataSystem.attackMotions[wtypeId];
+    const weapons = this.weapons()
+    const wtypeId = weapons[0] ? weapons[0].wtypeId : 0
+    const attackMotion = $dataSystem.attackMotions[wtypeId]
     if (attackMotion) {
       if (attackMotion.type === 0) {
-        this.requestMotion("thrust");
-      } else if (attackMotion.type === 1) {
-        this.requestMotion("swing");
-      } else if (attackMotion.type === 2) {
-        this.requestMotion("missile");
+        this.requestMotion('thrust')
       }
-      this.startWeaponAnimation(attackMotion.weaponImageId);
+      else if (attackMotion.type === 1) {
+        this.requestMotion('swing')
+      }
+      else if (attackMotion.type === 2) {
+        this.requestMotion('missile')
+      }
+      this.startWeaponAnimation(attackMotion.weaponImageId)
     }
   }
 
   performDamage() {
-    super.performDamage();
+    super.performDamage()
     if (this.isSpriteVisible()) {
-      this.requestMotion("damage");
-    } else {
-      $gameScreen.startShake(5, 5, 10);
+      this.requestMotion('damage')
     }
-    SoundManager.playActorDamage();
+    else {
+      $gameScreen.startShake(5, 5, 10)
+    }
+    SoundManager.playActorDamage()
   }
 
   performEvasion() {
-    super.performEvasion();
-    this.requestMotion("evade");
+    super.performEvasion()
+    this.requestMotion('evade')
   }
 
   performMagicEvasion() {
-    super.performMagicEvasion();
-    this.requestMotion("evade");
+    super.performMagicEvasion()
+    this.requestMotion('evade')
   }
 
   performCounter() {
-    super.performCounter();
-    this.performAttack();
+    super.performCounter()
+    this.performAttack()
   }
 
   performCollapse() {
-    super.performCollapse();
+    super.performCollapse()
     if ($gameParty.inBattle()) {
-      SoundManager.playActorCollapse();
+      SoundManager.playActorCollapse()
     }
   }
 
   performVictory() {
-    this.setActionState("done");
+    this.setActionState('done')
     if (this.canMove()) {
-      this.requestMotion("victory");
+      this.requestMotion('victory')
     }
   }
 
   performEscape() {
     if (this.canMove()) {
-      this.requestMotion("escape");
+      this.requestMotion('escape')
     }
   }
 
   makeActionList() {
-    const list = [];
-    const attackAction = new Game_Action(this);
-    attackAction.setAttack();
-    list.push(attackAction);
+    const list = []
+    const attackAction = new Game_Action(this)
+    attackAction.setAttack()
+    list.push(attackAction)
     for (const skill of this.usableSkills()) {
-      const skillAction = new Game_Action(this);
-      skillAction.setSkill(skill.id);
-      list.push(skillAction);
+      const skillAction = new Game_Action(this)
+      skillAction.setSkill(skill.id)
+      list.push(skillAction)
     }
-    return list;
+    return list
   }
 
   makeAutoBattleActions() {
     for (let i = 0; i < this.numActions(); i++) {
-      const list = this.makeActionList();
-      let maxValue = -Number.MAX_VALUE;
+      const list = this.makeActionList()
+      let maxValue = -Number.MAX_VALUE
       for (const action of list) {
-        const value = action.evaluate();
+        const value = action.evaluate()
         if (value > maxValue) {
-          maxValue = value;
-          this.setAction(i, action);
+          maxValue = value
+          this.setAction(i, action)
         }
       }
     }
-    this.setActionState("waiting");
+    this.setActionState('waiting')
   }
 
   makeConfusionActions() {
     for (let i = 0; i < this.numActions(); i++) {
-      this.action(i).setConfusion();
+      this.action(i).setConfusion()
     }
-    this.setActionState("waiting");
+    this.setActionState('waiting')
   }
 
   makeActions() {
-    super.makeActions();
+    super.makeActions()
     if (this.numActions() > 0) {
-      this.setActionState("undecided");
-    } else {
-      this.setActionState("waiting");
+      this.setActionState('undecided')
+    }
+    else {
+      this.setActionState('waiting')
     }
     if (this.isAutoBattle()) {
-      this.makeAutoBattleActions();
-    } else if (this.isConfused()) {
-      this.makeConfusionActions();
+      this.makeAutoBattleActions()
+    }
+    else if (this.isConfused()) {
+      this.makeConfusionActions()
     }
   }
 
   onPlayerWalk() {
-    this.clearResult();
-    this.checkFloorEffect();
+    this.clearResult()
+    this.checkFloorEffect()
     if ($gamePlayer.isNormal()) {
-      this.turnEndOnMap();
+      this.turnEndOnMap()
       for (const state of this.states()) {
-        this.updateStateSteps(state);
+        this.updateStateSteps(state)
       }
-      this.showAddedStates();
-      this.showRemovedStates();
+      this.showAddedStates()
+      this.showRemovedStates()
     }
   }
 
@@ -767,7 +781,7 @@ class Game_Actor extends Game_Battler {
     if (state.removeByWalking) {
       if (this._stateSteps[state.id] > 0) {
         if (--this._stateSteps[state.id] === 0) {
-          this.removeState(state.id);
+          this.removeState(state.id)
         }
       }
     }
@@ -776,7 +790,7 @@ class Game_Actor extends Game_Battler {
   showAddedStates() {
     for (const state of this.result().addedStateObjects()) {
       if (state.message1) {
-        $gameMessage.add(state.message1.format(this._name));
+        $gameMessage.add(state.message1.format(this._name))
       }
     }
   }
@@ -784,134 +798,137 @@ class Game_Actor extends Game_Battler {
   showRemovedStates() {
     for (const state of this.result().removedStateObjects()) {
       if (state.message4) {
-        $gameMessage.add(state.message4.format(this._name));
+        $gameMessage.add(state.message4.format(this._name))
       }
     }
   }
 
   stepsForTurn() {
-    return 20;
+    return 20
   }
 
   turnEndOnMap() {
     if ($gameParty.steps() % this.stepsForTurn() === 0) {
-      this.onTurnEnd();
+      this.onTurnEnd()
       if (this.result().hpDamage > 0) {
-        this.performMapDamage();
+        this.performMapDamage()
       }
     }
   }
 
   checkFloorEffect() {
     if ($gamePlayer.isOnDamageFloor()) {
-      this.executeFloorDamage();
+      this.executeFloorDamage()
     }
   }
 
   executeFloorDamage() {
-    const floorDamage = Math.floor(this.basicFloorDamage() * this.fdr);
-    const realDamage = Math.min(floorDamage, this.maxFloorDamage());
-    this.gainHp(-realDamage);
+    const floorDamage = Math.floor(this.basicFloorDamage() * this.fdr)
+    const realDamage = Math.min(floorDamage, this.maxFloorDamage())
+    this.gainHp(-realDamage)
     if (realDamage > 0) {
-      this.performMapDamage();
+      this.performMapDamage()
     }
   }
 
   basicFloorDamage() {
-    return 10;
+    return 10
   }
 
   maxFloorDamage() {
-    return $dataSystem.optFloorDeath ? this.hp : Math.max(this.hp - 1, 0);
+    return $dataSystem.optFloorDeath ? this.hp : Math.max(this.hp - 1, 0)
   }
 
   performMapDamage() {
     if (!$gameParty.inBattle()) {
-      $gameScreen.startFlashForDamage();
+      $gameScreen.startFlashForDamage()
     }
   }
 
   clearActions() {
-    super.clearActions();
-    this._actionInputIndex = 0;
+    super.clearActions()
+    this._actionInputIndex = 0
   }
 
   inputtingAction() {
-    return this.action(this._actionInputIndex);
+    return this.action(this._actionInputIndex)
   }
 
   selectNextCommand() {
     if (this._actionInputIndex < this.numActions() - 1) {
-      this._actionInputIndex++;
-      return true;
-    } else {
-      return false;
+      this._actionInputIndex++
+      return true
+    }
+    else {
+      return false
     }
   }
 
   selectPreviousCommand() {
     if (this._actionInputIndex > 0) {
-      this._actionInputIndex--;
-      return true;
-    } else {
-      return false;
+      this._actionInputIndex--
+      return true
+    }
+    else {
+      return false
     }
   }
 
   lastSkill() {
     if ($gameParty.inBattle()) {
-      return this.lastBattleSkill();
-    } else {
-      return this.lastMenuSkill();
+      return this.lastBattleSkill()
+    }
+    else {
+      return this.lastMenuSkill()
     }
   }
 
   lastMenuSkill() {
-    return this._lastMenuSkill.object();
+    return this._lastMenuSkill.object()
   }
 
   setLastMenuSkill(skill) {
-    this._lastMenuSkill.setObject(skill);
+    this._lastMenuSkill.setObject(skill)
   }
 
   lastBattleSkill() {
-    return this._lastBattleSkill.object();
+    return this._lastBattleSkill.object()
   }
 
   setLastBattleSkill(skill) {
-    this._lastBattleSkill.setObject(skill);
+    this._lastBattleSkill.setObject(skill)
   }
 
   lastCommandSymbol() {
-    return this._lastCommandSymbol;
+    return this._lastCommandSymbol
   }
 
   setLastCommandSymbol(symbol) {
-    this._lastCommandSymbol = symbol;
+    this._lastCommandSymbol = symbol
   }
 
   testEscape(item) {
     return item.effects.some(
-      (effect) => effect && effect.code === Game_Action.EFFECT_SPECIAL
-    );
+      effect => effect && effect.code === Game_Action.EFFECT_SPECIAL,
+    )
   }
 
   meetsUsableItemConditions(item) {
     if ($gameParty.inBattle()) {
       if (!BattleManager.canEscape() && this.testEscape(item)) {
-        return false;
+        return false
       }
     }
-    return super.meetsUsableItemConditions(item);
+    return super.meetsUsableItemConditions(item)
   }
 
   onEscapeFailure() {
     if (BattleManager.isTpb()) {
-      this.applyTpbPenalty();
+      this.applyTpbPenalty()
     }
-    this.clearActions();
-    this.requestMotionRefresh();
+    this.clearActions()
+    this.requestMotionRefresh()
   }
 }
 
-export { Game_Actor };
+export { Game_Actor }

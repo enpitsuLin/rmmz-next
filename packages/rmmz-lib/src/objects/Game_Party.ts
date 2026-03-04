@@ -1,10 +1,9 @@
 import type { MZ } from '@rmmz-lib/database-types'
-import { DataManager } from "../managers/DataManager"
-import type { Game_Actor } from "./Game_Actor"
-import { Game_Item } from "./Game_Item"
-import { Game_Unit } from "./Game_Unit"
+import type { Game_Actor } from './Game_Actor'
+import { DataManager } from '../managers/DataManager'
 import { TextManager } from '../managers/TextManager'
-
+import { Game_Item } from './Game_Item'
+import { Game_Unit } from './Game_Unit'
 
 /**
  * The game object class for the party.
@@ -33,12 +32,12 @@ class Game_Party extends Game_Unit<Game_Actor> {
     this.initAllItems()
   }
 
-  static ABILITY_ENCOUNTER_HALF = 0;
-  static ABILITY_ENCOUNTER_NONE = 1;
-  static ABILITY_CANCEL_SURPRISE = 2;
-  static ABILITY_RAISE_PREEMPTIVE = 3;
-  static ABILITY_GOLD_DOUBLE = 4;
-  static ABILITY_DROP_ITEM_DOUBLE = 5;
+  static ABILITY_ENCOUNTER_HALF = 0
+  static ABILITY_ENCOUNTER_NONE = 1
+  static ABILITY_CANCEL_SURPRISE = 2
+  static ABILITY_RAISE_PREEMPTIVE = 3
+  static ABILITY_GOLD_DOUBLE = 4
+  static ABILITY_DROP_ITEM_DOUBLE = 5
 
   initAllItems(): void {
     this._items = {}
@@ -63,15 +62,15 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   allMembers(): Game_Actor[] {
-    return this._actors.map((id) => $gameActors.actor(id)).filter((a): a is Game_Actor => a !== null)
+    return this._actors.map(id => $gameActors.actor(id)).filter((a): a is Game_Actor => a !== null)
   }
 
   battleMembers(): Game_Actor[] {
-    return this.allBattleMembers().filter((actor) => actor.isAppeared())
+    return this.allBattleMembers().filter(actor => actor.isAppeared())
   }
 
   hiddenBattleMembers(): Game_Actor[] {
-    return this.allBattleMembers().filter((actor) => actor.isHidden())
+    return this.allBattleMembers().filter(actor => actor.isHidden())
   }
 
   allBattleMembers(): Game_Actor[] {
@@ -103,15 +102,15 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   items(): MZ.Item[] {
-    return Object.keys(this._items).map((id) => $dataItems[Number(id)]).filter(Boolean)
+    return Object.keys(this._items).map(id => $dataItems[Number(id)]).filter(Boolean)
   }
 
   weapons(): MZ.Weapon[] {
-    return Object.keys(this._weapons).map((id) => $dataWeapons[Number(id)]).filter(Boolean)
+    return Object.keys(this._weapons).map(id => $dataWeapons[Number(id)]).filter(Boolean)
   }
 
   armors(): MZ.Armor[] {
-    return Object.keys(this._armors).map((id) => $dataArmors[Number(id)]).filter(Boolean)
+    return Object.keys(this._armors).map(id => $dataArmors[Number(id)]).filter(Boolean)
   }
 
   equipItems(): MZ.Equip[] {
@@ -125,13 +124,17 @@ class Game_Party extends Game_Unit<Game_Actor> {
   itemContainer(item: MZ.EquipOrItem | null): Game_Party.ItemContainer | null {
     if (!item) {
       return null
-    } else if (DataManager.isItem(item)) {
+    }
+    else if (DataManager.isItem(item)) {
       return this._items
-    } else if (DataManager.isWeapon(item)) {
+    }
+    else if (DataManager.isWeapon(item)) {
       return this._weapons
-    } else if (DataManager.isArmor(item)) {
+    }
+    else if (DataManager.isArmor(item)) {
       return this._armors
-    } else {
+    }
+    else {
       return null
     }
   }
@@ -148,10 +151,12 @@ class Game_Party extends Game_Unit<Game_Actor> {
   name(): string {
     const numBattleMembers = this.battleMembers().length
     if (numBattleMembers === 0) {
-      return ""
-    } else if (numBattleMembers === 1) {
+      return ''
+    }
+    else if (numBattleMembers === 1) {
       return this.leader()!.name()
-    } else {
+    }
+    else {
       return TextManager.partyName.format(this.leader()!.name())
     }
   }
@@ -182,21 +187,21 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   highestLevel(): number {
-    return Math.max(...this.members().map((actor) => actor.level))
+    return Math.max(...this.members().map(actor => actor.level))
   }
 
   addActor(actorId: number): void {
     if (!this._actors.includes(actorId)) {
-      this._actors.push(actorId);
-      $gamePlayer.refresh();
-      $gameMap.requestRefresh();
-      $gameTemp.requestBattleRefresh();
+      this._actors.push(actorId)
+      $gamePlayer.refresh()
+      $gameMap.requestRefresh()
+      $gameTemp.requestBattleRefresh()
       if (this.inBattle()) {
-        const actor = $gameActors.actor(actorId);
+        const actor = $gameActors.actor(actorId)
         // TODO improve this
         if (this.battleMembers().includes(actor!)) {
           // TODO improve this
-          actor!.onBattleStart();
+          actor!.onBattleStart()
         }
       }
     }
@@ -256,21 +261,23 @@ class Game_Party extends Game_Unit<Game_Actor> {
   hasItem(item: MZ.EquipOrItem | null, includeEquip?: boolean): boolean {
     if (this.numItems(item) > 0) {
       return true
-    } else if (includeEquip && this.isAnyMemberEquipped(item as MZ.Equip)) {
+    }
+    else if (includeEquip && this.isAnyMemberEquipped(item as MZ.Equip)) {
       return true
-    } else {
+    }
+    else {
       return false
     }
   }
 
   isAnyMemberEquipped(item: MZ.Equip): boolean {
-    return this.members().some((actor) => actor.equips().includes(item))
+    return this.members().some(actor => actor.equips().includes(item))
   }
 
   gainItem(
     item: MZ.EquipOrItem,
     amount: number,
-    includeEquip?: boolean
+    includeEquip?: boolean,
   ): void {
     const container = this.itemContainer(item)
     if (container) {
@@ -300,7 +307,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
   loseItem(
     item: MZ.Item | MZ.Weapon | MZ.Armor,
     amount: number,
-    includeEquip?: boolean
+    includeEquip?: boolean,
   ): void {
     this.gainItem(item, -amount, includeEquip)
   }
@@ -312,17 +319,18 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   canUse(item: MZ.Item | MZ.Skill): boolean {
-    return this.members().some((actor) => actor.canUse(item))
+    return this.members().some(actor => actor.canUse(item))
   }
 
   canInput(): boolean {
-    return this.members().some((actor) => actor.canInput())
+    return this.members().some(actor => actor.canInput())
   }
 
   isAllDead(): boolean {
     if (super.isAllDead()) {
       return this.inBattle() || !this.isEmpty()
-    } else {
+    }
+    else {
       return false
     }
   }
@@ -354,7 +362,8 @@ class Game_Party extends Game_Unit<Game_Actor> {
     if (index >= 0) {
       const nextIndex = (index + 1) % this.members().length
       this.setMenuActor(this.members()[nextIndex])
-    } else {
+    }
+    else {
       this.setMenuActor(this.members()[0])
     }
   }
@@ -364,7 +373,8 @@ class Game_Party extends Game_Unit<Game_Actor> {
     if (index >= 0) {
       const prevIndex = (index + this.members().length - 1) % this.members().length
       this.setMenuActor(this.members()[prevIndex])
-    } else {
+    }
+    else {
       this.setMenuActor(this.members()[0])
     }
   }
@@ -397,45 +407,45 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   charactersForSavefile(): [string, number][] {
-    return this.battleMembers().map((actor) => [
+    return this.battleMembers().map(actor => [
       actor.characterName(),
       actor.characterIndex(),
     ])
   }
 
   facesForSavefile(): [string, number][] {
-    return this.battleMembers().map((actor) => [
+    return this.battleMembers().map(actor => [
       actor.faceName(),
       actor.faceIndex(),
     ])
   }
 
   partyAbility(abilityId: number): boolean {
-    return this.battleMembers().some((actor) => actor.partyAbility(abilityId))
+    return this.battleMembers().some(actor => actor.partyAbility(abilityId))
   }
 
   hasEncounterHalf() {
-    return this.partyAbility(Game_Party.ABILITY_ENCOUNTER_HALF);
+    return this.partyAbility(Game_Party.ABILITY_ENCOUNTER_HALF)
   }
 
   hasEncounterNone() {
-    return this.partyAbility(Game_Party.ABILITY_ENCOUNTER_NONE);
+    return this.partyAbility(Game_Party.ABILITY_ENCOUNTER_NONE)
   }
 
   hasCancelSurprise() {
-    return this.partyAbility(Game_Party.ABILITY_CANCEL_SURPRISE);
+    return this.partyAbility(Game_Party.ABILITY_CANCEL_SURPRISE)
   }
 
   hasRaisePreemptive() {
-    return this.partyAbility(Game_Party.ABILITY_RAISE_PREEMPTIVE);
+    return this.partyAbility(Game_Party.ABILITY_RAISE_PREEMPTIVE)
   }
 
   hasGoldDouble() {
-    return this.partyAbility(Game_Party.ABILITY_GOLD_DOUBLE);
+    return this.partyAbility(Game_Party.ABILITY_GOLD_DOUBLE)
   }
 
   hasDropItemDouble() {
-    return this.partyAbility(Game_Party.ABILITY_DROP_ITEM_DOUBLE);
+    return this.partyAbility(Game_Party.ABILITY_DROP_ITEM_DOUBLE)
   }
 
   ratePreemptive(troopAgi: number): number {
@@ -490,4 +500,4 @@ namespace Game_Party {
   export type ItemContainer = Record<number, number>
 }
 
-export { Game_Party };
+export { Game_Party }

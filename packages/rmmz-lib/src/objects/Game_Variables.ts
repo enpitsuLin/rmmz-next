@@ -4,32 +4,31 @@
 class Game_Variables {
   _data!: number[]
 
-
   constructor() {
     this.clear()
   }
 
   clear() {
-    this._data = [];
+    this._data = []
   }
 
   value(variableId: number) {
-    return this._data[variableId] || 0;
+    return this._data[variableId] || 0
   }
 
   setValue(variableId: number, value: number) {
     if (variableId > 0 && variableId < $dataSystem.variables.length) {
-      if (typeof value === "number") {
-        value = Math.floor(value);
+      if (typeof value === 'number') {
+        value = Math.floor(value)
       }
-      this._data[variableId] = value;
-      this.onChange();
+      this._data[variableId] = value
+      this.onChange()
     }
   }
 
   onChange() {
-    $gameMap.requestRefresh();
+    $gameMap.requestRefresh()
   }
 }
 
-export { Game_Variables };
+export { Game_Variables }

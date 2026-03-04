@@ -1,6 +1,6 @@
 /**
- * The game object class for a result of a battle action. 
- * 
+ * The game object class for a result of a battle action.
+ *
  * For convenience, all member variables in this class are public.
  */
 class Game_ActionResult {
@@ -22,103 +22,103 @@ class Game_ActionResult {
   removedBuffs!: number[]
 
   constructor() {
-    this.initialize();
+    this.initialize()
   }
 
   initialize() {
-    this.clear();
+    this.clear()
   }
 
   clear() {
-    this.used = false;
-    this.missed = false;
-    this.evaded = false;
-    this.physical = false;
-    this.drain = false;
-    this.critical = false;
-    this.success = false;
-    this.hpAffected = false;
-    this.hpDamage = 0;
-    this.mpDamage = 0;
-    this.tpDamage = 0;
-    this.addedStates = [];
-    this.removedStates = [];
-    this.addedBuffs = [];
-    this.addedDebuffs = [];
-    this.removedBuffs = [];
+    this.used = false
+    this.missed = false
+    this.evaded = false
+    this.physical = false
+    this.drain = false
+    this.critical = false
+    this.success = false
+    this.hpAffected = false
+    this.hpDamage = 0
+    this.mpDamage = 0
+    this.tpDamage = 0
+    this.addedStates = []
+    this.removedStates = []
+    this.addedBuffs = []
+    this.addedDebuffs = []
+    this.removedBuffs = []
   }
 
   addedStateObjects() {
-    return this.addedStates.map((id) => $dataStates[id]);
+    return this.addedStates.map(id => $dataStates[id])
   }
 
   removedStateObjects() {
-    return this.removedStates.map((id) => $dataStates[id]);
+    return this.removedStates.map(id => $dataStates[id])
   }
 
   isStatusAffected() {
     return (
-      this.addedStates.length > 0 ||
-      this.removedStates.length > 0 ||
-      this.addedBuffs.length > 0 ||
-      this.addedDebuffs.length > 0 ||
-      this.removedBuffs.length > 0
-    );
+      this.addedStates.length > 0
+      || this.removedStates.length > 0
+      || this.addedBuffs.length > 0
+      || this.addedDebuffs.length > 0
+      || this.removedBuffs.length > 0
+    )
   }
 
   isHit() {
-    return this.used && !this.missed && !this.evaded;
+    return this.used && !this.missed && !this.evaded
   }
 
   isStateAdded(stateId: number) {
-    return this.addedStates.includes(stateId);
+    return this.addedStates.includes(stateId)
   }
 
   pushAddedState(stateId: number) {
     if (!this.isStateAdded(stateId)) {
-      this.addedStates.push(stateId);
+      this.addedStates.push(stateId)
     }
   }
 
   isStateRemoved(stateId: number) {
-    return this.removedStates.includes(stateId);
+    return this.removedStates.includes(stateId)
   }
 
   pushRemovedState(stateId: number) {
     if (!this.isStateRemoved(stateId)) {
-      this.removedStates.push(stateId);
+      this.removedStates.push(stateId)
     }
   }
 
   isBuffAdded(paramId: number) {
-    return this.addedBuffs.includes(paramId);
+    return this.addedBuffs.includes(paramId)
   }
 
   pushAddedBuff(paramId: number) {
     if (!this.isBuffAdded(paramId)) {
-      this.addedBuffs.push(paramId);
+      this.addedBuffs.push(paramId)
     }
   }
 
   isDebuffAdded(paramId: number) {
-    return this.addedDebuffs.includes(paramId);
+    return this.addedDebuffs.includes(paramId)
   }
 
   pushAddedDebuff(paramId: number) {
     if (!this.isDebuffAdded(paramId)) {
-      this.addedDebuffs.push(paramId);
+      this.addedDebuffs.push(paramId)
     }
   }
 
   isBuffRemoved(paramId: number) {
-    return this.removedBuffs.includes(paramId);
+    return this.removedBuffs.includes(paramId)
   }
 
   pushRemovedBuff(paramId: number) {
     if (!this.isBuffRemoved(paramId)) {
-      this.removedBuffs.push(paramId);
+      this.removedBuffs.push(paramId)
     }
   }
 }
 
-export { Game_ActionResult };
+export { Game_ActionResult }

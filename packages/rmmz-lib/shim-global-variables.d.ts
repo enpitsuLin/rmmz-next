@@ -1,3 +1,4 @@
+import type { MZ } from '@rmmz-lib/database-types'
 import type {
   Game_Actors,
   Game_Map,
@@ -14,8 +15,6 @@ import type {
   Game_Variables,
 } from './src'
 import type { DataManager } from './src/managers/DataManager'
-import type { MZ } from '@rmmz-lib/database-types'
-
 
 declare global {
   declare var $dataActors: DataManager.DatabaseFile<MZ.Actor>

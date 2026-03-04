@@ -1,13 +1,14 @@
 {
   "name": "@rmmz-lib/monorepo",
-  "private": true,
   "type": "module",
-  "devDependencies": {
-    "@antfu/eslint-config": "catalog:dev",
-    "eslint": "catalog:dev"
-  },
+  "private": true,
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "catalog:dev",
+    "eslint": "catalog:dev",
+    "typescript": "catalog:dev"
   }
 }

@@ -5,7 +5,7 @@
  */
 export class JsonEx {
   constructor() {
-    throw new Error("This is a static class");
+    throw new Error('This is a static class')
   }
 
   /**
@@ -14,16 +14,16 @@ export class JsonEx {
    * @type number
    * @default 100
    */
-  static maxDepth = 100;
+  static maxDepth = 100
 
   /**
    * Converts an object to a JSON string with object information.
    *
    * @param object - The object to be converted.
    * @returns The JSON string.
- */
+   */
   static stringify(object: any): string {
-    return JSON.stringify(this._encode(object, 0));
+    return JSON.stringify(this._encode(object, 0))
   }
 
   /**
@@ -33,7 +33,7 @@ export class JsonEx {
    * @returns The reconstructed object.
    */
   static parse(json: string) {
-    return this._decode(JSON.parse(json));
+    return this._decode(JSON.parse(json))
   }
 
   /**
@@ -43,41 +43,41 @@ export class JsonEx {
    * @returns {object} The copied object.
    */
   static makeDeepCopy<T extends object>(object: T): T {
-    return this.parse(this.stringify(object));
+    return this.parse(this.stringify(object))
   }
 
   static _encode(value: any, depth: number): any {
     // [Note] The handling code for circular references in certain versions of
     //   MV has been removed because it was too complicated and expensive.
     if (depth >= this.maxDepth) {
-      throw new Error("Object too deep");
+      throw new Error('Object too deep')
     }
-    const type = Object.prototype.toString.call(value);
-    if (type === "[object Object]" || type === "[object Array]") {
-      const constructorName = value.constructor.name;
-      if (constructorName !== "Object" && constructorName !== "Array") {
-        value["@"] = constructorName;
+    const type = Object.prototype.toString.call(value)
+    if (type === '[object Object]' || type === '[object Array]') {
+      const constructorName = value.constructor.name
+      if (constructorName !== 'Object' && constructorName !== 'Array') {
+        value['@'] = constructorName
       }
       for (const key of Object.keys(value)) {
-        value[key] = this._encode(value[key], depth + 1);
+        value[key] = this._encode(value[key], depth + 1)
       }
     }
-    return value;
+    return value
   }
 
   static _decode(value: any): any {
-    const type = Object.prototype.toString.call(value);
-    if (type === "[object Object]" || type === "[object Array]") {
-      if (value["@"]) {
-        const constructor = window[value["@"]];
+    const type = Object.prototype.toString.call(value)
+    if (type === '[object Object]' || type === '[object Array]') {
+      if (value['@']) {
+        const constructor = window[value['@']]
         if (constructor) {
-          Object.setPrototypeOf(value, (constructor as any).prototype);
+          Object.setPrototypeOf(value, (constructor as any).prototype)
         }
       }
       for (const key of Object.keys(value)) {
-        value[key] = this._decode(value[key]);
+        value[key] = this._decode(value[key])
       }
     }
-    return value;
+    return value
   }
 }

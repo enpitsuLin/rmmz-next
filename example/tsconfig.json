@@ -1,23 +1,23 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "module": "esnext",
     "target": "es2021",
-    "strict": true,
-    "strictNullChecks": true,
-    "moduleResolution": "bundler",
-    "declaration": true,
-    "noEmit": true,
-    "types":[
-      "rmmz-lib/types",
-      "nw.js"
-    ],
     "lib": [
       "DOM",
       "DOM.AsyncIterable",
       "DOM.Iterable",
       "ES2021"
-    ]
+    ],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": [
+      "rmmz-lib/types",
+      "nw.js"
+    ],
+    "allowJs": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "declaration": true,
+    "noEmit": true
   },
   "include": [
     "src"

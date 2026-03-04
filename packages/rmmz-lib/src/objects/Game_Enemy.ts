@@ -1,289 +1,294 @@
-import { Game_Battler } from "./Game_Battler";
+import { Game_Battler } from './Game_Battler'
 
 /**
  * The game object class for an enemy.
  */
 class Game_Enemy extends Game_Battler {
-
-  _enemyId!: number;
-  _letter!: string;
-  _plural!: boolean;
-  _screenX!: number;
-  _screenY!: number;
+  _enemyId!: number
+  _letter!: string
+  _plural!: boolean
+  _screenX!: number
+  _screenY!: number
 
   constructor(enemyId: number, x: number, y: number) {
-    super();
-    this.setup(enemyId, x, y);
+    super()
+    this.setup(enemyId, x, y)
   }
 
   initMembers() {
-    super.initMembers();
-    this._enemyId = 0;
-    this._letter = "";
-    this._plural = false;
-    this._screenX = 0;
-    this._screenY = 0;
+    super.initMembers()
+    this._enemyId = 0
+    this._letter = ''
+    this._plural = false
+    this._screenX = 0
+    this._screenY = 0
   }
 
   setup(enemyId: number, x: number, y: number) {
-    this._enemyId = enemyId;
-    this._screenX = x;
-    this._screenY = y;
-    this.recoverAll();
+    this._enemyId = enemyId
+    this._screenX = x
+    this._screenY = y
+    this.recoverAll()
   }
 
   isEnemy(): this is this {
-    return true;
+    return true
   }
 
   friendsUnit() {
-    return $gameTroop;
+    return $gameTroop
   }
 
   opponentsUnit() {
-    return $gameParty;
+    return $gameParty
   }
 
   index() {
-    return $gameTroop.members().indexOf(this);
+    return $gameTroop.members().indexOf(this)
   }
 
   isBattleMember() {
-    return this.index() >= 0;
+    return this.index() >= 0
   }
 
   enemyId() {
-    return this._enemyId;
+    return this._enemyId
   }
 
   enemy() {
-    return $dataEnemies[this._enemyId];
+    return $dataEnemies[this._enemyId]
   }
 
   traitObjects() {
-    return super.traitObjects().concat(this.enemy());
+    return super.traitObjects().concat(this.enemy())
   }
 
   paramBase(paramId: number) {
-    return this.enemy().params[paramId];
+    return this.enemy().params[paramId]
   }
 
   exp() {
-    return this.enemy().exp;
+    return this.enemy().exp
   }
 
   gold() {
-    return this.enemy().gold;
+    return this.enemy().gold
   }
 
   makeDropItems() {
-    const rate = this.dropItemRate();
+    const rate = this.dropItemRate()
     return this.enemy().dropItems.reduce((r, di) => {
       if (di.kind > 0 && Math.random() * di.denominator < rate) {
-        return r.concat(this.itemObject(di.kind, di.dataId));
-      } else {
-        return r;
+        return r.concat(this.itemObject(di.kind, di.dataId))
       }
-    }, []);
+      else {
+        return r
+      }
+    }, [])
   }
 
   dropItemRate() {
-    return $gameParty.hasDropItemDouble() ? 2 : 1;
+    return $gameParty.hasDropItemDouble() ? 2 : 1
   }
 
   itemObject(kind, dataId) {
     if (kind === 1) {
-      return $dataItems[dataId];
-    } else if (kind === 2) {
-      return $dataWeapons[dataId];
-    } else if (kind === 3) {
-      return $dataArmors[dataId];
-    } else {
-      return null;
+      return $dataItems[dataId]
+    }
+    else if (kind === 2) {
+      return $dataWeapons[dataId]
+    }
+    else if (kind === 3) {
+      return $dataArmors[dataId]
+    }
+    else {
+      return null
     }
   }
 
   isSpriteVisible() {
-    return true;
+    return true
   }
 
   screenX() {
-    return this._screenX;
+    return this._screenX
   }
 
   screenY() {
-    return this._screenY;
+    return this._screenY
   }
 
   battlerName() {
-    return this.enemy().battlerName;
+    return this.enemy().battlerName
   }
 
   battlerHue() {
-    return this.enemy().battlerHue;
+    return this.enemy().battlerHue
   }
 
   originalName() {
-    return this.enemy().name;
+    return this.enemy().name
   }
 
   name() {
-    return this.originalName() + (this._plural ? this._letter : "");
+    return this.originalName() + (this._plural ? this._letter : '')
   }
 
   isLetterEmpty() {
-    return this._letter === "";
+    return this._letter === ''
   }
 
   setLetter(letter) {
-    this._letter = letter;
+    this._letter = letter
   }
 
   setPlural(plural) {
-    this._plural = plural;
+    this._plural = plural
   }
 
   performActionStart(action) {
-    super.performActionStart(action);
-    this.requestEffect("whiten");
+    super.performActionStart(action)
+    this.requestEffect('whiten')
   }
 
   performAction(action) {
-    super.performAction(action);
+    super.performAction(action)
   }
 
   performActionEnd() {
-    super.performActionEnd();
+    super.performActionEnd()
   }
 
   performDamage() {
-    super.performDamage();
-    SoundManager.playEnemyDamage();
-    this.requestEffect("blink");
+    super.performDamage()
+    SoundManager.playEnemyDamage()
+    this.requestEffect('blink')
   }
 
   performCollapse() {
-    super.performCollapse();
+    super.performCollapse()
     switch (this.collapseType()) {
       case 0:
-        this.requestEffect("collapse");
-        SoundManager.playEnemyCollapse();
-        break;
+        this.requestEffect('collapse')
+        SoundManager.playEnemyCollapse()
+        break
       case 1:
-        this.requestEffect("bossCollapse");
-        SoundManager.playBossCollapse1();
-        break;
+        this.requestEffect('bossCollapse')
+        SoundManager.playBossCollapse1()
+        break
       case 2:
-        this.requestEffect("instantCollapse");
-        break;
+        this.requestEffect('instantCollapse')
+        break
     }
   }
 
   transform(enemyId) {
-    const name = this.originalName();
-    this._enemyId = enemyId;
+    const name = this.originalName()
+    this._enemyId = enemyId
     if (this.originalName() !== name) {
-      this._letter = "";
-      this._plural = false;
+      this._letter = ''
+      this._plural = false
     }
-    this.refresh();
+    this.refresh()
     if (this.numActions() > 0) {
-      this.makeActions();
+      this.makeActions()
     }
   }
 
   meetsCondition(action) {
-    const param1 = action.conditionParam1;
-    const param2 = action.conditionParam2;
+    const param1 = action.conditionParam1
+    const param2 = action.conditionParam2
     switch (action.conditionType) {
       case 1:
-        return this.meetsTurnCondition(param1, param2);
+        return this.meetsTurnCondition(param1, param2)
       case 2:
-        return this.meetsHpCondition(param1, param2);
+        return this.meetsHpCondition(param1, param2)
       case 3:
-        return this.meetsMpCondition(param1, param2);
+        return this.meetsMpCondition(param1, param2)
       case 4:
-        return this.meetsStateCondition(param1);
+        return this.meetsStateCondition(param1)
       case 5:
-        return this.meetsPartyLevelCondition(param1);
+        return this.meetsPartyLevelCondition(param1)
       case 6:
-        return this.meetsSwitchCondition(param1);
+        return this.meetsSwitchCondition(param1)
       default:
-        return true;
+        return true
     }
   }
 
   meetsTurnCondition(param1, param2) {
-    const n = this.turnCount();
+    const n = this.turnCount()
     if (param2 === 0) {
-      return n === param1;
-    } else {
-      return n > 0 && n >= param1 && n % param2 === param1 % param2;
+      return n === param1
+    }
+    else {
+      return n > 0 && n >= param1 && n % param2 === param1 % param2
     }
   }
 
   meetsHpCondition(param1, param2) {
-    return this.hpRate() >= param1 && this.hpRate() <= param2;
+    return this.hpRate() >= param1 && this.hpRate() <= param2
   }
 
   meetsMpCondition(param1, param2) {
-    return this.mpRate() >= param1 && this.mpRate() <= param2;
+    return this.mpRate() >= param1 && this.mpRate() <= param2
   }
 
   meetsStateCondition(param) {
-    return this.isStateAffected(param);
+    return this.isStateAffected(param)
   }
 
   meetsPartyLevelCondition(param) {
-    return $gameParty.highestLevel() >= param;
+    return $gameParty.highestLevel() >= param
   }
 
   meetsSwitchCondition(param) {
-    return $gameSwitches.value(param);
+    return $gameSwitches.value(param)
   }
 
   isActionValid(action) {
     return (
       this.meetsCondition(action) && this.canUse($dataSkills[action.skillId])
-    );
+    )
   }
 
   selectAction(actionList, ratingZero) {
-    const sum = actionList.reduce((r, a) => r + a.rating - ratingZero, 0);
+    const sum = actionList.reduce((r, a) => r + a.rating - ratingZero, 0)
     if (sum > 0) {
-      let value = Math.randomInt(sum);
+      let value = Math.randomInt(sum)
       for (const action of actionList) {
-        value -= action.rating - ratingZero;
+        value -= action.rating - ratingZero
         if (value < 0) {
-          return action;
+          return action
         }
       }
-    } else {
-      return null;
+    }
+    else {
+      return null
     }
   }
 
   selectAllActions(actionList) {
-    const ratingMax = Math.max(...actionList.map((a) => a.rating));
-    const ratingZero = ratingMax - 3;
-    actionList = actionList.filter((a) => a.rating > ratingZero);
+    const ratingMax = Math.max(...actionList.map(a => a.rating))
+    const ratingZero = ratingMax - 3
+    actionList = actionList.filter(a => a.rating > ratingZero)
     for (let i = 0; i < this.numActions(); i++) {
-      this.action(i).setEnemyAction(this.selectAction(actionList, ratingZero));
+      this.action(i).setEnemyAction(this.selectAction(actionList, ratingZero))
     }
   }
 
   makeActions() {
-    super.makeActions();
+    super.makeActions()
     if (this.numActions() > 0) {
-      const actionList = this.enemy().actions.filter((a) =>
-        this.isActionValid(a)
-      );
+      const actionList = this.enemy().actions.filter(a =>
+        this.isActionValid(a),
+      )
       if (actionList.length > 0) {
-        this.selectAllActions(actionList);
+        this.selectAllActions(actionList)
       }
     }
-    this.setActionState("waiting");
+    this.setActionState('waiting')
   }
 }
 
-export { Game_Enemy };
+export { Game_Enemy }

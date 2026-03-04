@@ -7,13 +7,13 @@
       "DOM.Iterable",
       "ES2021"
     ],
-    "types": [
-      "nw.js"
-    ],
     "moduleDetection": "force",
     "module": "preserve",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
+    "types": [
+      "nw.js"
+    ],
     "strict": true,
     "noUnusedLocals": true,
     "declaration": true,
@@ -25,6 +25,6 @@
   },
   "include": [
     "src",
-    "types.d.ts",
+    "types.d.ts"
   ]
 }

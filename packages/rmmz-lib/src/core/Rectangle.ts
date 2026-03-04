@@ -5,6 +5,6 @@ import * as PIXI from 'pixi.js'
  */
 export class Rectangle extends PIXI.Rectangle {
   constructor(x?: number, y?: number, width?: number, height?: number) {
-    super(x, y, width, height);
+    super(x, y, width, height)
   }
 }

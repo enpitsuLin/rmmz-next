@@ -1,438 +1,437 @@
 export declare namespace MZ {
   interface Actor {
     // basic
-    id: number;
-    name: string;
-    nickname: string;
-    classId: number;
-    initialLevel: number;
-    maxLevel: number;
-    profile: string;
+    id: number
+    name: string
+    nickname: string
+    classId: number
+    initialLevel: number
+    maxLevel: number
+    profile: string
 
     // image
-    characterName: string;
-    characterIndex: number;
-    battlerName: string;
-    faceIndex: number;
-    faceName: string;
+    characterName: string
+    characterIndex: number
+    battlerName: string
+    faceIndex: number
+    faceName: string
 
     // init equips
-    equips: number[];
+    equips: number[]
 
     // traits
-    traits: Trait[];
+    traits: Trait[]
 
     // note
-    note: string;
+    note: string
 
     // meta
-    meta: Meta;
+    meta: Meta
   }
 
   interface Class {
     // basic
-    id: number;
-    name: string;
-    expParams: ExpParams;
+    id: number
+    name: string
+    expParams: ExpParams
 
     // params
-    params: number[][];
+    params: number[][]
 
     // learnings
-    learnings: Learning[];
+    learnings: Learning[]
 
     // traits
-    traits: Trait[];
+    traits: Trait[]
 
     // note
-    note: string;
+    note: string
 
     // meta
-    meta: Meta;
+    meta: Meta
   }
 
   interface Skill {
     // basic
-    id: number;
-    name: string;
-    iconIndex: number;
-    description: string;
-    stypeId: number;
-    mpCost: number;
-    tpCost: number;
-    scope: number;
-    occasion: number;
+    id: number
+    name: string
+    iconIndex: number
+    description: string
+    stypeId: number
+    mpCost: number
+    tpCost: number
+    scope: number
+    occasion: number
 
     // act
-    speed: number;
-    successRate: number;
-    tpGain: number;
-    repeats: number;
-    hitType: number;
-    animationId: number;
+    speed: number
+    successRate: number
+    tpGain: number
+    repeats: number
+    hitType: number
+    animationId: number
 
     // message
 
     // rquirement
-    requiredWtypeId1: number;
-    requiredWtypeId2: number;
+    requiredWtypeId1: number
+    requiredWtypeId2: number
 
     // damage
-    damage: Damage;
+    damage: Damage
 
     // effect
-    effects: Effect[];
+    effects: Effect[]
 
     // note
-    note: string;
+    note: string
 
     // meta
-    meta: Meta;
+    meta: Meta
   }
 
   interface Item {
     // basic
-    id: number;
-    name: string;
-    iconIndex: number;
-    description: string;
-    itypeId: number;
-    price: number;
-    consumable: boolean;
-    scope: number;
-    occasion: number;
+    id: number
+    name: string
+    iconIndex: number
+    description: string
+    itypeId: number
+    price: number
+    consumable: boolean
+    scope: number
+    occasion: number
 
     // act
-    speed: number;
-    successRate: number;
-    repeats: number;
-    tpGain: number;
-    hitType: number;
-    animationId: number;
+    speed: number
+    successRate: number
+    repeats: number
+    tpGain: number
+    hitType: number
+    animationId: number
 
     // damage
-    damage: Damage;
+    damage: Damage
 
     // effect
-    effects: Effect[];
+    effects: Effect[]
 
     // note
-    note: string;
+    note: string
 
     // meta
-    meta: Meta;
+    meta: Meta
 
   }
 
   interface Weapon {
-    id: number;
-    iconIndex: number;
-    name: string;
-    price: number;
-    description: string;
+    id: number
+    iconIndex: number
+    name: string
+    price: number
+    description: string
 
-    etypeId: number;
-    wtypeId: number;
-    params: number[];
-    animationId: number;
+    etypeId: number
+    wtypeId: number
+    params: number[]
+    animationId: number
 
     // traits
-    traits: Trait[];
+    traits: Trait[]
 
     // note
-    note: string;
+    note: string
 
     // meta
-    meta: Meta;
+    meta: Meta
   }
 
   interface Armor {
-    id: number;
-    iconIndex: number;
-    name: string;
-    price: number;
-    description: string;
+    id: number
+    iconIndex: number
+    name: string
+    price: number
+    description: string
 
-    etypeId: number;
-    atypeId: number;
-    params: number[];
+    etypeId: number
+    atypeId: number
+    params: number[]
 
     // traits
-    traits: Trait[];
+    traits: Trait[]
 
     // note
-    note: string;
+    note: string
 
     // meta
-    meta: Meta;
+    meta: Meta
   }
 
   interface Enemy {
     // basic
-    id: number;
-    name: string;
-    battlerName: string;
-    battlerHue: number;
-    params: number[];
+    id: number
+    name: string
+    battlerName: string
+    battlerHue: number
+    params: number[]
 
     // reward
-    exp: number;
-    gold: number;
+    exp: number
+    gold: number
 
     // drop
-    dropItems: DropItem[];
+    dropItems: DropItem[]
 
     // action
-    actions: Action[];
+    actions: Action[]
 
     // traits
-    traits: Trait[];
+    traits: Trait[]
 
     // note
-    note: string;
+    note: string
 
     // meta
-    meta: Meta;
+    meta: Meta
 
   }
 
   interface State {
-    id: number;
-    name: string;
-    iconIndex: number;
-    motion: number;
-    overlay: number;
+    id: number
+    name: string
+    iconIndex: number
+    motion: number
+    overlay: number
 
-    priority: number;
-    message1: string;
-    message2: string;
-    message3: string;
-    message4: string;
+    priority: number
+    message1: string
+    message2: string
+    message3: string
+    message4: string
 
-    restriction: number;
-    maxTurns: number;
-    minTurns: number;
-    removeByWalking: boolean;
-    removeByDamage: boolean;
-    chanceByDamage: number;
-    removeAtBattleEnd: boolean;
-    removeByRestriction: boolean;
-    autoRemovalTiming: number;
-    stepsToRemove: number;
+    restriction: number
+    maxTurns: number
+    minTurns: number
+    removeByWalking: boolean
+    removeByDamage: boolean
+    chanceByDamage: number
+    removeAtBattleEnd: boolean
+    removeByRestriction: boolean
+    autoRemovalTiming: number
+    stepsToRemove: number
 
     // traits
-    traits: Trait[];
+    traits: Trait[]
 
     // note
-    note: string;
+    note: string
 
     // meta
-    meta: Meta;
+    meta: Meta
   }
 
   namespace Troop {
     interface Member {
-      enemyId: number;
-      x: number;
-      y: number;
-      hidden: boolean;
+      enemyId: number
+      x: number
+      y: number
+      hidden: boolean
     }
 
     namespace Event {
       interface Page {
-        conditions: Conditions;
-        span: number;
-        list: MZ.EventCommon.PageCommand[];
+        conditions: Conditions
+        span: number
+        list: MZ.EventCommon.PageCommand[]
       }
       interface Conditions {
-        turnEnding: boolean;
-        turnValid: boolean;
-        enemyValid: boolean;
-        actorValid: boolean;
-        switchValid: boolean;
-        turnA: number;
-        turnB: number;
-        enemyIndex: number;
-        enemyHp: number;
-        actorId: number;
-        actorHp: number;
-        switchId: number;
+        turnEnding: boolean
+        turnValid: boolean
+        enemyValid: boolean
+        actorValid: boolean
+        switchValid: boolean
+        turnA: number
+        turnB: number
+        enemyIndex: number
+        enemyHp: number
+        actorId: number
+        actorHp: number
+        switchId: number
       }
     }
   }
 
   interface Troop {
-    id: number;
-    name: string;
-    members: Troop.Member[];
-    pages: Troop.Event.Page[];
+    id: number
+    name: string
+    members: Troop.Member[]
+    pages: Troop.Event.Page[]
 
   }
 
   interface Tileset {
-    id: number;
-    flags: number[];
-    mode: number;
-    name: string;
-    note: string;
-    tilesetNames: string[];
+    id: number
+    flags: number[]
+    mode: number
+    name: string
+    note: string
+    tilesetNames: string[]
   }
 
   interface System {
     // title
-    gameTitle: string;
+    gameTitle: string
 
     // initial members
-    partyMembers: number[];
+    partyMembers: number[]
 
     // currency
-    currencyUnit: string;
+    currencyUnit: string
 
     // windowtone
-    windowTone: number[];
+    windowTone: number[]
 
     // vehicle
-    boat: System.Boat;
-    ship: System.Ship;
-    airship: System.Airship;
+    boat: System.Boat
+    ship: System.Ship
+    airship: System.Airship
 
     // start place
-    startMapId: number;
-    startX: number;
-    startY: number;
+    startMapId: number
+    startX: number
+    startY: number
 
     // title secene
-    advanced: System.Advanced;
-    armorTypes: string[];
-    attackMotions: System.AttackMotion[];
-    battleBgm: AudioInfo;
-    battleback1Name: string;
-    battleback2Name: string;
-    battlerHue: number;
-    battlerName: string;
-    battleSystem: number;
+    advanced: System.Advanced
+    armorTypes: string[]
+    attackMotions: System.AttackMotion[]
+    battleBgm: AudioInfo
+    battleback1Name: string
+    battleback2Name: string
+    battlerHue: number
+    battlerName: string
+    battleSystem: number
 
-    defeatMe: AudioInfo;
-    editMapId: number;
-    elements: string[];
-    equipTypes: string[];
+    defeatMe: AudioInfo
+    editMapId: number
+    elements: string[]
+    equipTypes: string[]
 
-    gameoverMe: AudioInfo;
-    itemCategories: boolean[];
-    locale: string;
-    magicSkills: number[];
-    menuCommands: boolean[];
-    optAutosave: boolean;
-    optDisplayTp: boolean;
-    optDrawTitle: boolean;
-    optExtraExp: boolean;
-    optFloorDeath: boolean;
-    optFollowers: boolean;
-    optKeyItemsNumber: boolean;
-    optSideView: boolean;
-    optSlipDeath: boolean;
-    optTransparent: boolean;
+    gameoverMe: AudioInfo
+    itemCategories: boolean[]
+    locale: string
+    magicSkills: number[]
+    menuCommands: boolean[]
+    optAutosave: boolean
+    optDisplayTp: boolean
+    optDrawTitle: boolean
+    optExtraExp: boolean
+    optFloorDeath: boolean
+    optFollowers: boolean
+    optKeyItemsNumber: boolean
+    optSideView: boolean
+    optSlipDeath: boolean
+    optTransparent: boolean
 
-    skillTypes: string[];
-    sounds: AudioInfo[];
+    skillTypes: string[]
+    sounds: AudioInfo[]
 
-    switches: string[];
-    terms: System.Term;
-    testBattlers: System.TestBattler[];
-    testTroopId: number;
-    title1Name: string;
-    title2Name: string;
-    titleBgm: AudioInfo;
-    titleCommandWindow: System.TitleCommandWindow;
-    variables: string[];
-    versionId: number;
-    victoryMe: AudioInfo;
-    weaponTypes: string[];
+    switches: string[]
+    terms: System.Term
+    testBattlers: System.TestBattler[]
+    testTroopId: number
+    title1Name: string
+    title2Name: string
+    titleBgm: AudioInfo
+    titleCommandWindow: System.TitleCommandWindow
+    variables: string[]
+    versionId: number
+    victoryMe: AudioInfo
+    weaponTypes: string[]
 
-    tileSize: number;
+    tileSize: number
 
-    hasEncryptedImages: boolean;
-    hasEncryptedAudio: boolean;
-    encryptionKey: string;
+    hasEncryptedImages: boolean
+    hasEncryptedAudio: boolean
+    encryptionKey: string
     optMessageSkip: boolean
   }
 
   interface CommonEvent {
-    id: number;
-    name: string;
-    switchId: number;
-    trigger: number;
-    list: EventCommon.PageCommand[];
+    id: number
+    name: string
+    switchId: number
+    trigger: number
+    list: EventCommon.PageCommand[]
   }
 
   interface TraitObject {
-    traits: Trait[];
+    traits: Trait[]
   }
   interface DescriptionObject {
-    description: string;
+    description: string
   }
 
-  type Equip = Armor | Weapon;
-  type EquipOrItem = Item | Armor | Weapon;
-  type UsableItem = Skill | Item;
-  type GeneralItem = UsableItem | Armor | Weapon;
-  type Meta = { [key: string]: string | number | boolean | undefined };
+  type Equip = Armor | Weapon
+  type EquipOrItem = Item | Armor | Weapon
+  type UsableItem = Skill | Item
+  type GeneralItem = UsableItem | Armor | Weapon
+  interface Meta { [key: string]: string | number | boolean | undefined }
   // type TraitObject = Actor | Class | Weapon | Armor | State;
 
-
-  type ExpParams = number[];
+  type ExpParams = number[]
 
   interface Learning {
-    skillId: number;
-    level: number;
-    note: string;
+    skillId: number
+    level: number
+    note: string
   }
 
   interface Damage {
-    type: number;
-    elementId: number;
-    formula: string;
-    variance: number;
-    critical: boolean;
+    type: number
+    elementId: number
+    formula: string
+    variance: number
+    critical: boolean
   }
 
   interface Trait {
-    code: number;
-    dataId: number;
-    value: number;
+    code: number
+    dataId: number
+    value: number
   }
 
   interface Effect {
-    code: number,
-    dataId: number,
-    value1: number,
+    code: number
+    dataId: number
+    value1: number
     value2: number
   }
 
   interface Action {
-    conditionParam1: number;
-    conditionParam2: number;
-    conditionType: number;
-    rating: number;
-    skillId: number;
+    conditionParam1: number
+    conditionParam2: number
+    conditionType: number
+    rating: number
+    skillId: number
   }
 
   interface DropItem {
-    kind: number;
-    dataId: number;
-    denominator: number;
+    kind: number
+    dataId: number
+    denominator: number
   }
 
   namespace EventCommon {
     interface PageCommand {
-      code: EventCommandCode;
-      indent: number;
-      parameters: Array<any>;
+      code: EventCommandCode
+      indent: number
+      parameters: Array<any>
     }
 
     interface MoveCommand {
-      code: MoveCommandCode;
-      parameters: Array<any>;
+      code: MoveCommandCode
+      parameters: Array<any>
     }
 
     enum EventCommandCode {
@@ -440,279 +439,277 @@ export declare namespace MZ {
     enum MoveCommandCode {
     }
     namespace EventCommandParameter {
-      type WeatherType = "none" | "rain" | "storm" | "snow";
+      type WeatherType = 'none' | 'rain' | 'storm' | 'snow'
     }
 
   }
 
   interface AudioInfo {
-    name: string;
-    volume: number;
-    pitch: number;
-    pan?: number;
-    pos?: number;
+    name: string
+    volume: number
+    pitch: number
+    pan?: number
+    pos?: number
   }
 
   namespace System {
 
     interface Advanced {
-      picturesUpperLimit: number;
-      gameId: number;
-      screenWidth: number;
-      screenHeight: number;
-      uiAreaWidth: number;
-      uiAreaHeight: number;
-      numberFontFilename: string;
-      fallbackFonts: string;
-      fontSize: number;
-      mainFontFilename: string;
-      windowOpacity: number;
+      picturesUpperLimit: number
+      gameId: number
+      screenWidth: number
+      screenHeight: number
+      uiAreaWidth: number
+      uiAreaHeight: number
+      numberFontFilename: string
+      fallbackFonts: string
+      fontSize: number
+      mainFontFilename: string
+      windowOpacity: number
     }
 
-
     interface Airship {
-      bgm: AudioInfo;
-      characterIndex: number;
-      characterName: string;
-      startMapId: number;
-      startX: number;
-      startY: number;
+      bgm: AudioInfo
+      characterIndex: number
+      characterName: string
+      startMapId: number
+      startX: number
+      startY: number
     }
 
     interface AttackMotion {
-      type: number;
-      weaponImageId: number;
+      type: number
+      weaponImageId: number
     }
 
     interface Boat {
-      bgm: AudioInfo;
-      characterIndex: number;
-      characterName: string;
-      startMapId: number;
-      startX: number;
-      startY: number;
+      bgm: AudioInfo
+      characterIndex: number
+      characterName: string
+      startMapId: number
+      startX: number
+      startY: number
     }
 
     interface Ship {
-      bgm: AudioInfo;
-      characterIndex: number;
-      characterName: string;
-      startMapId: number;
-      startX: number;
-      startY: number;
+      bgm: AudioInfo
+      characterIndex: number
+      characterName: string
+      startMapId: number
+      startX: number
+      startY: number
     }
 
     interface Message {
-      alwaysDash: string;
-      commandRemember: string;
-      touchUI: string;
-      bgmVolume: string;
-      bgsVolume: string;
-      meVolume: string;
-      seVolume: string;
-      possession: string;
-      expTotal: string;
-      expNext: string;
-      saveMessage: string;
-      loadMessage: string;
-      file: string;
-      autosave: string;
-      partyName: string;
-      emerge: string;
-      preemptive: string;
-      surprise: string;
-      escapeStart: string;
-      escapeFailure: string;
-      victory: string;
-      defeat: string;
-      obtainExp: string;
-      obtainGold: string;
-      obtainItem: string;
-      levelUp: string;
-      obtainSkill: string;
-      useItem: string;
-      criticalToEnemy: string;
-      criticalToActor: string;
-      actorDamage: string;
-      actorRecovery: string;
-      actorGain: string;
-      actorLoss: string;
-      actorDrain: string;
-      actorNoDamage: string;
-      actorNoHit: string;
-      enemyDamage: string;
-      enemyRecovery: string;
-      enemyGain: string;
-      enemyLoss: string;
-      enemyDrain: string;
-      enemyNoDamage: string;
-      enemyNoHit: string;
-      evasion: string;
-      magicEvasion: string;
-      magicReflection: string;
-      counterAttack: string;
-      substitute: string;
-      buffAdd: string;
-      debuffAdd: string;
-      buffRemove: string;
-      actionFailure: string;
+      alwaysDash: string
+      commandRemember: string
+      touchUI: string
+      bgmVolume: string
+      bgsVolume: string
+      meVolume: string
+      seVolume: string
+      possession: string
+      expTotal: string
+      expNext: string
+      saveMessage: string
+      loadMessage: string
+      file: string
+      autosave: string
+      partyName: string
+      emerge: string
+      preemptive: string
+      surprise: string
+      escapeStart: string
+      escapeFailure: string
+      victory: string
+      defeat: string
+      obtainExp: string
+      obtainGold: string
+      obtainItem: string
+      levelUp: string
+      obtainSkill: string
+      useItem: string
+      criticalToEnemy: string
+      criticalToActor: string
+      actorDamage: string
+      actorRecovery: string
+      actorGain: string
+      actorLoss: string
+      actorDrain: string
+      actorNoDamage: string
+      actorNoHit: string
+      enemyDamage: string
+      enemyRecovery: string
+      enemyGain: string
+      enemyLoss: string
+      enemyDrain: string
+      enemyNoDamage: string
+      enemyNoHit: string
+      evasion: string
+      magicEvasion: string
+      magicReflection: string
+      counterAttack: string
+      substitute: string
+      buffAdd: string
+      debuffAdd: string
+      buffRemove: string
+      actionFailure: string
     }
 
     interface Term {
-      basic: string[];
-      commands: any[];
-      params: string[];
-      messages: Message;
+      basic: string[]
+      commands: any[]
+      params: string[]
+      messages: Message
     }
 
     interface TestBattler {
-      actorId: number;
-      level: number;
-      equips: any[];
+      actorId: number
+      level: number
+      equips: any[]
     }
 
     interface TitleCommandWindow {
-      background: number;
-      offsetX: number;
-      offsetY: number;
+      background: number
+      offsetX: number
+      offsetY: number
     }
   }
 
-
   namespace Map {
     interface MapInfo {
-      id: number;
-      name: string;
+      id: number
+      name: string
     }
     interface EncounterList {
-      troopId: number;
-      weight: number;
-      regionSet: number[];
+      troopId: number
+      weight: number
+      regionSet: number[]
     }
     // this Event is a type of Character, little different from namespace Event
     interface Event {
-      id: number;
-      name: string;
-      note: string;
-      pages: Event.Page[];
-      x: number;
-      y: number;
+      id: number
+      name: string
+      note: string
+      pages: Event.Page[]
+      x: number
+      y: number
     }
     namespace Event {
       interface Conditions {
-        actorId: number;
-        actorValid: boolean;
-        itemId: number;
-        itemValid: boolean;
-        selfSwitchCh: string;
-        selfSwitchValid: boolean;
-        switch1Id: number,
-        switch1Valid: boolean,
-        switch2Id: number,
-        switch2Valid: boolean,
-        variableId: number,
-        variableValid: boolean,
+        actorId: number
+        actorValid: boolean
+        itemId: number
+        itemValid: boolean
+        selfSwitchCh: string
+        selfSwitchValid: boolean
+        switch1Id: number
+        switch1Valid: boolean
+        switch2Id: number
+        switch2Valid: boolean
+        variableId: number
+        variableValid: boolean
         variableValue: number
       }
 
       interface MoveRoute {
-        list: MZ.EventCommon.MoveCommand[],
-        repeat: boolean,
-        skippable: boolean,
+        list: MZ.EventCommon.MoveCommand[]
+        repeat: boolean
+        skippable: boolean
         wait: boolean
       }
 
       interface Page {
-        conditions: Conditions;
-        directionFix: boolean;
+        conditions: Conditions
+        directionFix: boolean
         image: {
-          tileId: number;
-          characterName: string;
-          characterIndex: number;
-          direction: number;
-          pattern: number;
-        };
-        list: MZ.EventCommon.PageCommand[];
-        moveFrequency: number,
-        moveRoute: MoveRoute,
-        moveSpeed: number,
-        moveType: number,
-        priorityType: number,
-        stepAnime: boolean,
-        through: boolean,
-        trigger: number,
+          tileId: number
+          characterName: string
+          characterIndex: number
+          direction: number
+          pattern: number
+        }
+        list: MZ.EventCommon.PageCommand[]
+        moveFrequency: number
+        moveRoute: MoveRoute
+        moveSpeed: number
+        moveType: number
+        priorityType: number
+        stepAnime: boolean
+        through: boolean
+        trigger: number
         walkAnime: boolean
       }
     }
   }
   interface Map {
-    autoplayBgm: boolean;
-    autoplayBgs: boolean;
-    battleback1Name: string;
-    battleback2Name: string;
-    bgm: AudioInfo;
-    bgs: AudioInfo;
-    disableDashing: boolean;
-    displayName: string;
-    encounterList: Map.EncounterList[];
-    encounterStep: number;
-    height: number;
-    note: string;
-    parallaxLoopX: boolean;
-    parallaxLoopY: boolean;
-    parallaxName: string;
-    parallaxShow: boolean;
-    parallaxSx: number;
-    parallaxSy: number;
-    scrollType: number;
-    specifyBattleback: boolean;
-    tilesetId: number;
-    width: number;
-    data: number[];
-    events: (Map.Event | null)[];
+    autoplayBgm: boolean
+    autoplayBgs: boolean
+    battleback1Name: string
+    battleback2Name: string
+    bgm: AudioInfo
+    bgs: AudioInfo
+    disableDashing: boolean
+    displayName: string
+    encounterList: Map.EncounterList[]
+    encounterStep: number
+    height: number
+    note: string
+    parallaxLoopX: boolean
+    parallaxLoopY: boolean
+    parallaxName: string
+    parallaxShow: boolean
+    parallaxSx: number
+    parallaxSy: number
+    scrollType: number
+    specifyBattleback: boolean
+    tilesetId: number
+    width: number
+    data: number[]
+    events: (Map.Event | null)[]
   }
   interface MapInfo {
-    id: number;
-    expanded: boolean;
-    name: string;
-    order: number;
-    parentId: number;
-    scrollX: number;
-    scrollY: number;
+    id: number
+    expanded: boolean
+    name: string
+    order: number
+    parentId: number
+    scrollX: number
+    scrollY: number
   }
 
   export interface Animation {
-    id: number;
-    displayType: number;
-    effectName: string;
-    flashTimings: Animation.FlashTiming[];
-    name: string;
-    offsetX: number;
-    offsetY: number;
+    id: number
+    displayType: number
+    effectName: string
+    flashTimings: Animation.FlashTiming[]
+    name: string
+    offsetX: number
+    offsetY: number
     // @ts-ignore
-    rotation: Rotation;
-    scale: number;
-    soundTimings: Animation.SoundTiming[];
-    speed: number;
-    timings: Animation.MVTiming[];
-    alignBottom: boolean;
+    rotation: Rotation
+    scale: number
+    soundTimings: Animation.SoundTiming[]
+    speed: number
+    timings: Animation.MVTiming[]
+    alignBottom: boolean
   }
 
   namespace Animation {
     export interface FlashTiming {
-      frame: number;
-      duration: number;
-      color: number[];
+      frame: number
+      duration: number
+      color: number[]
     }
     export interface Rotation {
-      x: number;
-      y: number;
-      z: number;
+      x: number
+      y: number
+      z: number
     }
 
     export interface SoundTiming {
-      frame: number;
-      se: MZ.AudioInfo;
+      frame: number
+      se: MZ.AudioInfo
     }
 
     export interface MVTiming {
@@ -720,4 +717,3 @@ export declare namespace MZ {
     }
   }
 }
-

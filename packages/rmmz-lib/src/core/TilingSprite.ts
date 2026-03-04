@@ -1,7 +1,7 @@
-import * as PIXI from 'pixi.js';
-import type { Bitmap } from './Bitmap';
-import { Point } from './Point';
-import { Rectangle } from './Rectangle';
+import type { Bitmap } from './Bitmap'
+import * as PIXI from 'pixi.js'
+import { Point } from './Point'
+import { Rectangle } from './Rectangle'
 
 /**
  * The sprite object for a tiling image.
@@ -21,23 +21,23 @@ export class TilingSprite extends PIXI.TilingSprite {
 
   constructor(bitmap?: Bitmap) {
     if (!TilingSprite._emptyBaseTexture) {
-      TilingSprite._emptyBaseTexture = new PIXI.BaseTexture();
-      TilingSprite._emptyBaseTexture.setSize(1, 1);
+      TilingSprite._emptyBaseTexture = new PIXI.BaseTexture()
+      TilingSprite._emptyBaseTexture.setSize(1, 1)
     }
-    const frame = new Rectangle();
-    const texture = new PIXI.Texture(TilingSprite._emptyBaseTexture, frame);
-    super(texture);
-    this._bitmap = bitmap;
-    this._width = 0;
-    this._height = 0;
-    this._frame = frame;
+    const frame = new Rectangle()
+    const texture = new PIXI.Texture(TilingSprite._emptyBaseTexture, frame)
+    super(texture)
+    this._bitmap = bitmap
+    this._width = 0
+    this._height = 0
+    this._frame = frame
 
-    this.origin = new Point();
+    this.origin = new Point()
 
-    this._onBitmapChange();
+    this._onBitmapChange()
   }
 
-  static _emptyBaseTexture: PIXI.BaseTexture | null = null;
+  static _emptyBaseTexture: PIXI.BaseTexture | null = null
 
   /**
    * The image for the tiling sprite.
@@ -46,13 +46,13 @@ export class TilingSprite extends PIXI.TilingSprite {
    * @name TilingSprite#bitmap
    */
   get bitmap() {
-    return this._bitmap;
+    return this._bitmap
   }
 
   set bitmap(value) {
     if (this._bitmap !== value) {
-      this._bitmap = value;
-      this._onBitmapChange();
+      this._bitmap = value
+      this._onBitmapChange()
     }
   }
 
@@ -63,19 +63,18 @@ export class TilingSprite extends PIXI.TilingSprite {
    * @name TilingSprite#opacity
    */
   get opacity() {
-    return this.alpha * 255;
+    return this.alpha * 255
   }
 
   set opacity(value) {
-    this.alpha = value.clamp(0, 255) / 255;
+    this.alpha = value.clamp(0, 255) / 255
   }
-
 
   /**
    * Destroys the tiling sprite.
    */
   destroy(options = { children: true, texture: true }) {
-    super.destroy(options);
+    super.destroy(options)
   }
 
   /**
@@ -84,7 +83,7 @@ export class TilingSprite extends PIXI.TilingSprite {
   update() {
     for (const child of this.children) {
       if (child.update) {
-        child.update();
+        child.update()
       }
     }
   }
@@ -98,10 +97,10 @@ export class TilingSprite extends PIXI.TilingSprite {
    * @param height - The height of the tiling sprite.
    */
   move(x = 0, y = 0, width = 0, height = 0) {
-    this.x = x;
-    this.y = y;
-    this._width = width;
-    this._height = height;
+    this.x = x
+    this.y = y
+    this._width = width
+    this._height = height
   }
 
   /**
@@ -113,51 +112,53 @@ export class TilingSprite extends PIXI.TilingSprite {
    * @param height - The height of the frame.
    */
   setFrame(x: number, y: number, width: number, height: number) {
-    this._frame.x = x;
-    this._frame.y = y;
-    this._frame.width = width;
-    this._frame.height = height;
-    this._refresh();
+    this._frame.x = x
+    this._frame.y = y
+    this._frame.width = width
+    this._frame.height = height
+    this._refresh()
   }
 
   /**
    * Updates the transform on all children of this container for rendering.
    */
   updateTransform() {
-    this.tilePosition.x = Math.round(-this.origin.x);
-    this.tilePosition.y = Math.round(-this.origin.y);
-    super.updateTransform();
+    this.tilePosition.x = Math.round(-this.origin.x)
+    this.tilePosition.y = Math.round(-this.origin.y)
+    super.updateTransform()
   }
 
   _onBitmapChange() {
     if (this._bitmap) {
-      this._bitmap.addLoadListener(this._onBitmapLoad.bind(this));
-    } else {
-      this.texture.frame = new Rectangle();
+      this._bitmap.addLoadListener(this._onBitmapLoad.bind(this))
+    }
+    else {
+      this.texture.frame = new Rectangle()
     }
   }
 
   _onBitmapLoad() {
-    this.texture.baseTexture = this._bitmap!.baseTexture;
-    this._refresh();
+    this.texture.baseTexture = this._bitmap!.baseTexture
+    this._refresh()
   }
 
   _refresh() {
-    const texture = this.texture;
-    const frame = this._frame.clone();
+    const texture = this.texture
+    const frame = this._frame.clone()
     if (frame.width === 0 && frame.height === 0 && this._bitmap) {
-      frame.width = this._bitmap.width;
-      frame.height = this._bitmap.height;
+      frame.width = this._bitmap.width
+      frame.height = this._bitmap.height
     }
     if (texture) {
       if (texture.baseTexture) {
         try {
-          texture.frame = frame;
-        } catch (e) {
-          texture.frame = new Rectangle();
+          texture.frame = frame
+        }
+        catch (e) {
+          texture.frame = new Rectangle()
         }
       }
-      texture._updateID++;
+      texture._updateID++
     }
   }
 }
