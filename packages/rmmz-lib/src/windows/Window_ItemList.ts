@@ -1,3 +1,4 @@
+import type { Rectangle } from "../core"
 import { DataManager } from "../managers"
 import { Window_Selectable } from "./Window_Selectable"
 
@@ -7,7 +8,7 @@ import { Window_Selectable } from "./Window_Selectable"
  * The window for selecting an item on the item screen.
  */
 export class Window_ItemList extends Window_Selectable {
-  constructor(rect) {
+  constructor(rect: Rectangle) {
     super(rect)
     this._category = 'none'
     this._data = []

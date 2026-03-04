@@ -1,4 +1,7 @@
-import { Window_ItemList } from "./Window_ItemList"
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Rectangle } from '../core'
+import { JsonEx } from '../core'
+import { Window_ItemList } from './Window_ItemList'
 
 /**
  * Window_EquipItem
@@ -6,7 +9,7 @@ import { Window_ItemList } from "./Window_ItemList"
  * The window for selecting an equipment item on the equipment screen.
  */
 export class Window_EquipItem extends Window_ItemList {
-  constructor(rect) {
+  constructor(rect: Rectangle) {
     super(rect)
     this._actor = null
     this._slotId = 0
@@ -54,20 +57,20 @@ export class Window_EquipItem extends Window_ItemList {
     }
   }
 
-  isEnabled(/* item */) {
+  isEnabled(_item: MZ.Item | MZ.Skill): boolean {
     return true
   }
 
-  selectLast() {
+  selectLast(): void {
     // empty method body
   }
 
-  setStatusWindow(statusWindow) {
+  setStatusWindow(statusWindow): void {
     this._statusWindow = statusWindow
     this.callUpdateHelp()
   }
 
-  updateHelp() {
+  updateHelp(): void {
     super.updateHelp()
     if (this._actor && this._statusWindow && this._slotId >= 0) {
       const actor = JsonEx.makeDeepCopy(this._actor)
@@ -76,7 +79,7 @@ export class Window_EquipItem extends Window_ItemList {
     }
   }
 
-  playOkSound() {
+  playOkSound(): void {
     // empty method body
   }
 }

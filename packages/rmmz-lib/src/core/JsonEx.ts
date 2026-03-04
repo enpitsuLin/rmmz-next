@@ -11,7 +11,6 @@ export class JsonEx {
   /**
    * The maximum depth of objects.
    *
-   * @type number
    * @default 100
    */
   static maxDepth = 100
@@ -32,7 +31,7 @@ export class JsonEx {
    * @param json - The JSON string.
    * @returns The reconstructed object.
    */
-  static parse(json: string) {
+  static parse(json: string): any {
     return this._decode(JSON.parse(json))
   }
 
