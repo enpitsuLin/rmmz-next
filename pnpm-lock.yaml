@@ -36,6 +36,9 @@ catalogs:
       specifier: 7.3.1
       version: 7.3.1
   types:
+    '@types/node':
+      specifier: ^25.3.3
+      version: 25.3.3
     '@types/nw.js':
       specifier: ^0.92.0
       version: 0.92.0
@@ -50,6 +53,9 @@ importers:
       '@antfu/eslint-config':
         specifier: catalog:dev
         version: 7.6.1(@typescript-eslint/rule-tester@8.56.1(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/typescript-estree@8.56.1(typescript@5.9.3))(@typescript-eslint/utils@8.56.1(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3))(@vue/compiler-sfc@3.5.29)(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3)
+      '@types/node':
+        specifier: catalog:types
+        version: 25.3.3
       eslint:
         specifier: catalog:dev
         version: 10.0.2(jiti@2.6.1)
@@ -59,12 +65,12 @@ importers:
 
   example:
     dependencies:
+      '@rmmz-lib/core':
+        specifier: workspace:*
+        version: link:../packages/core
       pixi.js:
         specifier: 'catalog:'
         version: 7.4.3
-      rmmz-lib:
-        specifier: workspace:*
-        version: link:../packages/rmmz-lib
     devDependencies:
       '@types/nw.js':
         specifier: catalog:types
@@ -76,16 +82,7 @@ importers:
         specifier: catalog:dev
         version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
 
-  packages/database-types:
-    devDependencies:
-      tsdown:
-        specifier: catalog:build
-        version: 0.20.3(synckit@0.11.12)(typescript@5.9.3)
-      typescript:
-        specifier: catalog:dev
-        version: 5.9.3
-
-  packages/rmmz-lib:
+  packages/core:
     dependencies:
       '@rmmz-lib/database-types':
         specifier: workspace:*
@@ -115,6 +112,21 @@ importers:
       vite:
         specifier: catalog:dev
         version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
+
+  packages/database-types:
+    devDependencies:
+      tsdown:
+        specifier: catalog:build
+        version: 0.20.3(synckit@0.11.12)(typescript@5.9.3)
+      typescript:
+        specifier: catalog:dev
+        version: 5.9.3
+
+  packages/runtime:
+    devDependencies:
+      tsdown:
+        specifier: catalog:build
+        version: 0.20.3(synckit@0.11.12)(typescript@5.9.3)
 
 packages:
 

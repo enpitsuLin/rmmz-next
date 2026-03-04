@@ -12,8 +12,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "pixi.js": "catalog:",
-    "rmmz-lib": "workspace:*"
+    "@rmmz-lib/core": "workspace:*",
+    "pixi.js": "catalog:"
   },
   "devDependencies": {
     "@types/nw.js": "catalog:types",

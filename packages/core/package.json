@@ -1,5 +1,5 @@
 {
-  "name": "rmmz-lib",
+  "name": "@rmmz-lib/core",
   "type": "module",
   "version": "0.0.0",
   "private": true,
