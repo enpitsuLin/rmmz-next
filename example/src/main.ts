@@ -71,14 +71,14 @@ class Main {
     this.error = null
   }
 
-  run() {
+  run(): void {
     this.showLoadingSpinner()
     this.testXhr()
     this.hookNwjsClose()
     this.loadMainScripts()
   }
 
-  showLoadingSpinner() {
+  showLoadingSpinner(): void {
     const loadingSpinner = document.createElement('div')
     const loadingSpinnerImage = document.createElement('div')
     loadingSpinner.id = 'loadingSpinner'
@@ -87,21 +87,21 @@ class Main {
     document.body.appendChild(loadingSpinner)
   }
 
-  eraseLoadingSpinner() {
+  eraseLoadingSpinner(): void {
     const loadingSpinner = document.getElementById('loadingSpinner')
     if (loadingSpinner) {
       document.body.removeChild(loadingSpinner)
     }
   }
 
-  testXhr() {
+  testXhr(): void {
     const xhr = new XMLHttpRequest()
     xhr.open('GET', import.meta.url)
     xhr.onload = () => (this.xhrSucceeded = true)
     xhr.send()
   }
 
-  hookNwjsClose() {
+  hookNwjsClose(): void {
     // [Note] When closing the window, the NW.js process sometimes does
     //   not terminate properly. This code is a workaround for that.
     if (typeof nw === 'object') {
@@ -109,7 +109,7 @@ class Main {
     }
   }
 
-  loadMainScripts() {
+  loadMainScripts(): void {
     for (const url of scriptUrls) {
       const script = document.createElement('script')
       script.type = 'text/javascript'
@@ -126,7 +126,7 @@ class Main {
     window.addEventListener('error', this.onWindowError.bind(this))
   }
 
-  onScriptLoad() {
+  onScriptLoad(): void {
     if (++this.loadCount === this.numScripts) {
       PluginManager.setup($plugins)
     }
@@ -156,7 +156,7 @@ class Main {
     return nameDiv.outerHTML + messageDiv.outerHTML
   }
 
-  onWindowLoad() {
+  onWindowLoad(): void {
     if (!this.xhrSucceeded) {
       const message = 'Your browser does not allow to read local files.'
       this.printError('Error', message)
@@ -173,13 +173,13 @@ class Main {
     }
   }
 
-  onWindowError(event) {
+  onWindowError(event): void {
     if (!this.error) {
       this.error = event.error
     }
   }
 
-  isPathRandomized() {
+  isPathRandomized(): boolean {
     // [Note] We cannot save the game properly when Gatekeeper Path
     //   Randomization is in effect.
     return (
@@ -188,18 +188,18 @@ class Main {
     )
   }
 
-  initEffekseerRuntime() {
+  initEffekseerRuntime(): void {
     const onLoad = this.onEffekseerLoad.bind(this)
     const onError = this.onEffekseerError.bind(this)
     effekseer.initRuntime(effekseerWasmUrl, onLoad, onError)
   }
 
-  onEffekseerLoad() {
+  onEffekseerLoad(): void {
     this.eraseLoadingSpinner()
     SceneManager.run(Scene_Boot)
   }
 
-  onEffekseerError() {
+  onEffekseerError(): void {
     this.printError('Failed to load', effekseerWasmUrl)
   }
 }
