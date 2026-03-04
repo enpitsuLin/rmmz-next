@@ -5,7 +5,7 @@ import readline from 'node:readline'
 
 const __dirname = import.meta.dirname
 
-const targetDir = join(__dirname, 'src/sprites')
+const targetDir = join(__dirname, 'src/windows')
 
 const content = fs.readFileSync(join(targetDir, 'index.ts'), 'utf8')
 
