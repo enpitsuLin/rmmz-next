@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@rmmz-lib/core": "workspace:*",
+    "@rmmz-lib/runtime": "workspace:*",
     "pixi.js": "catalog:"
   },
   "devDependencies": {

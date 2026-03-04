@@ -7,7 +7,7 @@ settings:
 catalogs:
   build:
     tsdown:
-      specifier: ^0.20.0
+      specifier: ^0.20.3
       version: 0.20.3
   default:
     cac:
@@ -59,6 +59,9 @@ importers:
       eslint:
         specifier: catalog:dev
         version: 10.0.2(jiti@2.6.1)
+      tsdown:
+        specifier: catalog:build
+        version: 0.20.3(synckit@0.11.12)(typescript@5.9.3)
       typescript:
         specifier: catalog:dev
         version: 5.9.3

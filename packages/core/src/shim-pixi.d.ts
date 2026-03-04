@@ -1,6 +1,6 @@
 declare namespace GlobalMixins {
   interface RMMZDisplayObject {
-    update?(): void
+    update: () => void
   }
 
   interface DisplayObject extends RMMZDisplayObject {

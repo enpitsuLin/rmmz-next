@@ -14,8 +14,8 @@ import type {
   Game_Timer,
   Game_Troop,
   Game_Variables,
-} from './src'
-import type { DataManager } from './src/managers/DataManager'
+} from '.'
+import type { DataManager } from './managers/DataManager'
 
 declare global {
   interface Window {

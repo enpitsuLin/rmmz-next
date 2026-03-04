@@ -10,7 +10,7 @@ catalog:
 
 catalogs:
   build:
-    tsdown: ^0.20.0
+    tsdown: ^0.20.3
   dev:
     '@antfu/eslint-config': ^7.6.1
     eslint: ^10.0.2

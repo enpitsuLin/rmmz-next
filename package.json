@@ -5,12 +5,13 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "build": "pnpm -r build"
+    "build": "tsdown"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",
     "@types/node": "catalog:types",
     "eslint": "catalog:dev",
+    "tsdown": "catalog:build",
     "typescript": "catalog:dev"
   }
 }
