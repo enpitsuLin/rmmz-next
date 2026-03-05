@@ -4,8 +4,8 @@ import { BattleManager } from '../managers/BattleManager'
  * The game object class for the timer.
  */
 class Game_Timer {
-  private _frames: number
-  private _working: boolean
+  _frames: number
+  _working: boolean
 
   /**
    * @param { Game_Timer } [gameTimer]

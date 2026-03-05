@@ -19,11 +19,11 @@ export class DataManager {
     throw new Error('This is a static class')
   }
 
-  private static _setWindowData(name: string, value: unknown): void {
+  static _setWindowData(name: string, value: unknown): void {
     ;(window as unknown as Record<string, unknown>)[name] = value
   }
 
-  private static _getWindowData(name: string): unknown {
+  static _getWindowData(name: string): unknown {
     return (window as unknown as Record<string, unknown>)[name]
   }
 

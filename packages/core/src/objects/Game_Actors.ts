@@ -4,13 +4,13 @@ import { Game_Actor } from './Game_Actor'
  * The wrapper class for an actor array.
  */
 class Game_Actors {
-  private _data: Game_Actor[] = []
+  _data: Game_Actor[] = []
 
   constructor() {
     this._data = []
   }
 
-  actor(actorId: number) {
+  actor(actorId: number): Game_Actor | null {
     if ($dataActors[actorId]) {
       if (!this._data[actorId]) {
         this._data[actorId] = new Game_Actor(actorId)

@@ -7,8 +7,8 @@ import { DataManager } from '../managers/DataManager'
  * It is required because save data should not include the database object itself.
  */
 class Game_Item<Item extends MZ.GeneralItem = MZ.GeneralItem> {
-  private _dataClass: 'skill' | 'item' | 'weapon' | 'armor' | ''
-  private _itemId: number
+  _dataClass: 'skill' | 'item' | 'weapon' | 'armor' | ''
+  _itemId: number
 
   constructor(item?: Item) {
     this._dataClass = ''

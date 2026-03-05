@@ -231,7 +231,7 @@ export class Graphics {
     this._updateAllElements()
   }
 
-  // Private methods
+  // methods
 
   static _createAllElements(): void {
     this._createErrorPrinter()

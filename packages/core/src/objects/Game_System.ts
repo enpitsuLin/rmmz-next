@@ -6,25 +6,25 @@ import { AudioManager } from '../managers/AudioManager'
  * The game object class for the system data.
  */
 class Game_System {
-  private _saveEnabled: boolean
-  private _menuEnabled: boolean
-  private _encounterEnabled: boolean
-  private _formationEnabled: boolean
-  private _battleCount: number
-  private _winCount: number
-  private _escapeCount: number
-  private _saveCount: number
-  private _versionId: number
-  private _savefileId: number
-  private _framesOnSave: number
-  private _bgmOnSave: MZ.AudioInfo | null
-  private _bgsOnSave: MZ.AudioInfo | null
-  private _windowTone: string | null
-  private _battleBgm: MZ.AudioInfo | null
-  private _victoryMe: MZ.AudioInfo | null
-  private _defeatMe: MZ.AudioInfo | null
-  private _savedBgm: MZ.AudioInfo | null
-  private _walkingBgm: MZ.AudioInfo | null
+  _saveEnabled: boolean
+  _menuEnabled: boolean
+  _encounterEnabled: boolean
+  _formationEnabled: boolean
+  _battleCount: number
+  _winCount: number
+  _escapeCount: number
+  _saveCount: number
+  _versionId: number
+  _savefileId: number
+  _framesOnSave: number
+  _bgmOnSave: MZ.AudioInfo | null
+  _bgsOnSave: MZ.AudioInfo | null
+  _windowTone: string | null
+  _battleBgm: MZ.AudioInfo | null
+  _victoryMe: MZ.AudioInfo | null
+  _defeatMe: MZ.AudioInfo | null
+  _savedBgm: MZ.AudioInfo | null
+  _walkingBgm: MZ.AudioInfo | null
 
   /**
    * @param { Game_System } [gameSystem]
