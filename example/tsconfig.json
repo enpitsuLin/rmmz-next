@@ -12,6 +12,7 @@
     "types": [
       "vite/client",
       "vite-plugin-rmmz/client",
+      "@rmmz-lib/core/global-types",
       "nw.js"
     ],
     "allowJs": true,

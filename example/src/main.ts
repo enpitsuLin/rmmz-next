@@ -1,4 +1,16 @@
-import { AudioManager, Bitmap, DataManager, FontManager, Graphics, ImageManager, PluginManager, Scene_Boot, SceneManager, Utils, WebAudio } from '@rmmz-lib/core'
+import {
+  AudioManager,
+  Bitmap,
+  DataManager,
+  FontManager,
+  Graphics,
+  ImageManager,
+  PluginManager,
+  Scene_Boot,
+  SceneManager,
+  Utils,
+  WebAudio,
+} from '@rmmz-lib/core'
 import { fileurl } from 'virtual:rmmz-project'
 
 globalThis.$plugins = [
