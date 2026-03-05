@@ -13,7 +13,7 @@ declare module 'virtual:rmmz-project' {
    * @param filePath 相对于项目根目录的文件路径
    * @returns string 可用于直接请求的 URL
    */
-  export function getFileUrl(filePath: string): string
+  export function fileurl(filePath: string): string
 
   /**
    * 项目根目录的绝对路径

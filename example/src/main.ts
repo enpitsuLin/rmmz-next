@@ -1,5 +1,5 @@
 import { AudioManager, Bitmap, DataManager, FontManager, Graphics, ImageManager, PluginManager, Scene_Boot, SceneManager, Utils, WebAudio } from '@rmmz-lib/core'
-import { projectRoot, getFileUrl } from 'virtual:rmmz-project'
+import { projectRoot, fileurl } from 'virtual:rmmz-project'
 
 globalThis.$plugins = [
   { "name": "TestPlugin", "status": true, "description": "", "parameters": {} }
@@ -38,7 +38,7 @@ globalThis.$testEvent = null
 ImageManager.loadBitmapFromUrl = function (url) {
   const cache = url.includes('/system/') ? this._system : this._cache
   if (!cache[url]) {
-    cache[url] = Bitmap.load(getFileUrl(url))
+    cache[url] = Bitmap.load(fileurl(url))
   }
   return cache[url]
 }
@@ -60,7 +60,7 @@ PluginManager.loadScript = function (filename: string): void {
 
 DataManager.loadDataFile = function (name: string, src: string): void {
   const t = new XMLHttpRequest()
-  const n = getFileUrl(`data/${src}`)
+  const n = fileurl(`data/${src}`)
   // @ts-expect-error to fix
   window[name] = null
   t.open('GET', n)
@@ -73,7 +73,7 @@ DataManager.loadDataFile = function (name: string, src: string): void {
 FontManager.load = function (family, filename) {
   if (this._states[family] !== 'loaded') {
     if (filename) {
-      const url = getFileUrl(this.makeUrl(filename))
+      const url = fileurl(this.makeUrl(filename))
       this.startLoading(family, url)
     }
     else {
@@ -85,7 +85,7 @@ FontManager.load = function (family, filename) {
 
 AudioManager.createBuffer = function (folder, name) {
   const ext = this.audioFileExt()
-  const url = getFileUrl(this._path + folder + Utils.encodeURI(name) + ext)
+  const url = fileurl(this._path + folder + Utils.encodeURI(name) + ext)
   const buffer = new WebAudio(url)
   buffer.name = name
   buffer.frameCount = Graphics.frameCount
@@ -93,10 +93,10 @@ AudioManager.createBuffer = function (folder, name) {
 }
 
 const scriptUrls = [
-  new URL('/project/js/libs/effekseer.min.js', import.meta.url).href,
-  new URL('/project/js/libs/vorbisdecoder.js', import.meta.url).href,
+  'js/libs/effekseer.min.js',
+  'js/libs/vorbisdecoder.js',
 ]
-const effekseerWasmUrl = new URL('/project/js/libs/effekseer.wasm', import.meta.url).href
+const effekseerWasmUrl = 'js/libs/effekseer.wasm'
 
 class Main {
   error: Error | null = null
@@ -153,7 +153,7 @@ class Main {
     for (const url of scriptUrls) {
       const script = document.createElement('script')
       script.type = 'text/javascript'
-      script.src = url
+      script.src = fileurl(url)
       script.async = false
       script.defer = true
       script.onload = this.onScriptLoad.bind(this)
@@ -232,7 +232,7 @@ class Main {
   initEffekseerRuntime(): void {
     const onLoad = this.onEffekseerLoad.bind(this)
     const onError = this.onEffekseerError.bind(this)
-    effekseer.initRuntime(effekseerWasmUrl, onLoad, onError)
+    effekseer.initRuntime(fileurl(effekseerWasmUrl), onLoad, onError)
   }
 
   onEffekseerLoad(): void {

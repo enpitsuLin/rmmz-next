@@ -32,6 +32,7 @@ const MIME_TYPES: Record<string, string> = {
   '.ttf': 'font/ttf',
   '.otf': 'font/otf',
   '.eot': 'application/vnd.ms-fontobject',
+  '.wasm': 'application/wasm',
 }
 
 function getMimeType(filePath: string): string {
@@ -44,13 +45,15 @@ function isBinaryFile(filePath: string): boolean {
   const binaryExtensions = [
     '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico',
     '.wav', '.mp3', '.ogg',
-    '.woff', '.woff2', '.ttf', '.otf', '.eot'
+    '.woff', '.woff2', '.ttf', '.otf', '.eot',
+    '.wasm'
   ]
   return binaryExtensions.includes(ext)
 }
 
 export interface RMMZPluginOptions {
   projectRoot?: string
+  apiPath?: string
 }
 
 export function rmmz(options: RMMZPluginOptions = {}): Plugin[] {
@@ -72,6 +75,10 @@ function projectRoot(options: RMMZPluginOptions = {}): Plugin {
 
 function virtualModule(options: RMMZPluginOptions = {}): Plugin {
   let projectRoot: string
+  // 确保 apiPath 以 / 开头
+  const apiPath = options.apiPath
+    ? (options.apiPath.startsWith('/') ? options.apiPath : `/${options.apiPath}`)
+    : '/__rmmz_load_file'
 
   return {
     name: 'rmmz:virtual-module',
@@ -88,7 +95,7 @@ function virtualModule(options: RMMZPluginOptions = {}): Plugin {
         return `
 export async function loadFile(filePath) {
   try {
-    const response = await fetch('/__rmmz_load_file?path=' + encodeURIComponent(filePath));
+    const response = await fetch('${apiPath}?path=' + encodeURIComponent(filePath));
     if (!response.ok) {
       throw new Error(\`Failed to load file: \${response.statusText}\`);
     }
@@ -98,8 +105,8 @@ export async function loadFile(filePath) {
   }
 }
 
-export function getFileUrl(filePath) {
-  return '/__rmmz_load_file?path=' + encodeURIComponent(filePath);
+export function fileurl(filePath) {
+  return '${apiPath}?path=' + encodeURIComponent(filePath);
 }
 
 export const projectRoot = ${JSON.stringify(projectRoot)};
@@ -107,7 +114,7 @@ export const projectRoot = ${JSON.stringify(projectRoot)};
       }
     },
     configureServer(server) {
-      server.middlewares.use('/__rmmz_load_file', async (req, res, next) => {
+      server.middlewares.use(apiPath, async (req, res, next) => {
         const url = new URL(req.url!, `http://${req.headers.host}`)
         const filePath = url.searchParams.get('path')
 
