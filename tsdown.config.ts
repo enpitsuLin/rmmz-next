@@ -22,7 +22,6 @@ export default defineConfig({
           types: './client.d.ts',
         }
       }
-      console.log(`package ${context.pkg.name}`, exports)
       return exports
     },
     devExports: true,
@@ -32,4 +31,10 @@ export default defineConfig({
   copy: [
     { from: 'src/*.d.ts', to: 'dist' },
   ],
+  inputOptions: {
+    checks: {
+      eval: false,
+      unresolvedImport: false,
+    },
+  },
 })

@@ -250,6 +250,7 @@ export class StorageManager {
   static fileDirectoryPath() {
     const path = require('path')
     // @ts-expect-error to fix
+    // eslint-disable-next-line node/prefer-global/process
     const base = path.dirname(process.mainModule.filename)
     return path.join(base, 'save/')
   }
