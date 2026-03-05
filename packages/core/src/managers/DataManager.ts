@@ -1,7 +1,3 @@
-// -----------------------------------------------------------------------------
-// DataManager
-//
-
 import type { MZ } from '@rmmz-lib/database-types'
 import { Graphics, Utils } from '../core'
 import { Game_Actors, Game_Map, Game_Message, Game_Party, Game_Player, Game_Screen, Game_SelfSwitches, Game_Switches, Game_System, Game_Temp, Game_Timer, Game_Troop, Game_Variables } from '../objects'
@@ -10,7 +6,9 @@ import { ImageManager } from './ImageManager'
 import { SceneManager } from './SceneManager'
 import { StorageManager } from './StorageManager'
 
-// The static class that manages the database and game objects.
+/**
+ * The static class that manages the database and game objects.
+ */
 export class DataManager {
   constructor() {
     throw new Error('This is a static class')

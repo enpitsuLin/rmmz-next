@@ -1,8 +1,12 @@
+
+interface Effekseer {
+  init: (gl: WebGLRenderingContext) => void
+  setRestorationOfStatesFlag: (flag: boolean) => void
+  loadEffect: (url: string, flag, onLoad: () => void, onError: () => void) => void
+}
+
 declare const effekseer: {
-  createContext: () => {
-    init: (gl: WebGLRenderingContext) => void
-    setRestorationOfStatesFlag: (flag: boolean) => void
-  } | null
+  createContext: () => Effekseer | null
 }
 
 interface Window {
