@@ -1,89 +1,97 @@
-import { join, extname } from 'node:path'
-import { readFile } from 'node:fs/promises'
-import { existsSync } from 'node:fs'
-import type { Plugin } from 'vite'
+import { join, extname, resolve, relative } from 'node:path'
+import { readFile, stat } from 'node:fs/promises'
+import type { Plugin, ResolvedConfig } from 'vite'
 
 const VIRTUAL_MODULE_ID = 'virtual:rmmz-project'
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`
 
-// MIME 类型映射
-const MIME_TYPES: Record<string, string> = {
-  '.json': 'application/json',
-  '.js': 'application/javascript',
-  '.ts': 'application/typescript',
-  '.txt': 'text/plain',
-  '.md': 'text/markdown',
-  '.html': 'text/html',
-  '.css': 'text/css',
-  '.xml': 'application/xml',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.webp': 'image/webp',
-  '.bmp': 'image/bmp',
-  '.ico': 'image/x-icon',
-  '.wav': 'audio/wav',
-  '.mp3': 'audio/mpeg',
-  '.ogg': 'audio/ogg',
-  '.woff': 'font/woff',
-  '.woff2': 'font/woff2',
-  '.ttf': 'font/ttf',
-  '.otf': 'font/otf',
-  '.eot': 'application/vnd.ms-fontobject',
-  '.wasm': 'application/wasm',
-}
+// MIME 类型映射 - 优化为 Map 以提升性能
+const MIME_TYPES = new Map([
+  ['.json', 'application/json'],
+  ['.js', 'application/javascript'],
+  ['.ts', 'application/typescript'],
+  ['.txt', 'text/plain'],
+  ['.md', 'text/markdown'],
+  ['.html', 'text/html'],
+  ['.css', 'text/css'],
+  ['.xml', 'application/xml'],
+  ['.png', 'image/png'],
+  ['.jpg', 'image/jpeg'],
+  ['.jpeg', 'image/jpeg'],
+  ['.gif', 'image/gif'],
+  ['.svg', 'image/svg+xml'],
+  ['.webp', 'image/webp'],
+  ['.bmp', 'image/bmp'],
+  ['.ico', 'image/x-icon'],
+  ['.wav', 'audio/wav'],
+  ['.mp3', 'audio/mpeg'],
+  ['.ogg', 'audio/ogg'],
+  ['.woff', 'font/woff'],
+  ['.woff2', 'font/woff2'],
+  ['.ttf', 'font/ttf'],
+  ['.otf', 'font/otf'],
+  ['.eot', 'application/vnd.ms-fontobject'],
+  ['.wasm', 'application/wasm'],
+])
+
+// 二进制文件扩展名集合 - 使用 Set 提升查找性能
+const BINARY_EXTENSIONS = new Set([
+  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico',
+  '.wav', '.mp3', '.ogg',
+  '.woff', '.woff2', '.ttf', '.otf', '.eot',
+  '.wasm'
+])
 
 function getMimeType(filePath: string): string {
   const ext = extname(filePath).toLowerCase()
-  return MIME_TYPES[ext] || 'text/plain'
+  return MIME_TYPES.get(ext) ?? 'text/plain'
 }
 
 function isBinaryFile(filePath: string): boolean {
   const ext = extname(filePath).toLowerCase()
-  const binaryExtensions = [
-    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico',
-    '.wav', '.mp3', '.ogg',
-    '.woff', '.woff2', '.ttf', '.otf', '.eot',
-    '.wasm'
-  ]
-  return binaryExtensions.includes(ext)
+  return BINARY_EXTENSIONS.has(ext)
 }
 
 export interface RMMZPluginOptions {
+  /** 项目根目录路径，默认为 public/project */
   projectRoot?: string
+  /** API 路径，默认为 /__rmmz_load_file */
   apiPath?: string
+  /** 是否启用开发模式日志 */
+  debug?: boolean
 }
 
 export function rmmz(options: RMMZPluginOptions = {}): Plugin[] {
   return [
-    projectRoot(options),
     virtualModule(options),
   ]
 }
 
-function projectRoot(options: RMMZPluginOptions = {}): Plugin {
-  let projectRoot: string
-  return {
-    name: "rmmz:project-root",
-    configResolved(config) {
-      projectRoot = options.projectRoot ?? join(config.publicDir, 'project')
-    },
-  }
-}
-
 function virtualModule(options: RMMZPluginOptions = {}): Plugin {
-  let projectRoot: string
-  // 确保 apiPath 以 / 开头
-  const apiPath = options.apiPath
-    ? (options.apiPath.startsWith('/') ? options.apiPath : `/${options.apiPath}`)
-    : '/__rmmz_load_file'
+  let config: ResolvedConfig
+  let resolvedProjectRoot: string
+
+  // 确保 apiPath 以 / 开头且格式正确
+  const apiPath = options.apiPath?.startsWith('/')
+    ? options.apiPath
+    : `/${options.apiPath ?? '__rmmz_load_file'}`
+
+  const debug = options.debug && process.env.NODE_ENV === 'development'
+
+  function log(...args: unknown[]) {
+    if (debug) {
+      console.log('[rmmz-plugin]', ...args)
+    }
+  }
 
   return {
     name: 'rmmz:virtual-module',
-    configResolved(config) {
-      projectRoot = options.projectRoot ?? join(config.publicDir, 'project')
+    configResolved(resolvedConfig) {
+      config = resolvedConfig
+      resolvedProjectRoot = resolve(
+        options.projectRoot ?? join(config.publicDir, 'project')
+      )
+      log('项目根目录:', resolvedProjectRoot)
     },
     resolveId(id) {
       if (id === VIRTUAL_MODULE_ID) {
@@ -92,68 +100,104 @@ function virtualModule(options: RMMZPluginOptions = {}): Plugin {
     },
     load(id) {
       if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+        // 使用模板字符串生成更清晰的代码
         return `
-export async function loadFile(filePath) {
-  try {
-    const response = await fetch('${apiPath}?path=' + encodeURIComponent(filePath));
-    if (!response.ok) {
-      throw new Error(\`Failed to load file: \${response.statusText}\`);
-    }
-    return await response.text();
-  } catch (error) {
-    throw new Error(\`Error loading file "\${filePath}": \${error.message}\`);
-  }
-}
-
 export function fileurl(filePath) {
+  if (typeof filePath !== 'string') {
+    throw new TypeError('filePath must be a string');
+  }
   return '${apiPath}?path=' + encodeURIComponent(filePath);
 }
 
-export const projectRoot = ${JSON.stringify(projectRoot)};
+export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
 `
       }
     },
     configureServer(server) {
-      server.middlewares.use(apiPath, async (req, res, next) => {
-        const url = new URL(req.url!, `http://${req.headers.host}`)
-        const filePath = url.searchParams.get('path')
-
-        if (!filePath) {
-          res.statusCode = 400
-          res.end('Missing path parameter')
-          return
-        }
-
-        const fullPath = join(projectRoot, filePath)
-
-        // 安全检查：确保文件在 projectRoot 内
-        if (!fullPath.startsWith(projectRoot)) {
-          res.statusCode = 403
-          res.end('Access denied: path outside project root')
-          return
-        }
-
+      server.middlewares.use(apiPath, async (req, res) => {
         try {
-          if (!existsSync(fullPath)) {
+          const url = new URL(req.url!, `http://${req.headers.host}`)
+          const filePath = url.searchParams.get('path')
+
+          if (!filePath) {
+            res.statusCode = 400
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ error: 'Missing path parameter' }))
+            return
+          }
+
+          // 标准化路径并进行安全检查
+          const normalizedPath = relative('.', filePath).replace(/\\/g, '/')
+          if (normalizedPath.startsWith('../') || normalizedPath.includes('/../')) {
+            res.statusCode = 403
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ error: 'Access denied: invalid path' }))
+            return
+          }
+
+          const fullPath = resolve(resolvedProjectRoot, normalizedPath)
+
+          // 双重安全检查：确保解析后的路径仍在项目根目录内
+          if (!fullPath.startsWith(resolvedProjectRoot)) {
+            res.statusCode = 403
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ error: 'Access denied: path outside project root' }))
+            return
+          }
+
+          // 检查文件是否存在并获取统计信息
+          let stats
+          try {
+            stats = await stat(fullPath)
+          } catch {
             res.statusCode = 404
-            res.end(`File not found: ${filePath}`)
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ error: `File not found: ${filePath}` }))
+            return
+          }
+
+          // 确保是文件而不是目录
+          if (!stats.isFile()) {
+            res.statusCode = 400
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ error: 'Path is not a file' }))
             return
           }
 
           const isBinary = isBinaryFile(filePath)
-          const content = await readFile(fullPath, isBinary ? undefined : 'utf-8')
           const mimeType = getMimeType(filePath)
 
-          if (isBinary) {
-            res.setHeader('Content-Type', mimeType)
-          } else {
-            res.setHeader('Content-Type', `${mimeType}; charset=utf-8`)
+          // 设置缓存头以提升性能
+          const lastModified = stats.mtime.toUTCString()
+          res.setHeader('Last-Modified', lastModified)
+          res.setHeader('ETag', `"${stats.size}-${stats.mtime.getTime()}"`)
+
+          // 检查条件请求
+          const ifModifiedSince = req.headers['if-modified-since']
+          const ifNoneMatch = req.headers['if-none-match']
+
+          if (ifModifiedSince === lastModified || ifNoneMatch === res.getHeader('ETag')) {
+            res.statusCode = 304
+            res.end()
+            return
           }
 
+          // 读取并返回文件内容
+          const content = await readFile(fullPath, isBinary ? undefined : 'utf-8')
+
+          res.setHeader('Content-Type', isBinary ? mimeType : `${mimeType}; charset=utf-8`)
+          res.setHeader('Content-Length', Buffer.byteLength(content))
+
+          log(`服务文件: ${filePath} (${mimeType})`)
           res.end(content)
+
         } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+          log('文件服务错误:', errorMessage)
+
           res.statusCode = 500
-          res.end(`Error reading file: ${error.message}`)
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify({ error: `Internal server error: ${errorMessage}` }))
         }
       })
     }
