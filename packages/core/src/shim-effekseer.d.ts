@@ -1,4 +1,3 @@
-
 interface Effekseer {
   init: (gl: WebGLRenderingContext) => void
   setRestorationOfStatesFlag: (flag: boolean) => void
@@ -7,6 +6,7 @@ interface Effekseer {
 
 declare const effekseer: {
   createContext: () => Effekseer | null
+  initRuntime: (wasmUrl: string, onLoad: () => void, onError: () => void) => void
 }
 
 interface Window {

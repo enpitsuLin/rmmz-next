@@ -10,8 +10,8 @@ export class FontManager {
     throw new Error('This is a static class')
   }
 
-  static _urls = {}
-  static _states = {}
+  static _urls: Record<string, string> = {}
+  static _states: Record<string, 'loaded' | 'loading' | 'error'> = {}
 
   static load(family, filename) {
     if (this._states[family] !== 'loaded') {

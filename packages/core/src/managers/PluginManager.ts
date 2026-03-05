@@ -93,6 +93,7 @@ export namespace PluginManager {
   export interface PluginConfig {
     name: string
     status: boolean
+    description: string
     parameters: Record<string, string>
   }
 }

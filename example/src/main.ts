@@ -12,39 +12,7 @@ import {
   WebAudio,
 } from '@rmmz-lib/core'
 import { fileurl } from 'virtual:rmmz-project'
-
-globalThis.$plugins = [
-  { name: 'TestPlugin', status: true, description: '', parameters: {} },
-]
-globalThis.$dataActors = null
-globalThis.$dataClasses = null
-globalThis.$dataSkills = null
-globalThis.$dataItems = null
-globalThis.$dataWeapons = null
-globalThis.$dataArmors = null
-globalThis.$dataEnemies = null
-globalThis.$dataTroops = null
-globalThis.$dataStates = null
-globalThis.$dataAnimations = null
-globalThis.$dataTilesets = null
-globalThis.$dataCommonEvents = null
-globalThis.$dataSystem = null
-globalThis.$dataMapInfos = null
-globalThis.$dataMap = null
-globalThis.$gameTemp = null
-globalThis.$gameSystem = null
-globalThis.$gameScreen = null
-globalThis.$gameTimer = null
-globalThis.$gameMessage = null
-globalThis.$gameSwitches = null
-globalThis.$gameVariables = null
-globalThis.$gameSelfSwitches = null
-globalThis.$gameActors = null
-globalThis.$gameParty = null
-globalThis.$gameTroop = null
-globalThis.$gameMap = null
-globalThis.$gamePlayer = null
-globalThis.$testEvent = null
+import './global'
 
 ImageManager.loadBitmapFromUrl = function (url) {
   const cache = url.includes('/system/') ? this._system : this._cache
@@ -235,8 +203,10 @@ class Main {
     // [Note] We cannot save the game properly when Gatekeeper Path
     //   Randomization is in effect.
     return (
+      // eslint-disable-next-line node/prefer-global/process
       typeof process === 'object'
-      && process.mainModule.filename.startsWith('/private/var')
+      // eslint-disable-next-line node/prefer-global/process
+      && process.mainModule!.filename.startsWith('/private/var')
     )
   }
 

@@ -7,6 +7,11 @@ import { Utils } from './Utils'
  * @param {string} url - The url of the audio file.
  */
 export class WebAudio {
+  /** initial from external */
+  name?: string
+  /** initial from external */
+  frameCount?: number
+
   _url: string
 
   static _context: AudioContext | null
