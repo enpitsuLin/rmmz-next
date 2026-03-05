@@ -1,12 +1,12 @@
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
-import { rmmz } from './plugins/rmmz'
+import { rmmz } from 'vite-plugin-rmmz'
 
 export default defineConfig({
   plugins: [
     rmmz({
       projectRoot: resolve(__dirname, 'project'),
-      apiPath: "rmmz__"
+      apiPath: 'rmmz__',
     }),
   ],
   esbuild: {

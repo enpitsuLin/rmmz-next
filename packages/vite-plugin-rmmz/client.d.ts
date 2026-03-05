@@ -1,4 +1,3 @@
-
 declare module 'virtual:rmmz-project' {
   /**
    * 获取指定文件路径对应的请求 URL

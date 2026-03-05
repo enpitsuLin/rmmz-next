@@ -19,6 +19,7 @@
   "devDependencies": {
     "@types/nw.js": "catalog:types",
     "cac": "catalog:",
-    "vite": "catalog:dev"
+    "vite": "catalog:dev",
+    "vite-plugin-rmmz": "workspace:*"
   }
 }

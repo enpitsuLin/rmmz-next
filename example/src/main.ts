@@ -1,9 +1,9 @@
 import { AudioManager, Bitmap, DataManager, FontManager, Graphics, ImageManager, PluginManager, Scene_Boot, SceneManager, Utils, WebAudio } from '@rmmz-lib/core'
-import { projectRoot, fileurl } from 'virtual:rmmz-project'
+import { fileurl } from 'virtual:rmmz-project'
 
 globalThis.$plugins = [
-  { "name": "TestPlugin", "status": true, "description": "", "parameters": {} }
-];
+  { name: 'TestPlugin', status: true, description: '', parameters: {} },
+]
 globalThis.$dataActors = null
 globalThis.$dataClasses = null
 globalThis.$dataSkills = null
@@ -33,7 +33,6 @@ globalThis.$gameTroop = null
 globalThis.$gameMap = null
 globalThis.$gamePlayer = null
 globalThis.$testEvent = null
-
 
 ImageManager.loadBitmapFromUrl = function (url) {
   const cache = url.includes('/system/') ? this._system : this._cache

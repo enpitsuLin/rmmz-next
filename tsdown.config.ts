@@ -17,6 +17,12 @@ export default defineConfig({
           exports['./global-types'] = './src/global-types.d.ts'
         }
       }
+      if (context.pkg.name === 'vite-plugin-rmmz') {
+        exports['./client'] = {
+          types: './client.d.ts',
+        }
+      }
+      console.log(`package ${context.pkg.name}`, exports)
       return exports
     },
     devExports: true,

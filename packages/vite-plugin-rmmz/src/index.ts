@@ -1,47 +1,9 @@
-import { join, extname, resolve, relative } from 'node:path'
-import { readFile, stat, mkdir, copyFile, readdir } from 'node:fs/promises'
-import type { Plugin, ResolvedConfig, ViteDevServer, Rollup } from 'vite'
-
-const VIRTUAL_MODULE_ID = 'virtual:rmmz-project'
-const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`
-const PROJECT_OUTPUT_DIR = 'rmmz-project'
-
-// MIME 类型映射 - 优化为 Map 以提升性能
-const MIME_TYPES = new Map([
-  ['.json', 'application/json'],
-  ['.js', 'application/javascript'],
-  ['.ts', 'application/typescript'],
-  ['.txt', 'text/plain'],
-  ['.md', 'text/markdown'],
-  ['.html', 'text/html'],
-  ['.css', 'text/css'],
-  ['.xml', 'application/xml'],
-  ['.png', 'image/png'],
-  ['.jpg', 'image/jpeg'],
-  ['.jpeg', 'image/jpeg'],
-  ['.gif', 'image/gif'],
-  ['.svg', 'image/svg+xml'],
-  ['.webp', 'image/webp'],
-  ['.bmp', 'image/bmp'],
-  ['.ico', 'image/x-icon'],
-  ['.wav', 'audio/wav'],
-  ['.mp3', 'audio/mpeg'],
-  ['.ogg', 'audio/ogg'],
-  ['.woff', 'font/woff'],
-  ['.woff2', 'font/woff2'],
-  ['.ttf', 'font/ttf'],
-  ['.otf', 'font/otf'],
-  ['.eot', 'application/vnd.ms-fontobject'],
-  ['.wasm', 'application/wasm'],
-])
-
-// 二进制文件扩展名集合 - 使用 Set 提升查找性能
-const BINARY_EXTENSIONS = new Set([
-  '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.ico',
-  '.wav', '.mp3', '.ogg',
-  '.woff', '.woff2', '.ttf', '.otf', '.eot',
-  '.wasm'
-])
+import type { Plugin, ResolvedConfig, Rollup, ViteDevServer } from 'vite'
+import { Buffer } from 'node:buffer'
+import { copyFile, mkdir, readdir, readFile, stat } from 'node:fs/promises'
+import { extname, join, relative, resolve } from 'node:path'
+import process from 'node:process'
+import { BINARY_EXTENSIONS, MIME_TYPES, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './constants'
 
 function getMimeType(filePath: string): string {
   const ext = extname(filePath).toLowerCase()
@@ -83,6 +45,8 @@ export interface RMMZPluginOptions {
   apiPath?: string
   /** 是否启用开发模式日志 */
   debug?: boolean
+  /** 生产环境输出目录名，默认为 rmmz-project */
+  projectOutputDir?: string
 }
 
 export function rmmz(options: RMMZPluginOptions = {}): Plugin[] {
@@ -101,10 +65,14 @@ function virtualModule(options: RMMZPluginOptions = {}): Plugin {
     ? options.apiPath
     : `/${options.apiPath ?? '__rmmz_load_file'}`
 
+  // 生产环境输出目录名
+  const projectOutputDir = options.projectOutputDir ?? 'rmmz-project'
+
   const debug = options.debug && process.env.NODE_ENV === 'development'
 
-  function log(...args: unknown[]) {
+  function log(...args: unknown[]): void {
     if (debug) {
+      // eslint-disable-next-line no-console
       console.log('[rmmz-plugin]', ...args)
     }
   }
@@ -114,7 +82,7 @@ function virtualModule(options: RMMZPluginOptions = {}): Plugin {
     configResolved(resolvedConfig) {
       config = resolvedConfig
       resolvedProjectRoot = resolve(
-        options.projectRoot ?? join(config.publicDir, 'project')
+        options.projectRoot ?? join(config.publicDir, 'project'),
       )
       log('项目根目录:', resolvedProjectRoot)
     },
@@ -135,7 +103,7 @@ export function fileurl(filePath) {
   if (typeof filePath !== 'string') {
     throw new TypeError('filePath must be a string');
   }
-  return '/${PROJECT_OUTPUT_DIR}/' + filePath;
+  return '/${projectOutputDir}/' + filePath;
 }
 
 export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
@@ -193,7 +161,8 @@ export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
           let stats
           try {
             stats = await stat(fullPath)
-          } catch {
+          }
+          catch {
             res.statusCode = 404
             res.setHeader('Content-Type', 'application/json')
             res.end(JSON.stringify({ error: `File not found: ${filePath}` }))
@@ -241,7 +210,8 @@ export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
                 res.end(transformedContent)
                 return
               }
-            } catch (transformError) {
+            }
+            catch (transformError) {
               // 返回转换错误信息
               const errorMessage = transformError instanceof Error ? transformError.message : 'Unknown transform error'
               log('Vite 转换错误:', errorMessage)
@@ -250,7 +220,7 @@ export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
               res.setHeader('Content-Type', 'application/json')
               res.end(JSON.stringify({
                 error: `Vite transform failed: ${errorMessage}`,
-                file: filePath
+                file: filePath,
               }))
               return
             }
@@ -283,8 +253,8 @@ export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
 
           log(`服务文件: ${filePath} (${mimeType})`)
           res.end(content)
-
-        } catch (error) {
+        }
+        catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error'
           log('文件服务错误:', errorMessage)
 
@@ -301,17 +271,18 @@ export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
         return
       }
 
-      const outputDir = resolve(options.dir, PROJECT_OUTPUT_DIR)
+      const outputDir = resolve(options.dir, projectOutputDir)
       log(`复制项目文件到输出目录: ${outputDir}`)
 
       try {
         await copyDirectory(resolvedProjectRoot, outputDir)
         log('项目文件复制完成')
-      } catch (error) {
+      }
+      catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'
         log('复制文件失败:', errorMessage)
         throw error
       }
-    }
+    },
   }
 }
