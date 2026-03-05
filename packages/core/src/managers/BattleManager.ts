@@ -6,7 +6,6 @@ import type { Game_Unit } from '../objects/Game_Unit'
 import type { Spriteset_Battle } from '../sprites/Spriteset_Battle'
 import type { BattlePhase } from '../types'
 import type { Window_BattleLog } from '../windows/Window_BattleLog'
-import type { AudioWithPos } from './AudioManager'
 import { Game_Action } from '../objects/Game_Action'
 import { Scene_Gameover } from '../scenes/Scene_Gameover'
 import { AudioManager } from './AudioManager'
@@ -40,8 +39,8 @@ export class BattleManager {
   static _surprise = false
   static _currentActor: Game_Actor | null = null
   static _actionForcedBattler: Game_Battler | null = null
-  static _mapBgm: AudioWithPos | null = null
-  static _mapBgs: AudioWithPos | null = null
+  static _mapBgm: AudioManager.AudioWithPos | null = null
+  static _mapBgs: AudioManager.AudioWithPos | null = null
   static _actionBattlers: Game_Battler[] = []
   static _subject: Game_Battler | null = null
   static _action: Game_Action | null = null
