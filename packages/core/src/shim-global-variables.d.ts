@@ -3,10 +3,6 @@ import type { MZ } from '@rmmz-lib/database-types'
 
 import type {
   DataManager,
-  PluginManager,
-} from './managers'
-
-import type {
   Game_Actors,
   Game_Map,
   Game_Message,
@@ -20,7 +16,8 @@ import type {
   Game_Timer,
   Game_Troop,
   Game_Variables,
-} from './objects'
+  PluginManager,
+} from '.'
 
 declare global {
   interface Window {

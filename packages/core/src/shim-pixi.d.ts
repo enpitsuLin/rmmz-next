@@ -8,7 +8,7 @@ declare namespace GlobalMixins {
   }
 
   interface IRendererPlugins {
-    rpgtilemap: import('./core').TilemapRenderer
+    rpgtilemap: import('.').TilemapRenderer
   }
 
   interface Sprite {
