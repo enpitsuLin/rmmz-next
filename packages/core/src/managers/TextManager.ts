@@ -7,380 +7,380 @@ export class TextManager {
     throw new Error('This is a static class')
   }
 
-  static basic(basicId) {
+  static basic(basicId: number): string {
     return $dataSystem.terms.basic[basicId] || ''
   }
 
-  static param(paramId) {
+  static param(paramId: number): string {
     return $dataSystem.terms.params[paramId] || ''
   }
 
-  static command(commandId) {
+  static command(commandId: number): string {
     return $dataSystem.terms.commands[commandId] || ''
   }
 
-  static message(messageId) {
-    return $dataSystem.terms.messages[messageId] || ''
+  static message(messageId: string): string {
+    return (($dataSystem.terms.messages) as unknown as Record<string, string>)[messageId] || ''
   }
 
-  static getter(method, param) {
+  static getter(method: string, param: number | string): PropertyDescriptor {
     return {
-      get() {
+      get(this: Record<string, (param: number | string) => string>) {
         return this[method](param)
       },
       configurable: true,
     }
   }
 
-  static get currencyUnit() {
+  static get currencyUnit(): string {
     return $dataSystem.currencyUnit
   }
 
-  static get level() {
+  static get level(): string {
     return this.basic(0)
   }
 
-  static get levelA() {
+  static get levelA(): string {
     return this.basic(1)
   }
 
-  static get hp() {
+  static get hp(): string {
     return this.basic(2)
   }
 
-  static get hpA() {
+  static get hpA(): string {
     return this.basic(3)
   }
 
-  static get mp() {
+  static get mp(): string {
     return this.basic(4)
   }
 
-  static get mpA() {
+  static get mpA(): string {
     return this.basic(5)
   }
 
-  static get tp() {
+  static get tp(): string {
     return this.basic(6)
   }
 
-  static get tpA() {
+  static get tpA(): string {
     return this.basic(7)
   }
 
-  static get exp() {
+  static get exp(): string {
     return this.basic(8)
   }
 
-  static get expA() {
+  static get expA(): string {
     return this.basic(9)
   }
 
-  static get fight() {
+  static get fight(): string {
     return this.command(0)
   }
 
-  static get escape() {
+  static get escape(): string {
     return this.command(1)
   }
 
-  static get attack() {
+  static get attack(): string {
     return this.command(2)
   }
 
-  static get guard() {
+  static get guard(): string {
     return this.command(3)
   }
 
-  static get item() {
+  static get item(): string {
     return this.command(4)
   }
 
-  static get skill() {
+  static get skill(): string {
     return this.command(5)
   }
 
-  static get equip() {
+  static get equip(): string {
     return this.command(6)
   }
 
-  static get status() {
+  static get status(): string {
     return this.command(7)
   }
 
-  static get formation() {
+  static get formation(): string {
     return this.command(8)
   }
 
-  static get save() {
+  static get save(): string {
     return this.command(9)
   }
 
-  static get gameEnd() {
+  static get gameEnd(): string {
     return this.command(10)
   }
 
-  static get options() {
+  static get options(): string {
     return this.command(11)
   }
 
-  static get weapon() {
+  static get weapon(): string {
     return this.command(12)
   }
 
-  static get armor() {
+  static get armor(): string {
     return this.command(13)
   }
 
-  static get keyItem() {
+  static get keyItem(): string {
     return this.command(14)
   }
 
-  static get equip2() {
+  static get equip2(): string {
     return this.command(15)
   }
 
-  static get optimize() {
+  static get optimize(): string {
     return this.command(16)
   }
 
-  static get clear() {
+  static get clear(): string {
     return this.command(17)
   }
 
-  static get newGame() {
+  static get newGame(): string {
     return this.command(18)
   }
 
-  static get continue_() {
+  static get continue_(): string {
     return this.command(19)
   }
 
-  static get toTitle() {
+  static get toTitle(): string {
     return this.command(21)
   }
 
-  static get cancel() {
+  static get cancel(): string {
     return this.command(22)
   }
 
-  static get buy() {
+  static get buy(): string {
     return this.command(24)
   }
 
-  static get sell() {
+  static get sell(): string {
     return this.command(25)
   }
 
-  static get alwaysDash() {
+  static get alwaysDash(): string {
     return this.message('alwaysDash')
   }
 
-  static get commandRemember() {
+  static get commandRemember(): string {
     return this.message('commandRemember')
   }
 
-  static get touchUI() {
+  static get touchUI(): string {
     return this.message('touchUI')
   }
 
-  static get bgmVolume() {
+  static get bgmVolume(): string {
     return this.message('bgmVolume')
   }
 
-  static get bgsVolume() {
+  static get bgsVolume(): string {
     return this.message('bgsVolume')
   }
 
-  static get meVolume() {
+  static get meVolume(): string {
     return this.message('meVolume')
   }
 
-  static get seVolume() {
+  static get seVolume(): string {
     return this.message('seVolume')
   }
 
-  static get possession() {
+  static get possession(): string {
     return this.message('possession')
   }
 
-  static get expTotal() {
+  static get expTotal(): string {
     return this.message('expTotal')
   }
 
-  static get expNext() {
+  static get expNext(): string {
     return this.message('expNext')
   }
 
-  static get saveMessage() {
+  static get saveMessage(): string {
     return this.message('saveMessage')
   }
 
-  static get loadMessage() {
+  static get loadMessage(): string {
     return this.message('loadMessage')
   }
 
-  static get file() {
+  static get file(): string {
     return this.message('file')
   }
 
-  static get autosave() {
+  static get autosave(): string {
     return this.message('autosave')
   }
 
-  static get partyName() {
+  static get partyName(): string {
     return this.message('partyName')
   }
 
-  static get emerge() {
+  static get emerge(): string {
     return this.message('emerge')
   }
 
-  static get preemptive() {
+  static get preemptive(): string {
     return this.message('preemptive')
   }
 
-  static get surprise() {
+  static get surprise(): string {
     return this.message('surprise')
   }
 
-  static get escapeStart() {
+  static get escapeStart(): string {
     return this.message('escapeStart')
   }
 
-  static get escapeFailure() {
+  static get escapeFailure(): string {
     return this.message('escapeFailure')
   }
 
-  static get victory() {
+  static get victory(): string {
     return this.message('victory')
   }
 
-  static get defeat() {
+  static get defeat(): string {
     return this.message('defeat')
   }
 
-  static get obtainExp() {
+  static get obtainExp(): string {
     return this.message('obtainExp')
   }
 
-  static get obtainGold() {
+  static get obtainGold(): string {
     return this.message('obtainGold')
   }
 
-  static get obtainItem() {
+  static get obtainItem(): string {
     return this.message('obtainItem')
   }
 
-  static get levelUp() {
+  static get levelUp(): string {
     return this.message('levelUp')
   }
 
-  static get obtainSkill() {
+  static get obtainSkill(): string {
     return this.message('obtainSkill')
   }
 
-  static get useItem() {
+  static get useItem(): string {
     return this.message('useItem')
   }
 
-  static get criticalToEnemy() {
+  static get criticalToEnemy(): string {
     return this.message('criticalToEnemy')
   }
 
-  static get criticalToActor() {
+  static get criticalToActor(): string {
     return this.message('criticalToActor')
   }
 
-  static get actorDamage() {
+  static get actorDamage(): string {
     return this.message('actorDamage')
   }
 
-  static get actorRecovery() {
+  static get actorRecovery(): string {
     return this.message('actorRecovery')
   }
 
-  static get actorGain() {
+  static get actorGain(): string {
     return this.message('actorGain')
   }
 
-  static get actorLoss() {
+  static get actorLoss(): string {
     return this.message('actorLoss')
   }
 
-  static get actorDrain() {
+  static get actorDrain(): string {
     return this.message('actorDrain')
   }
 
-  static get actorNoDamage() {
+  static get actorNoDamage(): string {
     return this.message('actorNoDamage')
   }
 
-  static get actorNoHit() {
+  static get actorNoHit(): string {
     return this.message('actorNoHit')
   }
 
-  static get enemyDamage() {
+  static get enemyDamage(): string {
     return this.message('enemyDamage')
   }
 
-  static get enemyRecovery() {
+  static get enemyRecovery(): string {
     return this.message('enemyRecovery')
   }
 
-  static get enemyGain() {
+  static get enemyGain(): string {
     return this.message('enemyGain')
   }
 
-  static get enemyLoss() {
+  static get enemyLoss(): string {
     return this.message('enemyLoss')
   }
 
-  static get enemyDrain() {
+  static get enemyDrain(): string {
     return this.message('enemyDrain')
   }
 
-  static get enemyNoDamage() {
+  static get enemyNoDamage(): string {
     return this.message('enemyNoDamage')
   }
 
-  static get enemyNoHit() {
+  static get enemyNoHit(): string {
     return this.message('enemyNoHit')
   }
 
-  static get evasion() {
+  static get evasion(): string {
     return this.message('evasion')
   }
 
-  static get magicEvasion() {
+  static get magicEvasion(): string {
     return this.message('magicEvasion')
   }
 
-  static get magicReflection() {
+  static get magicReflection(): string {
     return this.message('magicReflection')
   }
 
-  static get counterAttack() {
+  static get counterAttack(): string {
     return this.message('counterAttack')
   }
 
-  static get substitute() {
+  static get substitute(): string {
     return this.message('substitute')
   }
 
-  static get buffAdd() {
+  static get buffAdd(): string {
     return this.message('buffAdd')
   }
 
-  static get debuffAdd() {
+  static get debuffAdd(): string {
     return this.message('debuffAdd')
   }
 
-  static get buffRemove() {
+  static get buffRemove(): string {
     return this.message('buffRemove')
   }
 
-  static get actionFailure() {
+  static get actionFailure(): string {
     return this.message('actionFailure')
   }
 }

@@ -1,10 +1,6 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import { Graphics, Utils, WebAudio } from '../core'
 
-export interface AudioWithPos extends MZ.AudioInfo {
-  pos?: number
-}
-
 /**
  * AudioManager
  *
@@ -19,52 +15,53 @@ export class AudioManager {
   static _bgsVolume = 100
   static _meVolume = 100
   static _seVolume = 100
-  static _currentBgm: AudioWithPos | null = null
-  static _currentBgs = null
-  static _bgmBuffer = null
-  static _bgsBuffer = null
-  static _meBuffer = null
-  static _seBuffers = []
-  static _staticBuffers = []
+  static _currentBgm: AudioManager.AudioWithPos | null = null
+  static _currentBgs: AudioManager.AudioWithPos | null = null
+  static _currentMe: MZ.AudioInfo | null = null
+  static _bgmBuffer: WebAudio | null = null
+  static _bgsBuffer: WebAudio | null = null
+  static _meBuffer: WebAudio | null = null
+  static _seBuffers: WebAudio[] = []
+  static _staticBuffers: WebAudio[] = []
   static _replayFadeTime = 0.5
   static _path = 'audio/'
 
-  static get bgmVolume() {
+  static get bgmVolume(): number {
     return this._bgmVolume
   }
 
-  static set bgmVolume(value) {
+  static set bgmVolume(value: number) {
     this._bgmVolume = value
     this.updateBgmParameters(this._currentBgm)
   }
 
-  static get bgsVolume() {
+  static get bgsVolume(): number {
     return this._bgsVolume
   }
 
-  static set bgsVolume(value) {
+  static set bgsVolume(value: number) {
     this._bgsVolume = value
     this.updateBgsParameters(this._currentBgs)
   }
 
-  static get meVolume() {
+  static get meVolume(): number {
     return this._meVolume
   }
 
-  static set meVolume(value) {
+  static set meVolume(value: number) {
     this._meVolume = value
     this.updateMeParameters(this._currentMe)
   }
 
-  static get seVolume() {
+  static get seVolume(): number {
     return this._seVolume
   }
 
-  static set seVolume(value) {
+  static set seVolume(value: number) {
     this._seVolume = value
   }
 
-  static playBgm(bgm: AudioWithPos | null, pos?: number) {
+  static playBgm(bgm: AudioManager.AudioWithPos | null, pos?: number): void {
     if (this.isCurrentBgm(bgm)) {
       this.updateBgmParameters(bgm)
     }
@@ -81,41 +78,41 @@ export class AudioManager {
     this.updateCurrentBgm(bgm, pos)
   }
 
-  static replayBgm(bgm: AudioWithPos | null) {
+  static replayBgm(bgm: AudioManager.AudioWithPos | null): void {
     if (this.isCurrentBgm(bgm)) {
       this.updateBgmParameters(bgm)
     }
     else {
-      this.playBgm(bgm, bgm.pos)
+      this.playBgm(bgm, bgm!.pos)
       if (this._bgmBuffer) {
         this._bgmBuffer.fadeIn(this._replayFadeTime)
       }
     }
   }
 
-  static isCurrentBgm(bgm: AudioWithPos | null) {
+  static isCurrentBgm(bgm: AudioManager.AudioWithPos | null): boolean {
     return (
-      this._currentBgm
-      && this._bgmBuffer
-      && this._currentBgm.name === bgm.name
+      !!this._currentBgm
+      && !!this._bgmBuffer
+      && this._currentBgm.name === bgm!.name
     )
   }
 
-  static updateBgmParameters(bgm: AudioWithPos | null) {
+  static updateBgmParameters(bgm: AudioManager.AudioWithPos | null): void {
     this.updateBufferParameters(this._bgmBuffer, this._bgmVolume, bgm)
   }
 
-  static updateCurrentBgm(bgm: AudioWithPos, pos?: number) {
+  static updateCurrentBgm(bgm: AudioManager.AudioWithPos | null, pos?: number): void {
     this._currentBgm = {
-      name: bgm.name,
-      volume: bgm.volume,
-      pitch: bgm.pitch,
-      pan: bgm.pan,
+      name: bgm!.name,
+      volume: bgm!.volume,
+      pitch: bgm!.pitch,
+      pan: bgm!.pan,
       pos,
     }
   }
 
-  static stopBgm() {
+  static stopBgm(): void {
     if (this._bgmBuffer) {
       this._bgmBuffer.destroy()
       this._bgmBuffer = null
@@ -123,27 +120,27 @@ export class AudioManager {
     }
   }
 
-  static fadeOutBgm(duration) {
+  static fadeOutBgm(duration: number): void {
     if (this._bgmBuffer && this._currentBgm) {
       this._bgmBuffer.fadeOut(duration)
       this._currentBgm = null
     }
   }
 
-  static fadeInBgm(duration) {
+  static fadeInBgm(duration: number): void {
     if (this._bgmBuffer && this._currentBgm) {
       this._bgmBuffer.fadeIn(duration)
     }
   }
 
-  static playBgs(bgs: AudioWithPos | null, pos?: number) {
+  static playBgs(bgs: AudioManager.AudioWithPos | null, pos?: number): void {
     if (this.isCurrentBgs(bgs)) {
       this.updateBgsParameters(bgs)
     }
     else {
       this.stopBgs()
-      if (bgs.name) {
-        this._bgsBuffer = this.createBuffer('bgs/', bgs.name)
+      if (bgs!.name) {
+        this._bgsBuffer = this.createBuffer('bgs/', bgs!.name)
         this.updateBgsParameters(bgs)
         this._bgsBuffer.play(true, pos || 0)
       }
@@ -151,7 +148,7 @@ export class AudioManager {
     this.updateCurrentBgs(bgs, pos)
   }
 
-  static replayBgs(bgs) {
+  static replayBgs(bgs: AudioManager.AudioWithPos): void {
     if (this.isCurrentBgs(bgs)) {
       this.updateBgsParameters(bgs)
     }
@@ -163,29 +160,29 @@ export class AudioManager {
     }
   }
 
-  static isCurrentBgs(bgs) {
+  static isCurrentBgs(bgs: AudioManager.AudioWithPos | null): boolean {
     return (
-      this._currentBgs
-      && this._bgsBuffer
-      && this._currentBgs.name === bgs.name
+      !!this._currentBgs
+      && !!this._bgsBuffer
+      && this._currentBgs.name === bgs!.name
     )
   }
 
-  static updateBgsParameters(bgs) {
+  static updateBgsParameters(bgs: AudioManager.AudioWithPos | null): void {
     this.updateBufferParameters(this._bgsBuffer, this._bgsVolume, bgs)
   }
 
-  static updateCurrentBgs(bgs, pos) {
+  static updateCurrentBgs(bgs: AudioManager.AudioWithPos | null, pos?: number): void {
     this._currentBgs = {
-      name: bgs.name,
-      volume: bgs.volume,
-      pitch: bgs.pitch,
-      pan: bgs.pan,
+      name: bgs!.name,
+      volume: bgs!.volume,
+      pitch: bgs!.pitch,
+      pan: bgs!.pan,
       pos,
     }
   }
 
-  static stopBgs() {
+  static stopBgs(): void {
     if (this._bgsBuffer) {
       this._bgsBuffer.destroy()
       this._bgsBuffer = null
@@ -193,20 +190,20 @@ export class AudioManager {
     }
   }
 
-  static fadeOutBgs(duration) {
+  static fadeOutBgs(duration: number): void {
     if (this._bgsBuffer && this._currentBgs) {
       this._bgsBuffer.fadeOut(duration)
       this._currentBgs = null
     }
   }
 
-  static fadeInBgs(duration) {
+  static fadeInBgs(duration: number): void {
     if (this._bgsBuffer && this._currentBgs) {
       this._bgsBuffer.fadeIn(duration)
     }
   }
 
-  static playMe(me) {
+  static playMe(me: MZ.AudioInfo): void {
     this.stopMe()
     if (me.name) {
       if (this._bgmBuffer && this._currentBgm) {
@@ -220,17 +217,17 @@ export class AudioManager {
     }
   }
 
-  static updateMeParameters(me) {
+  static updateMeParameters(me: MZ.AudioInfo | null): void {
     this.updateBufferParameters(this._meBuffer, this._meVolume, me)
   }
 
-  static fadeOutMe(duration) {
+  static fadeOutMe(duration: number): void {
     if (this._meBuffer) {
       this._meBuffer.fadeOut(duration)
     }
   }
 
-  static stopMe() {
+  static stopMe(): void {
     if (this._meBuffer) {
       this._meBuffer.destroy()
       this._meBuffer = null
@@ -241,7 +238,7 @@ export class AudioManager {
     }
   }
 
-  static playSe(se) {
+  static playSe(se: MZ.AudioInfo): void {
     if (se.name) {
       // [Note] Do not play the same sound in the same frame.
       const latestBuffers = this._seBuffers.filter(
@@ -258,11 +255,11 @@ export class AudioManager {
     }
   }
 
-  static updateSeParameters(buffer, se) {
+  static updateSeParameters(buffer: WebAudio, se: MZ.AudioInfo): void {
     this.updateBufferParameters(buffer, this._seVolume, se)
   }
 
-  static cleanupSe() {
+  static cleanupSe(): void {
     for (const buffer of this._seBuffers) {
       if (!buffer.isPlaying()) {
         buffer.destroy()
@@ -271,14 +268,14 @@ export class AudioManager {
     this._seBuffers = this._seBuffers.filter(buffer => buffer.isPlaying())
   }
 
-  static stopSe() {
+  static stopSe(): void {
     for (const buffer of this._seBuffers) {
       buffer.destroy()
     }
     this._seBuffers = []
   }
 
-  static playStaticSe(se) {
+  static playStaticSe(se: MZ.AudioInfo): void {
     if (se.name) {
       this.loadStaticSe(se)
       for (const buffer of this._staticBuffers) {
@@ -292,14 +289,14 @@ export class AudioManager {
     }
   }
 
-  static loadStaticSe(se) {
+  static loadStaticSe(se: MZ.AudioInfo): void {
     if (se.name && !this.isStaticSe(se)) {
       const buffer = this.createBuffer('se/', se.name)
       this._staticBuffers.push(buffer)
     }
   }
 
-  static isStaticSe(se) {
+  static isStaticSe(se: MZ.AudioInfo): boolean {
     for (const buffer of this._staticBuffers) {
       if (buffer.name === se.name) {
         return true
@@ -308,14 +305,14 @@ export class AudioManager {
     return false
   }
 
-  static stopAll() {
+  static stopAll(): void {
     this.stopMe()
     this.stopBgm()
     this.stopBgs()
     this.stopSe()
   }
 
-  static saveBgm(): AudioWithPos {
+  static saveBgm(): AudioManager.AudioWithPos {
     if (this._currentBgm) {
       const bgm = this._currentBgm
       return {
@@ -331,7 +328,7 @@ export class AudioManager {
     }
   }
 
-  static saveBgs() {
+  static saveBgs(): AudioManager.AudioWithPos {
     if (this._currentBgs) {
       const bgs = this._currentBgs
       return {
@@ -347,11 +344,11 @@ export class AudioManager {
     }
   }
 
-  static makeEmptyAudioObject(): AudioWithPos {
+  static makeEmptyAudioObject(): AudioManager.AudioWithPos {
     return { name: '', volume: 0, pitch: 0, pan: 0 }
   }
 
-  static createBuffer(folder, name) {
+  static createBuffer(folder: string, name: string): WebAudio {
     const ext = this.audioFileExt()
     const url = this._path + folder + Utils.encodeURI(name) + ext
     const buffer = new WebAudio(url)
@@ -360,7 +357,7 @@ export class AudioManager {
     return buffer
   }
 
-  static updateBufferParameters(buffer, configVolume, audio) {
+  static updateBufferParameters(buffer: WebAudio | null, configVolume: number, audio: MZ.AudioInfo | null): void {
     if (buffer && audio) {
       buffer.volume = (configVolume * (audio.volume || 0)) / 10000
       buffer.pitch = (audio.pitch || 0) / 100
@@ -368,11 +365,11 @@ export class AudioManager {
     }
   }
 
-  static audioFileExt() {
+  static audioFileExt(): string {
     return '.ogg'
   }
 
-  static checkErrors() {
+  static checkErrors(): void {
     const buffers = [this._bgmBuffer, this._bgsBuffer, this._meBuffer]
     buffers.push(...this._seBuffers)
     buffers.push(...this._staticBuffers)
@@ -383,8 +380,16 @@ export class AudioManager {
     }
   }
 
-  static throwLoadError(webAudio) {
+  static throwLoadError(webAudio: WebAudio): never {
     const retry = webAudio.retry.bind(webAudio)
+    // TODO fix this
+    // eslint-disable-next-line no-throw-literal
     throw ['LoadError', webAudio.url, retry]
+  }
+}
+
+export namespace AudioManager {
+  export interface AudioWithPos extends MZ.AudioInfo {
+    pos?: number
   }
 }

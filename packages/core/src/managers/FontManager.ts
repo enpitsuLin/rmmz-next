@@ -13,7 +13,7 @@ export class FontManager {
   static _urls: Record<string, string> = {}
   static _states: Record<string, 'loaded' | 'loading' | 'error'> = {}
 
-  static load(family, filename) {
+  static load(family: string, filename: string): void {
     if (this._states[family] !== 'loaded') {
       if (filename) {
         const url = this.makeUrl(filename)
@@ -26,7 +26,7 @@ export class FontManager {
     }
   }
 
-  static isReady() {
+  static isReady(): boolean {
     for (const family in this._states) {
       const state = this._states[family]
       if (state === 'loading') {
@@ -39,7 +39,7 @@ export class FontManager {
     return true
   }
 
-  static startLoading(family, url) {
+  static startLoading(family: string, url: string): void {
     const source = `url(${url})`
     const font = new FontFace(family, source)
     this._urls[family] = url
@@ -56,13 +56,15 @@ export class FontManager {
       })
   }
 
-  static throwLoadError(family) {
+  static throwLoadError(family: string): never {
     const url = this._urls[family]
-    const retry = () => this.startLoading(family, url)
+    const retry = (): void => this.startLoading(family, url)
+    // TODO fix this
+    // eslint-disable-next-line no-throw-literal
     throw ['LoadError', url, retry]
   }
 
-  static makeUrl(filename) {
+  static makeUrl(filename: string): string {
     return `fonts/${Utils.encodeURI(filename)}`
   }
 }

@@ -41,9 +41,8 @@ export class PluginManager {
     script.src = url
     script.async = false
     script.defer = true
-    // @ts-expect-error to fix this
-    script.onerror = this.onError.bind(this)
-    script._url = url
+    script.addEventListener('error', this.onError.bind(this))
+    ;(script as HTMLScriptElement & { _url: string })._url = url
     document.body.appendChild(script)
   }
 
@@ -76,7 +75,7 @@ export class PluginManager {
   }
 
   static callCommand(
-    thisArg: any,
+    thisArg: unknown,
     pluginName: string,
     commandName: string,
     args: Record<string, string>,

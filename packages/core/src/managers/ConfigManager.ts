@@ -18,7 +18,7 @@ export class ConfigManager {
     return AudioManager._bgmVolume
   }
 
-  static set bgmVolume(value) {
+  static set bgmVolume(value: number) {
     AudioManager.bgmVolume = value
   }
 
@@ -26,7 +26,7 @@ export class ConfigManager {
     return AudioManager.bgsVolume
   }
 
-  static set bgsVolume(value) {
+  static set bgsVolume(value: number) {
     AudioManager.bgsVolume = value
   }
 
@@ -34,7 +34,7 @@ export class ConfigManager {
     return AudioManager.meVolume
   }
 
-  static set meVolume(value) {
+  static set meVolume(value: number) {
     AudioManager.meVolume = value
   }
 
@@ -42,7 +42,7 @@ export class ConfigManager {
     return AudioManager.seVolume
   }
 
-  static set seVolume(value) {
+  static set seVolume(value: number) {
     AudioManager.seVolume = value
   }
 

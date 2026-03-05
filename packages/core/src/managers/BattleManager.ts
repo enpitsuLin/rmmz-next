@@ -1,3 +1,25 @@
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Game_Actor } from '../objects/Game_Actor'
+import type { Game_Battler } from '../objects/Game_Battler'
+import type { Game_Enemy } from '../objects/Game_Enemy'
+import type { Game_Unit } from '../objects/Game_Unit'
+import type { Spriteset_Battle } from '../sprites/Spriteset_Battle'
+import type { BattlePhase } from '../types'
+import type { Window_BattleLog } from '../windows/Window_BattleLog'
+import type { AudioWithPos } from './AudioManager'
+import { Game_Action } from '../objects/Game_Action'
+import { Scene_Gameover } from '../scenes/Scene_Gameover'
+import { AudioManager } from './AudioManager'
+import { SceneManager } from './SceneManager'
+import { SoundManager } from './SoundManager'
+import { TextManager } from './TextManager'
+
+interface BattleRewards {
+  gold: number
+  exp: number
+  items: MZ.GeneralItem[]
+}
+
 /**
  * BattleManager
  *
@@ -8,7 +30,30 @@ export class BattleManager {
     throw new Error('This is a static class')
   }
 
-  static setup(troopId, canEscape, canLose) {
+  static _phase: BattlePhase = ''
+  static _inputting = false
+  static _canEscape = false
+  static _canLose = false
+  static _battleTest = false
+  static _eventCallback: ((result: number) => void) | null = null
+  static _preemptive = false
+  static _surprise = false
+  static _currentActor: Game_Actor | null = null
+  static _actionForcedBattler: Game_Battler | null = null
+  static _mapBgm: AudioWithPos | null = null
+  static _mapBgs: AudioWithPos | null = null
+  static _actionBattlers: Game_Battler[] = []
+  static _subject: Game_Battler | null = null
+  static _action: Game_Action | null = null
+  static _targets: Game_Battler[] = []
+  static _logWindow: Window_BattleLog | null = null
+  static _spriteset: Spriteset_Battle | null = null
+  static _escapeRatio = 0
+  static _escaped = false
+  static _rewards: BattleRewards = { gold: 0, exp: 0, items: [] }
+  static _tpbNeedsPartyCommand = true
+
+  static setup(troopId: number, canEscape: boolean, canLose: boolean): void {
     this.initMembers()
     this._canEscape = canEscape
     this._canLose = canLose
@@ -17,7 +62,7 @@ export class BattleManager {
     this.makeEscapeRatio()
   }
 
-  static initMembers() {
+  static initMembers(): void {
     this._phase = ''
     this._inputting = false
     this._canEscape = false
@@ -38,70 +83,70 @@ export class BattleManager {
     this._spriteset = null
     this._escapeRatio = 0
     this._escaped = false
-    this._rewards = {}
+    this._rewards = { gold: 0, exp: 0, items: [] }
     this._tpbNeedsPartyCommand = true
   }
 
-  static isTpb() {
+  static isTpb(): boolean {
     return $dataSystem.battleSystem >= 1
   }
 
-  static isActiveTpb() {
+  static isActiveTpb(): boolean {
     return $dataSystem.battleSystem === 1
   }
 
-  static isBattleTest() {
+  static isBattleTest(): boolean {
     return this._battleTest
   }
 
-  static setBattleTest(battleTest) {
+  static setBattleTest(battleTest: boolean): void {
     this._battleTest = battleTest
   }
 
-  static setEventCallback(callback) {
+  static setEventCallback(callback: (result: number) => void): void {
     this._eventCallback = callback
   }
 
-  static setLogWindow(logWindow) {
+  static setLogWindow(logWindow: Window_BattleLog): void {
     this._logWindow = logWindow
   }
 
-  static setSpriteset(spriteset) {
+  static setSpriteset(spriteset: Spriteset_Battle): void {
     this._spriteset = spriteset
   }
 
-  static onEncounter() {
+  static onEncounter(): void {
     this._preemptive = Math.random() < this.ratePreemptive()
     this._surprise = Math.random() < this.rateSurprise() && !this._preemptive
   }
 
-  static ratePreemptive() {
+  static ratePreemptive(): number {
     return $gameParty.ratePreemptive($gameTroop.agility())
   }
 
-  static rateSurprise() {
+  static rateSurprise(): number {
     return $gameParty.rateSurprise($gameTroop.agility())
   }
 
-  static saveBgmAndBgs() {
+  static saveBgmAndBgs(): void {
     this._mapBgm = AudioManager.saveBgm()
     this._mapBgs = AudioManager.saveBgs()
   }
 
-  static playBattleBgm() {
+  static playBattleBgm(): void {
     AudioManager.playBgm($gameSystem.battleBgm())
     AudioManager.stopBgs()
   }
 
-  static playVictoryMe() {
+  static playVictoryMe(): void {
     AudioManager.playMe($gameSystem.victoryMe())
   }
 
-  static playDefeatMe() {
+  static playDefeatMe(): void {
     AudioManager.playMe($gameSystem.defeatMe())
   }
 
-  static replayBgmAndBgs() {
+  static replayBgmAndBgs(): void {
     if (this._mapBgm) {
       AudioManager.replayBgm(this._mapBgm)
     }
@@ -113,11 +158,11 @@ export class BattleManager {
     }
   }
 
-  static makeEscapeRatio() {
+  static makeEscapeRatio(): void {
     this._escapeRatio = (0.5 * $gameParty.agility()) / $gameTroop.agility()
   }
 
-  static update(timeActive) {
+  static update(timeActive: boolean): void {
     if (!this.isBusy() && !this.updateEvent()) {
       this.updatePhase(timeActive)
     }
@@ -126,7 +171,7 @@ export class BattleManager {
     }
   }
 
-  static updatePhase(timeActive) {
+  static updatePhase(timeActive: boolean): void {
     switch (this._phase) {
       case 'start':
         this.updateStart()
@@ -146,7 +191,7 @@ export class BattleManager {
     }
   }
 
-  static updateEvent() {
+  static updateEvent(): boolean {
     switch (this._phase) {
       case 'start':
       case 'turn':
@@ -162,7 +207,7 @@ export class BattleManager {
     return this.checkAbort()
   }
 
-  static updateEventMain() {
+  static updateEventMain(): boolean {
     $gameTroop.updateInterpreter()
     $gameParty.requestMotionRefresh()
     if ($gameTroop.isEventRunning() || this.checkBattleEnd()) {
@@ -175,15 +220,15 @@ export class BattleManager {
     return false
   }
 
-  static isBusy() {
+  static isBusy(): boolean {
     return (
       $gameMessage.isBusy()
-      || this._spriteset.isBusy()
-      || this._logWindow.isBusy()
+      || this._spriteset!.isBusy()
+      || this._logWindow!.isBusy()
     )
   }
 
-  static updateTpbInput() {
+  static updateTpbInput(): void {
     if (this._inputting) {
       this.checkTpbInputClose()
     }
@@ -192,7 +237,7 @@ export class BattleManager {
     }
   }
 
-  static checkTpbInputClose() {
+  static checkTpbInputClose(): void {
     if (!this.isPartyTpbInputtable() || this.needsActorInputCancel()) {
       this.cancelActorInput()
       this._currentActor = null
@@ -200,7 +245,7 @@ export class BattleManager {
     }
   }
 
-  static checkTpbInputOpen() {
+  static checkTpbInputOpen(): void {
     if (this.isPartyTpbInputtable()) {
       if (this._tpbNeedsPartyCommand) {
         this._inputting = true
@@ -212,55 +257,55 @@ export class BattleManager {
     }
   }
 
-  static isPartyTpbInputtable() {
+  static isPartyTpbInputtable(): boolean {
     return $gameParty.canInput() && this.isTpbMainPhase()
   }
 
-  static needsActorInputCancel() {
-    return this._currentActor && !this._currentActor.canInput()
+  static needsActorInputCancel(): boolean {
+    return !!this._currentActor && !this._currentActor.canInput()
   }
 
-  static isTpbMainPhase() {
+  static isTpbMainPhase(): boolean {
     return ['turn', 'turnEnd', 'action'].includes(this._phase)
   }
 
-  static isInputting() {
+  static isInputting(): boolean {
     return this._inputting
   }
 
-  static isInTurn() {
+  static isInTurn(): boolean {
     return this._phase === 'turn'
   }
 
-  static isTurnEnd() {
+  static isTurnEnd(): boolean {
     return this._phase === 'turnEnd'
   }
 
-  static isAborting() {
+  static isAborting(): boolean {
     return this._phase === 'aborting'
   }
 
-  static isBattleEnd() {
+  static isBattleEnd(): boolean {
     return this._phase === 'battleEnd'
   }
 
-  static canEscape() {
+  static canEscape(): boolean {
     return this._canEscape
   }
 
-  static canLose() {
+  static canLose(): boolean {
     return this._canLose
   }
 
-  static isEscaped() {
+  static isEscaped(): boolean {
     return this._escaped
   }
 
-  static actor() {
+  static actor(): Game_Actor | null {
     return this._currentActor
   }
 
-  static startBattle() {
+  static startBattle(): void {
     this._phase = 'start'
     $gameSystem.onBattleStart()
     $gameParty.onBattleStart(this._preemptive)
@@ -268,7 +313,7 @@ export class BattleManager {
     this.displayStartMessages()
   }
 
-  static displayStartMessages() {
+  static displayStartMessages(): void {
     for (const name of $gameTroop.enemyNames()) {
       $gameMessage.add(TextManager.emerge.format(name))
     }
@@ -280,7 +325,7 @@ export class BattleManager {
     }
   }
 
-  static startInput() {
+  static startInput(): void {
     this._phase = 'input'
     this._inputting = true
     $gameParty.makeActions()
@@ -291,11 +336,11 @@ export class BattleManager {
     }
   }
 
-  static inputtingAction() {
+  static inputtingAction(): Game_Action | null {
     return this._currentActor ? this._currentActor.inputtingAction() : null
   }
 
-  static selectNextCommand() {
+  static selectNextCommand(): void {
     if (this._currentActor) {
       if (this._currentActor.selectNextCommand()) {
         return
@@ -305,7 +350,7 @@ export class BattleManager {
     this.selectNextActor()
   }
 
-  static selectNextActor() {
+  static selectNextActor(): void {
     this.changeCurrentActor(true)
     if (!this._currentActor) {
       if (this.isTpb()) {
@@ -317,7 +362,7 @@ export class BattleManager {
     }
   }
 
-  static selectPreviousCommand() {
+  static selectPreviousCommand(): void {
     if (this._currentActor) {
       if (this._currentActor.selectPreviousCommand()) {
         return
@@ -327,7 +372,7 @@ export class BattleManager {
     this.selectPreviousActor()
   }
 
-  static selectPreviousActor() {
+  static selectPreviousActor(): void {
     if (this.isTpb()) {
       this.changeCurrentActor(true)
       if (!this._currentActor) {
@@ -339,12 +384,12 @@ export class BattleManager {
     }
   }
 
-  static changeCurrentActor(forward) {
+  static changeCurrentActor(forward: boolean): void {
     const members = $gameParty.battleMembers()
-    let actor = this._currentActor
+    let actor = this._currentActor as Game_Actor | null
     while (true) {
-      const currentIndex = members.indexOf(actor)
-      actor = members[currentIndex + (forward ? 1 : -1)]
+      const currentIndex = members.indexOf(actor!)
+      actor = members[currentIndex + (forward ? 1 : -1)] || null
       if (!actor || actor.canInput())
         break
     }
@@ -352,14 +397,14 @@ export class BattleManager {
     this.startActorInput()
   }
 
-  static startActorInput() {
+  static startActorInput(): void {
     if (this._currentActor) {
       this._currentActor.setActionState('inputting')
       this._inputting = true
     }
   }
 
-  static finishActorInput() {
+  static finishActorInput(): void {
     if (this._currentActor) {
       if (this.isTpb()) {
         this._currentActor.startTpbCasting()
@@ -368,13 +413,13 @@ export class BattleManager {
     }
   }
 
-  static cancelActorInput() {
+  static cancelActorInput(): void {
     if (this._currentActor) {
       this._currentActor.setActionState('undecided')
     }
   }
 
-  static updateStart() {
+  static updateStart(): void {
     if (this.isTpb()) {
       this._phase = 'turn'
     }
@@ -383,18 +428,18 @@ export class BattleManager {
     }
   }
 
-  static startTurn() {
+  static startTurn(): void {
     this._phase = 'turn'
     $gameTroop.increaseTurn()
     $gameParty.requestMotionRefresh()
     if (!this.isTpb()) {
       this.makeActionOrders()
-      this._logWindow.startTurn()
+      this._logWindow!.startTurn()
       this._inputting = false
     }
   }
 
-  static updateTurn(timeActive) {
+  static updateTurn(timeActive: boolean): void {
     $gameParty.requestMotionRefresh()
     if (this.isTpb() && timeActive) {
       this.updateTpb()
@@ -410,20 +455,20 @@ export class BattleManager {
     }
   }
 
-  static updateTpb() {
+  static updateTpb(): void {
     $gameParty.updateTpb()
     $gameTroop.updateTpb()
     this.updateAllTpbBattlers()
     this.checkTpbTurnEnd()
   }
 
-  static updateAllTpbBattlers() {
+  static updateAllTpbBattlers(): void {
     for (const battler of this.allBattleMembers()) {
       this.updateTpbBattler(battler)
     }
   }
 
-  static updateTpbBattler(battler) {
+  static updateTpbBattler(battler: Game_Battler): void {
     if (battler.isTpbTurnEnd()) {
       battler.onTurnEnd()
       battler.startTpbTurn()
@@ -439,14 +484,14 @@ export class BattleManager {
     }
   }
 
-  static checkTpbTurnEnd() {
+  static checkTpbTurnEnd(): void {
     if ($gameTroop.isTpbTurnEnd()) {
       this.endTurn()
     }
   }
 
-  static processTurn() {
-    const subject = this._subject
+  static processTurn(): void {
+    const subject = this._subject!
     const action = subject.currentAction()
     if (action) {
       action.prepare()
@@ -461,20 +506,20 @@ export class BattleManager {
     }
   }
 
-  static endBattlerActions(battler) {
+  static endBattlerActions(battler: Game_Battler): void {
     battler.setActionState(this.isTpb() ? 'undecided' : 'done')
     battler.onAllActionsEnd()
     battler.clearTpbChargeTime()
     this.displayBattlerStatus(battler, true)
   }
 
-  static endTurn() {
+  static endTurn(): void {
     this._phase = 'turnEnd'
     this._preemptive = false
     this._surprise = false
   }
 
-  static updateTurnEnd() {
+  static updateTurnEnd(): void {
     if (this.isTpb()) {
       this.startTurn()
     }
@@ -484,39 +529,39 @@ export class BattleManager {
     }
   }
 
-  static endAllBattlersTurn() {
+  static endAllBattlersTurn(): void {
     for (const battler of this.allBattleMembers()) {
       battler.onTurnEnd()
       this.displayBattlerStatus(battler, false)
     }
   }
 
-  static displayBattlerStatus(battler, current) {
-    this._logWindow.displayAutoAffectedStatus(battler)
+  static displayBattlerStatus(battler: Game_Battler, current: boolean): void {
+    this._logWindow!.displayAutoAffectedStatus(battler)
     if (current) {
-      this._logWindow.displayCurrentState(battler)
+      this._logWindow!.displayCurrentState(battler)
     }
-    this._logWindow.displayRegeneration(battler)
+    this._logWindow!.displayRegeneration(battler)
   }
 
-  static getNextSubject() {
+  static getNextSubject(): Game_Battler | null {
     for (; ;) {
       const battler = this._actionBattlers.shift()
       if (!battler) {
         return null
       }
-      if (battler.isBattleMember() && battler.isAlive()) {
+      if ((battler as Game_Actor | Game_Enemy).isBattleMember() && battler.isAlive()) {
         return battler
       }
     }
   }
 
-  static allBattleMembers() {
-    return $gameParty.battleMembers().concat($gameTroop.members())
+  static allBattleMembers(): Game_Battler[] {
+    return ($gameParty.battleMembers() as Game_Battler[]).concat($gameTroop.members())
   }
 
-  static makeActionOrders() {
-    const battlers = []
+  static makeActionOrders(): void {
+    const battlers: Game_Battler[] = []
     if (!this._surprise) {
       battlers.push(...$gameParty.battleMembers())
     }
@@ -530,9 +575,9 @@ export class BattleManager {
     this._actionBattlers = battlers
   }
 
-  static startAction() {
-    const subject = this._subject
-    const action = subject.currentAction()
+  static startAction(): void {
+    const subject = this._subject!
+    const action = subject.currentAction()!
     const targets = action.makeTargets()
     this._phase = 'action'
     this._action = action
@@ -540,80 +585,80 @@ export class BattleManager {
     subject.cancelMotionRefresh()
     subject.useItem(action.item())
     this._action.applyGlobal()
-    this._logWindow.startAction(subject, action, targets)
+    this._logWindow!.startAction(subject, action, targets)
   }
 
-  static updateAction() {
+  static updateAction(): void {
     const target = this._targets.shift()
     if (target) {
-      this.invokeAction(this._subject, target)
+      this.invokeAction(this._subject!, target)
     }
     else {
       this.endAction()
     }
   }
 
-  static endAction() {
-    this._logWindow.endAction(this._subject)
+  static endAction(): void {
+    this._logWindow!.endAction(this._subject!)
     this._phase = 'turn'
-    if (this._subject.numActions() === 0) {
-      this.endBattlerActions(this._subject)
+    if (this._subject!.numActions() === 0) {
+      this.endBattlerActions(this._subject!)
       this._subject = null
     }
   }
 
-  static invokeAction(subject, target) {
-    this._logWindow.push('pushBaseLine')
-    if (Math.random() < this._action.itemCnt(target)) {
+  static invokeAction(subject: Game_Battler, target: Game_Battler): void {
+    this._logWindow!.push('pushBaseLine')
+    if (Math.random() < this._action!.itemCnt(target as Game_Actor | Game_Enemy)) {
       this.invokeCounterAttack(subject, target)
     }
-    else if (Math.random() < this._action.itemMrf(target)) {
+    else if (Math.random() < this._action!.itemMrf(target as Game_Actor | Game_Enemy)) {
       this.invokeMagicReflection(subject, target)
     }
     else {
       this.invokeNormalAction(subject, target)
     }
     subject.setLastTarget(target)
-    this._logWindow.push('popBaseLine')
+    this._logWindow!.push('popBaseLine')
   }
 
-  static invokeNormalAction(subject, target) {
+  static invokeNormalAction(subject: Game_Battler, target: Game_Battler): void {
     const realTarget = this.applySubstitute(target)
-    this._action.apply(realTarget)
-    this._logWindow.displayActionResults(subject, realTarget)
+    this._action!.apply(realTarget as Game_Actor | Game_Enemy)
+    this._logWindow!.displayActionResults(subject, realTarget)
   }
 
-  static invokeCounterAttack(subject, target) {
-    const action = new Game_Action(target)
+  static invokeCounterAttack(subject: Game_Battler, target: Game_Battler): void {
+    const action = new Game_Action(target as Game_Actor | Game_Enemy)
     action.setAttack()
-    action.apply(subject)
-    this._logWindow.displayCounter(target)
-    this._logWindow.displayActionResults(target, subject)
+    action.apply(subject as Game_Actor | Game_Enemy)
+    this._logWindow!.displayCounter(target)
+    this._logWindow!.displayActionResults(target, subject)
   }
 
-  static invokeMagicReflection(subject, target) {
-    this._action._reflectionTarget = target
-    this._logWindow.displayReflection(target)
-    this._action.apply(subject)
-    this._logWindow.displayActionResults(target, subject)
+  static invokeMagicReflection(subject: Game_Battler, target: Game_Battler): void {
+    this._action!._reflectionTarget = target as Game_Actor | Game_Enemy
+    this._logWindow!.displayReflection(target)
+    this._action!.apply(subject as Game_Actor | Game_Enemy)
+    this._logWindow!.displayActionResults(target, subject)
   }
 
-  static applySubstitute(target) {
+  static applySubstitute(target: Game_Battler): Game_Battler {
     if (this.checkSubstitute(target)) {
-      const substitute = target.friendsUnit().substituteBattler(target)
+      const substitute = ((target as Game_Actor | Game_Enemy).friendsUnit() as Game_Unit).substituteBattler(target)
       if (substitute) {
-        this._logWindow.displaySubstitute(substitute, target)
+        this._logWindow!.displaySubstitute(substitute, target)
         return substitute
       }
     }
     return target
   }
 
-  static checkSubstitute(target) {
-    return target.isDying() && !this._action.isCertainHit()
+  static checkSubstitute(target: Game_Battler): boolean {
+    return target.isDying() && !this._action!.isCertainHit()
   }
 
-  static isActionForced() {
+  static isActionForced(): boolean {
     return (
       !!this._actionForcedBattler
       && !$gameParty.isAllDead()
@@ -621,14 +666,14 @@ export class BattleManager {
     )
   }
 
-  static forceAction(battler) {
+  static forceAction(battler: Game_Battler): void {
     if (battler.numActions() > 0) {
       this._actionForcedBattler = battler
       this._actionBattlers.remove(battler)
     }
   }
 
-  static processForcedAction() {
+  static processForcedAction(): void {
     if (this._actionForcedBattler) {
       if (this._subject) {
         this.endBattlerActions(this._subject)
@@ -640,11 +685,11 @@ export class BattleManager {
     }
   }
 
-  static abort() {
+  static abort(): void {
     this._phase = 'aborting'
   }
 
-  static checkBattleEnd() {
+  static checkBattleEnd(): boolean {
     if (this._phase) {
       if ($gameParty.isEscaped()) {
         this.processPartyEscape()
@@ -662,7 +707,7 @@ export class BattleManager {
     return false
   }
 
-  static checkAbort() {
+  static checkAbort(): boolean {
     if (this.isAborting()) {
       this.processAbort()
       return true
@@ -670,7 +715,7 @@ export class BattleManager {
     return false
   }
 
-  static processVictory() {
+  static processVictory(): void {
     $gameParty.removeBattleStates()
     $gameParty.performVictory()
     this.playVictoryMe()
@@ -682,7 +727,7 @@ export class BattleManager {
     this.endBattle(0)
   }
 
-  static processEscape() {
+  static processEscape(): boolean {
     $gameParty.performEscape()
     SoundManager.playEscape()
     const success = this._preemptive || Math.random() < this._escapeRatio
@@ -695,13 +740,13 @@ export class BattleManager {
     return success
   }
 
-  static onEscapeSuccess() {
+  static onEscapeSuccess(): void {
     this.displayEscapeSuccessMessage()
     this._escaped = true
     this.processAbort()
   }
 
-  static onEscapeFailure() {
+  static onEscapeFailure(): void {
     $gameParty.onEscapeFailure()
     this.displayEscapeFailureMessage()
     this._escapeRatio += 0.1
@@ -710,19 +755,19 @@ export class BattleManager {
     }
   }
 
-  static processPartyEscape() {
+  static processPartyEscape(): void {
     this._escaped = true
     this.processAbort()
   }
 
-  static processAbort() {
+  static processAbort(): void {
     $gameParty.removeBattleStates()
-    this._logWindow.clear()
+    this._logWindow!.clear()
     this.replayBgmAndBgs()
     this.endBattle(1)
   }
 
-  static processDefeat() {
+  static processDefeat(): void {
     this.displayDefeatMessage()
     this.playDefeatMe()
     if (this._canLose) {
@@ -734,7 +779,7 @@ export class BattleManager {
     this.endBattle(2)
   }
 
-  static endBattle(result) {
+  static endBattle(result: number): void {
     this._phase = 'battleEnd'
     this.cancelActorInput()
     this._inputting = false
@@ -750,7 +795,7 @@ export class BattleManager {
     $gameTemp.clearCommonEventReservation()
   }
 
-  static updateBattleEnd() {
+  static updateBattleEnd(): void {
     if (this.isBattleTest()) {
       AudioManager.stopBgm()
       SceneManager.exit()
@@ -761,7 +806,7 @@ export class BattleManager {
         SceneManager.pop()
       }
       else {
-        SceneManager.goto(Scene_Gameover)
+        SceneManager.goto(Scene_Gameover as unknown as Parameters<typeof SceneManager.goto>[0])
       }
     }
     else {
@@ -770,7 +815,7 @@ export class BattleManager {
     this._phase = ''
   }
 
-  static makeRewards() {
+  static makeRewards(): void {
     this._rewards = {
       gold: $gameTroop.goldTotal(),
       exp: $gameTroop.expTotal(),
@@ -778,30 +823,30 @@ export class BattleManager {
     }
   }
 
-  static displayVictoryMessage() {
+  static displayVictoryMessage(): void {
     $gameMessage.add(TextManager.victory.format($gameParty.name()))
   }
 
-  static displayDefeatMessage() {
+  static displayDefeatMessage(): void {
     $gameMessage.add(TextManager.defeat.format($gameParty.name()))
   }
 
-  static displayEscapeSuccessMessage() {
+  static displayEscapeSuccessMessage(): void {
     $gameMessage.add(TextManager.escapeStart.format($gameParty.name()))
   }
 
-  static displayEscapeFailureMessage() {
+  static displayEscapeFailureMessage(): void {
     $gameMessage.add(TextManager.escapeStart.format($gameParty.name()))
     $gameMessage.add(`\\.${TextManager.escapeFailure}`)
   }
 
-  static displayRewards() {
+  static displayRewards(): void {
     this.displayExp()
     this.displayGold()
     this.displayDropItems()
   }
 
-  static displayExp() {
+  static displayExp(): void {
     const exp = this._rewards.exp
     if (exp > 0) {
       const text = TextManager.obtainExp.format(exp, TextManager.exp)
@@ -809,14 +854,14 @@ export class BattleManager {
     }
   }
 
-  static displayGold() {
+  static displayGold(): void {
     const gold = this._rewards.gold
     if (gold > 0) {
       $gameMessage.add(`\\.${TextManager.obtainGold.format(gold)}`)
     }
   }
 
-  static displayDropItems() {
+  static displayDropItems(): void {
     const items = this._rewards.items
     if (items.length > 0) {
       $gameMessage.newPage()
@@ -826,27 +871,27 @@ export class BattleManager {
     }
   }
 
-  static gainRewards() {
+  static gainRewards(): void {
     this.gainExp()
     this.gainGold()
     this.gainDropItems()
   }
 
-  static gainExp() {
+  static gainExp(): void {
     const exp = this._rewards.exp
     for (const actor of $gameParty.allMembers()) {
       actor.gainExp(exp)
     }
   }
 
-  static gainGold() {
+  static gainGold(): void {
     $gameParty.gainGold(this._rewards.gold)
   }
 
-  static gainDropItems() {
+  static gainDropItems(): void {
     const items = this._rewards.items
     for (const item of items) {
-      $gameParty.gainItem(item, 1)
+      $gameParty.gainItem(item as MZ.EquipOrItem, 1)
     }
   }
 }

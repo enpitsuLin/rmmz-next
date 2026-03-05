@@ -1,3 +1,5 @@
+import type { Bitmap } from '../core'
+import type { Game_BattlerBase } from '../objects/Game_BattlerBase'
 import { ImageManager } from './ImageManager'
 
 /**
@@ -10,89 +12,91 @@ export class ColorManager {
     throw new Error('This is a static class')
   }
 
-  static loadWindowskin() {
+  static _windowskin: Bitmap
+
+  static loadWindowskin(): void {
     this._windowskin = ImageManager.loadSystem('Window')
   }
 
-  static textColor(n) {
+  static textColor(n: number): string {
     const px = 96 + (n % 8) * 12 + 6
     const py = 144 + Math.floor(n / 8) * 12 + 6
     return this._windowskin.getPixel(px, py)
   }
 
-  static normalColor() {
+  static normalColor(): string {
     return this.textColor(0)
   }
 
-  static systemColor() {
+  static systemColor(): string {
     return this.textColor(16)
   }
 
-  static crisisColor() {
+  static crisisColor(): string {
     return this.textColor(17)
   }
 
-  static deathColor() {
+  static deathColor(): string {
     return this.textColor(18)
   }
 
-  static gaugeBackColor() {
+  static gaugeBackColor(): string {
     return this.textColor(19)
   }
 
-  static hpGaugeColor1() {
+  static hpGaugeColor1(): string {
     return this.textColor(20)
   }
 
-  static hpGaugeColor2() {
+  static hpGaugeColor2(): string {
     return this.textColor(21)
   }
 
-  static mpGaugeColor1() {
+  static mpGaugeColor1(): string {
     return this.textColor(22)
   }
 
-  static mpGaugeColor2() {
+  static mpGaugeColor2(): string {
     return this.textColor(23)
   }
 
-  static mpCostColor() {
+  static mpCostColor(): string {
     return this.textColor(23)
   }
 
-  static powerUpColor() {
+  static powerUpColor(): string {
     return this.textColor(24)
   }
 
-  static powerDownColor() {
+  static powerDownColor(): string {
     return this.textColor(25)
   }
 
-  static ctGaugeColor1() {
+  static ctGaugeColor1(): string {
     return this.textColor(26)
   }
 
-  static ctGaugeColor2() {
+  static ctGaugeColor2(): string {
     return this.textColor(27)
   }
 
-  static tpGaugeColor1() {
+  static tpGaugeColor1(): string {
     return this.textColor(28)
   }
 
-  static tpGaugeColor2() {
+  static tpGaugeColor2(): string {
     return this.textColor(29)
   }
 
-  static tpCostColor() {
+  static tpCostColor(): string {
     return this.textColor(29)
   }
 
-  static pendingColor() {
+  static pendingColor(): string {
     return this._windowskin.getPixel(120, 120)
   }
 
-  static hpColor(actor) {
+  static hpColor(actor: Game_BattlerBase | null): string {
     if (!actor) {
       return this.normalColor()
     }
@@ -107,15 +111,15 @@ export class ColorManager {
     }
   }
 
-  static mpColor(/* actor */) {
+  static mpColor(_actor?: Game_BattlerBase): string {
     return this.normalColor()
   }
 
-  static tpColor(/* actor */) {
+  static tpColor(_actor?: Game_BattlerBase): string {
     return this.normalColor()
   }
 
-  static paramchangeTextColor(change) {
+  static paramchangeTextColor(change: number): string {
     if (change > 0) {
       return this.powerUpColor()
     }
@@ -127,7 +131,7 @@ export class ColorManager {
     }
   }
 
-  static damageColor(colorType) {
+  static damageColor(colorType: number): string {
     switch (colorType) {
       case 0: // HP damage
         return '#ffffff'
@@ -142,23 +146,23 @@ export class ColorManager {
     }
   }
 
-  static outlineColor() {
+  static outlineColor(): string {
     return 'rgba(0, 0, 0, 0.6)'
   }
 
-  static dimColor1() {
+  static dimColor1(): string {
     return 'rgba(0, 0, 0, 0.6)'
   }
 
-  static dimColor2() {
+  static dimColor2(): string {
     return 'rgba(0, 0, 0, 0)'
   }
 
-  static itemBackColor1() {
+  static itemBackColor1(): string {
     return 'rgba(32, 32, 32, 0.5)'
   }
 
-  static itemBackColor2() {
+  static itemBackColor2(): string {
     return 'rgba(0, 0, 0, 0.5)'
   }
 }

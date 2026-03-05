@@ -6,6 +6,11 @@ import { ImageManager } from './ImageManager'
 import { SceneManager } from './SceneManager'
 import { StorageManager } from './StorageManager'
 
+interface DatabaseFileEntry {
+  name: string
+  src: string
+}
+
 /**
  * The static class that manages the database and game objects.
  */
@@ -14,27 +19,36 @@ export class DataManager {
     throw new Error('This is a static class')
   }
 
-  static _restoreInstance(instance, data) {
+  private static _setWindowData(name: string, value: unknown): void {
+    ;(window as unknown as Record<string, unknown>)[name] = value
+  }
+
+  private static _getWindowData(name: string): unknown {
+    return (window as unknown as Record<string, unknown>)[name]
+  }
+
+  static _restoreInstance<T>(instance: T, data: Record<string, any>): T {
+    const inst = instance as Record<string, any>
     for (const key in data) {
-      if (data.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
         const value = data[key]
         if (value == null) {
-          instance[key] = null
+          inst[key] = null
         }
         else if (Array.isArray(value)) {
-          instance[key] = value.map((item) => {
+          inst[key] = value.map((item) => {
             if (item == null)
               return null
             const ctorName
               = item['@']
                 || (item.constructor !== Object
                   ? item.constructor.name
-                  : instance[key]?.constructor.name || 'Object')
+                  : inst[key]?.constructor.name || 'Object')
             const ctor = item['@']
               ? eval(ctorName)
               : item.constructor !== Object
                 ? item.constructor
-                : instance[key]?.constructor || Object
+                : inst[key]?.constructor || Object
             return typeof item === 'object'
               ? DataManager._restoreInstance(new ctor(), item)
               : item
@@ -48,11 +62,11 @@ export class DataManager {
             ? eval(ctorName)
             : value.constructor !== Object
               ? value.constructor
-              : instance[key]?.constructor || Object
-          instance[key] = DataManager._restoreInstance(new ctor(), value)
+              : inst[key]?.constructor || Object
+          inst[key] = DataManager._restoreInstance(new ctor(), value)
         }
         else {
-          instance[key] = value
+          inst[key] = value
         }
       }
     }
@@ -61,7 +75,7 @@ export class DataManager {
 
   static _globalInfo: DataManager.SavefileInfo[] | null
   static _errors: DataManager.ErrorInfo[] = []
-  static _databaseFiles = [
+  static _databaseFiles: DatabaseFileEntry[] = [
     { name: '$dataActors', src: 'Actors.json' },
     { name: '$dataClasses', src: 'Classes.json' },
     { name: '$dataSkills', src: 'Skills.json' },
@@ -78,7 +92,7 @@ export class DataManager {
     { name: '$dataMapInfos', src: 'MapInfos.json' },
   ]
 
-  static loadGlobalInfo() {
+  static loadGlobalInfo(): void {
     StorageManager.loadObject<DataManager.SavefileInfo[]>('global')
       .then((a) => {
         this._globalInfo = a
@@ -90,7 +104,7 @@ export class DataManager {
       })
   }
 
-  static removeInvalidGlobalInfo() {
+  static removeInvalidGlobalInfo(): void {
     // TODO: improve this
     const a = this._globalInfo!
     for (const e of a) {
@@ -101,15 +115,15 @@ export class DataManager {
     }
   }
 
-  static saveGlobalInfo() {
+  static saveGlobalInfo(): void {
     StorageManager.saveObject('global', this._globalInfo)
   }
 
-  static isGlobalInfoLoaded() {
+  static isGlobalInfoLoaded(): boolean {
     return !!this._globalInfo
   }
 
-  static loadDatabase() {
+  static loadDatabase(): void {
     const a = this.isBattleTest() || this.isEventTest() ? 'Test_' : ''
     for (const e of this._databaseFiles) {
       this.loadDataFile(e.name, a + e.src)
@@ -119,11 +133,10 @@ export class DataManager {
     }
   }
 
-  static loadDataFile(name: string, src: string) {
+  static loadDataFile(name: string, src: string): void {
     const t = new XMLHttpRequest()
     const n = `data/${src}`
-    // @ts-expect-error to fix
-    window[name] = null
+    this._setWindowData(name, null)
     t.open('GET', n)
     t.overrideMimeType('application/json')
     t.onload = () => this.onXhrLoad(t, name, src, n)
@@ -131,34 +144,32 @@ export class DataManager {
     t.send()
   }
 
-  static onXhrLoad(t: XMLHttpRequest, name: string, src: string, url: string) {
+  static onXhrLoad(t: XMLHttpRequest, name: string, src: string, url: string): void {
     if (t.status < 400) {
-      // @ts-expect-error to fix
-      window[name] = JSON.parse(t.responseText)
-      // @ts-expect-error to fix
-      this.onLoad(window[name])
+      const data = JSON.parse(t.responseText) as unknown
+      this._setWindowData(name, data)
+      this.onLoad(data)
     }
     else {
       this.onXhrError(name, src, url)
     }
   }
 
-  static onXhrError(name: string, src: string, url: string) {
+  static onXhrError(name: string, src: string, url: string): void {
     const n = { name, src, url }
     this._errors.push(n)
   }
 
-  static isDatabaseLoaded() {
+  static isDatabaseLoaded(): boolean {
     this.checkError()
     for (const a of this._databaseFiles) {
-      // @ts-expect-error to fix
-      if (!window[a.name])
+      if (!this._getWindowData(a.name))
         return false
     }
     return true
   }
 
-  static loadMapData(mapId: number) {
+  static loadMapData(mapId: number): void {
     if (mapId > 0) {
       const e = 'Map%1.json'.format(mapId.padZero(3))
       this.loadDataFile('$dataMap', e)
@@ -168,7 +179,7 @@ export class DataManager {
     }
   }
 
-  static makeEmptyMap() {
+  static makeEmptyMap(): void {
     $dataMap = {} as MZ.Map
     $dataMap.data = []
     $dataMap.events = []
@@ -177,39 +188,38 @@ export class DataManager {
     $dataMap.scrollType = 3
   }
 
-  static isMapLoaded() {
+  static isMapLoaded(): boolean {
     this.checkError()
     return !!$dataMap
   }
 
-  // TODO: improve this
-  static onLoad(a: any) {
-    if (this.isMapObject(a)) {
-      this.extractMetadata(a)
-      this.extractArrayMetadata(a.events)
+  static onLoad(data: unknown): void {
+    if (this.isMapObject(data)) {
+      this.extractMetadata(data)
+      this.extractArrayMetadata(data.events)
     }
     else {
-      this.extractArrayMetadata(a)
+      this.extractArrayMetadata(data)
     }
   }
 
-  static isMapObject(a: any): a is MZ.Map {
-    return !(!a.data || !a.events)
+  static isMapObject(data: unknown): data is MZ.Map {
+    return !!data && typeof data === 'object' && 'data' in data && 'events' in data
   }
 
-  // TODO: improve this
-  static extractArrayMetadata(a: any) {
-    if (Array.isArray(a)) {
-      for (const e of a) {
-        if (e && 'note' in e) {
-          this.extractMetadata(e)
+  static extractArrayMetadata(data: unknown): void {
+    if (Array.isArray(data)) {
+      for (const e of data) {
+        if (e && typeof e === 'object' && 'note' in e) {
+          this.extractMetadata(e as { note: string, meta?: Record<string, string | boolean> })
         }
       }
     }
   }
 
-  // TODO: improve this
-  static extractMetadata(a: any) {
+  static extractMetadata(a: { note: string, meta?: Record<string, string | boolean> }): void {
+    // TODO fix this
+    // eslint-disable-next-line regexp/no-super-linear-backtracking
     const e = /<([^<>:]+)(:?)([^>]*)>/g
     a.meta = {}
     for (; ;) {
@@ -225,24 +235,26 @@ export class DataManager {
     }
   }
 
-  static checkError() {
+  static checkError(): void {
     if (this._errors.length > 0) {
       // TODO: improve this
       const a = this._errors.shift()!
-      const e = () => { this.loadDataFile(a.name, a.src) }
+      const e = (): void => { this.loadDataFile(a.name, a.src) }
+      // TODO fix this
+      // eslint-disable-next-line no-throw-literal
       throw ['LoadError', a.url, e]
     }
   }
 
-  static isBattleTest() {
+  static isBattleTest(): boolean {
     return Utils.isOptionValid('btest')
   }
 
-  static isEventTest() {
+  static isEventTest(): boolean {
     return Utils.isOptionValid('etest')
   }
 
-  static isTitleSkip() {
+  static isTitleSkip(): boolean {
     return Utils.isOptionValid('tskip')
   }
 
@@ -262,7 +274,7 @@ export class DataManager {
     return a && $dataArmors.includes(a as MZ.Armor)
   }
 
-  static createGameObjects() {
+  static createGameObjects(): void {
     $gameTemp = new Game_Temp()
     $gameSystem = new Game_System()
     $gameScreen = new Game_Screen()
@@ -278,7 +290,7 @@ export class DataManager {
     $gamePlayer = new Game_Player()
   }
 
-  static setupNewGame() {
+  static setupNewGame(): void {
     this.createGameObjects()
     this.selectSavefileForNewGame()
     $gameParty.setupStartingMembers()
@@ -286,7 +298,7 @@ export class DataManager {
     Graphics.frameCount = 0
   }
 
-  static setupBattleTest() {
+  static setupBattleTest(): void {
     this.createGameObjects()
     $gameParty.setupBattleTest()
     BattleManager.setup($dataSystem.testTroopId, true, false)
@@ -294,21 +306,19 @@ export class DataManager {
     BattleManager.playBattleBgm()
   }
 
-  static setupEventTest() {
+  static setupEventTest(): void {
     this.createGameObjects()
     this.selectSavefileForNewGame()
     $gameParty.setupStartingMembers()
-    // @ts-expect-error to fix
-    $gamePlayer.reserveTransfer(-1, 8, 6)
+    $gamePlayer.reserveTransfer(-1, 8, 6, 0, 0)
     $gamePlayer.setTransparent(false)
   }
 
-  static isAnySavefileExists() {
-    // @ts-expect-error to fix
-    return this._globalInfo.some(a => a)
+  static isAnySavefileExists(): boolean {
+    return this._globalInfo?.some(a => a) ?? false
   }
 
-  static latestSavefileId() {
+  static latestSavefileId(): number {
     // TODO: improve this
     const a = this._globalInfo!
     const e = a.slice(1).filter(a => a)
@@ -317,7 +327,7 @@ export class DataManager {
     return n > 0 ? n : 0
   }
 
-  static earliestSavefileId() {
+  static earliestSavefileId(): number {
     // TODO: improve this
     const a = this._globalInfo!
     const e = a.slice(1).filter(a => a)
@@ -326,7 +336,7 @@ export class DataManager {
     return n > 0 ? n : 0
   }
 
-  static emptySavefileId() {
+  static emptySavefileId(): number {
     // TODO: improve this
     const a = this._globalInfo!
     const e = this.maxSavefiles()
@@ -339,14 +349,14 @@ export class DataManager {
     }
   }
 
-  static loadAllSavefileImages() {
+  static loadAllSavefileImages(): void {
     // TODO: improve this
     for (const a of this._globalInfo!.filter(a => a)) {
       this.loadSavefileImages(a)
     }
   }
 
-  static loadSavefileImages(a: DataManager.SavefileInfo) {
+  static loadSavefileImages(a: DataManager.SavefileInfo): void {
     if (a.characters && Symbol.iterator in a.characters) {
       for (const e of a.characters) {
         ImageManager.loadCharacter(e[0])
@@ -359,7 +369,7 @@ export class DataManager {
     }
   }
 
-  static maxSavefiles() {
+  static maxSavefiles(): number {
     return 20
   }
 
@@ -369,12 +379,12 @@ export class DataManager {
     return e[a] ? e[a] : null
   }
 
-  static savefileExists(a: number) {
+  static savefileExists(a: number): boolean {
     const e = this.makeSavename(a)
     return StorageManager.exists(e)
   }
 
-  static saveGame(a: number) {
+  static saveGame(a: number): Promise<number> {
     const e = this.makeSaveContents()
     const t = this.makeSavename(a)
     return StorageManager.saveObject(t, e).then(() => {
@@ -385,7 +395,7 @@ export class DataManager {
     })
   }
 
-  static loadGame(a: number) {
+  static loadGame(a: number): Promise<number> {
     const e = this.makeSavename(a)
     return StorageManager.loadObject<DataManager.SaveContents>(e).then((a) => {
       this.createGameObjects()
@@ -395,17 +405,17 @@ export class DataManager {
     })
   }
 
-  static makeSavename(a: number) {
+  static makeSavename(a: number): string {
     return 'file%1'.format(a)
   }
 
-  static selectSavefileForNewGame() {
+  static selectSavefileForNewGame(): void {
     const a = this.emptySavefileId()
     const e = this.earliestSavefileId()
     a > 0 ? $gameSystem.setSavefileId(a) : $gameSystem.setSavefileId(e)
   }
 
-  static makeSavefileInfo() {
+  static makeSavefileInfo(): DataManager.SavefileInfo {
     const a = {} as DataManager.SavefileInfo
     a.title = $dataSystem.gameTitle
     a.characters = $gameParty.charactersForSavefile()
@@ -415,7 +425,7 @@ export class DataManager {
     return a
   }
 
-  static makeSaveContents() {
+  static makeSaveContents(): DataManager.SaveContents {
     const a = {} as DataManager.SaveContents
     a.system = $gameSystem
     a.screen = $gameScreen
@@ -430,25 +440,26 @@ export class DataManager {
     return a
   }
 
-  static extractSaveContents(a: DataManager.SaveContents) {
+  static extractSaveContents(a: DataManager.SaveContents): void {
     try {
-      $gameSystem = DataManager._restoreInstance(new Game_System(), a.system)
-      $gameScreen = DataManager._restoreInstance(new Game_Screen(), a.screen)
-      $gameTimer = DataManager._restoreInstance(new Game_Timer(), a.timer)
-      $gameSwitches = DataManager._restoreInstance(new Game_Switches(), a.switches)
-      $gameVariables = DataManager._restoreInstance(new Game_Variables(), a.variables)
-      $gameSelfSwitches = DataManager._restoreInstance(new Game_SelfSwitches(), a.selfSwitches)
-      $gameActors = DataManager._restoreInstance(new Game_Actors(), a.actors)
-      $gameParty = DataManager._restoreInstance(new Game_Party(), a.party)
-      $gameMap = DataManager._restoreInstance(new Game_Map(), a.map)
-      $gamePlayer = DataManager._restoreInstance(new Game_Player(), a.player)
+      $gameSystem = DataManager._restoreInstance(new Game_System(), a.system as unknown as Record<string, any>)
+      $gameScreen = DataManager._restoreInstance(new Game_Screen(), a.screen as unknown as Record<string, any>)
+      $gameTimer = DataManager._restoreInstance(new Game_Timer(), a.timer as unknown as Record<string, any>)
+      $gameSwitches = DataManager._restoreInstance(new Game_Switches(), a.switches as unknown as Record<string, any>)
+      $gameVariables = DataManager._restoreInstance(new Game_Variables(), a.variables as unknown as Record<string, any>)
+      $gameSelfSwitches = DataManager._restoreInstance(new Game_SelfSwitches(), a.selfSwitches as unknown as Record<string, any>)
+      $gameActors = DataManager._restoreInstance(new Game_Actors(), a.actors as unknown as Record<string, any>)
+      $gameParty = DataManager._restoreInstance(new Game_Party(), a.party as unknown as Record<string, any>)
+      $gameMap = DataManager._restoreInstance(new Game_Map(), a.map as unknown as Record<string, any>)
+      $gamePlayer = DataManager._restoreInstance(new Game_Player(), a.player as unknown as Record<string, any>)
     }
     catch (e) {
-      throw SceneManager.catchException(e), new Error('Cannot load savefile')
+      SceneManager.catchException(e)
+      throw new Error('Cannot load savefile')
     }
   }
 
-  static correctDataErrors() {
+  static correctDataErrors(): void {
     $gameParty.removeInvalidMembers()
   }
 }

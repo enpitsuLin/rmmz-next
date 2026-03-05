@@ -15,23 +15,23 @@ export class StorageManager {
   static _forageKeys: string[] = []
   static _forageKeysUpdated = false
 
-  static isLocalMode() {
+  static isLocalMode(): boolean {
     return Utils.isNwjs()
   }
 
-  static saveObject<T>(saveName: string, object: T | null) {
+  static saveObject<T>(saveName: string, object: T | null): Promise<void> {
     return this.objectToJson(object)
       .then(json => this.jsonToZip(json))
       .then(zip => this.saveZip(saveName, zip))
   }
 
-  static loadObject<T>(saveName: string) {
+  static loadObject<T>(saveName: string): Promise<T> {
     return this.loadZip(saveName)
       .then(zip => this.zipToJson(zip))
       .then(json => this.jsonToObject<T>(json))
   }
 
-  static objectToJson(object: any) {
+  static objectToJson(object: unknown): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
         const json = JsonEx.stringify(object)
@@ -55,7 +55,7 @@ export class StorageManager {
     })
   }
 
-  static jsonToZip(json: string) {
+  static jsonToZip(json: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
         const zip = pako.deflate(json, { to: 'string', level: 1 })
@@ -70,7 +70,7 @@ export class StorageManager {
     })
   }
 
-  static zipToJson(zip: string | null) {
+  static zipToJson(zip: string | null): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       try {
         if (zip) {
@@ -87,7 +87,7 @@ export class StorageManager {
     })
   }
 
-  static saveZip(saveName: string, zip: string) {
+  static saveZip(saveName: string, zip: string): Promise<void> {
     if (this.isLocalMode()) {
       return this.saveToLocalFile(saveName, zip)
     }
@@ -105,7 +105,7 @@ export class StorageManager {
     }
   }
 
-  static exists(saveName: string) {
+  static exists(saveName: string): boolean {
     if (this.isLocalMode()) {
       return this.localFileExists(saveName)
     }
@@ -114,16 +114,16 @@ export class StorageManager {
     }
   }
 
-  static remove(saveName: string) {
+  static remove(saveName: string): void {
     if (this.isLocalMode()) {
       return this.removeLocalFile(saveName)
     }
     else {
-      return this.removeForage(saveName)
+      this.removeForage(saveName)
     }
   }
 
-  static saveToLocalFile(saveName: string, zip: string) {
+  static saveToLocalFile(saveName: string, zip: string): Promise<void> {
     const dirPath = this.fileDirectoryPath()
     const filePath = this.filePath(saveName)
     const backupFilePath = `${filePath}_`
@@ -142,7 +142,7 @@ export class StorageManager {
           this.fsRename(backupFilePath, filePath)
         }
         catch (e2) {
-          //
+          console.error(e2)
         }
         reject(e)
       }
@@ -167,11 +167,11 @@ export class StorageManager {
     return fs.existsSync(this.filePath(saveName))
   }
 
-  static removeLocalFile(saveName: string) {
+  static removeLocalFile(saveName: string): void {
     this.fsUnlink(this.filePath(saveName))
   }
 
-  static saveToForage(saveName: string, zip: string) {
+  static saveToForage(saveName: string, zip: string): Promise<void> {
     const key = this.forageKey(saveName)
     const testKey = this.forageTestKey()
     setTimeout(() => localforage.removeItem(testKey))
@@ -183,22 +183,24 @@ export class StorageManager {
       })
   }
 
-  static loadFromForage(saveName: string) {
+  static loadFromForage(saveName: string): Promise<string | null> {
     const key = this.forageKey(saveName)
     return localforage.getItem<string>(key)
   }
 
-  static forageExists(saveName: string) {
+  static forageExists(saveName: string): boolean {
     const key = this.forageKey(saveName)
     return this._forageKeys.includes(key)
   }
 
-  static removeForage(saveName: string) {
+  static removeForage(saveName: string): Promise<void> {
     const key = this.forageKey(saveName)
-    return localforage.removeItem(key).then(() => this.updateForageKeys())
+    return localforage.removeItem(key).then(() => {
+      this.updateForageKeys()
+    })
   }
 
-  static updateForageKeys() {
+  static updateForageKeys(): Promise<number> {
     this._forageKeysUpdated = false
     return localforage.keys().then((keys) => {
       this._forageKeys = keys
@@ -207,32 +209,32 @@ export class StorageManager {
     })
   }
 
-  static forageKeysUpdated() {
+  static forageKeysUpdated(): boolean {
     return this._forageKeysUpdated
   }
 
-  static fsMkdir(path: string) {
+  static fsMkdir(path: string): void {
     const fs = require('fs')
     if (!fs.existsSync(path)) {
       fs.mkdirSync(path)
     }
   }
 
-  static fsRename(oldPath: string, newPath: string) {
+  static fsRename(oldPath: string, newPath: string): void {
     const fs = require('fs')
     if (fs.existsSync(oldPath)) {
       fs.renameSync(oldPath, newPath)
     }
   }
 
-  static fsUnlink(path: string) {
+  static fsUnlink(path: string): void {
     const fs = require('fs')
     if (fs.existsSync(path)) {
       fs.unlinkSync(path)
     }
   }
 
-  static fsReadFile(path: string) {
+  static fsReadFile(path: string): string | null {
     const fs = require('fs')
     if (fs.existsSync(path)) {
       return fs.readFileSync(path, { encoding: 'utf8' })
@@ -242,12 +244,12 @@ export class StorageManager {
     }
   }
 
-  static fsWriteFile(path: string, data: string) {
+  static fsWriteFile(path: string, data: string): void {
     const fs = require('fs')
     fs.writeFileSync(path, data)
   }
 
-  static fileDirectoryPath() {
+  static fileDirectoryPath(): string {
     const path = require('path')
     // @ts-expect-error to fix
     // eslint-disable-next-line node/prefer-global/process
@@ -255,17 +257,17 @@ export class StorageManager {
     return path.join(base, 'save/')
   }
 
-  static filePath(saveName: string) {
+  static filePath(saveName: string): string {
     const dir = this.fileDirectoryPath()
     return `${dir + saveName}.rmmzsave`
   }
 
-  static forageKey(saveName: string) {
+  static forageKey(saveName: string): string {
     const gameId = $dataSystem.advanced.gameId
     return `rmmzsave.${gameId}.${saveName}`
   }
 
-  static forageTestKey() {
+  static forageTestKey(): string {
     return 'rmmzsave.test'
   }
 }

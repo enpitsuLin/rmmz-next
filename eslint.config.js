@@ -7,5 +7,7 @@ export default antfu({
     'ts/no-namespace': 'off',
     'ts/no-require-imports': 'warn',
     'unicorn/prefer-node-protocol': 'off',
+    'no-eval': 'off',
+    'new-cap': 'off',
   },
 })

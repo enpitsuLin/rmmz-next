@@ -8,118 +8,118 @@ export class SoundManager {
     throw new Error('This is a static class')
   }
 
-  static preloadImportantSounds() {
+  static preloadImportantSounds(): void {
     this.loadSystemSound(0)
     this.loadSystemSound(1)
     this.loadSystemSound(2)
     this.loadSystemSound(3)
   }
 
-  static loadSystemSound(n) {
+  static loadSystemSound(n: number): void {
     if ($dataSystem) {
       AudioManager.loadStaticSe($dataSystem.sounds[n])
     }
   }
 
-  static playSystemSound(n) {
+  static playSystemSound(n: number): void {
     if ($dataSystem) {
       AudioManager.playStaticSe($dataSystem.sounds[n])
     }
   }
 
-  static playCursor() {
+  static playCursor(): void {
     this.playSystemSound(0)
   }
 
-  static playOk() {
+  static playOk(): void {
     this.playSystemSound(1)
   }
 
-  static playCancel() {
+  static playCancel(): void {
     this.playSystemSound(2)
   }
 
-  static playBuzzer() {
+  static playBuzzer(): void {
     this.playSystemSound(3)
   }
 
-  static playEquip() {
+  static playEquip(): void {
     this.playSystemSound(4)
   }
 
-  static playSave() {
+  static playSave(): void {
     this.playSystemSound(5)
   }
 
-  static playLoad() {
+  static playLoad(): void {
     this.playSystemSound(6)
   }
 
-  static playBattleStart() {
+  static playBattleStart(): void {
     this.playSystemSound(7)
   }
 
-  static playEscape() {
+  static playEscape(): void {
     this.playSystemSound(8)
   }
 
-  static playEnemyAttack() {
+  static playEnemyAttack(): void {
     this.playSystemSound(9)
   }
 
-  static playEnemyDamage() {
+  static playEnemyDamage(): void {
     this.playSystemSound(10)
   }
 
-  static playEnemyCollapse() {
+  static playEnemyCollapse(): void {
     this.playSystemSound(11)
   }
 
-  static playBossCollapse1() {
+  static playBossCollapse1(): void {
     this.playSystemSound(12)
   }
 
-  static playBossCollapse2() {
+  static playBossCollapse2(): void {
     this.playSystemSound(13)
   }
 
-  static playActorDamage() {
+  static playActorDamage(): void {
     this.playSystemSound(14)
   }
 
-  static playActorCollapse() {
+  static playActorCollapse(): void {
     this.playSystemSound(15)
   }
 
-  static playRecovery() {
+  static playRecovery(): void {
     this.playSystemSound(16)
   }
 
-  static playMiss() {
+  static playMiss(): void {
     this.playSystemSound(17)
   }
 
-  static playEvasion() {
+  static playEvasion(): void {
     this.playSystemSound(18)
   }
 
-  static playMagicEvasion() {
+  static playMagicEvasion(): void {
     this.playSystemSound(19)
   }
 
-  static playReflection() {
+  static playReflection(): void {
     this.playSystemSound(20)
   }
 
-  static playShop() {
+  static playShop(): void {
     this.playSystemSound(21)
   }
 
-  static playUseItem() {
+  static playUseItem(): void {
     this.playSystemSound(22)
   }
 
-  static playUseSkill() {
+  static playUseSkill(): void {
     this.playSystemSound(23)
   }
 }
