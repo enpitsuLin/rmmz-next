@@ -35,7 +35,9 @@
   "dependencies": {
     "@rmmz-lib/core": "workspace:*",
     "@rmmz-lib/database-types": "workspace:*",
-    "@rmmz-lib/runtime": "workspace:*"
+    "@rmmz-lib/runtime": "workspace:*",
+    "defu": "catalog:tools",
+    "ufo": "catalog:tools"
   },
   "devDependencies": {
     "vite": "catalog:dev"

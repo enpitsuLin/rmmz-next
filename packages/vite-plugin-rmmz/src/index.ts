@@ -3,6 +3,8 @@ import { Buffer } from 'node:buffer'
 import { copyFile, mkdir, readdir, readFile, stat } from 'node:fs/promises'
 import { extname, join, relative, resolve } from 'node:path'
 import process from 'node:process'
+import { defu } from 'defu'
+import { withLeadingSlash } from 'ufo'
 import { BINARY_EXTENSIONS, MIME_TYPES, RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './constants'
 
 function getMimeType(filePath: string): string {
@@ -39,19 +41,34 @@ async function copyDirectory(src: string, dest: string): Promise<void> {
 }
 
 export interface RMMZPluginOptions {
-  /** 项目根目录路径，默认为 public/project */
+  /**
+   * 项目根目录路径，默认为 public/project
+   */
   projectRoot?: string
-  /** API 路径，默认为 /__rmmz_load_file */
+  /**
+   * API 路径
+   * @default `/__rmmz__`
+   */
   apiPath?: string
-  /** 是否启用开发模式日志 */
+  /**
+   * 是否启用开发模式日志
+   */
   debug?: boolean
-  /** 生产环境输出目录名，默认为 rmmz-project */
-  projectOutputDir?: string
+  /**
+   * 生产环境输出目录名
+   * @default `project`
+   */
+  outputDir?: string
 }
 
 export function rmmz(options: RMMZPluginOptions = {}): Plugin[] {
+  const opts = defu<RMMZPluginOptions, [RMMZPluginOptions]>(options, {
+    apiPath: '/__rmmz__',
+    debug: false,
+    outputDir: 'project',
+  })
   return [
-    virtualModule(options),
+    virtualModule(opts),
   ]
 }
 
@@ -61,12 +78,10 @@ function virtualModule(options: RMMZPluginOptions = {}): Plugin {
   let viteServer: ViteDevServer
 
   // 确保 apiPath 以 / 开头且格式正确
-  const apiPath = options.apiPath?.startsWith('/')
-    ? options.apiPath
-    : `/${options.apiPath ?? '__rmmz_load_file'}`
+  const apiPath = withLeadingSlash(options.apiPath)
 
   // 生产环境输出目录名
-  const projectOutputDir = options.projectOutputDir ?? 'rmmz-project'
+  const projectOutputDir = options.outputDir!
 
   const debug = options.debug && process.env.NODE_ENV === 'development'
 
