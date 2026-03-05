@@ -1,6 +1,6 @@
 import { join, extname, resolve, relative } from 'node:path'
 import { readFile, stat } from 'node:fs/promises'
-import type { Plugin, ResolvedConfig } from 'vite'
+import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 
 const VIRTUAL_MODULE_ID = 'virtual:rmmz-project'
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`
@@ -52,6 +52,11 @@ function isBinaryFile(filePath: string): boolean {
   return BINARY_EXTENSIONS.has(ext)
 }
 
+function shouldTransform(filePath: string): boolean {
+  const ext = extname(filePath).toLowerCase()
+  return ['.js', '.ts', '.jsx', '.tsx'].includes(ext)
+}
+
 export interface RMMZPluginOptions {
   /** 项目根目录路径，默认为 public/project */
   projectRoot?: string
@@ -70,6 +75,7 @@ export function rmmz(options: RMMZPluginOptions = {}): Plugin[] {
 function virtualModule(options: RMMZPluginOptions = {}): Plugin {
   let config: ResolvedConfig
   let resolvedProjectRoot: string
+  let viteServer: ViteDevServer // 新增：保存 Vite 服务器实例
 
   // 确保 apiPath 以 / 开头且格式正确
   const apiPath = options.apiPath?.startsWith('/')
@@ -114,6 +120,7 @@ export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
       }
     },
     configureServer(server) {
+      viteServer = server // 保存服务器实例
       server.middlewares.use(apiPath, async (req, res) => {
         try {
           const url = new URL(req.url!, `http://${req.headers.host}`)
@@ -164,6 +171,55 @@ export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
             return
           }
 
+          // 检查是否需要使用 Vite 转换
+          const needsTransform = shouldTransform(filePath) && viteServer
+
+          if (needsTransform) {
+            try {
+              // 使用 Vite 转换文件
+              const transformResult = await viteServer.transformRequest(fullPath)
+              if (transformResult?.code) {
+                const transformedContent = transformResult.code
+
+                // 设置正确的 Content-Type
+                res.setHeader('Content-Type', 'application/javascript; charset=utf-8')
+                res.setHeader('Content-Length', Buffer.byteLength(transformedContent))
+
+                // 保持现有缓存机制
+                const lastModified = stats.mtime.toUTCString()
+                res.setHeader('Last-Modified', lastModified)
+                res.setHeader('ETag', `"${stats.size}-${stats.mtime.getTime()}"`)
+
+                // 检查条件请求
+                const ifModifiedSince = req.headers['if-modified-since']
+                const ifNoneMatch = req.headers['if-none-match']
+
+                if (ifModifiedSince === lastModified || ifNoneMatch === res.getHeader('ETag')) {
+                  res.statusCode = 304
+                  res.end()
+                  return
+                }
+
+                log(`服务转换后的文件: ${filePath}`)
+                res.end(transformedContent)
+                return
+              }
+            } catch (transformError) {
+              // 返回转换错误信息
+              const errorMessage = transformError instanceof Error ? transformError.message : 'Unknown transform error'
+              log('Vite 转换错误:', errorMessage)
+
+              res.statusCode = 500
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify({
+                error: `Vite transform failed: ${errorMessage}`,
+                file: filePath
+              }))
+              return
+            }
+          }
+
+          // 如果不需要转换或转换失败，继续原有的文件读取逻辑
           const isBinary = isBinaryFile(filePath)
           const mimeType = getMimeType(filePath)
 

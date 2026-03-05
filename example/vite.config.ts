@@ -13,6 +13,7 @@ export default defineConfig({
     target: 'es2021',
   },
   build: {
+    minify: false,
     target: 'es2021',
   },
 })

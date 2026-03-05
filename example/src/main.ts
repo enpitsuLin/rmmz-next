@@ -49,7 +49,7 @@ PluginManager.loadScript = function (filename: string): void {
   const script = document.createElement('script')
   // script.type = 'text/javascript'
   script.type = 'module'
-  script.src = '@fs' + projectRoot + '/' + url
+  script.src = fileurl(url)
   script.async = false
   script.defer = true
   // @ts-expect-error to fix this
