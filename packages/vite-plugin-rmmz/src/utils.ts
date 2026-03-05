@@ -1,6 +1,6 @@
 import { copyFile, mkdir, readdir } from 'node:fs/promises'
 import { extname, join } from 'node:path'
-import { BINARY_EXTENSIONS, MIME_TYPES } from './constants'
+import { BINARY_EXTENSIONS, MIME_TYPES } from './constants.ts'
 
 export function getMimeType(filePath: string): string {
   const ext = extname(filePath).toLowerCase()

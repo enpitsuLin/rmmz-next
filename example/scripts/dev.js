@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { homedir, platform } from 'node:os'
 import { dirname, join } from 'node:path'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import cac from 'cac'
 import { createLogger, createServer } from 'vite'
@@ -117,7 +118,7 @@ function getSteamLibraryFolders() {
         continue
 
       for (const key of Object.keys(libraryFolders)) {
-        if (!isNaN(Number(key))) {
+        if (!Number.isNaN(Number(key))) {
           const folder = libraryFolders[key]
           if (folder && folder.path) {
             paths.push(folder.path)
@@ -225,7 +226,7 @@ function getProjectPath(customPath = null) {
   if (customPath && existsSync(customPath))
     return customPath
 
-  const defaultPath = join(__dirname, '..', 'src', 'project')
+  const defaultPath = join(__dirname, '..', 'project')
   if (existsSync(defaultPath))
     return defaultPath
 

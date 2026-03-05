@@ -5,8 +5,8 @@ import { readFile, stat } from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
 import process from 'node:process'
 import { withLeadingSlash } from 'ufo'
-import { RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './constants'
-import { copyDirectory, getMimeType, isBinaryFile, shouldTransform } from './utils'
+import { RESOLVED_VIRTUAL_MODULE_ID, VIRTUAL_MODULE_ID } from './constants.ts'
+import { copyDirectory, getMimeType, isBinaryFile, shouldTransform } from './utils.ts'
 
 export function virtualModule(options: RMMZPluginOptions = {}): Plugin {
   let config: ResolvedConfig

@@ -13,8 +13,7 @@
   },
   "dependencies": {
     "@rmmz-lib/core": "workspace:*",
-    "@rmmz-lib/database-types": "workspace:*",
-    "@rmmz-lib/runtime": "workspace:*"
+    "@rmmz-lib/database-types": "workspace:*"
   },
   "devDependencies": {
     "@types/nw.js": "catalog:types",
