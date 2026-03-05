@@ -686,8 +686,7 @@ export declare namespace MZ {
     name: string
     offsetX: number
     offsetY: number
-    // @ts-ignore
-    rotation: Rotation
+    rotation: Animation.Rotation
     scale: number
     soundTimings: Animation.SoundTiming[]
     speed: number

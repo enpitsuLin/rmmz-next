@@ -1,3 +1,7 @@
-declare module 'virtual:rmmz-plugins' {
-  export const $plugins: any[]
+import { PluginManager } from "@rmmz-lib/core"
+
+declare module 'virtual:rmmz-project' {
+  export const $plugins: PluginManager.PluginConfig[]
 }
+
+export {}

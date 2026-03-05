@@ -71,10 +71,16 @@ importers:
       '@rmmz-lib/core':
         specifier: workspace:*
         version: link:../packages/core
+      '@rmmz-lib/database-types':
+        specifier: workspace:*
+        version: link:../packages/database-types
       '@rmmz-lib/runtime':
         specifier: workspace:*
         version: link:../packages/runtime
     devDependencies:
+      '@types/nw.js':
+        specifier: catalog:types
+        version: 0.92.0
       cac:
         specifier: 'catalog:'
         version: 7.0.0

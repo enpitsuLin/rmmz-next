@@ -1,224 +1,226 @@
-import { DataManager, PluginManager, Scene_Boot, SceneManager } from '@rmmz-lib/core'
-import { $plugins } from 'virtual:rmmz-plugins'
+// import { DataManager, PluginManager, Scene_Boot, SceneManager } from '@rmmz-lib/core'
+import { $plugins } from 'virtual:rmmz-project'
 
-globalThis.$dataActors = null
-globalThis.$dataClasses = null
-globalThis.$dataSkills = null
-globalThis.$dataItems = null
-globalThis.$dataWeapons = null
-globalThis.$dataArmors = null
-globalThis.$dataEnemies = null
-globalThis.$dataTroops = null
-globalThis.$dataStates = null
-globalThis.$dataAnimations = null
-globalThis.$dataTilesets = null
-globalThis.$dataCommonEvents = null
-globalThis.$dataSystem = null
-globalThis.$dataMapInfos = null
-globalThis.$dataMap = null
-globalThis.$gameTemp = null
-globalThis.$gameSystem = null
-globalThis.$gameScreen = null
-globalThis.$gameTimer = null
-globalThis.$gameMessage = null
-globalThis.$gameSwitches = null
-globalThis.$gameVariables = null
-globalThis.$gameSelfSwitches = null
-globalThis.$gameActors = null
-globalThis.$gameParty = null
-globalThis.$gameTroop = null
-globalThis.$gameMap = null
-globalThis.$gamePlayer = null
-globalThis.$testEvent = null
+export { $plugins }
 
-const availablePlugins = new Map(
-  Object.entries(
-    import.meta.glob<string>('../project/js/plugins/*.js', { eager: true, query: '?url', import: 'default' }),
-  ).map(([url, mod]) => {
-    const name = url.split('/').pop()?.replace(/\.js$/, '') ?? ''
-    return [name, mod]
-  }),
-)
+// globalThis.$dataActors = null
+// globalThis.$dataClasses = null
+// globalThis.$dataSkills = null
+// globalThis.$dataItems = null
+// globalThis.$dataWeapons = null
+// globalThis.$dataArmors = null
+// globalThis.$dataEnemies = null
+// globalThis.$dataTroops = null
+// globalThis.$dataStates = null
+// globalThis.$dataAnimations = null
+// globalThis.$dataTilesets = null
+// globalThis.$dataCommonEvents = null
+// globalThis.$dataSystem = null
+// globalThis.$dataMapInfos = null
+// globalThis.$dataMap = null
+// globalThis.$gameTemp = null
+// globalThis.$gameSystem = null
+// globalThis.$gameScreen = null
+// globalThis.$gameTimer = null
+// globalThis.$gameMessage = null
+// globalThis.$gameSwitches = null
+// globalThis.$gameVariables = null
+// globalThis.$gameSelfSwitches = null
+// globalThis.$gameActors = null
+// globalThis.$gameParty = null
+// globalThis.$gameTroop = null
+// globalThis.$gameMap = null
+// globalThis.$gamePlayer = null
+// globalThis.$testEvent = null
 
-const allData = new Map(
-  Object.entries(
-    import.meta.glob<string>('../project/data/*.json', { eager: true, query: '?raw', import: 'default' }),
-  ).map(([url, mod]) => {
-    const name = url.split('/').pop() ?? ''
-    return [name, mod]
-  }),
-)
+// const availablePlugins = new Map(
+//   Object.entries(
+//     import.meta.glob<string>('../project/js/plugins/*.js', { eager: true, query: '?url', import: 'default' }),
+//   ).map(([url, mod]) => {
+//     const name = url.split('/').pop()?.replace(/\.js$/, '') ?? ''
+//     return [name, mod]
+//   }),
+// )
 
-PluginManager.loadScript = function (filename: string): void {
-  if (availablePlugins.has(filename)) {
-    import(availablePlugins.get(filename)!)
-      .catch((_err) => {
-        this.onError.bind(this)
-      })
-  }
-}
+// const allData = new Map(
+//   Object.entries(
+//     import.meta.glob<string>('../project/data/*.json', { eager: true, query: '?raw', import: 'default' }),
+//   ).map(([url, mod]) => {
+//     const name = url.split('/').pop() ?? ''
+//     return [name, mod]
+//   }),
+// )
 
-DataManager.loadDataFile = function (name: string, src: string): void {
-  if (allData.has(src)) {
-    /// @ts-expect-error to fix
-    window[name] = JSON.parse(allData.get(src)!)
-    // @ts-expect-error to fix
-    this.onLoad(window[name])
-  }
-}
+// PluginManager.loadScript = function (filename: string): void {
+//   if (availablePlugins.has(filename)) {
+//     import(availablePlugins.get(filename)!)
+//       .catch((_err) => {
+//         this.onError.bind(this)
+//       })
+//   }
+// }
 
-const scriptUrls = [
-  new URL('/project/js/libs/effekseer.min.js', import.meta.url).href,
-  new URL('/project/js/libs/vorbisdecoder.js', import.meta.url).href,
-]
-const effekseerWasmUrl = new URL('/project/js/libs/effekseer.wasm', import.meta.url).href
+// DataManager.loadDataFile = function (name: string, src: string): void {
+//   if (allData.has(src)) {
+//     /// @ts-expect-error to fix
+//     window[name] = JSON.parse(allData.get(src)!)
+//     // @ts-expect-error to fix
+//     this.onLoad(window[name])
+//   }
+// }
 
-class Main {
-  error: Error | null = null
-  xhrSucceeded: boolean = false
-  loadCount: number = 0
+// const scriptUrls = [
+//   new URL('/project/js/libs/effekseer.min.js', import.meta.url).href,
+//   new URL('/project/js/libs/vorbisdecoder.js', import.meta.url).href,
+// ]
+// const effekseerWasmUrl = new URL('/project/js/libs/effekseer.wasm', import.meta.url).href
 
-  numScripts: number | undefined
+// class Main {
+//   error: Error | null = null
+//   xhrSucceeded: boolean = false
+//   loadCount: number = 0
 
-  constructor() {
-    this.xhrSucceeded = false
-    this.loadCount = 0
-    this.error = null
-  }
+//   numScripts: number | undefined
 
-  run(): void {
-    this.showLoadingSpinner()
-    this.testXhr()
-    this.hookNwjsClose()
-    this.loadMainScripts()
-  }
+//   constructor() {
+//     this.xhrSucceeded = false
+//     this.loadCount = 0
+//     this.error = null
+//   }
 
-  showLoadingSpinner(): void {
-    const loadingSpinner = document.createElement('div')
-    const loadingSpinnerImage = document.createElement('div')
-    loadingSpinner.id = 'loadingSpinner'
-    loadingSpinnerImage.id = 'loadingSpinnerImage'
-    loadingSpinner.appendChild(loadingSpinnerImage)
-    document.body.appendChild(loadingSpinner)
-  }
+//   run(): void {
+//     this.showLoadingSpinner()
+//     this.testXhr()
+//     this.hookNwjsClose()
+//     this.loadMainScripts()
+//   }
 
-  eraseLoadingSpinner(): void {
-    const loadingSpinner = document.getElementById('loadingSpinner')
-    if (loadingSpinner) {
-      document.body.removeChild(loadingSpinner)
-    }
-  }
+//   showLoadingSpinner(): void {
+//     const loadingSpinner = document.createElement('div')
+//     const loadingSpinnerImage = document.createElement('div')
+//     loadingSpinner.id = 'loadingSpinner'
+//     loadingSpinnerImage.id = 'loadingSpinnerImage'
+//     loadingSpinner.appendChild(loadingSpinnerImage)
+//     document.body.appendChild(loadingSpinner)
+//   }
 
-  testXhr(): void {
-    const xhr = new XMLHttpRequest()
-    xhr.open('GET', import.meta.url)
-    xhr.onload = () => (this.xhrSucceeded = true)
-    xhr.send()
-  }
+//   eraseLoadingSpinner(): void {
+//     const loadingSpinner = document.getElementById('loadingSpinner')
+//     if (loadingSpinner) {
+//       document.body.removeChild(loadingSpinner)
+//     }
+//   }
 
-  hookNwjsClose(): void {
-    // [Note] When closing the window, the NW.js process sometimes does
-    //   not terminate properly. This code is a workaround for that.
-    if (typeof nw === 'object') {
-      nw.Window.get().on('close', () => nw.App.quit())
-    }
-  }
+//   testXhr(): void {
+//     const xhr = new XMLHttpRequest()
+//     xhr.open('GET', import.meta.url)
+//     xhr.onload = () => (this.xhrSucceeded = true)
+//     xhr.send()
+//   }
 
-  loadMainScripts(): void {
-    for (const url of scriptUrls) {
-      const script = document.createElement('script')
-      script.type = 'text/javascript'
-      script.src = url
-      script.async = false
-      script.defer = true
-      script.onload = this.onScriptLoad.bind(this)
-      // @ts-expect-error to fix this
-      script.onerror = this.onScriptError.bind(this)
-      script._url = url
-      document.body.appendChild(script)
-    }
-    this.numScripts = scriptUrls.length
-    window.addEventListener('load', this.onWindowLoad.bind(this))
-    window.addEventListener('error', this.onWindowError.bind(this))
-  }
+//   hookNwjsClose(): void {
+//     // [Note] When closing the window, the NW.js process sometimes does
+//     //   not terminate properly. This code is a workaround for that.
+//     if (typeof nw === 'object') {
+//       nw.Window.get().on('close', () => nw.App.quit())
+//     }
+//   }
 
-  onScriptLoad(): void {
-    if (++this.loadCount === this.numScripts) {
-      PluginManager.setup($plugins)
-    }
-  }
+//   loadMainScripts(): void {
+//     for (const url of scriptUrls) {
+//       const script = document.createElement('script')
+//       script.type = 'text/javascript'
+//       script.src = url
+//       script.async = false
+//       script.defer = true
+//       script.onload = this.onScriptLoad.bind(this)
+//       // @ts-expect-error to fix this
+//       script.onerror = this.onScriptError.bind(this)
+//       script._url = url
+//       document.body.appendChild(script)
+//     }
+//     this.numScripts = scriptUrls.length
+//     window.addEventListener('load', this.onWindowLoad.bind(this))
+//     window.addEventListener('error', this.onWindowError.bind(this))
+//   }
 
-  onScriptError(e: ErrorEvent): void {
-    this.printError('Failed to load', (e.target as HTMLScriptElement)._url!)
-  }
+//   onScriptLoad(): void {
+//     if (++this.loadCount === this.numScripts) {
+//       PluginManager.setup($plugins)
+//     }
+//   }
 
-  printError(name: string, message: string): void {
-    this.eraseLoadingSpinner()
-    if (!document.getElementById('errorPrinter')) {
-      const errorPrinter = document.createElement('div')
-      errorPrinter.id = 'errorPrinter'
-      errorPrinter.innerHTML = this.makeErrorHtml(name, message)
-      document.body.appendChild(errorPrinter)
-    }
-  }
+//   onScriptError(e: ErrorEvent): void {
+//     this.printError('Failed to load', (e.target as HTMLScriptElement)._url!)
+//   }
 
-  makeErrorHtml(name: string, message: string): string {
-    const nameDiv = document.createElement('div')
-    const messageDiv = document.createElement('div')
-    nameDiv.id = 'errorName'
-    messageDiv.id = 'errorMessage'
-    nameDiv.innerHTML = name
-    messageDiv.innerHTML = message
-    return nameDiv.outerHTML + messageDiv.outerHTML
-  }
+//   printError(name: string, message: string): void {
+//     this.eraseLoadingSpinner()
+//     if (!document.getElementById('errorPrinter')) {
+//       const errorPrinter = document.createElement('div')
+//       errorPrinter.id = 'errorPrinter'
+//       errorPrinter.innerHTML = this.makeErrorHtml(name, message)
+//       document.body.appendChild(errorPrinter)
+//     }
+//   }
 
-  onWindowLoad(): void {
-    if (!this.xhrSucceeded) {
-      const message = 'Your browser does not allow to read local files.'
-      this.printError('Error', message)
-    }
-    else if (this.isPathRandomized()) {
-      const message = 'Please move the Game.app to a different folder.'
-      this.printError('Error', message)
-    }
-    else if (this.error) {
-      this.printError(this.error.name, this.error.message)
-    }
-    else {
-      this.initEffekseerRuntime()
-    }
-  }
+//   makeErrorHtml(name: string, message: string): string {
+//     const nameDiv = document.createElement('div')
+//     const messageDiv = document.createElement('div')
+//     nameDiv.id = 'errorName'
+//     messageDiv.id = 'errorMessage'
+//     nameDiv.innerHTML = name
+//     messageDiv.innerHTML = message
+//     return nameDiv.outerHTML + messageDiv.outerHTML
+//   }
 
-  onWindowError(event: ErrorEvent): void {
-    if (!this.error) {
-      this.error = event.error
-    }
-  }
+//   onWindowLoad(): void {
+//     if (!this.xhrSucceeded) {
+//       const message = 'Your browser does not allow to read local files.'
+//       this.printError('Error', message)
+//     }
+//     else if (this.isPathRandomized()) {
+//       const message = 'Please move the Game.app to a different folder.'
+//       this.printError('Error', message)
+//     }
+//     else if (this.error) {
+//       this.printError(this.error.name, this.error.message)
+//     }
+//     else {
+//       this.initEffekseerRuntime()
+//     }
+//   }
 
-  isPathRandomized(): boolean {
-    // [Note] We cannot save the game properly when Gatekeeper Path
-    //   Randomization is in effect.
-    return (
-      typeof process === 'object'
-      && process.mainModule.filename.startsWith('/private/var')
-    )
-  }
+//   onWindowError(event: ErrorEvent): void {
+//     if (!this.error) {
+//       this.error = event.error
+//     }
+//   }
 
-  initEffekseerRuntime(): void {
-    const onLoad = this.onEffekseerLoad.bind(this)
-    const onError = this.onEffekseerError.bind(this)
-    effekseer.initRuntime(effekseerWasmUrl, onLoad, onError)
-  }
+//   isPathRandomized(): boolean {
+//     // [Note] We cannot save the game properly when Gatekeeper Path
+//     //   Randomization is in effect.
+//     return (
+//       typeof process === 'object'
+//       && process.mainModule.filename.startsWith('/private/var')
+//     )
+//   }
 
-  onEffekseerLoad(): void {
-    this.eraseLoadingSpinner()
-    SceneManager.run(Scene_Boot)
-  }
+//   initEffekseerRuntime(): void {
+//     const onLoad = this.onEffekseerLoad.bind(this)
+//     const onError = this.onEffekseerError.bind(this)
+//     effekseer.initRuntime(effekseerWasmUrl, onLoad, onError)
+//   }
 
-  onEffekseerError(): void {
-    this.printError('Failed to load', effekseerWasmUrl)
-  }
-}
+//   onEffekseerLoad(): void {
+//     this.eraseLoadingSpinner()
+//     SceneManager.run(Scene_Boot)
+//   }
 
-const main = new Main()
-main.run()
+//   onEffekseerError(): void {
+//     this.printError('Failed to load', effekseerWasmUrl)
+//   }
+// }
+
+// const main = new Main()
+// main.run()

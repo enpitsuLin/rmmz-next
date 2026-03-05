@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 
-const VIRTUAL_MODULE_ID = 'virtual:rmmz-plugins'
+const VIRTUAL_MODULE_ID = 'virtual:rmmz-project'
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`
 
 interface RMMZPluginOptions {
