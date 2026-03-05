@@ -155,8 +155,8 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type Bitmap
    * @name Window#windowskin
    */
-  get windowskin() {
-    return this._windowskin
+  get windowskin(): Bitmap {
+    return this._windowskin!
   }
 
   set windowskin(value) {
@@ -172,8 +172,8 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type Bitmap
    * @name Window#contents
    */
-  get contents() {
-    return this._contentsSprite!.bitmap
+  get contents(): Bitmap {
+    return this._contentsSprite!.bitmap!
   }
 
   set contents(value) {
@@ -186,8 +186,8 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type Bitmap
    * @name Window#contentsBack
    */
-  get contentsBack() {
-    return this._contentsBackSprite!.bitmap
+  get contentsBack(): Bitmap {
+    return this._contentsBackSprite!.bitmap!
   }
 
   set contentsBack(value) {
@@ -200,7 +200,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type number
    * @name Window#width
    */
-  get width() {
+  get width(): number {
     return this._width
   }
 
@@ -215,7 +215,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type number
    * @name Window#height
    */
-  get height() {
+  get height(): number {
     return this._height
   }
 
@@ -230,7 +230,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type number
    * @name Window#padding
    */
-  get padding() {
+  get padding(): number {
     return this._padding
   }
 
@@ -245,7 +245,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type number
    * @name Window#margin
    */
-  get margin() {
+  get margin(): number {
     return this._margin
   }
 
@@ -260,7 +260,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type number
    * @name Window#opacity
    */
-  get opacity() {
+  get opacity(): number {
     return this._container!.alpha * 255
   }
 
@@ -274,7 +274,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type number
    * @name Window#backOpacity
    */
-  get backOpacity() {
+  get backOpacity(): number {
     return this._backSprite!.alpha * 255
   }
 
@@ -288,7 +288,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type number
    * @name Window#contentsOpacity
    */
-  get contentsOpacity() {
+  get contentsOpacity(): number {
     return this._contentsSprite!.alpha * 255
   }
 
@@ -302,7 +302,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type number
    * @name Window#openness
    */
-  get openness() {
+  get openness(): number {
     return this._openness
   }
 
@@ -321,7 +321,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type number
    * @name Window#innerWidth
    */
-  get innerWidth() {
+  get innerWidth(): number {
     return Math.max(0, this._width - this._padding * 2)
   }
 
@@ -332,7 +332,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type number
    * @name Window#innerHeight
    */
-  get innerHeight() {
+  get innerHeight(): number {
     return Math.max(0, this._height - this._padding * 2)
   }
 
@@ -343,7 +343,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @type Rectangle
    * @name Window#innerRect
    */
-  get innerRect() {
+  get innerRect(): Rectangle {
     return new Rectangle(
       this._padding,
       this._padding,
@@ -355,7 +355,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
   /**
    * Destroys the window.
    */
-  destroy() {
+  destroy(): void {
     const options = { children: true, texture: true }
     super.destroy(options)
   }
@@ -364,7 +364,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * Updates the window for each frame.
    */
   // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
-  update() {
+  update(): void {
     if (this.active) {
       this._animationCount++
     }
@@ -383,7 +383,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @param width - The width of the window.
    * @param height - The height of the window.
    */
-  move(x: number, y: number, width: number, height: number) {
+  move(x?: number, y?: number, width?: number, height?: number): void {
     this.x = x || 0
     this.y = y || 0
     if (this._width !== width || this._height !== height) {
@@ -398,7 +398,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    *
    * @returns True if the window is open.
    */
-  isOpen() {
+  isOpen(): boolean {
     return this._openness >= 255
   }
 
@@ -407,7 +407,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    *
    * @returns True if the window is closed.
    */
-  isClosed() {
+  isClosed(): boolean {
     return this._openness <= 0
   }
 
@@ -419,7 +419,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @param width - The width of the cursor.
    * @param height - The height of the cursor.
    */
-  setCursorRect(x: number, y: number, width: number, height: number) {
+  setCursorRect(x?: number, y?: number, width?: number, height?: number): void {
     const cw = Math.floor(width || 0)
     const ch = Math.floor(height || 0)
     this._cursorRect.x = Math.floor(x || 0)
@@ -437,7 +437,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @param x - The amount of horizontal movement.
    * @param y - The amount of vertical movement.
    */
-  moveCursorBy(x: number, y: number) {
+  moveCursorBy(x: number, y: number): void {
     this._cursorRect.x += x
     this._cursorRect.y += y
   }
@@ -448,7 +448,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @param x - The amount of horizontal movement.
    * @param y - The amount of vertical movement.
    */
-  moveInnerChildrenBy(x: number, y: number) {
+  moveInnerChildrenBy(x: number, y: number): void {
     for (const child of this._innerChildren) {
       child.x += x
       child.y += y
@@ -462,7 +462,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @param g - The green value in the range (-255, 255).
    * @param b - The blue value in the range (-255, 255).
    */
-  setTone(r: number, g: number, b: number) {
+  setTone(r: number, g: number, b: number): void {
     const tone = this._colorTone
     if (r !== tone[0] || g !== tone[1] || b !== tone[2]) {
       this._colorTone = [r, g, b, 0]
@@ -476,7 +476,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @param {object} child - The child to add.
    * @returns {object} The child that was added.
    */
-  addChildToBack(child: Sprite) {
+  addChildToBack(child: Sprite): Sprite {
     // TODO: Is this hack to get the index of the container working?
     const containerIndex = this.children.indexOf(this._container as Sprite)
     return this.addChildAt(child, containerIndex + 1)
@@ -488,7 +488,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * @param child - The child to add.
    * @returns The child that was added.
    */
-  addInnerChild(child: Sprite) {
+  addInnerChild(child: Sprite): Sprite {
     this._innerChildren.push(child)
     return this._clientArea!.addChild(child)
   }
@@ -496,7 +496,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
   /**
    * Updates the transform on all children of this container for rendering.
    */
-  updateTransform() {
+  updateTransform(): void {
     this._updateClientArea()
     this._updateFrame()
     this._updateContentsBack()
@@ -511,7 +511,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
   /**
    * Draws the window shape into PIXI.Graphics object. Used by WindowLayer.
    */
-  drawShape(graphics: PIXI.Graphics) {
+  drawShape(graphics: PIXI.Graphics): void {
     if (graphics) {
       const width = this.width
       const height = (this.height * this._openness) / 255
@@ -523,7 +523,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
     }
   }
 
-  _createAllParts() {
+  _createAllParts(): void {
     this._createContainer()
     this._createBackSprite()
     this._createFrameSprite()
@@ -535,18 +535,18 @@ export class Window extends PIXI.Container<PIXI.Container> {
     this._createPauseSignSprites()
   }
 
-  _createContainer() {
+  _createContainer(): void {
     this._container = new PIXI.Container()
     this.addChild(this._container)
   }
 
-  _createBackSprite() {
+  _createBackSprite(): void {
     this._backSprite = new Sprite()
     this._backSprite.addChild(new TilingSprite())
     this._container!.addChild(this._backSprite)
   }
 
-  _createFrameSprite() {
+  _createFrameSprite(): void {
     this._frameSprite = new Sprite()
     for (let i = 0; i < 8; i++) {
       this._frameSprite.addChild(new Sprite())
@@ -554,7 +554,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
     this._container!.addChild(this._frameSprite)
   }
 
-  _createClientArea() {
+  _createClientArea(): void {
     this._clientArea = new Sprite()
     this._clientArea.filters = [new PIXI.AlphaFilter()]
     this._clientArea.filterArea = new Rectangle()
@@ -562,12 +562,12 @@ export class Window extends PIXI.Container<PIXI.Container> {
     this.addChild(this._clientArea)
   }
 
-  _createContentsBackSprite() {
+  _createContentsBackSprite(): void {
     this._contentsBackSprite = new Sprite()
     this._clientArea!.addChild(this._contentsBackSprite)
   }
 
-  _createCursorSprite() {
+  _createCursorSprite(): void {
     this._cursorSprite = new Sprite()
     for (let i = 0; i < 9; i++) {
       this._cursorSprite.addChild(new Sprite())
@@ -575,28 +575,28 @@ export class Window extends PIXI.Container<PIXI.Container> {
     this._clientArea!.addChild(this._cursorSprite)
   }
 
-  _createContentsSprite() {
+  _createContentsSprite(): void {
     this._contentsSprite = new Sprite()
     this._clientArea!.addChild(this._contentsSprite)
   }
 
-  _createArrowSprites() {
+  _createArrowSprites(): void {
     this._downArrowSprite = new Sprite()
     this.addChild(this._downArrowSprite)
     this._upArrowSprite = new Sprite()
     this.addChild(this._upArrowSprite)
   }
 
-  _createPauseSignSprites() {
+  _createPauseSignSprites(): void {
     this._pauseSignSprite = new Sprite()
     this.addChild(this._pauseSignSprite)
   }
 
-  _onWindowskinLoad() {
+  _onWindowskinLoad(): void {
     this._refreshAllParts()
   }
 
-  _refreshAllParts() {
+  _refreshAllParts(): void {
     this._refreshBack()
     this._refreshFrame()
     this._refreshCursor()
@@ -604,19 +604,19 @@ export class Window extends PIXI.Container<PIXI.Container> {
     this._refreshPauseSign()
   }
 
-  _refreshBack() {
+  _refreshBack(): void {
     const m = this._margin
     const w = Math.max(0, this._width - m * 2)
     const h = Math.max(0, this._height - m * 2)
     const sprite = this._backSprite!
-    const tilingSprite = sprite.children[0]
+    const tilingSprite = sprite.children[0] as TilingSprite
     // [Note] We use 95 instead of 96 here to avoid blurring edges.
-    sprite.bitmap = this._windowskin
+    sprite.bitmap = this._windowskin!
     sprite.setFrame(0, 0, 95, 95)
     sprite.move(m, m)
     sprite.scale.x = w / 95
     sprite.scale.y = h / 95
-    tilingSprite.bitmap = this._windowskin
+    tilingSprite.bitmap = this._windowskin!
     tilingSprite.setFrame(0, 96, 96, 96)
     tilingSprite.move(0, 0, w, h)
     tilingSprite.scale.x = 1 / sprite.scale.x
@@ -624,27 +624,27 @@ export class Window extends PIXI.Container<PIXI.Container> {
     sprite.setColorTone(this._colorTone)
   }
 
-  _refreshFrame() {
-    const drect = { x: 0, y: 0, width: this._width, height: this._height }
-    const srect = { x: 96, y: 0, width: 96, height: 96 }
+  _refreshFrame(): void {
+    const drect = { x: 0, y: 0, width: this._width, height: this._height } as PIXI.Rectangle
+    const srect = { x: 96, y: 0, width: 96, height: 96 } as PIXI.Rectangle
     const m = 24
-    for (const child of this._frameSprite.children) {
-      child.bitmap = this._windowskin
+    for (const child of this._frameSprite!.children as Sprite[]) {
+      child.bitmap = this._windowskin!
     }
-    this._setRectPartsGeometry(this._frameSprite, srect, drect, m)
+    this._setRectPartsGeometry(this._frameSprite!, srect, drect, m)
   }
 
-  _refreshCursor() {
+  _refreshCursor(): void {
     const drect = this._cursorRect.clone()
-    const srect = { x: 96, y: 96, width: 48, height: 48 }
+    const srect = { x: 96, y: 96, width: 48, height: 48 } as PIXI.Rectangle
     const m = 4
-    for (const child of this._cursorSprite.children) {
-      child.bitmap = this._windowskin
+    for (const child of this._cursorSprite!.children as Sprite[]) {
+      child.bitmap = this._windowskin!
     }
-    this._setRectPartsGeometry(this._cursorSprite, srect, drect, m)
+    this._setRectPartsGeometry(this._cursorSprite!, srect, drect, m)
   }
 
-  _setRectPartsGeometry(sprite, srect, drect, m) {
+  _setRectPartsGeometry(sprite: Sprite, srect: PIXI.Rectangle, drect: PIXI.Rectangle, m: number): void {
     const sx = srect.x
     const sy = srect.y
     const sw = srect.width
@@ -657,7 +657,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
     const smh = sh - m * 2
     const dmw = dw - m * 2
     const dmh = dh - m * 2
-    const children = sprite.children
+    const children = sprite.children as Sprite[]
     sprite.setFrame(0, 0, dw, dh)
     sprite.move(dx, dy)
     // corner
@@ -694,69 +694,69 @@ export class Window extends PIXI.Container<PIXI.Container> {
     }
   }
 
-  _refreshArrows() {
+  _refreshArrows(): void {
     const w = this._width
     const h = this._height
     const p = 24
     const q = p / 2
     const sx = 96 + p
     const sy = 0 + p
-    this._downArrowSprite.bitmap = this._windowskin
-    this._downArrowSprite.anchor.x = 0.5
-    this._downArrowSprite.anchor.y = 0.5
-    this._downArrowSprite.setFrame(sx + q, sy + q + p, p, q)
-    this._downArrowSprite.move(w / 2, h - q)
-    this._upArrowSprite.bitmap = this._windowskin
-    this._upArrowSprite.anchor.x = 0.5
-    this._upArrowSprite.anchor.y = 0.5
-    this._upArrowSprite.setFrame(sx + q, sy, p, q)
-    this._upArrowSprite.move(w / 2, q)
+    this._downArrowSprite!.bitmap = this._windowskin!
+    this._downArrowSprite!.anchor.x = 0.5
+    this._downArrowSprite!.anchor.y = 0.5
+    this._downArrowSprite!.setFrame(sx + q, sy + q + p, p, q)
+    this._downArrowSprite!.move(w / 2, h - q)
+    this._upArrowSprite!.bitmap = this._windowskin!
+    this._upArrowSprite!.anchor.x = 0.5
+    this._upArrowSprite!.anchor.y = 0.5
+    this._upArrowSprite!.setFrame(sx + q, sy, p, q)
+    this._upArrowSprite!.move(w / 2, q)
   }
 
-  _refreshPauseSign() {
+  _refreshPauseSign(): void {
     const sx = 144
     const sy = 96
     const p = 24
-    this._pauseSignSprite.bitmap = this._windowskin
-    this._pauseSignSprite.anchor.x = 0.5
-    this._pauseSignSprite.anchor.y = 1
-    this._pauseSignSprite.move(this._width / 2, this._height)
-    this._pauseSignSprite.setFrame(sx, sy, p, p)
-    this._pauseSignSprite.alpha = 0
+    this._pauseSignSprite!.bitmap = this._windowskin!
+    this._pauseSignSprite!.anchor.x = 0.5
+    this._pauseSignSprite!.anchor.y = 1
+    this._pauseSignSprite!.move(this._width / 2, this._height)
+    this._pauseSignSprite!.setFrame(sx, sy, p, p)
+    this._pauseSignSprite!.alpha = 0
   }
 
-  _updateClientArea() {
+  _updateClientArea(): void {
     const pad = this._padding
-    this._clientArea.move(pad, pad)
-    this._clientArea.x = pad - this.origin.x
-    this._clientArea.y = pad - this.origin.y
+    this._clientArea!.move(pad, pad)
+    this._clientArea!.x = pad - this.origin.x
+    this._clientArea!.y = pad - this.origin.y
     if (this.innerWidth > 0 && this.innerHeight > 0) {
-      this._clientArea.visible = this.isOpen()
+      this._clientArea!.visible = this.isOpen()
     }
     else {
-      this._clientArea.visible = false
+      this._clientArea!.visible = false
     }
   }
 
-  _updateFrame() {
-    this._frameSprite.visible = this.frameVisible
+  _updateFrame(): void {
+    this._frameSprite!.visible = this.frameVisible
   }
 
-  _updateContentsBack() {
-    const bitmap = this._contentsBackSprite.bitmap
+  _updateContentsBack(): void {
+    const bitmap = this._contentsBackSprite!.bitmap
     if (bitmap) {
-      this._contentsBackSprite.setFrame(0, 0, bitmap.width, bitmap.height)
+      this._contentsBackSprite!.setFrame(0, 0, bitmap.width, bitmap.height)
     }
   }
 
-  _updateCursor() {
-    this._cursorSprite.alpha = this._makeCursorAlpha()
-    this._cursorSprite.visible = this.isOpen() && this.cursorVisible
-    this._cursorSprite.x = this._cursorRect.x
-    this._cursorSprite.y = this._cursorRect.y
+  _updateCursor(): void {
+    this._cursorSprite!.alpha = this._makeCursorAlpha()
+    this._cursorSprite!.visible = this.isOpen() && this.cursorVisible
+    this._cursorSprite!.x = this._cursorRect.x
+    this._cursorSprite!.y = this._cursorRect.y
   }
 
-  _makeCursorAlpha() {
+  _makeCursorAlpha(): number {
     const blinkCount = this._animationCount % 40
     const baseAlpha = this.contentsOpacity / 255
     if (this.active) {
@@ -770,20 +770,20 @@ export class Window extends PIXI.Container<PIXI.Container> {
     return baseAlpha
   }
 
-  _updateContents() {
-    const bitmap = this._contentsSprite.bitmap
+  _updateContents(): void {
+    const bitmap = this._contentsSprite!.bitmap
     if (bitmap) {
-      this._contentsSprite.setFrame(0, 0, bitmap.width, bitmap.height)
+      this._contentsSprite!.setFrame(0, 0, bitmap.width, bitmap.height)
     }
   }
 
-  _updateArrows() {
-    this._downArrowSprite.visible = this.isOpen() && this.downArrowVisible
-    this._upArrowSprite.visible = this.isOpen() && this.upArrowVisible
+  _updateArrows(): void {
+    this._downArrowSprite!.visible = this.isOpen() && this.downArrowVisible
+    this._upArrowSprite!.visible = this.isOpen() && this.upArrowVisible
   }
 
-  _updatePauseSign() {
-    const sprite = this._pauseSignSprite
+  _updatePauseSign(): void {
+    const sprite = this._pauseSignSprite!
     const x = Math.floor(this._animationCount / 16) % 2
     const y = Math.floor(this._animationCount / 16 / 2) % 2
     const sx = 144
@@ -799,9 +799,9 @@ export class Window extends PIXI.Container<PIXI.Container> {
     sprite.visible = this.isOpen()
   }
 
-  _updateFilterArea() {
-    const pos = this._clientArea.worldTransform.apply(new Point(0, 0))
-    const filterArea = this._clientArea.filterArea
+  _updateFilterArea(): void {
+    const pos = this._clientArea!.worldTransform.apply(new Point(0, 0))
+    const filterArea = this._clientArea!.filterArea
     filterArea.x = pos.x + this.origin.x
     filterArea.y = pos.y + this.origin.y
     filterArea.width = this.innerWidth

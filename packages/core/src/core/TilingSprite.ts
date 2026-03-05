@@ -45,8 +45,8 @@ export class TilingSprite extends PIXI.TilingSprite {
    * @type Bitmap
    * @name TilingSprite#bitmap
    */
-  get bitmap() {
-    return this._bitmap
+  get bitmap(): Bitmap {
+    return this._bitmap!
   }
 
   set bitmap(value) {
@@ -62,7 +62,7 @@ export class TilingSprite extends PIXI.TilingSprite {
    * @type number
    * @name TilingSprite#opacity
    */
-  get opacity() {
+  get opacity(): number {
     return this.alpha * 255
   }
 
@@ -73,14 +73,15 @@ export class TilingSprite extends PIXI.TilingSprite {
   /**
    * Destroys the tiling sprite.
    */
-  destroy(options = { children: true, texture: true }) {
+  destroy(options = { children: true, texture: true }): void {
     super.destroy(options)
   }
 
   /**
    * Updates the tiling sprite for each frame.
    */
-  update() {
+  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
+  update(): void {
     for (const child of this.children) {
       if (child.update) {
         child.update()
@@ -90,13 +91,8 @@ export class TilingSprite extends PIXI.TilingSprite {
 
   /**
    * Sets the x, y, width, and height all at once.
-   *
-   * @param x - The x coordinate of the tiling sprite.
-   * @param y - The y coordinate of the tiling sprite.
-   * @param width - The width of the tiling sprite.
-   * @param height - The height of the tiling sprite.
    */
-  move(x = 0, y = 0, width = 0, height = 0) {
+  move(x = 0, y = 0, width = 0, height = 0): void {
     this.x = x
     this.y = y
     this._width = width
@@ -105,13 +101,8 @@ export class TilingSprite extends PIXI.TilingSprite {
 
   /**
    * Specifies the region of the image that the tiling sprite will use.
-   *
-   * @param x - The x coordinate of the frame.
-   * @param y - The y coordinate of the frame.
-   * @param width - The width of the frame.
-   * @param height - The height of the frame.
    */
-  setFrame(x: number, y: number, width: number, height: number) {
+  setFrame(x: number, y: number, width: number, height: number): void {
     this._frame.x = x
     this._frame.y = y
     this._frame.width = width
@@ -122,13 +113,13 @@ export class TilingSprite extends PIXI.TilingSprite {
   /**
    * Updates the transform on all children of this container for rendering.
    */
-  updateTransform() {
+  updateTransform(): void {
     this.tilePosition.x = Math.round(-this.origin.x)
     this.tilePosition.y = Math.round(-this.origin.y)
     super.updateTransform()
   }
 
-  _onBitmapChange() {
+  _onBitmapChange(): void {
     if (this._bitmap) {
       this._bitmap.addLoadListener(this._onBitmapLoad.bind(this))
     }
@@ -137,12 +128,12 @@ export class TilingSprite extends PIXI.TilingSprite {
     }
   }
 
-  _onBitmapLoad() {
+  _onBitmapLoad(): void {
     this.texture.baseTexture = this._bitmap!.baseTexture
     this._refresh()
   }
 
-  _refresh() {
+  _refresh(): void {
     const texture = this.texture
     const frame = this._frame.clone()
     if (frame.width === 0 && frame.height === 0 && this._bitmap) {
@@ -155,6 +146,7 @@ export class TilingSprite extends PIXI.TilingSprite {
           texture.frame = frame
         }
         catch (e) {
+          console.error(e)
           texture.frame = new Rectangle()
         }
       }

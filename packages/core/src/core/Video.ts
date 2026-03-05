@@ -20,7 +20,7 @@ export class Video {
    * @param {number} width - The width of the video.
    * @param {number} height - The height of the video.
    */
-  static initialize(width: number, height: number) {
+  static initialize(width: number, height: number): void {
     this._element = null
     this._loading = false
     this._volume = 1
@@ -35,7 +35,7 @@ export class Video {
    * @param {number} width - The width of the video.
    * @param {number} height - The height of the video.
    */
-  static resize(width: number, height: number) {
+  static resize(width: number, height: number): void {
     if (this._element) {
       this._element.style.width = `${width}px`
       this._element.style.height = `${height}px`
@@ -47,7 +47,7 @@ export class Video {
    *
    * @param {string} src - The url of the video.
    */
-  static play(src: string) {
+  static play(src: string): void {
     this._element!.src = src
     this._element!.onloadeddata = this._onLoad.bind(this)
     this._element!.onerror = this._onError.bind(this)
@@ -61,7 +61,7 @@ export class Video {
    *
    * @returns {boolean} True if the video is playing.
    */
-  static isPlaying() {
+  static isPlaying(): boolean {
     return this._loading || this._isVisible()
   }
 
@@ -70,14 +70,14 @@ export class Video {
    *
    * @param {number} volume - The volume for videos (0 to 1).
    */
-  static setVolume(volume: number) {
+  static setVolume(volume: number): void {
     this._volume = volume
     if (this._element) {
       this._element.volume = this._volume
     }
   }
 
-  static _createElement() {
+  static _createElement(): void {
     this._element = document.createElement('video')
     this._element.id = 'gameVideo'
     this._element.style.position = 'absolute'
@@ -93,26 +93,28 @@ export class Video {
     document.body.appendChild(this._element)
   }
 
-  static _onLoad() {
+  static _onLoad(): void {
     this._element!.volume = this._volume
     this._element!.play()
     this._updateVisibility(true)
     this._loading = false
   }
 
-  static _onError() {
+  static _onError(): never {
     this._updateVisibility(false)
-    const retry = () => {
+    const retry = (): void => {
       this._element!.load()
     }
+    // TODO fix this
+    // eslint-disable-next-line no-throw-literal
     throw ['LoadError', this._element!.src, retry]
   }
 
-  static _onEnd() {
+  static _onEnd(): void {
     this._updateVisibility(false)
   }
 
-  static _updateVisibility(videoVisible: boolean) {
+  static _updateVisibility(videoVisible: boolean): void {
     if (videoVisible) {
       Graphics.hideScreen()
     }
@@ -122,18 +124,18 @@ export class Video {
     this._element!.style.opacity = videoVisible ? '1' : '0'
   }
 
-  static _isVisible() {
+  static _isVisible(): boolean {
     return Number(this._element!.style.opacity) > 0
   }
 
-  static _setupEventHandlers() {
+  static _setupEventHandlers(): void {
     const onUserGesture = this._onUserGesture.bind(this)
     document.addEventListener('keydown', onUserGesture)
     document.addEventListener('mousedown', onUserGesture)
     document.addEventListener('touchend', onUserGesture)
   }
 
-  static _onUserGesture() {
+  static _onUserGesture(): void {
     if (!this._element!.src && this._element!.paused) {
       this._element!.play().catch(() => 0)
     }

@@ -8,38 +8,35 @@ import { TilemapLayer } from './TilemapLayer'
  * @extends PIXI.ObjectRenderer
  */
 export class TilemapRenderer extends PIXI.ObjectRenderer {
-  private _shader: PIXI.Shader | null = null
-  private _images: PIXI.Texture[] = []
-  private _internalTextures: PIXI.BaseRenderTexture[] = []
-  private _clearBuffer: Uint8Array = new Uint8Array(1024 * 1024 * 4)
+  _shader: PIXI.Shader | null = null
+  // TODO: unused property
+  _images: PIXI.Texture[] = []
+  _internalTextures: PIXI.BaseRenderTexture[] = []
+  _clearBuffer: Uint8Array = new Uint8Array(1024 * 1024 * 4)
 
   constructor(renderer: PIXI.Renderer) {
     super(renderer)
-    this._shader = null
-    this._images = []
-    this._internalTextures = []
-    this._clearBuffer = new Uint8Array(1024 * 1024 * 4)
     this.contextChange()
   }
 
-  destroy() {
+  destroy(): void {
     super.destroy()
     this._destroyInternalTextures()
     this._shader?.destroy()
     this._shader = null
   }
 
-  getShader() {
-    return this._shader
+  getShader(): PIXI.Shader {
+    return this._shader!
   }
 
-  contextChange() {
+  contextChange(): void {
     this._shader = this._createShader()
     this._images = []
     this._createInternalTextures()
   }
 
-  _createShader() {
+  _createShader(): PIXI.Shader {
     const vertexSrc
       = 'attribute float aTextureId;'
         + 'attribute vec4 aFrame;'
@@ -87,7 +84,7 @@ export class TilemapRenderer extends PIXI.ObjectRenderer {
     })
   }
 
-  _createInternalTextures() {
+  _createInternalTextures(): void {
     this._destroyInternalTextures()
     for (let i = 0; i < TilemapLayer.MAX_GL_TEXTURES; i++) {
       const baseTexture = new PIXI.BaseRenderTexture()
@@ -97,14 +94,14 @@ export class TilemapRenderer extends PIXI.ObjectRenderer {
     }
   }
 
-  _destroyInternalTextures() {
+  _destroyInternalTextures(): void {
     for (const internalTexture of this._internalTextures) {
       internalTexture.destroy()
     }
     this._internalTextures = []
   }
 
-  updateTextures(renderer, images) {
+  updateTextures(renderer: PIXI.Renderer, images: PIXI.ImageSource[]): void {
     for (let i = 0; i < images.length; i++) {
       const internalTexture = this._internalTextures[i >> 2]
       renderer.texture.bind(internalTexture, 0)
@@ -121,7 +118,7 @@ export class TilemapRenderer extends PIXI.ObjectRenderer {
     }
   }
 
-  bindTextures(renderer) {
+  bindTextures(renderer: PIXI.Renderer): void {
     for (let ti = 0; ti < TilemapLayer.MAX_GL_TEXTURES; ti++) {
       renderer.texture.bind(this._internalTextures[ti], ti)
     }

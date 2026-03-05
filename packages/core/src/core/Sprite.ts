@@ -12,15 +12,16 @@ import { Rectangle } from './Rectangle'
  * @param {Bitmap} bitmap - The image for the sprite.
  */
 export class Sprite extends PIXI.Sprite {
-  spriteId!: number
-  _bitmap: Bitmap | null = null
-  _frame!: Rectangle
-  _hue: number
-  _blendColor: RGBA
-  _colorTone: RGBA
+  spriteId: number
+
+  _bitmap: Bitmap | null
+  _frame: Rectangle = new Rectangle()
+  _hue: number = 0
+  _blendColor: RGBA = [0, 0, 0, 0]
+  _colorTone: RGBA = [0, 0, 0, 0]
   _colorFilter: ColorFilter | null = null
-  _blendMode: number
-  _hidden: boolean
+  _blendMode: number = PIXI.BLEND_MODES.NORMAL
+  _hidden: boolean = false
   _refreshFrame!: boolean
 
   static _emptyBaseTexture: PIXI.BaseTexture | null = null
@@ -34,26 +35,18 @@ export class Sprite extends PIXI.Sprite {
       Sprite._emptyBaseTexture.setSize(1, 1)
     }
 
-    const frame = new Rectangle()
-    const texture = new PIXI.Texture(Sprite._emptyBaseTexture, frame)
+    const texture = new PIXI.Texture(Sprite._emptyBaseTexture, this._frame)
     this.texture = texture
     this.spriteId = Sprite._counter++
     this._bitmap = bitmap ?? null
-    this._frame = frame
-    this._hue = 0
-    this._blendColor = [0, 0, 0, 0]
-    this._colorTone = [0, 0, 0, 0]
-    this._colorFilter = null
-    this._blendMode = PIXI.BLEND_MODES.NORMAL
-    this._hidden = false
     this._onBitmapChange()
   }
 
-  get bitmap(): Bitmap | null {
-    return this._bitmap
+  get bitmap(): Bitmap {
+    return this._bitmap!
   }
 
-  set bitmap(value: Bitmap | null) {
+  set bitmap(value) {
     if (this._bitmap !== value) {
       this._bitmap = value
       this._onBitmapChange()
@@ -234,6 +227,7 @@ export class Sprite extends PIXI.Sprite {
           texture.frame = frame
         }
         catch (e) {
+          console.error(e)
           texture.frame = new Rectangle()
         }
       }

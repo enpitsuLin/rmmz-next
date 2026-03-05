@@ -1,3 +1,4 @@
+import type { Bitmap } from './Bitmap'
 import * as PIXI from 'pixi.js'
 
 /**
@@ -7,18 +8,19 @@ import * as PIXI from 'pixi.js'
  * @extends PIXI.Container
  */
 export class TilemapLayer extends PIXI.Container {
+  _elements: [setNumber: number, sx: number, sy: number, dx: number, dy: number, w: number, h: number][] = []
+  _indexBuffer: PIXI.Buffer | null = null
+  _indexArray: Float32Array | Uint16Array | Uint32Array = new Float32Array(0)
+  _vertexBuffer: PIXI.Buffer | null = null
+  _vertexArray = new Float32Array(0)
+  _vao: PIXI.Geometry | null = null
+  _needsTexturesUpdate = false
+  _needsVertexUpdate = false
+  _images: PIXI.ImageSource[] = []
+  _state = PIXI.State.for2d()
+
   constructor() {
     super()
-    this._elements = []
-    this._indexBuffer = null
-    this._indexArray = new Float32Array(0)
-    this._vertexBuffer = null
-    this._vertexArray = new Float32Array(0)
-    this._vao = null
-    this._needsTexturesUpdate = false
-    this._needsVertexUpdate = false
-    this._images = []
-    this._state = PIXI.State.for2d()
     this._createVao()
   }
 
@@ -26,36 +28,36 @@ export class TilemapLayer extends PIXI.Container {
   static VERTEX_STRIDE = 9 * 4
   static MAX_SIZE = 16000
 
-  destroy() {
+  destroy(): void {
     if (this._vao) {
       this._vao.destroy()
-      this._indexBuffer.destroy()
-      this._vertexBuffer.destroy()
+      this._indexBuffer!.destroy()
+      this._vertexBuffer!.destroy()
     }
     this._indexBuffer = null
     this._vertexBuffer = null
     this._vao = null
   }
 
-  setBitmaps(bitmaps) {
+  setBitmaps(bitmaps: Bitmap[]): void {
     this._images = bitmaps.map(bitmap => bitmap.image || bitmap.canvas)
     this._needsTexturesUpdate = true
   }
 
-  clear() {
+  clear(): void {
     this._elements.length = 0
     this._needsVertexUpdate = true
   }
 
-  size() {
+  size(): number {
     return this._elements.length
   }
 
-  addRect(setNumber, sx, sy, dx, dy, w, h) {
+  addRect(setNumber: number, sx: number, sy: number, dx: number, dy: number, w: number, h: number): void {
     this._elements.push([setNumber, sx, sy, dx, dy, w, h])
   }
 
-  render(renderer) {
+  render(renderer: PIXI.Renderer): void {
     const gl = renderer.gl
     const tilemapRenderer = renderer.plugins.rpgtilemap
     const shader = tilemapRenderer.getShader()
@@ -71,7 +73,7 @@ export class TilemapLayer extends PIXI.Container {
       this._needsTexturesUpdate = false
     }
     tilemapRenderer.bindTextures(renderer)
-    renderer.geometry.bind(this._vao, shader)
+    renderer.geometry.bind(this._vao!, shader)
     this._updateIndexBuffer()
     if (this._needsVertexUpdate) {
       this._updateVertexBuffer()
@@ -86,11 +88,12 @@ export class TilemapLayer extends PIXI.Container {
     }
   }
 
-  isReady() {
+  isReady(): boolean {
     if (this._images.length === 0) {
       return false
     }
     for (const texture of this._images) {
+      // @ts-expect-error to fix this
       if (!texture || !texture.valid) {
         return false
       }
@@ -98,9 +101,9 @@ export class TilemapLayer extends PIXI.Container {
     return true
   }
 
-  _createVao() {
-    const ib = new PIXI.Buffer(null, true, true)
-    const vb = new PIXI.Buffer(null, true, false)
+  _createVao(): void {
+    const ib = new PIXI.Buffer(undefined, true, true)
+    const vb = new PIXI.Buffer(undefined, true, false)
     const stride = TilemapLayer.VERTEX_STRIDE
     const type = PIXI.TYPES.FLOAT
     const geometry = new PIXI.Geometry()
@@ -114,21 +117,22 @@ export class TilemapLayer extends PIXI.Container {
       .addAttribute('aDest', vb, 2, false, type, stride, 7 * 4)
   }
 
-  _updateIndexBuffer() {
+  _updateIndexBuffer(): void {
     const numElements = this._elements.length
     if (this._indexArray.length < numElements * 6 * 2) {
       this._indexArray = PIXI.utils.createIndicesForQuads(numElements * 2)
-      this._indexBuffer.update(this._indexArray)
+      // @ts-expect-error to fix this
+      this._indexBuffer!.update(this._indexArray)
     }
   }
 
-  _updateVertexBuffer() {
+  _updateVertexBuffer(): void {
     const numElements = this._elements.length
     const required = numElements * TilemapLayer.VERTEX_STRIDE
     if (this._vertexArray.length < required) {
       this._vertexArray = new Float32Array(required * 2)
     }
-    const vertexArray = this._vertexArray
+    const vertexArray = this._vertexArray!
     let index = 0
     for (const item of this._elements) {
       const setNumber = item[0]
@@ -182,6 +186,7 @@ export class TilemapLayer extends PIXI.Container {
       vertexArray[index++] = dx
       vertexArray[index++] = dy + h
     }
-    this._vertexBuffer.update(vertexArray)
+    // @ts-expect-error to fix this
+    this._vertexBuffer!.update(vertexArray)
   }
 }

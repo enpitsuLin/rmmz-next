@@ -42,27 +42,19 @@ export class Graphics {
 
   /**
    * The PIXI.Application object.
-   *
-   * @readonly
-   * @type PIXI.Application
-   * @name Graphics.app
    */
-  static get app() {
-    return this._app
+  static get app(): PIXI.Application {
+    return this._app!
   }
 
   /**
    * The context object of Effekseer.
-   *
-   * @readonly
-   * @type EffekseerContext
-   * @name Graphics.effekseer
    */
-  static get effekseer() {
-    return this._effekseer
+  static get effekseer(): Effekseer {
+    return this._effekseer!
   }
 
-  static get width() {
+  static get width(): number {
     return this._width
   }
 
@@ -73,7 +65,7 @@ export class Graphics {
     }
   }
 
-  static get height() {
+  static get height(): number {
     return this._height
   }
 
@@ -84,7 +76,7 @@ export class Graphics {
     }
   }
 
-  static get defaultScale() {
+  static get defaultScale(): number {
     return this._defaultScale
   }
 
@@ -129,29 +121,29 @@ export class Graphics {
     return !!this._app
   }
 
-  static setTickHandler(handler: (deltaTime: number) => void) {
+  static setTickHandler(handler: (deltaTime: number) => void): void {
     this._tickHandler = handler
   }
 
-  static startGameLoop() {
+  static startGameLoop(): void {
     if (this._app) {
       this._app.start()
     }
   }
 
-  static stopGameLoop() {
+  static stopGameLoop(): void {
     if (this._app) {
       this._app.stop()
     }
   }
 
-  static setStage(stage: PIXI.Container) {
+  static setStage(stage: PIXI.Container): void {
     if (this._app) {
       this._app.stage = stage
     }
   }
 
-  static startLoading() {
+  static startLoading(): void {
     if (!document.getElementById('loadingSpinner')) {
       document.body.appendChild(this._loadingSpinner!)
     }
@@ -167,7 +159,7 @@ export class Graphics {
     }
   }
 
-  static printError(name: string, message: string, error: Error | null = null) {
+  static printError(name: string, message: string, error: Error | null = null): void {
     if (!this._errorPrinter) {
       this._createErrorPrinter()
     }
@@ -176,7 +168,7 @@ export class Graphics {
     this._applyCanvasFilter()
   }
 
-  static showRetryButton(retry: () => void) {
+  static showRetryButton(retry: () => void): void {
     const button = document.createElement('button')
     button.id = 'retryButton'
     button.innerHTML = 'Retry'
@@ -190,7 +182,7 @@ export class Graphics {
     button.focus()
   }
 
-  static eraseError() {
+  static eraseError(): void {
     if (this._errorPrinter) {
       this._errorPrinter.innerHTML = this._makeErrorHtml()
       if (this._wasLoading) {
@@ -224,15 +216,15 @@ export class Graphics {
     return x >= 0 && x < this._width && y >= 0 && y < this._height
   }
 
-  static showScreen() {
+  static showScreen(): void {
     this._canvas!.style.opacity = '1'
   }
 
-  static hideScreen() {
+  static hideScreen(): void {
     this._canvas!.style.opacity = '0'
   }
 
-  static resize(width: number, height: number) {
+  static resize(width: number, height: number): void {
     this._width = width
     this._height = height
     this._app!.renderer.resize(width, height)
@@ -241,21 +233,21 @@ export class Graphics {
 
   // Private methods
 
-  static _createAllElements() {
+  static _createAllElements(): void {
     this._createErrorPrinter()
     this._createCanvas()
     this._createLoadingSpinner()
     this._createFPSCounter()
   }
 
-  static _updateAllElements() {
+  static _updateAllElements(): void {
     this._updateRealScale()
     this._updateErrorPrinter()
     this._updateCanvas()
     this._updateVideo()
   }
 
-  static _onTick(deltaTime: number) {
+  static _onTick(deltaTime: number): void {
     this._fpsCounter!.startTick()
     if (this._tickHandler) {
       this._tickHandler(deltaTime)
@@ -270,7 +262,7 @@ export class Graphics {
     return !!this._app!.stage
   }
 
-  static _updateRealScale() {
+  static _updateRealScale(): void {
     if (this._stretchEnabled && this._width > 0 && this._height > 0) {
       const h = this._stretchWidth() / this._width
       const v = this._stretchHeight() / this._height
@@ -321,41 +313,41 @@ export class Graphics {
     return Utils.isNwjs() || Utils.isMobileDevice()
   }
 
-  static _createErrorPrinter() {
+  static _createErrorPrinter(): void {
     this._errorPrinter = document.createElement('div')
     this._errorPrinter.id = 'errorPrinter'
     this._errorPrinter.innerHTML = this._makeErrorHtml()
     document.body.appendChild(this._errorPrinter)
   }
 
-  static _updateErrorPrinter() {
+  static _updateErrorPrinter(): void {
     const width = this._width * 0.8 * this._realScale
     const height = 100 * this._realScale
     this._errorPrinter!.style.width = `${width}px`
     this._errorPrinter!.style.height = `${height}px`
   }
 
-  static _createCanvas() {
+  static _createCanvas(): void {
     this._canvas = document.createElement('canvas')
     this._canvas.id = 'gameCanvas'
     this._updateCanvas()
     document.body.appendChild(this._canvas)
   }
 
-  static _updateCanvas() {
+  static _updateCanvas(): void {
     this._canvas!.width = this._width
     this._canvas!.height = this._height
     this._canvas!.style.zIndex = '1'
     this._centerElement(this._canvas!)
   }
 
-  static _updateVideo() {
+  static _updateVideo(): void {
     const width = this._width * this._realScale
     const height = this._height * this._realScale
     Video.resize(width, height)
   }
 
-  static _createLoadingSpinner() {
+  static _createLoadingSpinner(): void {
     const loadingSpinner = document.createElement('div')
     const loadingSpinnerImage = document.createElement('div')
     loadingSpinner.id = 'loadingSpinner'
@@ -364,11 +356,11 @@ export class Graphics {
     this._loadingSpinner = loadingSpinner
   }
 
-  static _createFPSCounter() {
+  static _createFPSCounter(): void {
     this._fpsCounter = new FPSCounter()
   }
 
-  static _centerElement(element: HTMLCanvasElement) {
+  static _centerElement(element: HTMLCanvasElement): void {
     const width = element.width * this._realScale
     const height = element.height * this._realScale
     element.style.position = 'absolute'
@@ -381,15 +373,15 @@ export class Graphics {
     element.style.height = `${height}px`
   }
 
-  static _disableContextMenu() {
+  static _disableContextMenu(): void {
     const elements = document.body.getElementsByTagName('*')
-    const oncontextmenu = () => false
+    const oncontextmenu = (): boolean => false
     for (const element of elements) {
       (element as HTMLElement).oncontextmenu = oncontextmenu
     }
   }
 
-  static _applyCanvasFilter() {
+  static _applyCanvasFilter(): void {
     if (this._canvas) {
       this._canvas.style.opacity = '0.5'
       this._canvas.style.filter = 'blur(8px)'
@@ -397,7 +389,7 @@ export class Graphics {
     }
   }
 
-  static _clearCanvasFilter() {
+  static _clearCanvasFilter(): void {
     if (this._canvas) {
       this._canvas.style.opacity = '1'
       this._canvas.style.filter = ''
@@ -405,16 +397,16 @@ export class Graphics {
     }
   }
 
-  static _setupEventHandlers() {
+  static _setupEventHandlers(): void {
     window.addEventListener('resize', this._onWindowResize.bind(this))
     document.addEventListener('keydown', this._onKeyDown.bind(this))
   }
 
-  static _onWindowResize() {
+  static _onWindowResize(): void {
     this._updateAllElements()
   }
 
-  static _onKeyDown(event: KeyboardEvent) {
+  static _onKeyDown(event: KeyboardEvent): void {
     if (!event.ctrlKey && !event.altKey) {
       switch (event.keyCode) {
         case 113: // F2
@@ -433,16 +425,16 @@ export class Graphics {
     }
   }
 
-  static _switchFPSCounter() {
+  static _switchFPSCounter(): void {
     this._fpsCounter!.switchMode()
   }
 
-  static _switchStretchMode() {
+  static _switchStretchMode(): void {
     this._stretchEnabled = !this._stretchEnabled
     this._updateAllElements()
   }
 
-  static _switchFullScreen() {
+  static _switchFullScreen(): void {
     if (this._isFullScreen()) {
       this._cancelFullScreen()
     }
@@ -459,7 +451,7 @@ export class Graphics {
     )
   }
 
-  static _requestFullScreen() {
+  static _requestFullScreen(): void {
     const element = document.body as any
     if (element.requestFullScreen) {
       element.requestFullScreen()
@@ -472,7 +464,7 @@ export class Graphics {
     }
   }
 
-  static _cancelFullScreen() {
+  static _cancelFullScreen(): void {
     if ((document as any).cancelFullScreen) {
       (document as any).cancelFullScreen()
     }
@@ -484,7 +476,7 @@ export class Graphics {
     }
   }
 
-  static _createPixiApp() {
+  static _createPixiApp(): void {
     try {
       this._setupPixi()
       this._app = new PIXI.Application({
@@ -495,16 +487,17 @@ export class Graphics {
       this._app.ticker.add(this._onTick, this)
     }
     catch (e) {
+      console.error(e)
       this._app = null
     }
   }
 
-  static _setupPixi() {
+  static _setupPixi(): void {
     PIXI.utils.skipHello()
     PIXI.TextureGCSystem.defaultMaxIdle = 600
   }
 
-  static _createEffekseerContext() {
+  static _createEffekseerContext(): void {
     if (this._app && window.effekseer) {
       try {
         this._effekseer = effekseer.createContext()
@@ -514,6 +507,7 @@ export class Graphics {
         }
       }
       catch (e) {
+        console.error(e)
         this._app = null
       }
     }

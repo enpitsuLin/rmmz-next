@@ -5,12 +5,43 @@ import { Utils } from './Utils'
 
 /**
  * The basic object that represents an image.
- *
- * @class
- * @param {number} width - The width of the bitmap.
- * @param {number} height - The height of the bitmap.
  */
 export class Bitmap {
+  /**
+   * The face name of the font.
+   */
+  fontFace = 'sans-serif'
+
+  /**
+   * The size of the font in pixels.
+   */
+  fontSize = 16
+
+  /**
+   * Whether the font is bold.
+   */
+  fontBold = false
+
+  /**
+   * Whether the font is italic.
+   */
+  fontItalic = false
+
+  /**
+   * The color of the text in CSS format.
+   */
+  textColor = '#ffffff'
+
+  /**
+   * The color of the outline of the text in CSS format.
+   */
+  outlineColor = 'rgba(0, 0, 0, 0.5)'
+
+  /**
+   * The width of the outline of the text.
+   */
+  outlineWidth = 3
+
   _canvas: HTMLCanvasElement | null = null
   _context: CanvasRenderingContext2D | null = null
   _baseTexture: PIXI.BaseTexture | null = null
@@ -21,71 +52,14 @@ export class Bitmap {
   _loadListeners: ((bitmap: Bitmap) => void)[] = []
   _loadingState: 'none' | 'loading' | 'loaded' | 'error' = 'none'
 
+  /**
+   * @param {number} width - The width of the bitmap.
+   * @param {number} height - The height of the bitmap.
+   */
   constructor(width?: number, height?: number) {
-    this._canvas = null
-    this._context = null
-    this._baseTexture = null
-    this._image = null
-    this._url = ''
-    this._paintOpacity = 255
-    this._smooth = true
-    this._loadListeners = []
-
-    // "none", "loading", "loaded", or "error"
-    this._loadingState = 'none'
-
-    if (width > 0 && height > 0) {
+    if (width && width > 0 && height && height > 0) {
       this._createCanvas(width, height)
     }
-
-    /**
-     * The face name of the font.
-     *
-     * @type string
-     */
-    this.fontFace = 'sans-serif'
-
-    /**
-     * The size of the font in pixels.
-     *
-     * @type number
-     */
-    this.fontSize = 16
-
-    /**
-     * Whether the font is bold.
-     *
-     * @type boolean
-     */
-    this.fontBold = false
-
-    /**
-     * Whether the font is italic.
-     *
-     * @type boolean
-     */
-    this.fontItalic = false
-
-    /**
-     * The color of the text in CSS format.
-     *
-     * @type string
-     */
-    this.textColor = '#ffffff'
-
-    /**
-     * The color of the outline of the text in CSS format.
-     *
-     * @type string
-     */
-    this.outlineColor = 'rgba(0, 0, 0, 0.5)'
-
-    /**
-     * The width of the outline of the text.
-     *
-     * @type number
-     */
-    this.outlineWidth = 3
   }
 
   /**
@@ -121,7 +95,7 @@ export class Bitmap {
       canvas.width = 0
       canvas.height = 0
     }
-    renderTexture.destroy({ destroyBase: true })
+    renderTexture.destroy(true)
     bitmap.baseTexture.update()
     return bitmap
   }
@@ -131,7 +105,7 @@ export class Bitmap {
    *
    * @returns {boolean} True if the bitmap is ready to render.
    */
-  isReady() {
+  isReady(): boolean {
     return this._loadingState === 'loaded' || this._loadingState === 'none'
   }
 
@@ -140,7 +114,7 @@ export class Bitmap {
    *
    * @returns {boolean} True if a loading error has occurred.
    */
-  isError() {
+  isError(): boolean {
     return this._loadingState === 'error'
   }
 
@@ -150,8 +124,8 @@ export class Bitmap {
    * @readonly
    * @type string
    */
-  get url() {
-    return this._url
+  get url(): string {
+    return this._url!
   }
 
   /**
@@ -160,8 +134,8 @@ export class Bitmap {
    * @readonly
    * @type PIXI.BaseTexture
    */
-  get baseTexture() {
-    return this._baseTexture
+  get baseTexture(): PIXI.BaseTexture {
+    return this._baseTexture!
   }
 
   /**
@@ -170,8 +144,8 @@ export class Bitmap {
    * @readonly
    * @type HTMLImageElement
    */
-  get image() {
-    return this._image
+  get image(): HTMLImageElement {
+    return this._image!
   }
 
   /**
@@ -180,20 +154,17 @@ export class Bitmap {
    * @readonly
    * @type HTMLCanvasElement
    */
-  get canvas() {
+  get canvas(): HTMLCanvasElement {
     this._ensureCanvas()
-    return this._canvas
+    return this._canvas!
   }
 
   /**
    * The 2d context of the bitmap canvas.
-   *
-   * @readonly
-   * @type CanvasRenderingContext2D
    */
-  get context() {
+  get context(): PIXI.ICanvasRenderingContext2D {
     this._ensureCanvas()
-    return this._context
+    return this._context!
   }
 
   /**
@@ -202,7 +173,7 @@ export class Bitmap {
    * @readonly
    * @type number
    */
-  get width() {
+  get width(): number {
     const image = this._canvas || this._image
     return image ? image.width : 0
   }
@@ -213,7 +184,7 @@ export class Bitmap {
    * @readonly
    * @type number
    */
-  get height() {
+  get height(): number {
     const image = this._canvas || this._image
     return image ? image.height : 0
   }
@@ -224,7 +195,7 @@ export class Bitmap {
    * @readonly
    * @type Rectangle
    */
-  get rect() {
+  get rect(): Rectangle {
     return new Rectangle(0, 0, this.width, this.height)
   }
 
@@ -233,7 +204,7 @@ export class Bitmap {
    *
    * @type boolean
    */
-  get smooth() {
+  get smooth(): boolean {
     return this._smooth
   }
 
@@ -249,7 +220,7 @@ export class Bitmap {
    *
    * @type number
    */
-  get paintOpacity() {
+  get paintOpacity(): number {
     return this._paintOpacity
   }
 
@@ -263,7 +234,7 @@ export class Bitmap {
   /**
    * Destroys the bitmap.
    */
-  destroy() {
+  destroy(): void {
     if (this._baseTexture) {
       this._baseTexture.destroy()
       this._baseTexture = null
@@ -311,6 +282,7 @@ export class Bitmap {
       }
     }
     catch (e) {
+      console.error(e)
       // Handle error
     }
   }
@@ -353,13 +325,13 @@ export class Bitmap {
    */
   clearRect(x: number, y: number, width: number, height: number): void {
     this.context.clearRect(x, y, width, height)
-    this._baseTexture.update()
+    this._baseTexture!.update()
   }
 
   /**
    * Clears the entire bitmap.
    */
-  clear() {
+  clear(): void {
     this.clearRect(0, 0, this.width, this.height)
   }
 
@@ -378,7 +350,7 @@ export class Bitmap {
     context.fillStyle = color
     context.fillRect(x, y, width, height)
     context.restore()
-    this._baseTexture.update()
+    this._baseTexture!.update()
   }
 
   /**
@@ -405,7 +377,7 @@ export class Bitmap {
     context.strokeStyle = color
     context.strokeRect(x, y, width, height)
     context.restore()
-    this._baseTexture.update()
+    this._baseTexture!.update()
   }
 
   /**
@@ -430,7 +402,7 @@ export class Bitmap {
     context.fillStyle = grad
     context.fillRect(x, y, width, height)
     context.restore()
-    this._baseTexture.update()
+    this._baseTexture!.update()
   }
 
   /**
@@ -449,7 +421,7 @@ export class Bitmap {
     context.arc(x, y, radius, 0, Math.PI * 2, false)
     context.fill()
     context.restore()
-    this._baseTexture.update()
+    this._baseTexture!.update()
   }
 
   /**
@@ -485,7 +457,7 @@ export class Bitmap {
     context.globalAlpha = alpha
     this._drawTextBody(text, tx, ty, maxWidth)
     context.restore()
-    this._baseTexture.update()
+    this._baseTexture!.update()
   }
 
   /**
@@ -508,7 +480,7 @@ export class Bitmap {
    *
    * @param {function} listener - The callback function.
    */
-  addLoadListener(listener: (bitmap: Bitmap) => void) {
+  addLoadListener(listener: (bitmap: Bitmap) => void): void {
     if (!this.isReady()) {
       this._loadListeners.push(listener)
     }
@@ -520,11 +492,11 @@ export class Bitmap {
   /**
    * Tries to load the image again.
    */
-  retry() {
+  retry(): void {
     this._startLoading()
   }
 
-  _makeFontNameText() {
+  _makeFontNameText(): string {
     const italic = this.fontItalic ? 'Italic ' : ''
     const bold = this.fontBold ? 'Bold ' : ''
     return `${italic}${bold}${this.fontSize}px ${this.fontFace}`
@@ -544,7 +516,7 @@ export class Bitmap {
     context.fillText(text, tx, ty, maxWidth)
   }
 
-  _createCanvas(width: number, height: number) {
+  _createCanvas(width: number, height: number): void {
     this._canvas = document.createElement('canvas')
     this._context = this._canvas.getContext('2d')
     this._canvas.width = width
@@ -552,11 +524,11 @@ export class Bitmap {
     this._createBaseTexture(this._canvas)
   }
 
-  _ensureCanvas() {
+  _ensureCanvas(): void {
     if (!this._canvas) {
       if (this._image) {
         this._createCanvas(this._image.width, this._image.height)
-        this._context.drawImage(this._image, 0, 0)
+        this._context!.drawImage(this._image, 0, 0)
       }
       else {
         this._createCanvas(0, 0)
@@ -564,7 +536,7 @@ export class Bitmap {
     }
   }
 
-  _destroyCanvas() {
+  _destroyCanvas(): void {
     if (this._canvas) {
       this._canvas.width = 0
       this._canvas.height = 0
@@ -574,13 +546,13 @@ export class Bitmap {
 
   _createBaseTexture(source: HTMLCanvasElement | HTMLImageElement): void {
     this._baseTexture = new PIXI.BaseTexture(source)
-    this._baseTexture.mipmap = false
+    this._baseTexture.mipmap = PIXI.MIPMAP_MODES.OFF
     this._baseTexture.width = source.width
     this._baseTexture.height = source.height
     this._updateScaleMode()
   }
 
-  _updateScaleMode() {
+  _updateScaleMode(): void {
     if (this._baseTexture) {
       this._baseTexture.scaleMode = this._smooth
         ? PIXI.SCALE_MODES.LINEAR
@@ -588,7 +560,7 @@ export class Bitmap {
     }
   }
 
-  _startLoading() {
+  _startLoading(): void {
     this._image = new Image()
     this._image.onload = this._onLoad.bind(this)
     this._image.onerror = this._onError.bind(this)
@@ -606,7 +578,7 @@ export class Bitmap {
     }
   }
 
-  _startDecrypting() {
+  _startDecrypting(): void {
     const xhr = new XMLHttpRequest()
     xhr.open('GET', `${this._url}_`)
     xhr.responseType = 'arraybuffer'
@@ -619,14 +591,14 @@ export class Bitmap {
     if (xhr.status < 400) {
       const arrayBuffer = Utils.decryptArrayBuffer(xhr.response)
       const blob = new Blob([arrayBuffer])
-      this._image.src = URL.createObjectURL(blob)
+      this._image!.src = URL.createObjectURL(blob)
     }
     else {
       this._onError()
     }
   }
 
-  _onLoad() {
+  _onLoad(): void {
     if (Utils.hasEncryptedImages()) {
       URL.revokeObjectURL(this._image!.src)
     }
@@ -635,13 +607,13 @@ export class Bitmap {
     this._callLoadListeners()
   }
 
-  _callLoadListeners() {
+  _callLoadListeners(): void {
     while (this._loadListeners.length > 0) {
       this._loadListeners.shift()!(this)
     }
   }
 
-  _onError() {
+  _onError(): void {
     this._loadingState = 'error'
   }
 }

@@ -279,6 +279,8 @@ export declare namespace MZ {
   }
 
   interface System {
+    iconSize?: number
+    faceSize?: number
     // title
     gameTitle: string
 

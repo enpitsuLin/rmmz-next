@@ -13,19 +13,17 @@ export interface ScreenSpriteDestroyOptions {
  * @extends PIXI.Container
  */
 export class ScreenSprite extends PIXI.Container {
-  private _graphics: PIXI.Graphics
-  private _red: number
-  private _green: number
-  private _blue: number
+  _graphics: PIXI.Graphics = new PIXI.Graphics()
+  _red = -1
+  _green = -1
+  _blue = -1
 
   constructor() {
     super()
     this._graphics = new PIXI.Graphics()
     this.addChild(this._graphics)
     this.opacity = 0
-    this._red = -1
-    this._green = -1
-    this._blue = -1
+
     this.setBlack()
   }
 

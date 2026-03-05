@@ -14,7 +14,7 @@ export class Stage extends PIXI.Container {
   /**
    * Destroys the stage.
    */
-  destroy() {
+  destroy(): void {
     const options = { children: true, texture: true }
     super.destroy(options)
   }

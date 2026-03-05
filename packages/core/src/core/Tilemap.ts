@@ -94,11 +94,8 @@ export class Tilemap extends PIXI.Container {
 
   /**
    * The width of the tilemap.
-   *
-   * @type number
-   * @name Tilemap#width
    */
-  get width() {
+  get width(): number {
     return this._width
   }
 
@@ -108,11 +105,8 @@ export class Tilemap extends PIXI.Container {
 
   /**
    * The height of the tilemap.
-   *
-   * @type number
-   * @name Tilemap#height
    */
-  get height() {
+  get height(): number {
     return this._height
   }
 
@@ -123,7 +117,7 @@ export class Tilemap extends PIXI.Container {
   /**
    * Destroys the tilemap.
    */
-  destroy(options: Tilemap.DestroyOptions = { children: true, texture: true }) {
+  destroy(options: PIXI.IDestroyOptions = { children: true, texture: true }): void {
     super.destroy(options)
   }
 
@@ -710,10 +704,6 @@ export namespace Tilemap {
     readonly [number, number],
     readonly [number, number],
   ]
-  export interface DestroyOptions {
-    children?: boolean
-    texture?: boolean
-  }
 
   /**
    * Internal class for the tilemap combined layer.
@@ -744,7 +734,7 @@ export namespace Tilemap {
       }
     }
 
-    destroy(options = { children: true, texture: true }) {
+    destroy(options: PIXI.IDestroyOptions = { children: true, texture: true }): void {
       super.destroy(options)
     }
 

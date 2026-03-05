@@ -21,7 +21,7 @@ export class Utils {
    * @type string
    * @constant
    */
-  static RPGMAKER_NAME = 'MZ'
+  static RPGMAKER_NAME: string = 'MZ'
 
   /**
    * The version of the RPG Maker.
@@ -29,7 +29,7 @@ export class Utils {
    * @type string
    * @constant
    */
-  static RPGMAKER_VERSION = '1.9.0'
+  static RPGMAKER_VERSION: string = '1.9.0'
 
   /**
    * Checks whether the current RPG Maker version is greater than or equal to
@@ -39,7 +39,7 @@ export class Utils {
    * @returns {boolean} True if the current version is greater than or equal
    *                    to the given version.
    */
-  static checkRMVersion(version: string) {
+  static checkRMVersion(version: string): boolean {
     const array1 = this.RPGMAKER_VERSION.split('.')
     const array2 = String(version).split('.')
     for (let i = 0; i < array1.length; i++) {
@@ -61,7 +61,7 @@ export class Utils {
    * @param {string} name - The option name.
    * @returns {boolean} True if the option is in the query string.
    */
-  static isOptionValid(name: string) {
+  static isOptionValid(name: string): boolean {
     const args = location.search.slice(1)
     if (args.split('&').includes(name)) {
       return true
@@ -77,7 +77,8 @@ export class Utils {
    *
    * @returns {boolean} True if the platform is NW.js.
    */
-  static isNwjs() {
+  static isNwjs(): boolean {
+    // eslint-disable-next-line node/prefer-global/process
     return typeof require === 'function' && typeof process === 'object'
   }
 
@@ -86,7 +87,7 @@ export class Utils {
    *
    * @returns {boolean} True if the platform is a mobile device.
    */
-  static isMobileDevice() {
+  static isMobileDevice(): boolean {
     const r = /Android|webOS|iPhone|iPad|iPod|BlackBerry|Opera Mini/i
     return !!navigator.userAgent.match(r)
   }
@@ -96,7 +97,7 @@ export class Utils {
    *
    * @returns {boolean} True if the browser is Mobile Safari.
    */
-  static isMobileSafari() {
+  static isMobileSafari(): boolean {
     const agent = navigator.userAgent
     return !!(
       agent.match(/iPhone|iPad|iPod/)
@@ -110,7 +111,7 @@ export class Utils {
    *
    * @returns {boolean} True if the browser is Android Chrome.
    */
-  static isAndroidChrome() {
+  static isAndroidChrome(): boolean {
     const agent = navigator.userAgent
     return !!(agent.match(/Android/) && agent.match(/Chrome/))
   }
@@ -120,7 +121,7 @@ export class Utils {
    *
    * @returns {boolean} True if the browser is accessing local files.
    */
-  static isLocal() {
+  static isLocal(): boolean {
     return window.location.href.startsWith('file:')
   }
 
@@ -129,12 +130,13 @@ export class Utils {
    *
    * @returns {boolean} True if the browser supports WebGL.
    */
-  static canUseWebGL() {
+  static canUseWebGL(): boolean {
     try {
       const canvas = document.createElement('canvas')
       return !!canvas.getContext('webgl')
     }
     catch (e) {
+      console.error(e)
       return false
     }
   }
@@ -144,7 +146,7 @@ export class Utils {
    *
    * @returns {boolean} True if the browser supports Web Audio API.
    */
-  static canUseWebAudioAPI() {
+  static canUseWebAudioAPI(): boolean {
     return !!(window.AudioContext || (window as any).webkitAudioContext)
   }
 
@@ -153,7 +155,7 @@ export class Utils {
    *
    * @returns {boolean} True if the browser supports CSS Font Loading.
    */
-  static canUseCssFontLoading() {
+  static canUseCssFontLoading(): boolean {
     return !!(document.fonts && document.fonts.ready)
   }
 
@@ -162,7 +164,7 @@ export class Utils {
    *
    * @returns {boolean} True if the browser supports IndexedDB.
    */
-  static canUseIndexedDB() {
+  static canUseIndexedDB(): boolean {
     return !!(
       window.indexedDB || (window as any).mozIndexedDB || (window as any).webkitIndexedDB
     )
@@ -173,7 +175,7 @@ export class Utils {
    *
    * @returns {boolean} True if the browser can play ogg files.
    */
-  static canPlayOgg() {
+  static canPlayOgg(): boolean {
     if (!Utils._audioElement) {
       Utils._audioElement = document.createElement('audio')
     }
@@ -188,7 +190,7 @@ export class Utils {
    *
    * @returns {boolean} True if the browser can play webm files.
    */
-  static canPlayWebm() {
+  static canPlayWebm(): boolean {
     if (!Utils._videoElement) {
       Utils._videoElement = document.createElement('video')
     }
@@ -204,7 +206,7 @@ export class Utils {
    * @param {string} str - The input string.
    * @returns {string} Encoded string.
    */
-  static encodeURI(str: string) {
+  static encodeURI(str: string): string {
     return encodeURIComponent(str).replace(/%2F/g, '/')
   }
 
@@ -214,8 +216,8 @@ export class Utils {
    * @param {string} filename - The filename with subfolders.
    * @returns {string} The filename without subfolders.
    */
-  static extractFileName(filename: string) {
-    return filename.split('/').pop()
+  static extractFileName(filename: string): string {
+    return filename.split('/').pop()!
   }
 
   /**
@@ -224,7 +226,7 @@ export class Utils {
    * @param {string} str - The input string.
    * @returns {string} Escaped string.
    */
-  static escapeHtml(str: string) {
+  static escapeHtml(str: string): string {
     const entityMap: Record<string, string> = {
       '&': '&amp;',
       '<': '&lt;',
@@ -241,7 +243,7 @@ export class Utils {
    *
    * @returns {boolean} True if the string contains any Arabic characters.
    */
-  static containsArabic(str: string) {
+  static containsArabic(str: string): boolean {
     const regExp = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/
     return regExp.test(str)
   }
@@ -253,7 +255,7 @@ export class Utils {
    * @param {boolean} hasAudio - Whether the audio files are encrypted.
    * @param {string} key - The encryption key.
    */
-  static setEncryptionInfo(hasImages: boolean, hasAudio: boolean, key: string) {
+  static setEncryptionInfo(hasImages: boolean, hasAudio: boolean, key: string): void {
     this._hasEncryptedImages = hasImages
     this._hasEncryptedAudio = hasAudio
     this._encryptionKey = key
@@ -264,7 +266,7 @@ export class Utils {
    *
    * @returns {boolean} True if the image files are encrypted.
    */
-  static hasEncryptedImages() {
+  static hasEncryptedImages(): boolean {
     return this._hasEncryptedImages
   }
 
@@ -273,7 +275,7 @@ export class Utils {
    *
    * @returns {boolean} True if the audio files are encrypted.
    */
-  static hasEncryptedAudio() {
+  static hasEncryptedAudio(): boolean {
     return this._hasEncryptedAudio
   }
 

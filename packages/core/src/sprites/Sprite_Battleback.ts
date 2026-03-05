@@ -1,4 +1,6 @@
-import { TilingSprite } from '../core'
+import type { Bitmap } from '../core'
+import { Graphics, TilingSprite } from '../core'
+import { BattleManager, ImageManager } from '../managers'
 
 /**
  * Sprite_Battleback
@@ -6,7 +8,7 @@ import { TilingSprite } from '../core'
  * The sprite for displaying a background image in battle.
  */
 export class Sprite_Battleback extends TilingSprite {
-  constructor(type) {
+  constructor(type?: 1 | 0) {
     super()
     if (type === 0) {
       this.bitmap = this.battleback1Bitmap()
@@ -16,7 +18,7 @@ export class Sprite_Battleback extends TilingSprite {
     }
   }
 
-  adjustPosition() {
+  adjustPosition(): void {
     this.width = Math.floor((1000 * Graphics.width) / 816)
     this.height = Math.floor((740 * Graphics.height) / 624)
     this.x = (Graphics.width - this.width) / 2
@@ -33,15 +35,15 @@ export class Sprite_Battleback extends TilingSprite {
     this.scale.y = scale
   }
 
-  battleback1Bitmap() {
-    return ImageManager.loadBattleback1(this.battleback1Name())
+  battleback1Bitmap(): Bitmap {
+    return ImageManager.loadBattleback1(this.battleback1Name()!)
   }
 
-  battleback2Bitmap() {
-    return ImageManager.loadBattleback2(this.battleback2Name())
+  battleback2Bitmap(): Bitmap {
+    return ImageManager.loadBattleback2(this.battleback2Name()!)
   }
 
-  battleback1Name() {
+  battleback1Name(): string | null {
     if (BattleManager.isBattleTest()) {
       return $dataSystem.battleback1Name
     }
@@ -56,7 +58,7 @@ export class Sprite_Battleback extends TilingSprite {
     }
   }
 
-  battleback2Name() {
+  battleback2Name(): string | null {
     if (BattleManager.isBattleTest()) {
       return $dataSystem.battleback2Name
     }
@@ -71,7 +73,7 @@ export class Sprite_Battleback extends TilingSprite {
     }
   }
 
-  overworldBattleback1Name() {
+  overworldBattleback1Name(): string {
     if ($gamePlayer.isInVehicle()) {
       return this.shipBattleback1Name()
     }
@@ -80,7 +82,7 @@ export class Sprite_Battleback extends TilingSprite {
     }
   }
 
-  overworldBattleback2Name() {
+  overworldBattleback2Name(): string {
     if ($gamePlayer.isInVehicle()) {
       return this.shipBattleback2Name()
     }
@@ -89,7 +91,7 @@ export class Sprite_Battleback extends TilingSprite {
     }
   }
 
-  normalBattleback1Name() {
+  normalBattleback1Name(): string {
     return (
       this.terrainBattleback1Name(this.autotileType(1))
       || this.terrainBattleback1Name(this.autotileType(0))
@@ -97,7 +99,7 @@ export class Sprite_Battleback extends TilingSprite {
     )
   }
 
-  normalBattleback2Name() {
+  normalBattleback2Name(): string {
     return (
       this.terrainBattleback2Name(this.autotileType(1))
       || this.terrainBattleback2Name(this.autotileType(0))
@@ -105,7 +107,7 @@ export class Sprite_Battleback extends TilingSprite {
     )
   }
 
-  terrainBattleback1Name(type) {
+  terrainBattleback1Name(type: number): string | null {
     switch (type) {
       case 24:
       case 25:
@@ -133,7 +135,7 @@ export class Sprite_Battleback extends TilingSprite {
     }
   }
 
-  terrainBattleback2Name(type) {
+  terrainBattleback2Name(type: number): string | null {
     switch (type) {
       case 20:
       case 21:
@@ -166,23 +168,23 @@ export class Sprite_Battleback extends TilingSprite {
     }
   }
 
-  defaultBattleback1Name() {
+  defaultBattleback1Name(): string {
     return 'Grassland'
   }
 
-  defaultBattleback2Name() {
+  defaultBattleback2Name(): string {
     return 'Grassland'
   }
 
-  shipBattleback1Name() {
+  shipBattleback1Name(): string {
     return 'Ship'
   }
 
-  shipBattleback2Name() {
+  shipBattleback2Name(): string {
     return 'Ship'
   }
 
-  autotileType(z) {
+  autotileType(z: number): number {
     return $gameMap.autotileType($gamePlayer.x, $gamePlayer.y, z)
   }
 }

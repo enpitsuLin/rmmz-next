@@ -23,29 +23,23 @@ export class Input {
   /**
    * Initializes the input system.
    */
-  static initialize() {
+  static initialize(): void {
     this.clear()
     this._setupEventHandlers()
   }
 
   /**
    * The wait time of the key repeat in frames.
-   *
-   * @type number
    */
   static keyRepeatWait = 24
 
   /**
    * The interval of the key repeat in frames.
-   *
-   * @type number
    */
   static keyRepeatInterval = 6
 
   /**
    * A hash table to convert from a virtual key code to a mapped key name.
-   *
-   * @type Object
    */
   static keyMapper: Record<number, string> = {
     9: 'tab',
@@ -95,7 +89,7 @@ export class Input {
   /**
    * Clears all the input data.
    */
-  static clear() {
+  static clear(): void {
     this._currentState = {}
     this._previousState = {}
     this._gamepadStates = []
@@ -111,7 +105,7 @@ export class Input {
   /**
    * Updates the input data.
    */
-  static update() {
+  static update(): void {
     this._pollGamepads()
     if (this._currentState[this._latestButton!]) {
       this._pressedTime++
@@ -235,17 +229,17 @@ export class Input {
     return this._date
   }
 
-  static virtualClick(buttonName: string) {
+  static virtualClick(buttonName: string): void {
     this._virtualButton = buttonName
   }
 
-  static _setupEventHandlers() {
+  static _setupEventHandlers(): void {
     document.addEventListener('keydown', this._onKeyDown.bind(this))
     document.addEventListener('keyup', this._onKeyUp.bind(this))
     window.addEventListener('blur', this._onLostFocus.bind(this))
   }
 
-  static _onKeyDown(event: KeyboardEvent) {
+  static _onKeyDown(event: KeyboardEvent): void {
     if (this._shouldPreventDefault(event.keyCode)) {
       event.preventDefault()
     }
@@ -273,18 +267,18 @@ export class Input {
     return false
   }
 
-  static _onKeyUp(event: KeyboardEvent) {
+  static _onKeyUp(event: KeyboardEvent): void {
     const buttonName = this.keyMapper[event.keyCode]
     if (buttonName) {
       this._currentState[buttonName] = false
     }
   }
 
-  static _onLostFocus() {
+  static _onLostFocus(): void {
     this.clear()
   }
 
-  static _pollGamepads() {
+  static _pollGamepads(): void {
     if (navigator.getGamepads) {
       const gamepads = navigator.getGamepads()
       if (gamepads) {
@@ -297,7 +291,7 @@ export class Input {
     }
   }
 
-  static _updateGamepadState(gamepad: Gamepad) {
+  static _updateGamepadState(gamepad: Gamepad): void {
     const lastState = this._gamepadStates[gamepad.index] || []
     const newState: boolean[] = []
     const buttons = gamepad.buttons
@@ -333,7 +327,7 @@ export class Input {
     this._gamepadStates[gamepad.index] = newState
   }
 
-  static _updateDirection() {
+  static _updateDirection(): void {
     let x = this._signX()
     let y = this._signY()
     this._dir8 = this._makeNumpadDirection(x, y)

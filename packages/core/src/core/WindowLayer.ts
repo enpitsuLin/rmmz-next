@@ -17,7 +17,8 @@ export class WindowLayer extends PIXI.Container {
   /**
    * Updates the window layer for each frame.
    */
-  update() {
+  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
+  update(): void {
     for (const child of this.children) {
       if (child.update) {
         child.update()
@@ -30,7 +31,7 @@ export class WindowLayer extends PIXI.Container {
    *
    * @param {PIXI.Renderer} renderer - The renderer.
    */
-  render(renderer: PIXI.Renderer) {
+  render(renderer: PIXI.Renderer): void {
     if (!this.visible) {
       return
     }

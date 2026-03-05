@@ -6,6 +6,19 @@ import { Graphics } from './Graphics'
  * @namespace
  */
 export class TouchInput {
+  static _mousePressed: boolean
+  static _screenPressed: boolean
+  static _pressedTime: number
+  static _clicked: boolean
+  static _newState: TouchInput.InputState
+  static _currentState: TouchInput.InputState
+  static _x: number
+  static _y: number
+  static _triggerX: number
+  static _triggerY: number
+  static _moved: boolean
+  static _date: number
+
   constructor() {
     throw new Error('This is a static class')
   }
@@ -13,36 +26,30 @@ export class TouchInput {
   /**
    * Initializes the touch system.
    */
-  static initialize() {
+  static initialize(): void {
     this.clear()
     this._setupEventHandlers()
   }
 
   /**
    * The wait time of the pseudo key repeat in frames.
-   *
-   * @type number
    */
   static keyRepeatWait = 24
 
   /**
    * The interval of the pseudo key repeat in frames.
-   *
-   * @type number
    */
   static keyRepeatInterval = 6
 
   /**
    * The threshold number of pixels to treat as moved.
-   *
-   * @type number
    */
   static moveThreshold = 10
 
   /**
    * Clears all the touch data.
    */
-  static clear() {
+  static clear(): void {
     this._mousePressed = false
     this._screenPressed = false
     this._pressedTime = 0
@@ -60,7 +67,7 @@ export class TouchInput {
   /**
    * Updates the touch data.
    */
-  static update() {
+  static update(): void {
     this._currentState = this._newState
     this._newState = this._createNewState()
     this._clicked = this._currentState.released && !this._moved
@@ -73,27 +80,27 @@ export class TouchInput {
    * Checks whether the mouse button or touchscreen has been pressed and
    * released at the same position.
    *
-   * @returns {boolean} True if the mouse button or touchscreen is clicked.
+   * @returns True if the mouse button or touchscreen is clicked.
    */
-  static isClicked() {
+  static isClicked(): boolean {
     return this._clicked
   }
 
   /**
    * Checks whether the mouse button or touchscreen is currently pressed down.
    *
-   * @returns {boolean} True if the mouse button or touchscreen is pressed.
+   * @returns True if the mouse button or touchscreen is pressed.
    */
-  static isPressed() {
+  static isPressed(): boolean {
     return this._mousePressed || this._screenPressed
   }
 
   /**
    * Checks whether the left mouse button or touchscreen is just pressed.
    *
-   * @returns {boolean} True if the mouse button or touchscreen is triggered.
+   * @returns True if the mouse button or touchscreen is triggered.
    */
-  static isTriggered() {
+  static isTriggered(): boolean {
     return this._currentState.triggered
   }
 
@@ -103,7 +110,7 @@ export class TouchInput {
    *
    * @returns {boolean} True if the mouse button or touchscreen is repeated.
    */
-  static isRepeated() {
+  static isRepeated(): boolean {
     return (
       this.isPressed()
       && (this._currentState.triggered
@@ -117,7 +124,7 @@ export class TouchInput {
    *
    * @returns {boolean} True if the left mouse button or touchscreen is long-pressed.
    */
-  static isLongPressed() {
+  static isLongPressed(): boolean {
     return this.isPressed() && this._pressedTime >= this.keyRepeatWait
   }
 
@@ -126,7 +133,7 @@ export class TouchInput {
    *
    * @returns {boolean} True if the right mouse button is just pressed.
    */
-  static isCancelled() {
+  static isCancelled(): boolean {
     return this._currentState.cancelled
   }
 
@@ -135,7 +142,7 @@ export class TouchInput {
    *
    * @returns {boolean} True if the mouse or a finger on the touchscreen is moved.
    */
-  static isMoved() {
+  static isMoved(): boolean {
     return this._currentState.moved
   }
 
@@ -144,7 +151,7 @@ export class TouchInput {
    *
    * @returns {boolean} True if the mouse is hovered.
    */
-  static isHovered() {
+  static isHovered(): boolean {
     return this._currentState.hovered
   }
 
@@ -153,66 +160,46 @@ export class TouchInput {
    *
    * @returns {boolean} True if the mouse button or touchscreen is released.
    */
-  static isReleased() {
+  static isReleased(): boolean {
     return this._currentState.released
   }
 
   /**
    * The horizontal scroll amount.
-   *
-   * @readonly
-   * @type number
-   * @name TouchInput.wheelX
    */
-  static get wheelX() {
+  static get wheelX(): number {
     return this._currentState.wheelX
   }
 
   /**
    * The vertical scroll amount.
-   *
-   * @readonly
-   * @type number
-   * @name TouchInput.wheelY
    */
-  static get wheelY() {
+  static get wheelY(): number {
     return this._currentState.wheelY
   }
 
   /**
    * The x coordinate on the canvas area of the latest touch event.
-   *
-   * @readonly
-   * @type number
-   * @name TouchInput.x
    */
-  static get x() {
+  static get x(): number {
     return this._x
   }
 
   /**
    * The y coordinate on the canvas area of the latest touch event.
-   *
-   * @readonly
-   * @type number
-   * @name TouchInput.y
    */
-  static get y() {
+  static get y(): number {
     return this._y
   }
 
   /**
    * The time of the last input in milliseconds.
-   *
-   * @readonly
-   * @type number
-   * @name TouchInput.date
    */
-  static get date() {
+  static get date(): number {
     return this._date
   }
 
-  static _createNewState() {
+  static _createNewState(): TouchInput.InputState {
     return {
       triggered: false,
       cancelled: false,
@@ -224,7 +211,7 @@ export class TouchInput {
     }
   }
 
-  static _setupEventHandlers() {
+  static _setupEventHandlers(): void {
     const pf = { passive: false }
     document.addEventListener('mousedown', this._onMouseDown.bind(this))
     document.addEventListener('mousemove', this._onMouseMove.bind(this))
@@ -237,7 +224,7 @@ export class TouchInput {
     window.addEventListener('blur', this._onLostFocus.bind(this))
   }
 
-  static _onMouseDown(event) {
+  static _onMouseDown(event: MouseEvent): void {
     if (event.button === 0) {
       this._onLeftButtonDown(event)
     }
@@ -249,7 +236,7 @@ export class TouchInput {
     }
   }
 
-  static _onLeftButtonDown(event) {
+  static _onLeftButtonDown(event: MouseEvent): void {
     const x = Graphics.pageToCanvasX(event.pageX)
     const y = Graphics.pageToCanvasY(event.pageY)
     if (Graphics.isInsideCanvas(x, y)) {
@@ -259,11 +246,11 @@ export class TouchInput {
     }
   }
 
-  static _onMiddleButtonDown(/* event */) {
-    //
+  static _onMiddleButtonDown(_event: MouseEvent): void {
+
   }
 
-  static _onRightButtonDown(event) {
+  static _onRightButtonDown(event: MouseEvent): void {
     const x = Graphics.pageToCanvasX(event.pageX)
     const y = Graphics.pageToCanvasY(event.pageY)
     if (Graphics.isInsideCanvas(x, y)) {
@@ -271,7 +258,7 @@ export class TouchInput {
     }
   }
 
-  static _onMouseMove(event) {
+  static _onMouseMove(event: MouseEvent): void {
     const x = Graphics.pageToCanvasX(event.pageX)
     const y = Graphics.pageToCanvasY(event.pageY)
     if (this._mousePressed) {
@@ -282,7 +269,7 @@ export class TouchInput {
     }
   }
 
-  static _onMouseUp(event) {
+  static _onMouseUp(event: MouseEvent): void {
     if (event.button === 0) {
       const x = Graphics.pageToCanvasX(event.pageX)
       const y = Graphics.pageToCanvasY(event.pageY)
@@ -291,13 +278,13 @@ export class TouchInput {
     }
   }
 
-  static _onWheel(event) {
+  static _onWheel(event: WheelEvent): void {
     this._newState.wheelX += event.deltaX
     this._newState.wheelY += event.deltaY
     event.preventDefault()
   }
 
-  static _onTouchStart(event) {
+  static _onTouchStart(event: TouchEvent): void {
     for (const touch of event.changedTouches) {
       const x = Graphics.pageToCanvasX(touch.pageX)
       const y = Graphics.pageToCanvasY(touch.pageY)
@@ -313,12 +300,12 @@ export class TouchInput {
         event.preventDefault()
       }
     }
-    if (window.cordova || window.navigator.standalone) {
+    if ((window as any).cordova || (window.navigator as any).standalone) {
       event.preventDefault()
     }
   }
 
-  static _onTouchMove(event) {
+  static _onTouchMove(event: TouchEvent): void {
     for (const touch of event.changedTouches) {
       const x = Graphics.pageToCanvasX(touch.pageX)
       const y = Graphics.pageToCanvasY(touch.pageY)
@@ -326,7 +313,7 @@ export class TouchInput {
     }
   }
 
-  static _onTouchEnd(event) {
+  static _onTouchEnd(event: TouchEvent): void {
     for (const touch of event.changedTouches) {
       const x = Graphics.pageToCanvasX(touch.pageX)
       const y = Graphics.pageToCanvasY(touch.pageY)
@@ -335,15 +322,15 @@ export class TouchInput {
     }
   }
 
-  static _onTouchCancel(/* event */) {
+  static _onTouchCancel(_event: TouchEvent): void {
     this._screenPressed = false
   }
 
-  static _onLostFocus() {
+  static _onLostFocus(): void {
     this.clear()
   }
 
-  static _onTrigger(x, y) {
+  static _onTrigger(x: number, y: number): void {
     this._newState.triggered = true
     this._x = x
     this._y = y
@@ -353,13 +340,13 @@ export class TouchInput {
     this._date = Date.now()
   }
 
-  static _onCancel(x, y) {
+  static _onCancel(x: number, y: number): void {
     this._newState.cancelled = true
     this._x = x
     this._y = y
   }
 
-  static _onMove(x, y) {
+  static _onMove(x: number, y: number): void {
     const dx = Math.abs(x - this._triggerX)
     const dy = Math.abs(y - this._triggerY)
     if (dx > this.moveThreshold || dy > this.moveThreshold) {
@@ -372,15 +359,27 @@ export class TouchInput {
     }
   }
 
-  static _onHover(x, y) {
+  static _onHover(x: number, y: number): void {
     this._newState.hovered = true
     this._x = x
     this._y = y
   }
 
-  static _onRelease(x, y) {
+  static _onRelease(x: number, y: number): void {
     this._newState.released = true
     this._x = x
     this._y = y
+  }
+}
+
+export namespace TouchInput {
+  export interface InputState {
+    triggered: boolean
+    cancelled: boolean
+    moved: boolean
+    hovered: boolean
+    released: boolean
+    wheelX: number
+    wheelY: number
   }
 }

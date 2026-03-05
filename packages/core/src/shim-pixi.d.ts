@@ -6,4 +6,13 @@ declare namespace GlobalMixins {
   interface DisplayObject extends RMMZDisplayObject {
 
   }
+
+  interface IRendererPlugins {
+    rpgtilemap: import('./core').TilemapRenderer
+  }
+
+  interface Sprite {
+    ax?: number
+    ay?: number
+  }
 }
