@@ -1,3 +1,6 @@
+shellEmulator: true
+
+trustPolicy: no-downgrade
 packages:
   - example
   - packages/*
@@ -26,7 +29,3 @@ catalogs:
 
 onlyBuiltDependencies:
   - esbuild
-
-shellEmulator: true
-
-trustPolicy: no-downgrade

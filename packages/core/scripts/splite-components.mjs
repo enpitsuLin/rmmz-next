@@ -47,11 +47,10 @@ rl.question('Write files to target? (Yes/No) ', (answer) => {
     for (const [key, value] of collections.entries()) {
       fs.writeFileSync(join(targetDir, `${key}.ts`), value)
     }
-    // eslint-disable-next-line no-console
+
     console.log('done')
   }
   else {
-    // eslint-disable-next-line no-console
     console.log('Skipped writing files.')
   }
 

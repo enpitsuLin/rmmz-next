@@ -37,4 +37,22 @@ export default defineConfig({
       unresolvedImport: false,
     },
   },
+  plugins: [
+    {
+      name: 'importAsString',
+      transform(code, id) {
+        if (['.frag', '.vert'].some(ext => id.includes(ext))) {
+          const content = code
+            .replaceAll('\\', '\\\\')
+            .replaceAll('`', '\\`')
+            .replaceAll('${', '\\${')
+
+          return {
+            code: `export default \`${content}\`;`,
+            map: { mappings: '' },
+          }
+        }
+      },
+    },
+  ],
 })
