@@ -1,9 +1,10 @@
 import { join, extname, resolve, relative } from 'node:path'
-import { readFile, stat } from 'node:fs/promises'
-import type { Plugin, ResolvedConfig, ViteDevServer } from 'vite'
+import { readFile, stat, mkdir, copyFile, readdir } from 'node:fs/promises'
+import type { Plugin, ResolvedConfig, ViteDevServer, Rollup } from 'vite'
 
 const VIRTUAL_MODULE_ID = 'virtual:rmmz-project'
 const RESOLVED_VIRTUAL_MODULE_ID = `\0${VIRTUAL_MODULE_ID}`
+const PROJECT_OUTPUT_DIR = 'rmmz-project'
 
 // MIME 类型映射 - 优化为 Map 以提升性能
 const MIME_TYPES = new Map([
@@ -57,6 +58,24 @@ function shouldTransform(filePath: string): boolean {
   return ['.js', '.ts', '.jsx', '.tsx'].includes(ext)
 }
 
+// 递归复制目录
+async function copyDirectory(src: string, dest: string): Promise<void> {
+  await mkdir(dest, { recursive: true })
+  const entries = await readdir(src, { withFileTypes: true })
+
+  for (const entry of entries) {
+    const srcPath = join(src, entry.name)
+    const destPath = join(dest, entry.name)
+
+    if (entry.isDirectory()) {
+      await copyDirectory(srcPath, destPath)
+    }
+    else {
+      await copyFile(srcPath, destPath)
+    }
+  }
+}
+
 export interface RMMZPluginOptions {
   /** 项目根目录路径，默认为 public/project */
   projectRoot?: string
@@ -75,7 +94,7 @@ export function rmmz(options: RMMZPluginOptions = {}): Plugin[] {
 function virtualModule(options: RMMZPluginOptions = {}): Plugin {
   let config: ResolvedConfig
   let resolvedProjectRoot: string
-  let viteServer: ViteDevServer // 新增：保存 Vite 服务器实例
+  let viteServer: ViteDevServer
 
   // 确保 apiPath 以 / 开头且格式正确
   const apiPath = options.apiPath?.startsWith('/')
@@ -106,8 +125,25 @@ function virtualModule(options: RMMZPluginOptions = {}): Plugin {
     },
     load(id) {
       if (id === RESOLVED_VIRTUAL_MODULE_ID) {
-        // 使用模板字符串生成更清晰的代码
-        return `
+        // 根据环境生成不同的代码
+        const isProduction = process.env.NODE_ENV === 'production'
+
+        if (isProduction) {
+          // 生产环境：直接返回相对路径
+          return `
+export function fileurl(filePath) {
+  if (typeof filePath !== 'string') {
+    throw new TypeError('filePath must be a string');
+  }
+  return '/${PROJECT_OUTPUT_DIR}/' + filePath;
+}
+
+export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
+`
+        }
+        else {
+          // 开发环境：使用 API 端点
+          return `
 export function fileurl(filePath) {
   if (typeof filePath !== 'string') {
     throw new TypeError('filePath must be a string');
@@ -117,10 +153,11 @@ export function fileurl(filePath) {
 
 export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
 `
+        }
       }
     },
     configureServer(server) {
-      viteServer = server // 保存服务器实例
+      viteServer = server
       server.middlewares.use(apiPath, async (req, res) => {
         try {
           const url = new URL(req.url!, `http://${req.headers.host}`)
@@ -256,6 +293,25 @@ export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
           res.end(JSON.stringify({ error: `Internal server error: ${errorMessage}` }))
         }
       })
+    },
+    // 生产构建：将项目文件复制到输出目录
+    async writeBundle(options: Rollup.OutputOptions) {
+      const isProduction = process.env.NODE_ENV === 'production'
+      if (!isProduction || !options.dir) {
+        return
+      }
+
+      const outputDir = resolve(options.dir, PROJECT_OUTPUT_DIR)
+      log(`复制项目文件到输出目录: ${outputDir}`)
+
+      try {
+        await copyDirectory(resolvedProjectRoot, outputDir)
+        log('项目文件复制完成')
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        log('复制文件失败:', errorMessage)
+        throw error
+      }
     }
   }
 }
