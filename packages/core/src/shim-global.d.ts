@@ -112,3 +112,72 @@ interface Object {
    */
   deepAssign: (target: object, source: object) => object
 }
+
+/* eslint-disable ts/no-redeclare */
+/* eslint-disable no-var */
+/* eslint-disable vars-on-top */
+
+interface EffekseerEffect {
+  isLoaded: boolean
+}
+
+interface Effekseer {
+  init: (gl: WebGLRenderingContext) => void
+  setRestorationOfStatesFlag: (flag: boolean) => void
+  loadEffect: (url: string, scale: number, onLoad: () => void, onError: (message: string, url: string) => void) => EffekseerEffect
+  releaseEffect: (effect: EffekseerEffect) => void
+  stopAll: () => void
+  update: () => void
+  play: (effect: EffekseerEffect) => EffekseerHandle | null
+}
+
+interface EffekseerHandle {
+  setLocation: (x: number, y: number, z: number) => void
+  setRotation: (x: number, y: number, z: number) => void
+  setScale: (x: number, y: number, z: number) => void
+  setSpeed: (speed: number) => void
+  exists: boolean
+}
+
+declare const effekseer: {
+  createContext: () => Effekseer | null
+  initRuntime: (wasmUrl: string, onLoad: () => void, onError: () => void) => void
+}
+
+interface Window {
+  effekseer: typeof effekseer
+}
+
+interface VorbisDecoder {
+  destroy: () => void
+  send: (arrayBuffer: ArrayBufferLike, loaded: boolean) => void
+}
+
+interface VorbisDecoderConstructor {
+  new(
+    context: AudioContext | null,
+    onDecode: (buffer: AudioBuffer) => void,
+    onError: (buffer: unknown) => void
+  ): VorbisDecoder
+}
+
+declare var VorbisDecoder: VorbisDecoderConstructor
+
+declare namespace GlobalMixins {
+  interface RMMZDisplayObject {
+    update: () => void
+  }
+
+  interface DisplayObject extends RMMZDisplayObject {
+
+  }
+
+  interface IRendererPlugins {
+    rpgtilemap: import('.').TilemapRenderer
+  }
+
+  interface Sprite {
+    ax?: number
+    ay?: number
+  }
+}

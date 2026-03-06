@@ -1,3 +1,4 @@
+/* eslint-disable no-extend-native */
 /**
  * Makes a shallow copy of the array.
  *
@@ -129,7 +130,7 @@ Number.prototype.padZero = function (length) {
 Object.defineProperty(Object.prototype, 'deepAssign', {
   value(target: Record<string, any>, source: Record<string, any>) {
     for (const key in source) {
-      if (!source.hasOwnProperty(key))
+      if (!Object.prototype.hasOwnProperty.call(source, key))
         continue
       if (typeof source[key] === 'object' && source[key] !== null) {
         // If target property already exists, merge recursively.
@@ -173,6 +174,7 @@ String.prototype.contains = function (string) {
  * @returns {string} A formatted string.
  */
 String.prototype.format = function () {
+  // eslint-disable-next-line prefer-rest-params
   return this.replace(/%(\d+)/g, (s, n) => arguments[Number(n) - 1])
 }
 
