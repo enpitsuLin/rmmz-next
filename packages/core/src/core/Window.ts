@@ -355,8 +355,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
   /**
    * Destroys the window.
    */
-  destroy(): void {
-    const options = { children: true, texture: true }
+  destroy(options: PIXI.IDestroyOptions = { children: true, texture: true }): void {
     super.destroy(options)
   }
 
@@ -625,8 +624,8 @@ export class Window extends PIXI.Container<PIXI.Container> {
   }
 
   _refreshFrame(): void {
-    const drect = { x: 0, y: 0, width: this._width, height: this._height } as PIXI.Rectangle
-    const srect = { x: 96, y: 0, width: 96, height: 96 } as PIXI.Rectangle
+    const drect: Rectangle.Shape = { x: 0, y: 0, width: this._width, height: this._height }
+    const srect: Rectangle.Shape = { x: 96, y: 0, width: 96, height: 96 }
     const m = 24
     for (const child of this._frameSprite!.children as Sprite[]) {
       child.bitmap = this._windowskin!
@@ -636,7 +635,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
 
   _refreshCursor(): void {
     const drect = this._cursorRect.clone()
-    const srect = { x: 96, y: 96, width: 48, height: 48 } as PIXI.Rectangle
+    const srect: Rectangle.Shape = { x: 96, y: 96, width: 48, height: 48 }
     const m = 4
     for (const child of this._cursorSprite!.children as Sprite[]) {
       child.bitmap = this._windowskin!
@@ -644,7 +643,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
     this._setRectPartsGeometry(this._cursorSprite!, srect, drect, m)
   }
 
-  _setRectPartsGeometry(sprite: Sprite, srect: PIXI.Rectangle, drect: PIXI.Rectangle, m: number): void {
+  _setRectPartsGeometry(sprite: Sprite, srect: Rectangle.Shape, drect: Rectangle.Shape, m: number): void {
     const sx = srect.x
     const sy = srect.y
     const sw = srect.width

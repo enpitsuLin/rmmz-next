@@ -4,6 +4,8 @@ import { DataManager } from '../managers/DataManager'
 import { Game_Action } from './Game_Action'
 import { Game_Battler } from './Game_Battler'
 import { Game_Item } from './Game_Item'
+import type { Game_Party } from './Game_Party'
+import type { Game_Troop } from './Game_Troop'
 
 /**
  * The game object class for an actor.
@@ -35,7 +37,7 @@ class Game_Actor extends Game_Battler {
   }
 
   // Level getter
-  get level() {
+  get level(): number {
     return this._level
   }
 
@@ -60,7 +62,7 @@ class Game_Actor extends Game_Battler {
     this._lastCommandSymbol = ''
   }
 
-  setup(actorId: number) {
+  setup(actorId: number): void {
     const actor = $dataActors[actorId]
     this._actorId = actorId
     this._name = actor.name
@@ -76,7 +78,7 @@ class Game_Actor extends Game_Battler {
     this.recoverAll()
   }
 
-  actorId() {
+  actorId(): number {
     return this._actorId
   }
 
@@ -84,51 +86,51 @@ class Game_Actor extends Game_Battler {
     return $dataActors[this._actorId]!
   }
 
-  name() {
+  name(): string {
     return this._name
   }
 
-  setName(name: string) {
+  setName(name: string): void {
     this._name = name
   }
 
-  nickname() {
+  nickname(): string {
     return this._nickname
   }
 
-  setNickname(nickname: string) {
+  setNickname(nickname: string): void {
     this._nickname = nickname
   }
 
-  profile() {
+  profile(): string {
     return this._profile
   }
 
-  setProfile(profile: string) {
+  setProfile(profile: string): void {
     this._profile = profile
   }
 
-  characterName() {
+  characterName(): string {
     return this._characterName
   }
 
-  characterIndex() {
+  characterIndex(): number {
     return this._characterIndex
   }
 
-  faceName() {
+  faceName(): string {
     return this._faceName
   }
 
-  faceIndex() {
+  faceIndex(): number {
     return this._faceIndex
   }
 
-  battlerName() {
+  battlerName(): string {
     return this._battlerName
   }
 
-  clearStates() {
+  clearStates(): void {
     super.clearStates()
     this._stateSteps = {}
   }

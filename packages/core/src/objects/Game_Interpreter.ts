@@ -42,13 +42,13 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     this._freezeChecker = 0
   }
 
-  checkOverflow() {
+  checkOverflow(): void {
     if (this._depth >= 100) {
       throw new Error('Common event calls exceeded the limit')
     }
   }
 
-  clear() {
+  clear(): void {
     this._mapId = 0
     this._eventId = 0
     this._list = null
@@ -60,7 +60,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     this._childInterpreter = null
   }
 
-  setup(list: MZ.EventCommon.PageCommand[], eventId?: number) {
+  setup(list: MZ.EventCommon.PageCommand[], eventId?: number): void {
     this.clear()
     this._mapId = $gameMap.mapId()
     this._eventId = eventId || 0
@@ -68,7 +68,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     this.loadImages()
   }
 
-  loadImages() {
+  loadImages(): void {
     // [Note] Certain versions of MV had a more complicated preload scheme.
     // However, it is usually sufficient to preload face and picture images.
     const list = this._list!.slice(0, 200)
@@ -84,15 +84,15 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     }
   }
 
-  eventId() {
+  eventId(): number {
     return this._eventId
   }
 
-  isOnCurrentMap() {
+  isOnCurrentMap(): boolean {
     return this._mapId === $gameMap.mapId()
   }
 
-  setupReservedCommonEvent() {
+  setupReservedCommonEvent(): boolean {
     if ($gameTemp.isCommonEventReserved()) {
       const commonEvent = $gameTemp.retrieveCommonEvent()
       if (commonEvent) {
@@ -103,11 +103,11 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     return false
   }
 
-  isRunning() {
+  isRunning(): boolean {
     return !!this._list
   }
 
-  update() {
+  update(): void {
     while (this.isRunning()) {
       if (this.updateChild() || this.updateWait()) {
         break
@@ -124,7 +124,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     }
   }
 
-  updateChild() {
+  updateChild(): boolean {
     if (this._childInterpreter) {
       this._childInterpreter.update()
       if (this._childInterpreter.isRunning()) {
@@ -137,11 +137,11 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     return false
   }
 
-  updateWait() {
+  updateWait(): boolean {
     return this.updateWaitCount() || this.updateWaitMode()
   }
 
-  updateWaitCount() {
+  updateWaitCount(): boolean {
     if (this._waitCount > 0) {
       this._waitCount--
       return true
@@ -149,9 +149,9 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     return false
   }
 
-  updateWaitMode() {
+  updateWaitMode(): boolean {
     let character = null
-    let waiting: null | boolean = false
+    let waiting: boolean = false
     switch (this._waitMode) {
       case 'message':
         waiting = $gameMessage.isBusy()
@@ -885,6 +885,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
       }
     }
     catch (e) {
+      console.error(e)
       $gameVariables.setValue(variableId, 0)
     }
   }
@@ -1004,7 +1005,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     return true
   }
 
-  command138(params: [string]): boolean {
+  command138(params: [RGBA]): boolean {
     $gameSystem.setWindowTone(params[0])
     return true
   }
@@ -1014,7 +1015,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     return true
   }
 
-  command140(params: [number, number]): boolean {
+  command140(params: [number, MZ.AudioInfo]): boolean {
     const vehicle = $gameMap.vehicle(params[0])
     if (vehicle) {
       vehicle.setBgm(params[1])
@@ -1465,17 +1466,19 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     return true
   }
 
-  // Battle Processing
-  command301(params: [number, number, number, number]): boolean {
+  /**
+   * Battle Processing
+   */
+  command301(params: [number, number | boolean, boolean, boolean]): boolean {
     if (!$gameParty.inBattle()) {
-      let troopId
+      let troopId: number
       if (params[0] === 0) {
         // Direct designation
-        troopId = params[1]
+        troopId = params[1] as number
       }
       else if (params[0] === 1) {
         // Designation with a variable
-        troopId = $gameVariables.value(params[1])
+        troopId = $gameVariables.value(params[1] as number)
       }
       else {
         // Same as Random Encounters

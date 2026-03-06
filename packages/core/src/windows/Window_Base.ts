@@ -1,3 +1,6 @@
+/* eslint-disable no-control-regex */
+import type { MZ } from '@rmmz-lib/database-types'
+import type * as PIXI from 'pixi.js'
 import { Bitmap, Rectangle, Sprite, Utils, Window } from '../core'
 import { ColorManager, ImageManager, SoundManager, TextManager } from '../managers'
 
@@ -7,7 +10,11 @@ import { ColorManager, ImageManager, SoundManager, TextManager } from '../manage
  * The superclass of all windows within the game.
  */
 export class Window_Base extends Window {
-  constructor(rect) {
+  _opening: boolean
+  _closing: boolean
+  _dimmerSprite: null | Sprite
+
+  constructor(rect: Rectangle.Shape) {
     super()
     this.loadWindowskin()
     this.checkRectObject(rect)
@@ -21,7 +28,7 @@ export class Window_Base extends Window {
     this._dimmerSprite = null
   }
 
-  destroy(options) {
+  destroy(options: PIXI.IDestroyOptions): void {
     this.destroyContents()
     if (this._dimmerSprite) {
       this._dimmerSprite.bitmap.destroy()
@@ -29,56 +36,56 @@ export class Window_Base extends Window {
     super.destroy(options)
   }
 
-  checkRectObject(rect) {
+  checkRectObject(rect: Rectangle.Shape): asserts rect is Rectangle.Shape {
     if (typeof rect !== 'object' || !('x' in rect)) {
       throw new Error('Argument must be a Rectangle')
     }
   }
 
-  lineHeight() {
+  lineHeight(): number {
     return 36
   }
 
-  itemWidth() {
+  itemWidth(): number {
     return this.innerWidth
   }
 
-  itemHeight() {
+  itemHeight(): number {
     return this.lineHeight()
   }
 
-  itemPadding() {
+  itemPadding(): number {
     return 8
   }
 
-  baseTextRect() {
+  baseTextRect(): Rectangle {
     const rect = new Rectangle(0, 0, this.innerWidth, this.innerHeight)
     rect.pad(-this.itemPadding(), 0)
     return rect
   }
 
-  loadWindowskin() {
+  loadWindowskin(): void {
     this.windowskin = ImageManager.loadSystem('Window')
   }
 
-  updatePadding() {
+  updatePadding(): void {
     this.padding = $gameSystem.windowPadding()
   }
 
-  updateBackOpacity() {
+  updateBackOpacity(): void {
     this.backOpacity = $gameSystem.windowOpacity()
   }
 
-  fittingHeight(numLines) {
+  fittingHeight(numLines: number): number {
     return numLines * this.itemHeight() + $gameSystem.windowPadding() * 2
   }
 
-  updateTone() {
+  updateTone(): void {
     const tone = $gameSystem.windowTone()
     this.setTone(tone[0], tone[1], tone[2])
   }
 
-  createContents() {
+  createContents(): void {
     const width = this.contentsWidth()
     const height = this.contentsHeight()
     this.destroyContents()
@@ -87,7 +94,7 @@ export class Window_Base extends Window {
     this.resetFontSettings()
   }
 
-  destroyContents() {
+  destroyContents(): void {
     if (this.contents) {
       this.contents.destroy()
     }
@@ -96,26 +103,26 @@ export class Window_Base extends Window {
     }
   }
 
-  contentsWidth() {
+  contentsWidth(): number {
     return this.innerWidth
   }
 
-  contentsHeight() {
+  contentsHeight(): number {
     return this.innerHeight
   }
 
-  resetFontSettings() {
+  resetFontSettings(): void {
     this.contents.fontFace = $gameSystem.mainFontFace()
     this.contents.fontSize = $gameSystem.mainFontSize()
     this.resetTextColor()
   }
 
-  resetTextColor() {
+  resetTextColor(): void {
     this.changeTextColor(ColorManager.normalColor())
     this.changeOutlineColor(ColorManager.outlineColor())
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateTone()
     this.updateOpen()
@@ -123,7 +130,7 @@ export class Window_Base extends Window {
     this.updateBackgroundDimmer()
   }
 
-  updateOpen() {
+  updateOpen(): void {
     if (this._opening) {
       this.openness += 32
       if (this.isOpen()) {
@@ -132,7 +139,7 @@ export class Window_Base extends Window {
     }
   }
 
-  updateClose() {
+  updateClose(): void {
     if (this._closing) {
       this.openness -= 32
       if (this.isClosed()) {
@@ -141,87 +148,87 @@ export class Window_Base extends Window {
     }
   }
 
-  open() {
+  open(): void {
     if (!this.isOpen()) {
       this._opening = true
     }
     this._closing = false
   }
 
-  close() {
+  close(): void {
     if (!this.isClosed()) {
       this._closing = true
     }
     this._opening = false
   }
 
-  isOpening() {
+  isOpening(): boolean {
     return this._opening
   }
 
-  isClosing() {
+  isClosing(): boolean {
     return this._closing
   }
 
-  show() {
+  show(): void {
     this.visible = true
   }
 
-  hide() {
+  hide(): void {
     this.visible = false
   }
 
-  activate() {
+  activate(): void {
     this.active = true
   }
 
-  deactivate() {
+  deactivate(): void {
     this.active = false
   }
 
-  systemColor() {
+  systemColor(): string {
     return ColorManager.systemColor()
   }
 
-  translucentOpacity() {
+  translucentOpacity(): number {
     return 160
   }
 
-  changeTextColor(color) {
+  changeTextColor(color: string): void {
     this.contents.textColor = color
   }
 
-  changeOutlineColor(color) {
+  changeOutlineColor(color: string): void {
     this.contents.outlineColor = color
   }
 
-  changePaintOpacity(enabled) {
+  changePaintOpacity(enabled: boolean): void {
     this.contents.paintOpacity = enabled ? 255 : this.translucentOpacity()
   }
 
-  drawRect(x, y, width, height) {
+  drawRect(x: number, y: number, width: number, height: number): void {
     const outlineColor = this.contents.outlineColor
     const mainColor = this.contents.textColor
     this.contents.fillRect(x, y, width, height, outlineColor)
     this.contents.fillRect(x + 1, y + 1, width - 2, height - 2, mainColor)
   }
 
-  drawText(text, x, y, maxWidth, align) {
+  drawText(text: string, x: number, y: number, maxWidth: number, align?: CanvasTextAlign): void {
     this.contents.drawText(text, x, y, maxWidth, this.lineHeight(), align)
   }
 
-  textWidth(text) {
+  textWidth(text: string): number {
     return this.contents.measureTextWidth(text)
   }
 
-  drawTextEx(text, x, y, width) {
+  drawTextEx(text: string, x: number, y: number, width: number): number {
     this.resetFontSettings()
     const textState = this.createTextState(text, x, y, width)
     this.processAllText(textState)
     return textState.outputWidth
   }
 
-  textSizeEx(text) {
+  textSizeEx(text: string): Window_Base.TextSize {
     this.resetFontSettings()
     const textState = this.createTextState(text, 0, 0, 0)
     textState.drawing = false
@@ -229,9 +236,9 @@ export class Window_Base extends Window {
     return { width: textState.outputWidth, height: textState.outputHeight }
   }
 
-  createTextState(text, x, y, width) {
+  createTextState(text: string, x: number, y: number, width: number): Window_Base.TextState {
     const rtl = Utils.containsArabic(text)
-    const textState = {}
+    const textState = {} as Window_Base.TextState
     textState.text = this.convertEscapeCharacters(text)
     textState.index = 0
     textState.x = rtl ? x + width : x
@@ -248,14 +255,14 @@ export class Window_Base extends Window {
     return textState
   }
 
-  processAllText(textState) {
+  processAllText(textState: Window_Base.TextState): void {
     while (textState.index < textState.text.length) {
       this.processCharacter(textState)
     }
     this.flushTextState(textState)
   }
 
-  flushTextState(textState) {
+  flushTextState(textState: Window_Base.TextState): void {
     const text = textState.buffer
     const rtl = textState.rtl
     const width = this.textWidth(text)
@@ -274,16 +281,16 @@ export class Window_Base extends Window {
     textState.outputHeight = y - textState.startY + height
   }
 
-  createTextBuffer(rtl) {
+  createTextBuffer(rtl: boolean): string {
     return rtl ? '\u202B' : ''
   }
 
-  convertEscapeCharacters(text) {
+  convertEscapeCharacters(text: string): string {
     text = text.replace(/\\/g, '\x1B')
     text = text.replace(/\x1B\x1B/g, '\\')
     while (text.match(/\x1BV\[(\d+)\]/gi)) {
       text = text.replace(/\x1BV\[(\d+)\]/gi, (_, p1) =>
-        $gameVariables.value(Number.parseInt(p1)))
+        $gameVariables.value(Number.parseInt(p1)).toString())
     }
     text = text.replace(/\x1BN\[(\d+)\]/gi, (_, p1) =>
       this.actorName(Number.parseInt(p1)))
@@ -293,17 +300,17 @@ export class Window_Base extends Window {
     return text
   }
 
-  actorName(n) {
+  actorName(n: number): string {
     const actor = n >= 1 ? $gameActors.actor(n) : null
     return actor ? actor.name() : ''
   }
 
-  partyMemberName(n) {
+  partyMemberName(n: number): string {
     const actor = n >= 1 ? $gameParty.members()[n - 1] : null
     return actor ? actor.name() : ''
   }
 
-  processCharacter(textState) {
+  processCharacter(textState: Window_Base.TextState): void {
     const c = textState.text[textState.index++]
     if (c.charCodeAt(0) < 0x20) {
       this.flushTextState(textState)
@@ -314,7 +321,7 @@ export class Window_Base extends Window {
     }
   }
 
-  processControlCharacter(textState, c) {
+  processControlCharacter(textState: Window_Base.TextState, c: string): void {
     if (c === '\n') {
       this.processNewLine(textState)
     }
@@ -324,13 +331,13 @@ export class Window_Base extends Window {
     }
   }
 
-  processNewLine(textState) {
+  processNewLine(textState: Window_Base.TextState): void {
     textState.x = textState.startX
     textState.y += textState.height
     textState.height = this.calcTextHeight(textState)
   }
 
-  obtainEscapeCode(textState) {
+  obtainEscapeCode(textState: Window_Base.TextState): string {
     const regExp = /^[$.|^!><{}\\]|^[A-Z]+/i
     const arr = regExp.exec(textState.text.slice(textState.index))
     if (arr) {
@@ -342,7 +349,7 @@ export class Window_Base extends Window {
     }
   }
 
-  obtainEscapeParam(textState) {
+  obtainEscapeParam(textState: Window_Base.TextState): number {
     const regExp = /^\[\d+\]/
     const arr = regExp.exec(textState.text.slice(textState.index))
     if (arr) {
@@ -350,11 +357,11 @@ export class Window_Base extends Window {
       return Number.parseInt(arr[0].slice(1))
     }
     else {
-      return ''
+      return 0
     }
   }
 
-  processEscapeCharacter(code, textState) {
+  processEscapeCharacter(code: string, textState: Window_Base.TextState): void {
     switch (code) {
       case 'C':
         this.processColorChange(this.obtainEscapeParam(textState))
@@ -380,11 +387,11 @@ export class Window_Base extends Window {
     }
   }
 
-  processColorChange(colorIndex) {
+  processColorChange(colorIndex: number): void {
     this.changeTextColor(ColorManager.textColor(colorIndex))
   }
 
-  processDrawIcon(iconIndex, textState) {
+  processDrawIcon(iconIndex: number, textState: Window_Base.TextState): void {
     const deltaX = ImageManager.standardIconWidth - ImageManager.iconWidth
     const deltaY = ImageManager.standardIconHeight - ImageManager.iconHeight
     if (textState.drawing) {
@@ -395,19 +402,19 @@ export class Window_Base extends Window {
     textState.x += ImageManager.standardIconWidth + 4
   }
 
-  makeFontBigger() {
+  makeFontBigger(): void {
     if (this.contents.fontSize <= 96) {
       this.contents.fontSize += 12
     }
   }
 
-  makeFontSmaller() {
+  makeFontSmaller(): void {
     if (this.contents.fontSize >= 24) {
       this.contents.fontSize -= 12
     }
   }
 
-  calcTextHeight(textState) {
+  calcTextHeight(textState: Window_Base.TextState): number {
     const lineSpacing = this.lineHeight() - $gameSystem.mainFontSize()
     const lastFontSize = this.contents.fontSize
     const lines = textState.text.slice(textState.index).split('\n')
@@ -416,10 +423,11 @@ export class Window_Base extends Window {
     return textHeight
   }
 
-  maxFontSizeInLine(line) {
+  maxFontSizeInLine(line: string): number {
     let maxFontSize = this.contents.fontSize
+    // eslint-disable-next-line regexp/no-unused-capturing-group
     const regExp = /\x1B(\{|\}|FS)(\[(\d+)\])?/gi
-    for (;;) {
+    for (; ;) {
       const array = regExp.exec(line)
       if (!array) {
         break
@@ -441,7 +449,7 @@ export class Window_Base extends Window {
     return maxFontSize
   }
 
-  drawIcon(iconIndex, x, y) {
+  drawIcon(iconIndex: number, x: number, y: number): void {
     const bitmap = ImageManager.loadSystem('IconSet')
     const pw = ImageManager.iconWidth
     const ph = ImageManager.iconHeight
@@ -450,7 +458,7 @@ export class Window_Base extends Window {
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y)
   }
 
-  drawFace(faceName, faceIndex, x, y, width, height) {
+  drawFace(faceName: string, faceIndex: number, x: number, y: number, width: number, height: number): void {
     width = width || ImageManager.standardFaceWidth
     height = height || ImageManager.standardFaceHeight
     const bitmap = ImageManager.loadFace(faceName)
@@ -465,7 +473,7 @@ export class Window_Base extends Window {
     this.contents.blt(bitmap, sx, sy, sw, sh, dx, dy)
   }
 
-  drawCharacter(characterName, characterIndex, x, y) {
+  drawCharacter(characterName: string, characterIndex: number, x: number, y: number): void {
     const bitmap = ImageManager.loadCharacter(characterName)
     const big = ImageManager.isBigCharacter(characterName)
     const pw = bitmap.width / (big ? 3 : 12)
@@ -476,7 +484,7 @@ export class Window_Base extends Window {
     this.contents.blt(bitmap, sx, sy, pw, ph, x - pw / 2, y - ph)
   }
 
-  drawItemName(item, x, y, width) {
+  drawItemName(item: MZ.Item | undefined, x: number, y: number, width: number): void {
     if (item) {
       const iconY = y + (this.lineHeight() - ImageManager.iconHeight) / 2
       const delta = ImageManager.standardIconWidth - ImageManager.iconWidth
@@ -488,7 +496,7 @@ export class Window_Base extends Window {
     }
   }
 
-  drawCurrencyValue(value, unit, x, y, width) {
+  drawCurrencyValue(value: string, unit: string, x: number, y: number, width: number): void {
     const unitWidth = Math.min(80, this.textWidth(unit))
     this.resetTextColor()
     this.drawText(value, x, y, width - unitWidth - 6, 'right')
@@ -496,7 +504,7 @@ export class Window_Base extends Window {
     this.drawText(unit, x + width - unitWidth, y, unitWidth, 'right')
   }
 
-  setBackgroundType(type) {
+  setBackgroundType(type: number): void {
     if (type === 0) {
       this.opacity = 255
     }
@@ -511,38 +519,38 @@ export class Window_Base extends Window {
     }
   }
 
-  showBackgroundDimmer() {
+  showBackgroundDimmer(): void {
     if (!this._dimmerSprite) {
       this.createDimmerSprite()
     }
-    const bitmap = this._dimmerSprite.bitmap
+    const bitmap = this._dimmerSprite!.bitmap
     if (bitmap.width !== this.width || bitmap.height !== this.height) {
       this.refreshDimmerBitmap()
     }
-    this._dimmerSprite.visible = true
+    this._dimmerSprite!.visible = true
     this.updateBackgroundDimmer()
   }
 
-  createDimmerSprite() {
+  createDimmerSprite(): void {
     this._dimmerSprite = new Sprite()
     this._dimmerSprite.bitmap = new Bitmap(0, 0)
     this._dimmerSprite.x = -4
     this.addChildToBack(this._dimmerSprite)
   }
 
-  hideBackgroundDimmer() {
+  hideBackgroundDimmer(): void {
     if (this._dimmerSprite) {
       this._dimmerSprite.visible = false
     }
   }
 
-  updateBackgroundDimmer() {
+  updateBackgroundDimmer(): void {
     if (this._dimmerSprite) {
       this._dimmerSprite.opacity = this.openness
     }
   }
 
-  refreshDimmerBitmap() {
+  refreshDimmerBitmap(): void {
     if (this._dimmerSprite) {
       const bitmap = this._dimmerSprite.bitmap
       const w = this.width > 0 ? this.width + 8 : 0
@@ -558,15 +566,40 @@ export class Window_Base extends Window {
     }
   }
 
-  playCursorSound() {
+  playCursorSound(): void {
     SoundManager.playCursor()
   }
 
-  playOkSound() {
+  playOkSound(): void {
     SoundManager.playOk()
   }
 
-  playBuzzerSound() {
+  playBuzzerSound(): void {
     SoundManager.playBuzzer()
+  }
+}
+
+export namespace Window_Base {
+
+  export interface TextPosition {
+    x: number
+    y: number
+  }
+
+  export interface TextSize {
+    width: number
+    height: number
+  }
+
+  export interface TextState extends TextPosition, TextSize {
+    text: string
+    index: number
+    startX: number
+    startY: number
+    rtl: boolean
+    buffer: string
+    drawing: boolean
+    outputWidth: number
+    outputHeight: number
   }
 }

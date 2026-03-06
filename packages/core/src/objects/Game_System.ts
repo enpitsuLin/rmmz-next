@@ -1,11 +1,12 @@
 import type { MZ } from '@rmmz-lib/database-types'
+import type { RGBA } from '../types'
 import { Graphics } from '../core'
 import { AudioManager } from '../managers/AudioManager'
 
 /**
  * The game object class for the system data.
  */
-class Game_System {
+export class Game_System {
   _saveEnabled: boolean
   _menuEnabled: boolean
   _encounterEnabled: boolean
@@ -19,59 +20,33 @@ class Game_System {
   _framesOnSave: number
   _bgmOnSave: MZ.AudioInfo | null
   _bgsOnSave: MZ.AudioInfo | null
-  _windowTone: string | null
+  _windowTone: RGBA | null
   _battleBgm: MZ.AudioInfo | null
   _victoryMe: MZ.AudioInfo | null
   _defeatMe: MZ.AudioInfo | null
   _savedBgm: MZ.AudioInfo | null
   _walkingBgm: MZ.AudioInfo | null
 
-  /**
-   * @param { Game_System } [gameSystem]
-   */
-  constructor(gameSystem?: Game_System) {
-    if (gameSystem) {
-      this._saveEnabled = gameSystem._saveEnabled
-      this._menuEnabled = gameSystem._menuEnabled
-      this._encounterEnabled = gameSystem._encounterEnabled
-      this._formationEnabled = gameSystem._formationEnabled
-      this._battleCount = gameSystem._battleCount
-      this._winCount = gameSystem._winCount
-      this._escapeCount = gameSystem._escapeCount
-      this._saveCount = gameSystem._saveCount
-      this._versionId = gameSystem._versionId
-      this._savefileId = gameSystem._savefileId
-      this._framesOnSave = gameSystem._framesOnSave
-      this._bgmOnSave = gameSystem._bgmOnSave
-      this._bgsOnSave = gameSystem._bgsOnSave
-      this._windowTone = gameSystem._windowTone
-      this._battleBgm = gameSystem._battleBgm
-      this._victoryMe = gameSystem._victoryMe
-      this._defeatMe = gameSystem._defeatMe
-      this._savedBgm = gameSystem._savedBgm
-      this._walkingBgm = gameSystem._walkingBgm
-    }
-    else {
-      this._saveEnabled = true
-      this._menuEnabled = true
-      this._encounterEnabled = true
-      this._formationEnabled = true
-      this._battleCount = 0
-      this._winCount = 0
-      this._escapeCount = 0
-      this._saveCount = 0
-      this._versionId = 0
-      this._savefileId = 0
-      this._framesOnSave = 0
-      this._bgmOnSave = null
-      this._bgsOnSave = null
-      this._windowTone = null
-      this._battleBgm = null
-      this._victoryMe = null
-      this._defeatMe = null
-      this._savedBgm = null
-      this._walkingBgm = null
-    }
+  constructor() {
+    this._saveEnabled = true
+    this._menuEnabled = true
+    this._encounterEnabled = true
+    this._formationEnabled = true
+    this._battleCount = 0
+    this._winCount = 0
+    this._escapeCount = 0
+    this._saveCount = 0
+    this._versionId = 0
+    this._savefileId = 0
+    this._framesOnSave = 0
+    this._bgmOnSave = null
+    this._bgsOnSave = null
+    this._windowTone = null
+    this._battleBgm = null
+    this._victoryMe = null
+    this._defeatMe = null
+    this._savedBgm = null
+    this._walkingBgm = null
   }
 
   isJapanese() {
@@ -186,7 +161,7 @@ class Game_System {
     return this._windowTone || $dataSystem.windowTone
   }
 
-  setWindowTone(value: string | null) {
+  setWindowTone(value: RGBA | null) {
     this._windowTone = value
   }
 
@@ -295,5 +270,3 @@ class Game_System {
     return $dataSystem.advanced.windowOpacity
   }
 }
-
-export { Game_System }

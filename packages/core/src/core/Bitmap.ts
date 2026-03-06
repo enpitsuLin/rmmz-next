@@ -434,7 +434,7 @@ export class Bitmap {
    * @param {number} lineHeight - The line height of the text.
    * @param {string} align - The alignment of the text ('left', 'center', 'right').
    */
-  drawText(text: string, x: number, y: number, maxWidth: number, lineHeight: number, align: CanvasTextAlign): void {
+  drawText(text: string, x: number, y: number, maxWidth: number, lineHeight: number, align?: CanvasTextAlign): void {
     // [Note] Different browser makes different rendering with
     //   textBaseline == 'top'. So we use 'alphabetic' here.
     const context = this.context
@@ -450,7 +450,8 @@ export class Bitmap {
     }
     context.save()
     context.font = this._makeFontNameText()
-    context.textAlign = align
+    if (align)
+      context.textAlign = align
     context.textBaseline = 'alphabetic'
     context.globalAlpha = 1
     this._drawTextOutline(text, tx, ty, maxWidth)

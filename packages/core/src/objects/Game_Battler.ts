@@ -1,7 +1,5 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_Enemy } from './Game_Enemy'
-import type { Game_Party } from './Game_Party'
-import type { Game_Troop } from './Game_Troop'
 import type { Game_Unit } from './Game_Unit'
 import { BattleManager, DataManager, SoundManager } from '../managers'
 import { Game_Action } from './Game_Action'
