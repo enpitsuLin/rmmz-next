@@ -426,20 +426,16 @@ export declare namespace MZ {
 
   namespace EventCommon {
     interface PageCommand {
-      code: EventCommandCode
+      code: number
       indent: number
       parameters: Array<any>
     }
 
     interface MoveCommand {
-      code: MoveCommandCode
+      code: number
       parameters: Array<any>
     }
 
-    enum EventCommandCode {
-    }
-    enum MoveCommandCode {
-    }
     namespace EventCommandParameter {
       type WeatherType = 'none' | 'rain' | 'storm' | 'snow'
     }

@@ -264,15 +264,15 @@ class Game_Player extends Game_Character {
     }
   }
 
-  moveByInput() {
+  moveByInput(): void {
     if (!this.isMoving() && this.canMove()) {
       let direction = this.getInputDirection()
       if (direction > 0) {
         $gameTemp.clearDestination()
       }
       else if ($gameTemp.isDestinationValid()) {
-        const x = $gameTemp.destinationX()
-        const y = $gameTemp.destinationY()
+        const x = $gameTemp.destinationX()!
+        const y = $gameTemp.destinationY()!
         direction = this.findDirectionTo(x, y)
       }
       if (direction > 0) {

@@ -1,60 +1,62 @@
+import type { MZ } from '@rmmz-lib/database-types'
+import { AudioManager } from '../managers'
 import { Game_CharacterBase } from './Game_CharacterBase'
 
 /**
  * The superclass of Game_Player, Game_Follower, GameVehicle, and Game_Event.
  */
 export class Game_Character extends Game_CharacterBase {
-  static ROUTE_END = 0
-  static ROUTE_MOVE_DOWN = 1
-  static ROUTE_MOVE_LEFT = 2
-  static ROUTE_MOVE_RIGHT = 3
-  static ROUTE_MOVE_UP = 4
-  static ROUTE_MOVE_LOWER_L = 5
-  static ROUTE_MOVE_LOWER_R = 6
-  static ROUTE_MOVE_UPPER_L = 7
-  static ROUTE_MOVE_UPPER_R = 8
-  static ROUTE_MOVE_RANDOM = 9
-  static ROUTE_MOVE_TOWARD = 10
-  static ROUTE_MOVE_AWAY = 11
-  static ROUTE_MOVE_FORWARD = 12
-  static ROUTE_MOVE_BACKWARD = 13
-  static ROUTE_JUMP = 14
-  static ROUTE_WAIT = 15
-  static ROUTE_TURN_DOWN = 16
-  static ROUTE_TURN_LEFT = 17
-  static ROUTE_TURN_RIGHT = 18
-  static ROUTE_TURN_UP = 19
-  static ROUTE_TURN_90D_R = 20
-  static ROUTE_TURN_90D_L = 21
-  static ROUTE_TURN_180D = 22
-  static ROUTE_TURN_90D_R_L = 23
-  static ROUTE_TURN_RANDOM = 24
-  static ROUTE_TURN_TOWARD = 25
-  static ROUTE_TURN_AWAY = 26
-  static ROUTE_SWITCH_ON = 27
-  static ROUTE_SWITCH_OFF = 28
-  static ROUTE_CHANGE_SPEED = 29
-  static ROUTE_CHANGE_FREQ = 30
-  static ROUTE_WALK_ANIME_ON = 31
-  static ROUTE_WALK_ANIME_OFF = 32
-  static ROUTE_STEP_ANIME_ON = 33
-  static ROUTE_STEP_ANIME_OFF = 34
-  static ROUTE_DIR_FIX_ON = 35
-  static ROUTE_DIR_FIX_OFF = 36
-  static ROUTE_THROUGH_ON = 37
-  static ROUTE_THROUGH_OFF = 38
-  static ROUTE_TRANSPARENT_ON = 39
-  static ROUTE_TRANSPARENT_OFF = 40
-  static ROUTE_CHANGE_IMAGE = 41
-  static ROUTE_CHANGE_OPACITY = 42
-  static ROUTE_CHANGE_BLEND_MODE = 43
-  static ROUTE_PLAY_SE = 44
-  static ROUTE_SCRIPT = 45
+  static readonly ROUTE_END = 0
+  static readonly ROUTE_MOVE_DOWN = 1
+  static readonly ROUTE_MOVE_LEFT = 2
+  static readonly ROUTE_MOVE_RIGHT = 3
+  static readonly ROUTE_MOVE_UP = 4
+  static readonly ROUTE_MOVE_LOWER_L = 5
+  static readonly ROUTE_MOVE_LOWER_R = 6
+  static readonly ROUTE_MOVE_UPPER_L = 7
+  static readonly ROUTE_MOVE_UPPER_R = 8
+  static readonly ROUTE_MOVE_RANDOM = 9
+  static readonly ROUTE_MOVE_TOWARD = 10
+  static readonly ROUTE_MOVE_AWAY = 11
+  static readonly ROUTE_MOVE_FORWARD = 12
+  static readonly ROUTE_MOVE_BACKWARD = 13
+  static readonly ROUTE_JUMP = 14
+  static readonly ROUTE_WAIT = 15
+  static readonly ROUTE_TURN_DOWN = 16
+  static readonly ROUTE_TURN_LEFT = 17
+  static readonly ROUTE_TURN_RIGHT = 18
+  static readonly ROUTE_TURN_UP = 19
+  static readonly ROUTE_TURN_90D_R = 20
+  static readonly ROUTE_TURN_90D_L = 21
+  static readonly ROUTE_TURN_180D = 22
+  static readonly ROUTE_TURN_90D_R_L = 23
+  static readonly ROUTE_TURN_RANDOM = 24
+  static readonly ROUTE_TURN_TOWARD = 25
+  static readonly ROUTE_TURN_AWAY = 26
+  static readonly ROUTE_SWITCH_ON = 27
+  static readonly ROUTE_SWITCH_OFF = 28
+  static readonly ROUTE_CHANGE_SPEED = 29
+  static readonly ROUTE_CHANGE_FREQ = 30
+  static readonly ROUTE_WALK_ANIME_ON = 31
+  static readonly ROUTE_WALK_ANIME_OFF = 32
+  static readonly ROUTE_STEP_ANIME_ON = 33
+  static readonly ROUTE_STEP_ANIME_OFF = 34
+  static readonly ROUTE_DIR_FIX_ON = 35
+  static readonly ROUTE_DIR_FIX_OFF = 36
+  static readonly ROUTE_THROUGH_ON = 37
+  static readonly ROUTE_THROUGH_OFF = 38
+  static readonly ROUTE_TRANSPARENT_ON = 39
+  static readonly ROUTE_TRANSPARENT_OFF = 40
+  static readonly ROUTE_CHANGE_IMAGE = 41
+  static readonly ROUTE_CHANGE_OPACITY = 42
+  static readonly ROUTE_CHANGE_BLEND_MODE = 43
+  static readonly ROUTE_PLAY_SE = 44
+  static readonly ROUTE_SCRIPT = 45
 
   _moveRouteForcing!: boolean
-  _moveRoute!: null
+  _moveRoute!: MZ.Map.Event.MoveRoute | null
   _moveRouteIndex!: number
-  _originalMoveRoute!: null
+  _originalMoveRoute!: MZ.Map.Event.MoveRoute | null
   _originalMoveRouteIndex!: number
   _waitCount!: number
 
@@ -62,7 +64,7 @@ export class Game_Character extends Game_CharacterBase {
     super()
   }
 
-  initMembers() {
+  initMembers(): void {
     super.initMembers()
     this._moveRouteForcing = false
     this._moveRoute = null
@@ -72,22 +74,22 @@ export class Game_Character extends Game_CharacterBase {
     this._waitCount = 0
   }
 
-  memorizeMoveRoute() {
+  memorizeMoveRoute(): void {
     this._originalMoveRoute = this._moveRoute
     this._originalMoveRouteIndex = this._moveRouteIndex
   }
 
-  restoreMoveRoute() {
+  restoreMoveRoute(): void {
     this._moveRoute = this._originalMoveRoute
     this._moveRouteIndex = this._originalMoveRouteIndex
     this._originalMoveRoute = null
   }
 
-  isMoveRouteForcing() {
+  isMoveRouteForcing(): boolean {
     return this._moveRouteForcing
   }
 
-  setMoveRoute(moveRoute) {
+  setMoveRoute(moveRoute: MZ.Map.Event.MoveRoute): void {
     if (this._moveRouteForcing) {
       this._originalMoveRoute = moveRoute
       this._originalMoveRouteIndex = 0
@@ -98,7 +100,7 @@ export class Game_Character extends Game_CharacterBase {
     }
   }
 
-  forceMoveRoute(moveRoute) {
+  forceMoveRoute(moveRoute: MZ.Map.Event.MoveRoute): void {
     if (!this._originalMoveRoute) {
       this.memorizeMoveRoute()
     }
@@ -108,20 +110,20 @@ export class Game_Character extends Game_CharacterBase {
     this._waitCount = 0
   }
 
-  updateStop() {
+  updateStop(): void {
     super.updateStop()
     if (this._moveRouteForcing) {
       this.updateRoutineMove()
     }
   }
 
-  updateRoutineMove() {
+  updateRoutineMove(): void {
     if (this._waitCount > 0) {
       this._waitCount--
     }
     else {
       this.setMovementSuccess(true)
-      const command = this._moveRoute.list[this._moveRouteIndex]
+      const command = this._moveRoute!.list[this._moveRouteIndex]
       if (command) {
         this.processMoveCommand(command)
         this.advanceMoveRouteIndex()
@@ -129,7 +131,7 @@ export class Game_Character extends Game_CharacterBase {
     }
   }
 
-  processMoveCommand(command) {
+  processMoveCommand(command: MZ.EventCommon.MoveCommand): void {
     const gc = Game_Character
     const params = command.parameters
     switch (command.code) {
@@ -274,22 +276,22 @@ export class Game_Character extends Game_CharacterBase {
     }
   }
 
-  deltaXFrom(x) {
+  deltaXFrom(x: number): number {
     return $gameMap.deltaX(this.x, x)
   }
 
-  deltaYFrom(y) {
+  deltaYFrom(y: number): number {
     return $gameMap.deltaY(this.y, y)
   }
 
-  moveRandom() {
+  moveRandom(): void {
     const d = 2 + Math.randomInt(4) * 2
     if (this.canPass(this.x, this.y, d)) {
       this.moveStraight(d)
     }
   }
 
-  moveTowardCharacter(character) {
+  moveTowardCharacter(character: Game_CharacterBase): void {
     const sx = this.deltaXFrom(character.x)
     const sy = this.deltaYFrom(character.y)
     if (Math.abs(sx) > Math.abs(sy)) {
@@ -306,7 +308,7 @@ export class Game_Character extends Game_CharacterBase {
     }
   }
 
-  moveAwayFromCharacter(character) {
+  moveAwayFromCharacter(character: Game_CharacterBase): void {
     const sx = this.deltaXFrom(character.x)
     const sy = this.deltaYFrom(character.y)
     if (Math.abs(sx) > Math.abs(sy)) {
@@ -323,7 +325,7 @@ export class Game_Character extends Game_CharacterBase {
     }
   }
 
-  turnTowardCharacter(character) {
+  turnTowardCharacter(character: Game_CharacterBase): void {
     const sx = this.deltaXFrom(character.x)
     const sy = this.deltaYFrom(character.y)
     if (Math.abs(sx) > Math.abs(sy)) {
@@ -334,7 +336,7 @@ export class Game_Character extends Game_CharacterBase {
     }
   }
 
-  turnAwayFromCharacter(character) {
+  turnAwayFromCharacter(character: Game_CharacterBase): void {
     const sx = this.deltaXFrom(character.x)
     const sy = this.deltaYFrom(character.y)
     if (Math.abs(sx) > Math.abs(sy)) {
@@ -345,35 +347,35 @@ export class Game_Character extends Game_CharacterBase {
     }
   }
 
-  turnTowardPlayer() {
+  turnTowardPlayer(): void {
     this.turnTowardCharacter($gamePlayer)
   }
 
-  turnAwayFromPlayer() {
+  turnAwayFromPlayer(): void {
     this.turnAwayFromCharacter($gamePlayer)
   }
 
-  moveTowardPlayer() {
+  moveTowardPlayer(): void {
     this.moveTowardCharacter($gamePlayer)
   }
 
-  moveAwayFromPlayer() {
+  moveAwayFromPlayer(): void {
     this.moveAwayFromCharacter($gamePlayer)
   }
 
-  moveForward() {
+  moveForward(): void {
     this.moveStraight(this.direction())
   }
 
-  moveBackward() {
+  moveBackward(): void {
     const lastDirectionFix = this.isDirectionFixed()
     this.setDirectionFix(true)
     this.moveStraight(this.reverseDir(this.direction()))
     this.setDirectionFix(lastDirectionFix)
   }
 
-  processRouteEnd() {
-    if (this._moveRoute.repeat) {
+  processRouteEnd(): void {
+    if (this._moveRoute!.repeat) {
       this._moveRouteIndex = -1
     }
     else if (this._moveRouteForcing) {
@@ -383,7 +385,7 @@ export class Game_Character extends Game_CharacterBase {
     }
   }
 
-  advanceMoveRouteIndex() {
+  advanceMoveRouteIndex(): void {
     const moveRoute = this._moveRoute
     if (moveRoute && (this.isMovementSucceeded() || moveRoute.skippable)) {
       const numCommands = moveRoute.list.length - 1
@@ -394,7 +396,7 @@ export class Game_Character extends Game_CharacterBase {
     }
   }
 
-  turnRight90() {
+  turnRight90(): void {
     switch (this.direction()) {
       case 2:
         this.setDirection(4)
@@ -411,7 +413,7 @@ export class Game_Character extends Game_CharacterBase {
     }
   }
 
-  turnLeft90() {
+  turnLeft90(): void {
     switch (this.direction()) {
       case 2:
         this.setDirection(6)
@@ -428,11 +430,11 @@ export class Game_Character extends Game_CharacterBase {
     }
   }
 
-  turn180() {
+  turn180(): void {
     this.setDirection(this.reverseDir(this.direction()))
   }
 
-  turnRightOrLeft90() {
+  turnRightOrLeft90(): void {
     switch (Math.randomInt(2)) {
       case 0:
         this.turnRight90()
@@ -443,24 +445,24 @@ export class Game_Character extends Game_CharacterBase {
     }
   }
 
-  turnRandom() {
+  turnRandom(): void {
     this.setDirection(2 + Math.randomInt(4) * 2)
   }
 
-  swap(character) {
+  swap(character: Game_CharacterBase): void {
     const newX = character.x
     const newY = character.y
     character.locate(this.x, this.y)
     this.locate(newX, newY)
   }
 
-  findDirectionTo(goalX, goalY) {
+  findDirectionTo(goalX: number, goalY: number): Game_CharacterBase.CharacterDirection | 0 {
     const searchLimit = this.searchLimit()
     const mapWidth = $gameMap.width()
-    const nodeList = []
-    const openList = []
-    const closedList = []
-    const start = {}
+    const nodeList: Game_Character.PathNode[] = []
+    const openList: number[] = []
+    const closedList: number[] = []
+    const start = {} as Game_Character.PathNode
     let best = start
 
     if (this.x === goalX && this.y === goalY) {
@@ -519,12 +521,12 @@ export class Game_Character extends Game_CharacterBase {
         const index2 = openList.indexOf(pos2)
 
         if (index2 < 0 || g2 < nodeList[index2]?.g) {
-          let neighbor = {}
+          let neighbor: Game_Character.PathNode
           if (index2 >= 0) {
             neighbor = nodeList[index2]
           }
           else {
-            neighbor = {}
+            neighbor = { parent: null, x: 0, y: 0, g: 0, f: 0 }
             nodeList.push(neighbor)
             openList.push(pos2)
           }
@@ -572,7 +574,18 @@ export class Game_Character extends Game_CharacterBase {
     return 0
   }
 
-  searchLimit() {
+  searchLimit(): number {
     return 12
+  }
+}
+
+namespace Game_Character {
+  /** Internal A* pathfinding node */
+  export interface PathNode {
+    parent: PathNode | null
+    x: number
+    y: number
+    g: number
+    f: number
   }
 }
