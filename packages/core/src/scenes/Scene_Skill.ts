@@ -9,11 +9,15 @@ import { Scene_ItemBase } from './Scene_ItemBase'
  /* The scene class of the skill screen.
  */
 export class Scene_Skill extends Scene_ItemBase {
+  _skillTypeWindow!: Window_SkillType
+  _statusWindow!: Window_SkillStatus
+  _itemWindow!: Window_SkillList
+
   constructor() {
     super()
   }
 
-  create() {
+  create(): void {
     super.create()
     this.createHelpWindow()
     this.createSkillTypeWindow()
@@ -22,12 +26,12 @@ export class Scene_Skill extends Scene_ItemBase {
     this.createActorWindow()
   }
 
-  start() {
+  start(): void {
     super.start()
     this.refreshActor()
   }
 
-  createSkillTypeWindow() {
+  createSkillTypeWindow(): void {
     const rect = this.skillTypeWindowRect()
     this._skillTypeWindow = new Window_SkillType(rect)
     this._skillTypeWindow.setHelpWindow(this._helpWindow)
@@ -38,7 +42,7 @@ export class Scene_Skill extends Scene_ItemBase {
     this.addWindow(this._skillTypeWindow)
   }
 
-  skillTypeWindowRect() {
+  skillTypeWindowRect(): Rectangle {
     const ww = this.mainCommandWidth()
     const wh = this.calcWindowHeight(3, true)
     const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0
@@ -46,13 +50,13 @@ export class Scene_Skill extends Scene_ItemBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createStatusWindow() {
+  createStatusWindow(): void {
     const rect = this.statusWindowRect()
     this._statusWindow = new Window_SkillStatus(rect)
     this.addWindow(this._statusWindow)
   }
 
-  statusWindowRect() {
+  statusWindowRect(): Rectangle {
     const ww = Graphics.boxWidth - this.mainCommandWidth()
     const wh = this._skillTypeWindow.height
     const wx = this.isRightInputMode() ? 0 : Graphics.boxWidth - ww
@@ -60,7 +64,7 @@ export class Scene_Skill extends Scene_ItemBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createItemWindow() {
+  createItemWindow(): void {
     const rect = this.itemWindowRect()
     this._itemWindow = new Window_SkillList(rect)
     this._itemWindow.setHelpWindow(this._helpWindow)
@@ -70,7 +74,7 @@ export class Scene_Skill extends Scene_ItemBase {
     this.addWindow(this._itemWindow)
   }
 
-  itemWindowRect() {
+  itemWindowRect(): Rectangle {
     const wx = 0
     const wy = this._statusWindow.y + this._statusWindow.height
     const ww = Graphics.boxWidth
@@ -78,51 +82,51 @@ export class Scene_Skill extends Scene_ItemBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  needsPageButtons() {
+  needsPageButtons(): boolean {
     return true
   }
 
-  arePageButtonsEnabled() {
+  arePageButtonsEnabled(): boolean {
     return !this.isActorWindowActive()
   }
 
-  refreshActor() {
+  refreshActor(): void {
     const actor = this.actor()
     this._skillTypeWindow.setActor(actor)
     this._statusWindow.setActor(actor)
     this._itemWindow.setActor(actor)
   }
 
-  user() {
+  user(): Game_Actor {
     return this.actor()
   }
 
-  commandSkill() {
+  commandSkill(): void {
     this._itemWindow.activate()
     this._itemWindow.selectLast()
   }
 
-  onItemOk() {
+  onItemOk(): void {
     this.actor().setLastMenuSkill(this.item())
     this.determineItem()
   }
 
-  onItemCancel() {
+  onItemCancel(): void {
     this._itemWindow.deselect()
     this._skillTypeWindow.activate()
   }
 
-  playSeForItem() {
+  playSeForItem(): void {
     SoundManager.playUseSkill()
   }
 
-  useItem() {
+  useItem(): void {
     super.useItem()
     this._statusWindow.refresh()
     this._itemWindow.refresh()
   }
 
-  onActorChange() {
+  onActorChange(): void {
     super.onActorChange()
     this.refreshActor()
     this._itemWindow.deselect()

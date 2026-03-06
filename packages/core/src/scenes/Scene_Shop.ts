@@ -1,6 +1,7 @@
-import type { Graphics, Rectangle } from '../core'
-import type { SoundManager } from '../managers/SoundManager'
+import type { MZ } from '@rmmz-lib/database-types'
+import { Graphics, Rectangle } from '../core'
 import { DataManager } from '../managers/DataManager'
+import { SoundManager } from '../managers/SoundManager'
 import { Window_Base, Window_Gold, Window_ItemCategory, Window_ShopBuy, Window_ShopCommand, Window_ShopNumber, Window_ShopSell, Window_ShopStatus } from '../windows'
 import { Scene_MenuBase } from './Scene_MenuBase'
 
@@ -10,17 +11,29 @@ import { Scene_MenuBase } from './Scene_MenuBase'
  /* The scene class of the shop screen.
  */
 export class Scene_Shop extends Scene_MenuBase {
+  _goods!: number[][]
+  _purchaseOnly!: boolean
+  _item!: MZ.EquipOrItem | null
+  _goldWindow!: Window_Gold
+  _commandWindow!: Window_ShopCommand
+  _dummyWindow!: Window_Base
+  _numberWindow!: Window_ShopNumber
+  _statusWindow!: Window_ShopStatus
+  _buyWindow!: Window_ShopBuy
+  _categoryWindow!: Window_ItemCategory
+  _sellWindow!: Window_ShopSell
+
   constructor() {
     super()
   }
 
-  prepare(goods, purchaseOnly) {
+  prepare(goods: number[][], purchaseOnly: boolean): void {
     this._goods = goods
     this._purchaseOnly = purchaseOnly
     this._item = null
   }
 
-  create() {
+  create(): void {
     super.create()
     DataManager.loadAllSavefileImages()
     this.createHelpWindow()
@@ -34,13 +47,13 @@ export class Scene_Shop extends Scene_MenuBase {
     this.createSellWindow()
   }
 
-  createGoldWindow() {
+  createGoldWindow(): void {
     const rect = this.goldWindowRect()
     this._goldWindow = new Window_Gold(rect)
     this.addWindow(this._goldWindow)
   }
 
-  goldWindowRect() {
+  goldWindowRect(): Rectangle {
     const ww = this.mainCommandWidth()
     const wh = this.calcWindowHeight(1, true)
     const wx = Graphics.boxWidth - ww
@@ -48,7 +61,7 @@ export class Scene_Shop extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createCommandWindow() {
+  createCommandWindow(): void {
     const rect = this.commandWindowRect()
     this._commandWindow = new Window_ShopCommand(rect)
     this._commandWindow.setPurchaseOnly(this._purchaseOnly)
@@ -59,7 +72,7 @@ export class Scene_Shop extends Scene_MenuBase {
     this.addWindow(this._commandWindow)
   }
 
-  commandWindowRect() {
+  commandWindowRect(): Rectangle {
     const wx = 0
     const wy = this.mainAreaTop()
     const ww = this._goldWindow.x
@@ -67,13 +80,13 @@ export class Scene_Shop extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createDummyWindow() {
+  createDummyWindow(): void {
     const rect = this.dummyWindowRect()
     this._dummyWindow = new Window_Base(rect)
     this.addWindow(this._dummyWindow)
   }
 
-  dummyWindowRect() {
+  dummyWindowRect(): Rectangle {
     const wx = 0
     const wy = this._commandWindow.y + this._commandWindow.height
     const ww = Graphics.boxWidth
@@ -81,7 +94,7 @@ export class Scene_Shop extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createNumberWindow() {
+  createNumberWindow(): void {
     const rect = this.numberWindowRect()
     this._numberWindow = new Window_ShopNumber(rect)
     this._numberWindow.hide()
@@ -90,7 +103,7 @@ export class Scene_Shop extends Scene_MenuBase {
     this.addWindow(this._numberWindow)
   }
 
-  numberWindowRect() {
+  numberWindowRect(): Rectangle {
     const wx = 0
     const wy = this._dummyWindow.y
     const ww = Graphics.boxWidth - this.statusWidth()
@@ -98,14 +111,14 @@ export class Scene_Shop extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createStatusWindow() {
+  createStatusWindow(): void {
     const rect = this.statusWindowRect()
     this._statusWindow = new Window_ShopStatus(rect)
     this._statusWindow.hide()
     this.addWindow(this._statusWindow)
   }
 
-  statusWindowRect() {
+  statusWindowRect(): Rectangle {
     const ww = this.statusWidth()
     const wh = this._dummyWindow.height
     const wx = Graphics.boxWidth - ww
@@ -113,7 +126,7 @@ export class Scene_Shop extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createBuyWindow() {
+  createBuyWindow(): void {
     const rect = this.buyWindowRect()
     this._buyWindow = new Window_ShopBuy(rect)
     this._buyWindow.setupGoods(this._goods)
@@ -125,7 +138,7 @@ export class Scene_Shop extends Scene_MenuBase {
     this.addWindow(this._buyWindow)
   }
 
-  buyWindowRect() {
+  buyWindowRect(): Rectangle {
     const wx = 0
     const wy = this._dummyWindow.y
     const ww = Graphics.boxWidth - this.statusWidth()
@@ -133,7 +146,7 @@ export class Scene_Shop extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createCategoryWindow() {
+  createCategoryWindow(): void {
     const rect = this.categoryWindowRect()
     this._categoryWindow = new Window_ItemCategory(rect)
     this._categoryWindow.setHelpWindow(this._helpWindow)
@@ -144,7 +157,7 @@ export class Scene_Shop extends Scene_MenuBase {
     this.addWindow(this._categoryWindow)
   }
 
-  categoryWindowRect() {
+  categoryWindowRect(): Rectangle {
     const wx = 0
     const wy = this._dummyWindow.y
     const ww = Graphics.boxWidth
@@ -152,7 +165,7 @@ export class Scene_Shop extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createSellWindow() {
+  createSellWindow(): void {
     const rect = this.sellWindowRect()
     this._sellWindow = new Window_ShopSell(rect)
     this._sellWindow.setHelpWindow(this._helpWindow)
@@ -167,7 +180,7 @@ export class Scene_Shop extends Scene_MenuBase {
     }
   }
 
-  sellWindowRect() {
+  sellWindowRect(): Rectangle {
     const wx = 0
     const wy = this._categoryWindow.y + this._categoryWindow.height
     const ww = Graphics.boxWidth
@@ -175,18 +188,18 @@ export class Scene_Shop extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  statusWidth() {
+  statusWidth(): number {
     return 352
   }
 
-  activateBuyWindow() {
+  activateBuyWindow(): void {
     this._buyWindow.setMoney(this.money())
     this._buyWindow.show()
     this._buyWindow.activate()
     this._statusWindow.show()
   }
 
-  activateSellWindow() {
+  activateSellWindow(): void {
     if (this._categoryWindow.needsSelection()) {
       this._categoryWindow.show()
     }
@@ -196,12 +209,12 @@ export class Scene_Shop extends Scene_MenuBase {
     this._statusWindow.hide()
   }
 
-  commandBuy() {
+  commandBuy(): void {
     this._dummyWindow.hide()
     this.activateBuyWindow()
   }
 
-  commandSell() {
+  commandSell(): void {
     this._dummyWindow.hide()
     this._sellWindow.show()
     this._sellWindow.deselect()
@@ -215,7 +228,7 @@ export class Scene_Shop extends Scene_MenuBase {
     }
   }
 
-  onBuyOk() {
+  onBuyOk(): void {
     this._item = this._buyWindow.item()
     this._buyWindow.hide()
     this._numberWindow.setup(this._item, this.maxBuy(), this.buyingPrice())
@@ -224,7 +237,7 @@ export class Scene_Shop extends Scene_MenuBase {
     this._numberWindow.activate()
   }
 
-  onBuyCancel() {
+  onBuyCancel(): void {
     this._commandWindow.activate()
     this._dummyWindow.show()
     this._buyWindow.hide()
@@ -233,19 +246,19 @@ export class Scene_Shop extends Scene_MenuBase {
     this._helpWindow.clear()
   }
 
-  onCategoryOk() {
+  onCategoryOk(): void {
     this.activateSellWindow()
     this._sellWindow.select(0)
   }
 
-  onCategoryCancel() {
+  onCategoryCancel(): void {
     this._commandWindow.activate()
     this._dummyWindow.show()
     this._categoryWindow.hide()
     this._sellWindow.hide()
   }
 
-  onSellOk() {
+  onSellOk(): void {
     this._item = this._sellWindow.item()
     this._categoryWindow.hide()
     this._sellWindow.hide()
@@ -257,7 +270,7 @@ export class Scene_Shop extends Scene_MenuBase {
     this._statusWindow.show()
   }
 
-  onSellCancel() {
+  onSellCancel(): void {
     this._sellWindow.deselect()
     this._statusWindow.setItem(null)
     this._helpWindow.clear()
@@ -269,7 +282,7 @@ export class Scene_Shop extends Scene_MenuBase {
     }
   }
 
-  onNumberOk() {
+  onNumberOk(): void {
     SoundManager.playShop()
     switch (this._commandWindow.currentSymbol()) {
       case 'buy':
@@ -284,22 +297,22 @@ export class Scene_Shop extends Scene_MenuBase {
     this._statusWindow.refresh()
   }
 
-  onNumberCancel() {
+  onNumberCancel(): void {
     SoundManager.playCancel()
     this.endNumberInput()
   }
 
-  doBuy(number) {
+  doBuy(number: number): void {
     $gameParty.loseGold(number * this.buyingPrice())
     $gameParty.gainItem(this._item, number)
   }
 
-  doSell(number) {
+  doSell(number: number): void {
     $gameParty.gainGold(number * this.sellingPrice())
     $gameParty.loseItem(this._item, number)
   }
 
-  endNumberInput() {
+  endNumberInput(): void {
     this._numberWindow.hide()
     switch (this._commandWindow.currentSymbol()) {
       case 'buy':
@@ -311,7 +324,7 @@ export class Scene_Shop extends Scene_MenuBase {
     }
   }
 
-  maxBuy() {
+  maxBuy(): number {
     const num = $gameParty.numItems(this._item)
     const max = $gameParty.maxItems(this._item) - num
     const price = this.buyingPrice()
@@ -323,23 +336,23 @@ export class Scene_Shop extends Scene_MenuBase {
     }
   }
 
-  maxSell() {
+  maxSell(): number {
     return $gameParty.numItems(this._item)
   }
 
-  money() {
+  money(): number {
     return this._goldWindow.value()
   }
 
-  currencyUnit() {
+  currencyUnit(): string {
     return this._goldWindow.currencyUnit()
   }
 
-  buyingPrice() {
+  buyingPrice(): number {
     return this._buyWindow.price(this._item)
   }
 
-  sellingPrice() {
-    return Math.floor(this._item.price / 2)
+  sellingPrice(): number {
+    return Math.floor(this._item!.price / 2)
   }
 }

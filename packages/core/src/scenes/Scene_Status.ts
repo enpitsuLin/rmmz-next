@@ -8,11 +8,16 @@ import { Scene_MenuBase } from './Scene_MenuBase'
  /* The scene class of the status screen.
  */
 export class Scene_Status extends Scene_MenuBase {
+  _profileWindow!: Window_Help
+  _statusWindow!: Window_Status
+  _statusParamsWindow!: Window_StatusParams
+  _statusEquipWindow!: Window_StatusEquip
+
   constructor() {
     super()
   }
 
-  create() {
+  create(): void {
     super.create()
     this.createProfileWindow()
     this.createStatusWindow()
@@ -20,17 +25,17 @@ export class Scene_Status extends Scene_MenuBase {
     this.createStatusEquipWindow()
   }
 
-  helpAreaHeight() {
+  helpAreaHeight(): number {
     return 0
   }
 
-  createProfileWindow() {
+  createProfileWindow(): void {
     const rect = this.profileWindowRect()
     this._profileWindow = new Window_Help(rect)
     this.addWindow(this._profileWindow)
   }
 
-  profileWindowRect() {
+  profileWindowRect(): Rectangle {
     const ww = Graphics.boxWidth
     const wh = this.profileHeight()
     const wx = 0
@@ -38,7 +43,7 @@ export class Scene_Status extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createStatusWindow() {
+  createStatusWindow(): void {
     const rect = this.statusWindowRect()
     this._statusWindow = new Window_Status(rect)
     this._statusWindow.setHandler('cancel', this.popScene.bind(this))
@@ -47,7 +52,7 @@ export class Scene_Status extends Scene_MenuBase {
     this.addWindow(this._statusWindow)
   }
 
-  statusWindowRect() {
+  statusWindowRect(): Rectangle {
     const wx = 0
     const wy = this.mainAreaTop()
     const ww = Graphics.boxWidth
@@ -55,13 +60,13 @@ export class Scene_Status extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createStatusParamsWindow() {
+  createStatusParamsWindow(): void {
     const rect = this.statusParamsWindowRect()
     this._statusParamsWindow = new Window_StatusParams(rect)
     this.addWindow(this._statusParamsWindow)
   }
 
-  statusParamsWindowRect() {
+  statusParamsWindowRect(): Rectangle {
     const ww = this.statusParamsWidth()
     const wh = this.statusParamsHeight()
     const wx = 0
@@ -69,13 +74,13 @@ export class Scene_Status extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createStatusEquipWindow() {
+  createStatusEquipWindow(): void {
     const rect = this.statusEquipWindowRect()
     this._statusEquipWindow = new Window_StatusEquip(rect)
     this.addWindow(this._statusEquipWindow)
   }
 
-  statusEquipWindowRect() {
+  statusEquipWindowRect(): Rectangle {
     const ww = Graphics.boxWidth - this.statusParamsWidth()
     const wh = this.statusParamsHeight()
     const wx = this.statusParamsWidth()
@@ -83,28 +88,28 @@ export class Scene_Status extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  statusParamsWidth() {
+  statusParamsWidth(): number {
     return 300
   }
 
-  statusParamsHeight() {
+  statusParamsHeight(): number {
     return this.calcWindowHeight(6, false)
   }
 
-  profileHeight() {
+  profileHeight(): number {
     return this.calcWindowHeight(2, false)
   }
 
-  start() {
+  start(): void {
     super.start()
     this.refreshActor()
   }
 
-  needsPageButtons() {
+  needsPageButtons(): boolean {
     return true
   }
 
-  refreshActor() {
+  refreshActor(): void {
     const actor = this.actor()
     this._profileWindow.setText(actor.profile())
     this._statusWindow.setActor(actor)
@@ -112,7 +117,7 @@ export class Scene_Status extends Scene_MenuBase {
     this._statusEquipWindow.setActor(actor)
   }
 
-  onActorChange() {
+  onActorChange(): void {
     super.onActorChange()
     this.refreshActor()
     this._statusWindow.activate()

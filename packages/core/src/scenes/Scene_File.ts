@@ -9,11 +9,13 @@ import { Scene_MenuBase } from './Scene_MenuBase'
  /* The superclass of Scene_Save and Scene_Load.
  */
 export class Scene_File extends Scene_MenuBase {
+  _listWindow!: Window_SavefileList
+
   constructor() {
     super()
   }
 
-  create() {
+  create(): void {
     super.create()
     DataManager.loadAllSavefileImages()
     this.createHelpWindow()
@@ -21,30 +23,30 @@ export class Scene_File extends Scene_MenuBase {
     this._helpWindow.setText(this.helpWindowText())
   }
 
-  helpAreaHeight() {
+  helpAreaHeight(): number {
     return 0
   }
 
-  start() {
+  start(): void {
     super.start()
     this._listWindow.refresh()
   }
 
-  savefileId() {
+  savefileId(): number {
     return this._listWindow.savefileId()
   }
 
-  isSavefileEnabled(savefileId) {
+  isSavefileEnabled(savefileId: number): boolean {
     return this._listWindow.isEnabled(savefileId)
   }
 
-  createHelpWindow() {
+  createHelpWindow(): void {
     const rect = this.helpWindowRect()
     this._helpWindow = new Window_Help(rect)
     this.addWindow(this._helpWindow)
   }
 
-  helpWindowRect() {
+  helpWindowRect(): Rectangle {
     const wx = 0
     const wy = this.mainAreaTop()
     const ww = Graphics.boxWidth
@@ -52,7 +54,7 @@ export class Scene_File extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createListWindow() {
+  createListWindow(): void {
     const rect = this.listWindowRect()
     this._listWindow = new Window_SavefileList(rect)
     this._listWindow.setHandler('ok', this.onSavefileOk.bind(this))
@@ -63,7 +65,7 @@ export class Scene_File extends Scene_MenuBase {
     this.addWindow(this._listWindow)
   }
 
-  listWindowRect() {
+  listWindowRect(): Rectangle {
     const wx = 0
     const wy = this.mainAreaTop() + this._helpWindow.height
     const ww = Graphics.boxWidth
@@ -71,27 +73,27 @@ export class Scene_File extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  mode() {
+  mode(): 'save' | 'load' | null {
     return null
   }
 
-  needsAutosave() {
+  needsAutosave(): boolean {
     return $gameSystem.isAutosaveEnabled()
   }
 
-  activateListWindow() {
+  activateListWindow(): void {
     this._listWindow.activate()
   }
 
-  helpWindowText() {
+  helpWindowText(): string {
     return ''
   }
 
-  firstSavefileId() {
+  firstSavefileId(): number {
     return 0
   }
 
-  onSavefileOk() {
+  onSavefileOk(): void {
     //
   }
 }

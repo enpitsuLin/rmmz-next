@@ -12,15 +12,17 @@ import { Scene_MenuBase } from './Scene_MenuBase'
  /* The superclass of Scene_Item and Scene_Skill.
  */
 export class Scene_ItemBase extends Scene_MenuBase {
+  _actorWindow!: Window_MenuActor
+
   constructor() {
     super()
   }
 
-  create() {
+  create(): void {
     super.create()
   }
 
-  createActorWindow() {
+  createActorWindow(): void {
     const rect = this.actorWindowRect()
     this._actorWindow = new Window_MenuActor(rect)
     this._actorWindow.setHandler('ok', this.onActorOk.bind(this))
@@ -28,7 +30,7 @@ export class Scene_ItemBase extends Scene_MenuBase {
     this.addWindow(this._actorWindow)
   }
 
-  actorWindowRect() {
+  actorWindowRect(): Rectangle {
     const wx = 0
     const wy = Math.min(this.mainAreaTop(), this.helpAreaTop())
     const ww = Graphics.boxWidth - this.mainCommandWidth()
@@ -40,15 +42,15 @@ export class Scene_ItemBase extends Scene_MenuBase {
     return this._itemWindow.item()
   }
 
-  user() {
+  user(): Game_Actor | null {
     return null
   }
 
-  isCursorLeft() {
+  isCursorLeft(): boolean {
     return this._itemWindow.index() % 2 === 0
   }
 
-  showActorWindow() {
+  showActorWindow(): void {
     if (this.isCursorLeft()) {
       this._actorWindow.x = Graphics.boxWidth - this._actorWindow.width
     }
@@ -59,16 +61,16 @@ export class Scene_ItemBase extends Scene_MenuBase {
     this._actorWindow.activate()
   }
 
-  hideActorWindow() {
+  hideActorWindow(): void {
     this._actorWindow.hide()
     this._actorWindow.deactivate()
   }
 
-  isActorWindowActive() {
+  isActorWindowActive(): boolean {
     return this._actorWindow && this._actorWindow.active
   }
 
-  onActorOk() {
+  onActorOk(): void {
     if (this.canUse()) {
       this.useItem()
     }
@@ -77,12 +79,12 @@ export class Scene_ItemBase extends Scene_MenuBase {
     }
   }
 
-  onActorCancel() {
+  onActorCancel(): void {
     this.hideActorWindow()
     this.activateItemWindow()
   }
 
-  determineItem() {
+  determineItem(): void {
     const action = new Game_Action(this.user())
     const item = this.item()
     action.setItemObject(item)
@@ -96,7 +98,7 @@ export class Scene_ItemBase extends Scene_MenuBase {
     }
   }
 
-  useItem() {
+  useItem(): void {
     this.playSeForItem()
     this.user().useItem(this.item())
     this.applyItem()
@@ -105,12 +107,12 @@ export class Scene_ItemBase extends Scene_MenuBase {
     this._actorWindow.refresh()
   }
 
-  activateItemWindow() {
+  activateItemWindow(): void {
     this._itemWindow.refresh()
     this._itemWindow.activate()
   }
 
-  itemTargetActors() {
+  itemTargetActors(): Game_Actor[] {
     const action = new Game_Action(this.user())
     action.setItemObject(this.item())
     if (!action.isForFriend()) {
@@ -124,18 +126,18 @@ export class Scene_ItemBase extends Scene_MenuBase {
     }
   }
 
-  canUse() {
+  canUse(): boolean {
     const user = this.user()
     return user && user.canUse(this.item()) && this.isItemEffectsValid()
   }
 
-  isItemEffectsValid() {
+  isItemEffectsValid(): boolean {
     const action = new Game_Action(this.user())
     action.setItemObject(this.item())
     return this.itemTargetActors().some(target => action.testApply(target))
   }
 
-  applyItem() {
+  applyItem(): void {
     const action = new Game_Action(this.user())
     action.setItemObject(this.item())
     for (const target of this.itemTargetActors()) {
@@ -146,7 +148,7 @@ export class Scene_ItemBase extends Scene_MenuBase {
     action.applyGlobal()
   }
 
-  checkCommonEvent() {
+  checkCommonEvent(): void {
     if ($gameTemp.isCommonEventReserved()) {
       SceneManager.goto(Scene_Map)
     }

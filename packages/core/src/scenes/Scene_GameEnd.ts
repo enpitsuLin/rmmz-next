@@ -10,26 +10,28 @@ import { Scene_Title } from './Scene_Title'
  /* The scene class of the game end screen.
  */
 export class Scene_GameEnd extends Scene_MenuBase {
+  _commandWindow!: Window_GameEnd
+
   constructor() {
     super()
   }
 
-  create() {
+  create(): void {
     super.create()
     this.createCommandWindow()
   }
 
-  stop() {
+  stop(): void {
     super.stop()
     this._commandWindow.close()
   }
 
-  createBackground() {
+  createBackground(): void {
     super.createBackground()
     this.setBackgroundOpacity(128)
   }
 
-  createCommandWindow() {
+  createCommandWindow(): void {
     const rect = this.commandWindowRect()
     this._commandWindow = new Window_GameEnd(rect)
     this._commandWindow.setHandler('toTitle', this.commandToTitle.bind(this))
@@ -37,7 +39,7 @@ export class Scene_GameEnd extends Scene_MenuBase {
     this.addWindow(this._commandWindow)
   }
 
-  commandWindowRect() {
+  commandWindowRect(): Rectangle {
     const ww = this.mainCommandWidth()
     const wh = this.calcWindowHeight(2, true)
     const wx = (Graphics.boxWidth - ww) / 2
@@ -45,7 +47,7 @@ export class Scene_GameEnd extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  commandToTitle() {
+  commandToTitle(): void {
     this.fadeOutAll()
     SceneManager.goto(Scene_Title)
     Window_TitleCommand.initCommandPosition()

@@ -16,26 +16,26 @@ export class Scene_Load extends Scene_File {
     this._loadSuccess = false
   }
 
-  terminate() {
+  terminate(): void {
     super.terminate()
     if (this._loadSuccess) {
       $gameSystem.onAfterLoad()
     }
   }
 
-  mode() {
+  mode(): 'load' {
     return 'load'
   }
 
-  helpWindowText() {
+  helpWindowText(): string {
     return TextManager.loadMessage
   }
 
-  firstSavefileId() {
+  firstSavefileId(): number {
     return DataManager.latestSavefileId()
   }
 
-  onSavefileOk() {
+  onSavefileOk(): void {
     super.onSavefileOk()
     const savefileId = this.savefileId()
     if (this.isSavefileEnabled(savefileId)) {
@@ -46,13 +46,13 @@ export class Scene_Load extends Scene_File {
     }
   }
 
-  executeLoad(savefileId) {
+  executeLoad(savefileId: number): void {
     DataManager.loadGame(savefileId)
       .then(() => this.onLoadSuccess())
       .catch(() => this.onLoadFailure())
   }
 
-  onLoadSuccess() {
+  onLoadSuccess(): void {
     SoundManager.playLoad()
     this.fadeOutAll()
     this.reloadMapIfUpdated()
@@ -60,12 +60,12 @@ export class Scene_Load extends Scene_File {
     this._loadSuccess = true
   }
 
-  onLoadFailure() {
+  onLoadFailure(): void {
     SoundManager.playBuzzer()
     this.activateListWindow()
   }
 
-  reloadMapIfUpdated() {
+  reloadMapIfUpdated(): void {
     if ($gameSystem.versionId() !== $dataSystem.versionId) {
       const mapId = $gameMap.mapId()
       const x = $gamePlayer.x

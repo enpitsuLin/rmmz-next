@@ -1,3 +1,5 @@
+import type { Sprite } from '../core'
+import type { RGBA } from '../types'
 import { ColorFilter, Graphics, Stage, WindowLayer } from '../core'
 import { AudioManager } from '../managers/AudioManager'
 import { DataManager } from '../managers/DataManager'
@@ -6,6 +8,7 @@ import { FontManager } from '../managers/FontManager'
 import { ImageManager } from '../managers/ImageManager'
 import { SceneManager } from '../managers/SceneManager'
 import { Window_Base, Window_Selectable } from '../windows'
+import { Scene_Gameover } from './Scene_Gameover'
 
 /*
  /* Scene_Base
@@ -13,75 +16,85 @@ import { Window_Base, Window_Selectable } from '../windows'
  /* The superclass of all scenes within the game.
  */
 export class Scene_Base extends Stage {
+  _started!: boolean
+  _active!: boolean
+  _fadeSign!: number
+  _fadeDuration!: number
+  _fadeWhite!: boolean
+  _fadeOpacity!: number
+  _colorFilter!: ColorFilter
+  _windowLayer!: WindowLayer
+
   constructor() {
     super()
     this._started = false
     this._active = false
     this._fadeSign = 0
     this._fadeDuration = 0
-    this._fadeWhite = 0
+    this._fadeWhite = false
     this._fadeOpacity = 0
     this.createColorFilter()
   }
 
-  create() {
+  create(): void {
     //
   }
 
-  isActive() {
+  isActive(): boolean {
     return this._active
   }
 
-  isReady() {
+  isReady(): boolean {
     return (
       ImageManager.isReady() && EffectManager.isReady() && FontManager.isReady()
     )
   }
 
-  start() {
+  start(): void {
     this._started = true
     this._active = true
   }
 
-  update() {
+  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
+  update(): void {
     this.updateFade()
     this.updateColorFilter()
     this.updateChildren()
     AudioManager.checkErrors()
   }
 
-  stop() {
+  stop(): void {
     this._active = false
   }
 
-  isStarted() {
+  isStarted(): boolean {
     return this._started
   }
 
-  isBusy() {
+  isBusy(): boolean {
     return this.isFading()
   }
 
-  isFading() {
+  isFading(): boolean {
     return this._fadeDuration > 0
   }
 
-  terminate() {
+  terminate(): void {
     //
   }
 
-  createWindowLayer() {
+  createWindowLayer(): void {
     this._windowLayer = new WindowLayer()
     this._windowLayer.x = (Graphics.width - Graphics.boxWidth) / 2
     this._windowLayer.y = (Graphics.height - Graphics.boxHeight) / 2
     this.addChild(this._windowLayer)
   }
 
-  addWindow(window) {
+  addWindow(window: Sprite | Window_Base): void {
     this._windowLayer.addChild(window)
   }
 
-  startFadeIn(duration, white) {
+  startFadeIn(duration: number, white: boolean = false): void {
     this._fadeSign = 1
     this._fadeDuration = duration || 30
     this._fadeWhite = white
@@ -89,7 +102,7 @@ export class Scene_Base extends Stage {
     this.updateColorFilter()
   }
 
-  startFadeOut(duration, white) {
+  startFadeOut(duration: number, white: boolean = false): void {
     this._fadeSign = -1
     this._fadeDuration = duration || 30
     this._fadeWhite = white
@@ -97,18 +110,18 @@ export class Scene_Base extends Stage {
     this.updateColorFilter()
   }
 
-  createColorFilter() {
+  createColorFilter(): void {
     this._colorFilter = new ColorFilter()
     this.filters = [this._colorFilter]
   }
 
-  updateColorFilter() {
+  updateColorFilter(): void {
     const c = this._fadeWhite ? 255 : 0
-    const blendColor = [c, c, c, this._fadeOpacity]
+    const blendColor: RGBA = [c, c, c, this._fadeOpacity]
     this._colorFilter.setBlendColor(blendColor)
   }
 
-  updateFade() {
+  updateFade(): void {
     if (this._fadeDuration > 0) {
       const d = this._fadeDuration
       if (this._fadeSign > 0) {
@@ -121,7 +134,7 @@ export class Scene_Base extends Stage {
     }
   }
 
-  updateChildren() {
+  updateChildren(): void {
     for (const child of this.children) {
       if (child.update) {
         child.update()
@@ -129,17 +142,17 @@ export class Scene_Base extends Stage {
     }
   }
 
-  popScene() {
+  popScene(): void {
     SceneManager.pop()
   }
 
-  checkGameover() {
+  checkGameover(): void {
     if ($gameParty.isAllDead()) {
       SceneManager.goto(Scene_Gameover)
     }
   }
 
-  fadeOutAll() {
+  fadeOutAll(): void {
     const time = this.slowFadeSpeed() / 60
     AudioManager.fadeOutBgm(time)
     AudioManager.fadeOutBgs(time)
@@ -147,15 +160,15 @@ export class Scene_Base extends Stage {
     this.startFadeOut(this.slowFadeSpeed())
   }
 
-  fadeSpeed() {
+  fadeSpeed(): number {
     return 24
   }
 
-  slowFadeSpeed() {
+  slowFadeSpeed(): number {
     return this.fadeSpeed() * 2
   }
 
-  scaleSprite(sprite) {
+  scaleSprite(sprite: Sprite): void {
     const ratioX = Graphics.width / sprite.bitmap.width
     const ratioY = Graphics.height / sprite.bitmap.height
     const scale = Math.max(ratioX, ratioY, 1.0)
@@ -163,30 +176,30 @@ export class Scene_Base extends Stage {
     sprite.scale.y = scale
   }
 
-  centerSprite(sprite) {
+  centerSprite(sprite: Sprite): void {
     sprite.x = Graphics.width / 2
     sprite.y = Graphics.height / 2
     sprite.anchor.x = 0.5
     sprite.anchor.y = 0.5
   }
 
-  isBottomHelpMode() {
+  isBottomHelpMode(): boolean {
     return true
   }
 
-  isBottomButtonMode() {
+  isBottomButtonMode(): boolean {
     return false
   }
 
-  isRightInputMode() {
+  isRightInputMode(): boolean {
     return true
   }
 
-  mainCommandWidth() {
+  mainCommandWidth(): number {
     return 240
   }
 
-  buttonAreaTop() {
+  buttonAreaTop(): number {
     if (this.isBottomButtonMode()) {
       return Graphics.boxHeight - this.buttonAreaHeight()
     }
@@ -195,20 +208,20 @@ export class Scene_Base extends Stage {
     }
   }
 
-  buttonAreaBottom() {
+  buttonAreaBottom(): number {
     return this.buttonAreaTop() + this.buttonAreaHeight()
   }
 
-  buttonAreaHeight() {
+  buttonAreaHeight(): number {
     return 52
   }
 
-  buttonY() {
+  buttonY(): number {
     const offsetY = Math.floor((this.buttonAreaHeight() - 48) / 2)
     return this.buttonAreaTop() + offsetY
   }
 
-  calcWindowHeight(numLines, selectable) {
+  calcWindowHeight(numLines: number, selectable: boolean): number {
     if (selectable) {
       return Window_Selectable.prototype.fittingHeight(numLines)
     }
@@ -217,13 +230,13 @@ export class Scene_Base extends Stage {
     }
   }
 
-  requestAutosave() {
+  requestAutosave(): void {
     if (this.isAutosaveEnabled()) {
       this.executeAutosave()
     }
   }
 
-  isAutosaveEnabled() {
+  isAutosaveEnabled(): boolean {
     return (
       !DataManager.isBattleTest()
       && !DataManager.isEventTest()
@@ -232,18 +245,18 @@ export class Scene_Base extends Stage {
     )
   }
 
-  executeAutosave() {
+  executeAutosave(): void {
     $gameSystem.onBeforeSave()
     DataManager.saveGame(0)
       .then(() => this.onAutosaveSuccess())
       .catch(() => this.onAutosaveFailure())
   }
 
-  onAutosaveSuccess() {
+  onAutosaveSuccess(): void {
     //
   }
 
-  onAutosaveFailure() {
+  onAutosaveFailure(): void {
     //
   }
 }

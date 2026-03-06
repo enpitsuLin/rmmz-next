@@ -9,11 +9,16 @@ import { Scene_MenuBase } from './Scene_MenuBase'
  /* The scene class of the equipment screen.
  */
 export class Scene_Equip extends Scene_MenuBase {
+  _statusWindow!: Window_EquipStatus
+  _commandWindow!: Window_EquipCommand
+  _slotWindow!: Window_EquipSlot
+  _itemWindow!: Window_EquipItem
+
   constructor() {
     super()
   }
 
-  create() {
+  create(): void {
     super.create()
     this.createHelpWindow()
     this.createStatusWindow()
@@ -23,13 +28,13 @@ export class Scene_Equip extends Scene_MenuBase {
     this.refreshActor()
   }
 
-  createStatusWindow() {
+  createStatusWindow(): void {
     const rect = this.statusWindowRect()
     this._statusWindow = new Window_EquipStatus(rect)
     this.addWindow(this._statusWindow)
   }
 
-  statusWindowRect() {
+  statusWindowRect(): Rectangle {
     const wx = 0
     const wy = this.mainAreaTop()
     const ww = this.statusWidth()
@@ -37,7 +42,7 @@ export class Scene_Equip extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createCommandWindow() {
+  createCommandWindow(): void {
     const rect = this.commandWindowRect()
     this._commandWindow = new Window_EquipCommand(rect)
     this._commandWindow.setHelpWindow(this._helpWindow)
@@ -50,7 +55,7 @@ export class Scene_Equip extends Scene_MenuBase {
     this.addWindow(this._commandWindow)
   }
 
-  commandWindowRect() {
+  commandWindowRect(): Rectangle {
     const wx = this.statusWidth()
     const wy = this.mainAreaTop()
     const ww = Graphics.boxWidth - this.statusWidth()
@@ -58,7 +63,7 @@ export class Scene_Equip extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createSlotWindow() {
+  createSlotWindow(): void {
     const rect = this.slotWindowRect()
     this._slotWindow = new Window_EquipSlot(rect)
     this._slotWindow.setHelpWindow(this._helpWindow)
@@ -68,7 +73,7 @@ export class Scene_Equip extends Scene_MenuBase {
     this.addWindow(this._slotWindow)
   }
 
-  slotWindowRect() {
+  slotWindowRect(): Rectangle {
     const commandWindowRect = this.commandWindowRect()
     const wx = this.statusWidth()
     const wy = commandWindowRect.y + commandWindowRect.height
@@ -77,7 +82,7 @@ export class Scene_Equip extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createItemWindow() {
+  createItemWindow(): void {
     const rect = this.itemWindowRect()
     this._itemWindow = new Window_EquipItem(rect)
     this._itemWindow.setHelpWindow(this._helpWindow)
@@ -89,35 +94,35 @@ export class Scene_Equip extends Scene_MenuBase {
     this.addWindow(this._itemWindow)
   }
 
-  itemWindowRect() {
+  itemWindowRect(): Rectangle {
     return this.slotWindowRect()
   }
 
-  statusWidth() {
+  statusWidth(): number {
     return 312
   }
 
-  needsPageButtons() {
+  needsPageButtons(): boolean {
     return true
   }
 
-  arePageButtonsEnabled() {
+  arePageButtonsEnabled(): boolean {
     return !(this._itemWindow && this._itemWindow.active)
   }
 
-  refreshActor() {
+  refreshActor(): void {
     const actor = this.actor()
     this._statusWindow.setActor(actor)
     this._slotWindow.setActor(actor)
     this._itemWindow.setActor(actor)
   }
 
-  commandEquip() {
+  commandEquip(): void {
     this._slotWindow.activate()
     this._slotWindow.select(0)
   }
 
-  commandOptimize() {
+  commandOptimize(): void {
     SoundManager.playEquip()
     this.actor().optimizeEquipments()
     this._statusWindow.refresh()
@@ -125,7 +130,7 @@ export class Scene_Equip extends Scene_MenuBase {
     this._commandWindow.activate()
   }
 
-  commandClear() {
+  commandClear(): void {
     SoundManager.playEquip()
     this.actor().clearEquipments()
     this._statusWindow.refresh()
@@ -133,19 +138,19 @@ export class Scene_Equip extends Scene_MenuBase {
     this._commandWindow.activate()
   }
 
-  onSlotOk() {
+  onSlotOk(): void {
     this._slotWindow.hide()
     this._itemWindow.show()
     this._itemWindow.activate()
     this._itemWindow.forceSelect(0)
   }
 
-  onSlotCancel() {
+  onSlotCancel(): void {
     this._slotWindow.deselect()
     this._commandWindow.activate()
   }
 
-  onItemOk() {
+  onItemOk(): void {
     SoundManager.playEquip()
     this.executeEquipChange()
     this.hideItemWindow()
@@ -154,18 +159,18 @@ export class Scene_Equip extends Scene_MenuBase {
     this._statusWindow.refresh()
   }
 
-  executeEquipChange() {
+  executeEquipChange(): void {
     const actor = this.actor()
     const slotId = this._slotWindow.index()
     const item = this._itemWindow.item()
     actor.changeEquip(slotId, item)
   }
 
-  onItemCancel() {
+  onItemCancel(): void {
     this.hideItemWindow()
   }
 
-  onActorChange() {
+  onActorChange(): void {
     super.onActorChange()
     this.refreshActor()
     this.hideItemWindow()
@@ -174,7 +179,7 @@ export class Scene_Equip extends Scene_MenuBase {
     this._commandWindow.activate()
   }
 
-  hideItemWindow() {
+  hideItemWindow(): void {
     this._slotWindow.show()
     this._slotWindow.activate()
     this._itemWindow.hide()

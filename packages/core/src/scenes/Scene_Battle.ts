@@ -6,6 +6,7 @@ import { SceneManager } from '../managers/SceneManager'
 import { Sprite_Button } from '../sprites'
 import { Spriteset_Battle } from '../sprites/Spriteset_Battle'
 import { Window_ActorCommand, Window_BattleActor, Window_BattleEnemy, Window_BattleItem, Window_BattleLog, Window_BattleSkill, Window_BattleStatus, Window_Help, Window_PartyCommand } from '../windows'
+import { Scene_Gameover } from './Scene_Gameover'
 import { Scene_Map } from './Scene_Map'
 import { Scene_Message } from './Scene_Message'
 import { Scene_Title } from './Scene_Title'
@@ -16,16 +17,29 @@ import { Scene_Title } from './Scene_Title'
  /* The scene class of the battle screen.
  */
 export class Scene_Battle extends Scene_Message {
+  _spriteset!: Spriteset_Battle
+  _logWindow!: Window_BattleLog
+  _statusWindow!: Window_BattleStatus
+  _partyCommandWindow!: Window_PartyCommand
+  _actorCommandWindow!: Window_ActorCommand
+  _helpWindow!: Window_Help
+  _skillWindow!: Window_BattleSkill
+  _itemWindow!: Window_BattleItem
+  _actorWindow!: Window_BattleActor
+  _enemyWindow!: Window_BattleEnemy
+
+  _cancelButton?: Sprite_Button
+
   constructor() {
     super()
   }
 
-  create() {
+  create(): void {
     super.create()
     this.createDisplayObjects()
   }
 
-  start() {
+  start(): void {
     super.start()
     BattleManager.playBattleBgm()
     BattleManager.startBattle()
@@ -33,7 +47,7 @@ export class Scene_Battle extends Scene_Message {
     this.startFadeIn(this.fadeSpeed(), false)
   }
 
-  update() {
+  update(): void {
     const active = this.isActive()
     $gameTimer.update(active)
     $gameScreen.update()
@@ -44,18 +58,18 @@ export class Scene_Battle extends Scene_Message {
     super.update()
   }
 
-  updateVisibility() {
+  updateVisibility(): void {
     this.updateLogWindowVisibility()
     this.updateStatusWindowVisibility()
     this.updateInputWindowVisibility()
     this.updateCancelButton()
   }
 
-  updateBattleProcess() {
+  updateBattleProcess(): void {
     BattleManager.update(this.isTimeActive())
   }
 
-  isTimeActive() {
+  isTimeActive(): boolean {
     if (BattleManager.isActiveTpb()) {
       return !this._skillWindow.active && !this._itemWindow.active
     }
@@ -64,7 +78,7 @@ export class Scene_Battle extends Scene_Message {
     }
   }
 
-  isAnyInputWindowActive() {
+  isAnyInputWindowActive(): boolean {
     return (
       this._partyCommandWindow.active
       || this._actorCommandWindow.active
@@ -75,7 +89,7 @@ export class Scene_Battle extends Scene_Message {
     )
   }
 
-  changeInputWindow() {
+  changeInputWindow(): void {
     this.hideSubInputWindows()
     if (BattleManager.isInputting()) {
       if (BattleManager.actor()) {
@@ -90,7 +104,7 @@ export class Scene_Battle extends Scene_Message {
     }
   }
 
-  stop() {
+  stop(): void {
     super.stop()
     if (this.needsSlowFadeOut()) {
       this.startFadeOut(this.slowFadeSpeed(), false)
@@ -103,7 +117,7 @@ export class Scene_Battle extends Scene_Message {
     this._actorCommandWindow.close()
   }
 
-  terminate() {
+  terminate(): void {
     super.terminate()
     $gameParty.onBattleEnd()
     $gameTroop.onBattleEnd()
@@ -113,22 +127,22 @@ export class Scene_Battle extends Scene_Message {
     }
   }
 
-  shouldAutosave() {
+  shouldAutosave(): boolean {
     return SceneManager.isNextScene(Scene_Map)
   }
 
-  needsSlowFadeOut() {
+  needsSlowFadeOut(): boolean {
     return (
       SceneManager.isNextScene(Scene_Title)
       || SceneManager.isNextScene(Scene_Gameover)
     )
   }
 
-  updateLogWindowVisibility() {
+  updateLogWindowVisibility(): void {
     this._logWindow.visible = !this._helpWindow.visible
   }
 
-  updateStatusWindowVisibility() {
+  updateStatusWindowVisibility(): void {
     if ($gameMessage.isBusy()) {
       this._statusWindow.close()
     }
@@ -138,7 +152,7 @@ export class Scene_Battle extends Scene_Message {
     this.updateStatusWindowPosition()
   }
 
-  shouldOpenStatusWindow() {
+  shouldOpenStatusWindow(): boolean {
     return (
       this.isActive()
       && !this.isMessageWindowClosing()
@@ -146,7 +160,7 @@ export class Scene_Battle extends Scene_Message {
     )
   }
 
-  updateStatusWindowPosition() {
+  updateStatusWindowPosition(): void {
     const statusWindow = this._statusWindow
     const targetX = this.statusWindowX()
     if (statusWindow.x < targetX) {
@@ -157,7 +171,7 @@ export class Scene_Battle extends Scene_Message {
     }
   }
 
-  statusWindowX() {
+  statusWindowX(): number {
     if (this.isAnyInputWindowActive()) {
       return this.statusWindowRect().x
     }
@@ -166,7 +180,7 @@ export class Scene_Battle extends Scene_Message {
     }
   }
 
-  updateInputWindowVisibility() {
+  updateInputWindowVisibility(): void {
     if ($gameMessage.isBusy()) {
       this.closeCommandWindows()
       this.hideSubInputWindows()
@@ -176,7 +190,7 @@ export class Scene_Battle extends Scene_Message {
     }
   }
 
-  needsInputWindowChange() {
+  needsInputWindowChange(): boolean {
     const windowActive = this.isAnyInputWindowActive()
     const inputting = BattleManager.isInputting()
     if (windowActive && inputting) {
@@ -185,14 +199,14 @@ export class Scene_Battle extends Scene_Message {
     return windowActive !== inputting
   }
 
-  updateCancelButton() {
+  updateCancelButton(): void {
     if (this._cancelButton) {
       this._cancelButton.visible
         = this.isAnyInputWindowActive() && !this._partyCommandWindow.active
     }
   }
 
-  createDisplayObjects() {
+  createDisplayObjects(): void {
     this.createSpriteset()
     this.createWindowLayer()
     this.createAllWindows()
@@ -202,12 +216,12 @@ export class Scene_Battle extends Scene_Message {
     this._logWindow.setSpriteset(this._spriteset)
   }
 
-  createSpriteset() {
+  createSpriteset(): void {
     this._spriteset = new Spriteset_Battle()
     this.addChild(this._spriteset)
   }
 
-  createAllWindows() {
+  createAllWindows(): void {
     this.createLogWindow()
     this.createStatusWindow()
     this.createPartyCommandWindow()
@@ -220,13 +234,13 @@ export class Scene_Battle extends Scene_Message {
     super.createAllWindows()
   }
 
-  createLogWindow() {
+  createLogWindow(): void {
     const rect = this.logWindowRect()
     this._logWindow = new Window_BattleLog(rect)
     this.addWindow(this._logWindow)
   }
 
-  logWindowRect() {
+  logWindowRect(): Rectangle {
     const wx = 0
     const wy = 0
     const ww = Graphics.boxWidth
@@ -234,14 +248,14 @@ export class Scene_Battle extends Scene_Message {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createStatusWindow() {
+  createStatusWindow(): void {
     const rect = this.statusWindowRect()
     const statusWindow = new Window_BattleStatus(rect)
     this.addWindow(statusWindow)
     this._statusWindow = statusWindow
   }
 
-  statusWindowRect() {
+  statusWindowRect(): Rectangle {
     const extra = 10
     const ww = Graphics.boxWidth - 192
     const wh = this.windowAreaHeight() + extra
@@ -250,7 +264,7 @@ export class Scene_Battle extends Scene_Message {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createPartyCommandWindow() {
+  createPartyCommandWindow(): void {
     const rect = this.partyCommandWindowRect()
     const commandWindow = new Window_PartyCommand(rect)
     commandWindow.setHandler('fight', this.commandFight.bind(this))
@@ -260,7 +274,7 @@ export class Scene_Battle extends Scene_Message {
     this._partyCommandWindow = commandWindow
   }
 
-  partyCommandWindowRect() {
+  partyCommandWindowRect(): Rectangle {
     const ww = 192
     const wh = this.windowAreaHeight()
     const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0
@@ -268,7 +282,7 @@ export class Scene_Battle extends Scene_Message {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createActorCommandWindow() {
+  createActorCommandWindow(): void {
     const rect = this.actorCommandWindowRect()
     const commandWindow = new Window_ActorCommand(rect)
     commandWindow.y = Graphics.boxHeight - commandWindow.height
@@ -281,7 +295,7 @@ export class Scene_Battle extends Scene_Message {
     this._actorCommandWindow = commandWindow
   }
 
-  actorCommandWindowRect() {
+  actorCommandWindowRect(): Rectangle {
     const ww = 192
     const wh = this.windowAreaHeight()
     const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0
@@ -289,14 +303,14 @@ export class Scene_Battle extends Scene_Message {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createHelpWindow() {
+  createHelpWindow(): void {
     const rect = this.helpWindowRect()
     this._helpWindow = new Window_Help(rect)
     this._helpWindow.hide()
     this.addWindow(this._helpWindow)
   }
 
-  helpWindowRect() {
+  helpWindowRect(): Rectangle {
     const wx = 0
     const wy = this.helpAreaTop()
     const ww = Graphics.boxWidth
@@ -304,7 +318,7 @@ export class Scene_Battle extends Scene_Message {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createSkillWindow() {
+  createSkillWindow(): void {
     const rect = this.skillWindowRect()
     this._skillWindow = new Window_BattleSkill(rect)
     this._skillWindow.setHelpWindow(this._helpWindow)
@@ -313,7 +327,7 @@ export class Scene_Battle extends Scene_Message {
     this.addWindow(this._skillWindow)
   }
 
-  skillWindowRect() {
+  skillWindowRect(): Rectangle {
     const ww = Graphics.boxWidth
     const wh = this.windowAreaHeight()
     const wx = 0
@@ -321,7 +335,7 @@ export class Scene_Battle extends Scene_Message {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createItemWindow() {
+  createItemWindow(): void {
     const rect = this.itemWindowRect()
     this._itemWindow = new Window_BattleItem(rect)
     this._itemWindow.setHelpWindow(this._helpWindow)
@@ -330,11 +344,11 @@ export class Scene_Battle extends Scene_Message {
     this.addWindow(this._itemWindow)
   }
 
-  itemWindowRect() {
+  itemWindowRect(): Rectangle {
     return this.skillWindowRect()
   }
 
-  createActorWindow() {
+  createActorWindow(): void {
     const rect = this.actorWindowRect()
     this._actorWindow = new Window_BattleActor(rect)
     this._actorWindow.setHandler('ok', this.onActorOk.bind(this))
@@ -342,11 +356,11 @@ export class Scene_Battle extends Scene_Message {
     this.addWindow(this._actorWindow)
   }
 
-  actorWindowRect() {
+  actorWindowRect(): Rectangle {
     return this.statusWindowRect()
   }
 
-  createEnemyWindow() {
+  createEnemyWindow(): void {
     const rect = this.enemyWindowRect()
     this._enemyWindow = new Window_BattleEnemy(rect)
     this._enemyWindow.setHandler('ok', this.onEnemyOk.bind(this))
@@ -354,7 +368,7 @@ export class Scene_Battle extends Scene_Message {
     this.addWindow(this._enemyWindow)
   }
 
-  enemyWindowRect() {
+  enemyWindowRect(): Rectangle {
     const wx = this._statusWindow.x
     const ww = this._statusWindow.width
     const wh = this.windowAreaHeight()
@@ -362,47 +376,47 @@ export class Scene_Battle extends Scene_Message {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  helpAreaTop() {
+  helpAreaTop(): number {
     return 0
   }
 
-  helpAreaBottom() {
+  helpAreaBottom(): number {
     return this.helpAreaTop() + this.helpAreaHeight()
   }
 
-  helpAreaHeight() {
+  helpAreaHeight(): number {
     return this.calcWindowHeight(2, false)
   }
 
-  buttonAreaTop() {
+  buttonAreaTop(): number {
     return this.helpAreaBottom()
   }
 
-  windowAreaHeight() {
+  windowAreaHeight(): number {
     return this.calcWindowHeight(4, true)
   }
 
-  createButtons() {
+  createButtons(): void {
     if (ConfigManager.touchUI) {
       this.createCancelButton()
     }
   }
 
-  createCancelButton() {
+  createCancelButton(): void {
     this._cancelButton = new Sprite_Button('cancel')
     this._cancelButton.x = Graphics.boxWidth - this._cancelButton.width - 4
     this._cancelButton.y = this.buttonY()
     this.addWindow(this._cancelButton)
   }
 
-  closeCommandWindows() {
+  closeCommandWindows(): void {
     this._partyCommandWindow.deactivate()
     this._actorCommandWindow.deactivate()
     this._partyCommandWindow.close()
     this._actorCommandWindow.close()
   }
 
-  hideSubInputWindows() {
+  hideSubInputWindows(): void {
     this._actorWindow.deactivate()
     this._enemyWindow.deactivate()
     this._skillWindow.deactivate()
@@ -413,7 +427,7 @@ export class Scene_Battle extends Scene_Message {
     this._itemWindow.hide()
   }
 
-  startPartyCommandSelection() {
+  startPartyCommandSelection(): void {
     this._statusWindow.deselect()
     this._statusWindow.show()
     this._statusWindow.open()
@@ -422,16 +436,16 @@ export class Scene_Battle extends Scene_Message {
     this._partyCommandWindow.setup()
   }
 
-  commandFight() {
+  commandFight(): void {
     this.selectNextCommand()
   }
 
-  commandEscape() {
+  commandEscape(): void {
     BattleManager.processEscape()
     this.changeInputWindow()
   }
 
-  startActorCommandSelection() {
+  startActorCommandSelection(): void {
     this._statusWindow.show()
     this._statusWindow.selectActor(BattleManager.actor())
     this._partyCommandWindow.close()
@@ -439,13 +453,13 @@ export class Scene_Battle extends Scene_Message {
     this._actorCommandWindow.setup(BattleManager.actor())
   }
 
-  commandAttack() {
+  commandAttack(): void {
     const action = BattleManager.inputtingAction()
-    action.setAttack()
+    action?.setAttack()
     this.onSelectAction()
   }
 
-  commandSkill() {
+  commandSkill(): void {
     this._skillWindow.setActor(BattleManager.actor())
     this._skillWindow.setStypeId(this._actorCommandWindow.currentExt())
     this._skillWindow.refresh()
@@ -455,13 +469,13 @@ export class Scene_Battle extends Scene_Message {
     this._actorCommandWindow.hide()
   }
 
-  commandGuard() {
+  commandGuard(): void {
     const action = BattleManager.inputtingAction()
-    action.setGuard()
+    action?.setGuard()
     this.onSelectAction()
   }
 
-  commandItem() {
+  commandItem(): void {
     this._itemWindow.refresh()
     this._itemWindow.show()
     this._itemWindow.activate()
@@ -469,34 +483,34 @@ export class Scene_Battle extends Scene_Message {
     this._actorCommandWindow.hide()
   }
 
-  commandCancel() {
+  commandCancel(): void {
     this.selectPreviousCommand()
   }
 
-  selectNextCommand() {
+  selectNextCommand(): void {
     BattleManager.selectNextCommand()
     this.changeInputWindow()
   }
 
-  selectPreviousCommand() {
+  selectPreviousCommand(): void {
     BattleManager.selectPreviousCommand()
     this.changeInputWindow()
   }
 
-  startActorSelection() {
+  startActorSelection(): void {
     this._actorWindow.refresh()
     this._actorWindow.show()
     this._actorWindow.activate()
   }
 
-  onActorOk() {
+  onActorOk(): void {
     const action = BattleManager.inputtingAction()
-    action.setTarget(this._actorWindow.index())
+    action?.setTarget(this._actorWindow.index())
     this.hideSubInputWindows()
     this.selectNextCommand()
   }
 
-  onActorCancel() {
+  onActorCancel(): void {
     this._actorWindow.hide()
     switch (this._actorCommandWindow.currentSymbol()) {
       case 'skill':
@@ -510,7 +524,7 @@ export class Scene_Battle extends Scene_Message {
     }
   }
 
-  startEnemySelection() {
+  startEnemySelection(): void {
     this._enemyWindow.refresh()
     this._enemyWindow.show()
     this._enemyWindow.select(0)
@@ -518,14 +532,14 @@ export class Scene_Battle extends Scene_Message {
     this._statusWindow.hide()
   }
 
-  onEnemyOk() {
+  onEnemyOk(): void {
     const action = BattleManager.inputtingAction()
-    action.setTarget(this._enemyWindow.enemyIndex())
+    action?.setTarget(this._enemyWindow.enemyIndex())
     this.hideSubInputWindows()
     this.selectNextCommand()
   }
 
-  onEnemyCancel() {
+  onEnemyCancel(): void {
     this._enemyWindow.hide()
     switch (this._actorCommandWindow.currentSymbol()) {
       case 'attack':
@@ -543,39 +557,39 @@ export class Scene_Battle extends Scene_Message {
     }
   }
 
-  onSkillOk() {
+  onSkillOk(): void {
     const skill = this._skillWindow.item()
     const action = BattleManager.inputtingAction()
-    action.setSkill(skill.id)
-    BattleManager.actor().setLastBattleSkill(skill)
+    action?.setSkill(skill.id)
+    BattleManager.actor()?.setLastBattleSkill(skill)
     this.onSelectAction()
   }
 
-  onSkillCancel() {
+  onSkillCancel(): void {
     this._skillWindow.hide()
     this._statusWindow.show()
     this._actorCommandWindow.show()
     this._actorCommandWindow.activate()
   }
 
-  onItemOk() {
+  onItemOk(): void {
     const item = this._itemWindow.item()
     const action = BattleManager.inputtingAction()
-    action.setItem(item.id)
+    action?.setItem(item.id)
     $gameParty.setLastItem(item)
     this.onSelectAction()
   }
 
-  onItemCancel() {
+  onItemCancel(): void {
     this._itemWindow.hide()
     this._statusWindow.show()
     this._actorCommandWindow.show()
     this._actorCommandWindow.activate()
   }
 
-  onSelectAction() {
+  onSelectAction(): void {
     const action = BattleManager.inputtingAction()
-    if (!action.needsSelection()) {
+    if (!action?.needsSelection()) {
       this.selectNextCommand()
     }
     else if (action.isForOpponent()) {
@@ -586,7 +600,7 @@ export class Scene_Battle extends Scene_Message {
     }
   }
 
-  endCommandSelection() {
+  endCommandSelection(): void {
     this.closeCommandWindows()
     this.hideSubInputWindows()
     this._statusWindow.deselect()

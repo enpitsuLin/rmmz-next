@@ -32,7 +32,7 @@ export class Window_DebugRange extends Window_Selectable {
     }
   }
 
-  mode(index) {
+  mode(index?: number): 'switch' | 'variable' {
     return this.isSwitchMode(index) ? 'switch' : 'variable'
   }
 

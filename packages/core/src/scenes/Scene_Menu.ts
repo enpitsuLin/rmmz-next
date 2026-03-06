@@ -16,27 +16,31 @@ import { Scene_Status } from './Scene_Status'
  /* The scene class of the menu screen.
  */
 export class Scene_Menu extends Scene_MenuBase {
+  _commandWindow!: Window_MenuCommand
+  _goldWindow!: Window_Gold
+  _statusWindow!: Window_MenuStatus
+
   constructor() {
     super()
   }
 
-  helpAreaHeight() {
+  helpAreaHeight(): number {
     return 0
   }
 
-  create() {
+  create(): void {
     super.create()
     this.createCommandWindow()
     this.createGoldWindow()
     this.createStatusWindow()
   }
 
-  start() {
+  start(): void {
     super.start()
     this._statusWindow.refresh()
   }
 
-  createCommandWindow() {
+  createCommandWindow(): void {
     const rect = this.commandWindowRect()
     const commandWindow = new Window_MenuCommand(rect)
     commandWindow.setHandler('item', this.commandItem.bind(this))
@@ -52,7 +56,7 @@ export class Scene_Menu extends Scene_MenuBase {
     this._commandWindow = commandWindow
   }
 
-  commandWindowRect() {
+  commandWindowRect(): Rectangle {
     const ww = this.mainCommandWidth()
     const wh = this.mainAreaHeight() - this.goldWindowRect().height
     const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0
@@ -60,13 +64,13 @@ export class Scene_Menu extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createGoldWindow() {
+  createGoldWindow(): void {
     const rect = this.goldWindowRect()
     this._goldWindow = new Window_Gold(rect)
     this.addWindow(this._goldWindow)
   }
 
-  goldWindowRect() {
+  goldWindowRect(): Rectangle {
     const ww = this.mainCommandWidth()
     const wh = this.calcWindowHeight(1, true)
     const wx = this.isRightInputMode() ? Graphics.boxWidth - ww : 0
@@ -74,13 +78,13 @@ export class Scene_Menu extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createStatusWindow() {
+  createStatusWindow(): void {
     const rect = this.statusWindowRect()
     this._statusWindow = new Window_MenuStatus(rect)
     this.addWindow(this._statusWindow)
   }
 
-  statusWindowRect() {
+  statusWindowRect(): Rectangle {
     const ww = Graphics.boxWidth - this.mainCommandWidth()
     const wh = this.mainAreaHeight()
     const wx = this.isRightInputMode() ? 0 : Graphics.boxWidth - ww
@@ -88,11 +92,11 @@ export class Scene_Menu extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  commandItem() {
+  commandItem(): void {
     SceneManager.push(Scene_Item)
   }
 
-  commandPersonal() {
+  commandPersonal(): void {
     this._statusWindow.setFormationMode(false)
     this._statusWindow.selectLast()
     this._statusWindow.activate()
@@ -100,7 +104,7 @@ export class Scene_Menu extends Scene_MenuBase {
     this._statusWindow.setHandler('cancel', this.onPersonalCancel.bind(this))
   }
 
-  commandFormation() {
+  commandFormation(): void {
     this._statusWindow.setFormationMode(true)
     this._statusWindow.selectLast()
     this._statusWindow.activate()
@@ -108,19 +112,19 @@ export class Scene_Menu extends Scene_MenuBase {
     this._statusWindow.setHandler('cancel', this.onFormationCancel.bind(this))
   }
 
-  commandOptions() {
+  commandOptions(): void {
     SceneManager.push(Scene_Options)
   }
 
-  commandSave() {
+  commandSave(): void {
     SceneManager.push(Scene_Save)
   }
 
-  commandGameEnd() {
+  commandGameEnd(): void {
     SceneManager.push(Scene_GameEnd)
   }
 
-  onPersonalOk() {
+  onPersonalOk(): void {
     switch (this._commandWindow.currentSymbol()) {
       case 'skill':
         SceneManager.push(Scene_Skill)
@@ -134,12 +138,12 @@ export class Scene_Menu extends Scene_MenuBase {
     }
   }
 
-  onPersonalCancel() {
+  onPersonalCancel(): void {
     this._statusWindow.deselect()
     this._commandWindow.activate()
   }
 
-  onFormationOk() {
+  onFormationOk(): void {
     const index = this._statusWindow.index()
     const pendingIndex = this._statusWindow.pendingIndex()
     if (pendingIndex >= 0) {
@@ -153,7 +157,7 @@ export class Scene_Menu extends Scene_MenuBase {
     this._statusWindow.activate()
   }
 
-  onFormationCancel() {
+  onFormationCancel(): void {
     if (this._statusWindow.pendingIndex() >= 0) {
       this._statusWindow.setPendingIndex(-1)
       this._statusWindow.activate()

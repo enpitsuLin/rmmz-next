@@ -9,11 +9,14 @@ import { Scene_ItemBase } from './Scene_ItemBase'
  /* The scene class of the item screen.
  */
 export class Scene_Item extends Scene_ItemBase {
+  _categoryWindow!: Window_ItemCategory
+  _itemWindow!: Window_ItemList
+
   constructor() {
     super()
   }
 
-  create() {
+  create(): void {
     super.create()
     this.createHelpWindow()
     this.createCategoryWindow()
@@ -21,7 +24,7 @@ export class Scene_Item extends Scene_ItemBase {
     this.createActorWindow()
   }
 
-  createCategoryWindow() {
+  createCategoryWindow(): void {
     const rect = this.categoryWindowRect()
     this._categoryWindow = new Window_ItemCategory(rect)
     this._categoryWindow.setHelpWindow(this._helpWindow)
@@ -30,7 +33,7 @@ export class Scene_Item extends Scene_ItemBase {
     this.addWindow(this._categoryWindow)
   }
 
-  categoryWindowRect() {
+  categoryWindowRect(): Rectangle {
     const wx = 0
     const wy = this.mainAreaTop()
     const ww = Graphics.boxWidth
@@ -38,7 +41,7 @@ export class Scene_Item extends Scene_ItemBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createItemWindow() {
+  createItemWindow(): void {
     const rect = this.itemWindowRect()
     this._itemWindow = new Window_ItemList(rect)
     this._itemWindow.setHelpWindow(this._helpWindow)
@@ -57,7 +60,7 @@ export class Scene_Item extends Scene_ItemBase {
     }
   }
 
-  itemWindowRect() {
+  itemWindowRect(): Rectangle {
     const wx = 0
     const wy = this._categoryWindow.y + this._categoryWindow.height
     const ww = Graphics.boxWidth
@@ -65,23 +68,23 @@ export class Scene_Item extends Scene_ItemBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  user() {
+  user(): Game_Actor | null {
     const members = $gameParty.movableMembers()
     const bestPha = Math.max(...members.map(member => member.pha))
-    return members.find(member => member.pha === bestPha)
+    return members.find(member => member.pha === bestPha) ?? null
   }
 
-  onCategoryOk() {
+  onCategoryOk(): void {
     this._itemWindow.activate()
     this._itemWindow.selectLast()
   }
 
-  onItemOk() {
+  onItemOk(): void {
     $gameParty.setLastItem(this.item())
     this.determineItem()
   }
 
-  onItemCancel() {
+  onItemCancel(): void {
     if (this._categoryWindow.needsSelection()) {
       this._itemWindow.deselect()
       this._categoryWindow.activate()
@@ -91,11 +94,11 @@ export class Scene_Item extends Scene_ItemBase {
     }
   }
 
-  playSeForItem() {
+  playSeForItem(): void {
     SoundManager.playUseItem()
   }
 
-  useItem() {
+  useItem(): void {
     super.useItem()
     this._itemWindow.redrawCurrentItem()
   }

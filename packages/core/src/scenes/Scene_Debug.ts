@@ -1,5 +1,5 @@
 import { Graphics, Rectangle } from '../core'
-import { Window_Base, Window_DebugRange } from '../windows'
+import { Window_Base, Window_DebugEdit, Window_DebugRange } from '../windows'
 import { Scene_MenuBase } from './Scene_MenuBase'
 
 /*
@@ -8,22 +8,26 @@ import { Scene_MenuBase } from './Scene_MenuBase'
  /* The scene class of the debug screen.
  */
 export class Scene_Debug extends Scene_MenuBase {
+  _rangeWindow!: Window_DebugRange
+  _editWindow!: Window_DebugEdit
+  _debugHelpWindow!: Window_Base
+
   constructor() {
     super()
   }
 
-  create() {
+  create(): void {
     super.create()
     this.createRangeWindow()
     this.createEditWindow()
     this.createDebugHelpWindow()
   }
 
-  needsCancelButton() {
+  needsCancelButton(): boolean {
     return false
   }
 
-  createRangeWindow() {
+  createRangeWindow(): void {
     const rect = this.rangeWindowRect()
     this._rangeWindow = new Window_DebugRange(rect)
     this._rangeWindow.setHandler('ok', this.onRangeOk.bind(this))
@@ -31,7 +35,7 @@ export class Scene_Debug extends Scene_MenuBase {
     this.addWindow(this._rangeWindow)
   }
 
-  rangeWindowRect() {
+  rangeWindowRect(): Rectangle {
     const wx = 0
     const wy = 0
     const ww = 246
@@ -39,7 +43,7 @@ export class Scene_Debug extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createEditWindow() {
+  createEditWindow(): void {
     const rect = this.editWindowRect()
     this._editWindow = new Window_DebugEdit(rect)
     this._editWindow.setHandler('cancel', this.onEditCancel.bind(this))
@@ -47,7 +51,7 @@ export class Scene_Debug extends Scene_MenuBase {
     this.addWindow(this._editWindow)
   }
 
-  editWindowRect() {
+  editWindowRect(): Rectangle {
     const wx = this._rangeWindow.width
     const wy = 0
     const ww = Graphics.boxWidth - wx
@@ -55,13 +59,13 @@ export class Scene_Debug extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createDebugHelpWindow() {
+  createDebugHelpWindow(): void {
     const rect = this.debugHelpWindowRect()
     this._debugHelpWindow = new Window_Base(rect)
     this.addWindow(this._debugHelpWindow)
   }
 
-  debugHelpWindowRect() {
+  debugHelpWindowRect(): Rectangle {
     const wx = this._editWindow.x
     const wy = this._editWindow.height
     const ww = this._editWindow.width
@@ -69,19 +73,19 @@ export class Scene_Debug extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  onRangeOk() {
+  onRangeOk(): void {
     this._editWindow.activate()
     this._editWindow.select(0)
     this.refreshHelpWindow()
   }
 
-  onEditCancel() {
+  onEditCancel(): void {
     this._rangeWindow.activate()
     this._editWindow.deselect()
     this.refreshHelpWindow()
   }
 
-  refreshHelpWindow() {
+  refreshHelpWindow(): void {
     const helpWindow = this._debugHelpWindow
     helpWindow.contents.clear()
     if (this._editWindow.active) {
@@ -90,7 +94,7 @@ export class Scene_Debug extends Scene_MenuBase {
     }
   }
 
-  helpText() {
+  helpText(): string {
     if (this._rangeWindow.mode() === 'switch') {
       return 'Enter : ON / OFF'
     }

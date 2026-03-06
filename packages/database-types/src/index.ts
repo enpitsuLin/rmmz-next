@@ -453,6 +453,7 @@ export declare namespace MZ {
   namespace System {
 
     interface Advanced {
+      screenScale?: number
       picturesUpperLimit: number
       gameId: number
       screenWidth: number

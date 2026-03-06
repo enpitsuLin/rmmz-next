@@ -19,18 +19,20 @@ import { Scene_Splash } from './Scene_Splash'
  /* The scene class for initializing the entire game.
  */
 export class Scene_Boot extends Scene_Base {
+  _databaseLoaded: boolean
+
   constructor() {
     super()
     this._databaseLoaded = false
   }
 
-  create() {
+  create(): void {
     super.create()
     DataManager.loadDatabase()
     StorageManager.updateForageKeys()
   }
 
-  isReady() {
+  isReady(): boolean {
     if (!this._databaseLoaded) {
       if (
         DataManager.isDatabaseLoaded()
@@ -44,41 +46,41 @@ export class Scene_Boot extends Scene_Base {
     return super.isReady() && this.isPlayerDataLoaded()
   }
 
-  onDatabaseLoaded() {
+  onDatabaseLoaded(): void {
     this.setEncryptionInfo()
     this.loadSystemImages()
     this.loadPlayerData()
     this.loadGameFonts()
   }
 
-  setEncryptionInfo() {
+  setEncryptionInfo(): void {
     const hasImages = $dataSystem.hasEncryptedImages
     const hasAudio = $dataSystem.hasEncryptedAudio
     const key = $dataSystem.encryptionKey
     Utils.setEncryptionInfo(hasImages, hasAudio, key)
   }
 
-  loadSystemImages() {
+  loadSystemImages(): void {
     ColorManager.loadWindowskin()
     ImageManager.loadSystem('IconSet')
   }
 
-  loadPlayerData() {
+  loadPlayerData(): void {
     DataManager.loadGlobalInfo()
     ConfigManager.load()
   }
 
-  loadGameFonts() {
+  loadGameFonts(): void {
     const advanced = $dataSystem.advanced
     FontManager.load('rmmz-mainfont', advanced.mainFontFilename)
     FontManager.load('rmmz-numberfont', advanced.numberFontFilename)
   }
 
-  isPlayerDataLoaded() {
+  isPlayerDataLoaded(): boolean {
     return DataManager.isGlobalInfoLoaded() && ConfigManager.isLoaded()
   }
 
-  start() {
+  start(): void {
     super.start()
     SoundManager.preloadImportantSounds()
     if (DataManager.isBattleTest()) {
@@ -101,14 +103,14 @@ export class Scene_Boot extends Scene_Base {
     this.updateDocumentTitle()
   }
 
-  startNormalGame() {
+  startNormalGame(): void {
     this.checkPlayerLocation()
     DataManager.setupNewGame()
     Window_TitleCommand.initCommandPosition()
     SceneManager.goto(Scene_Splash)
   }
 
-  resizeScreen() {
+  resizeScreen(): void {
     const screenWidth = $dataSystem.advanced.screenWidth
     const screenHeight = $dataSystem.advanced.screenHeight
     Graphics.resize(screenWidth, screenHeight)
@@ -117,7 +119,7 @@ export class Scene_Boot extends Scene_Base {
     this.adjustWindow()
   }
 
-  adjustBoxSize() {
+  adjustBoxSize(): void {
     const uiAreaWidth = $dataSystem.advanced.uiAreaWidth
     const uiAreaHeight = $dataSystem.advanced.uiAreaHeight
     const boxMargin = 4
@@ -125,7 +127,7 @@ export class Scene_Boot extends Scene_Base {
     Graphics.boxHeight = uiAreaHeight - boxMargin * 2
   }
 
-  adjustWindow() {
+  adjustWindow(): void {
     if (Utils.isNwjs()) {
       const scale = this.screenScale()
       const xDelta = Graphics.width * scale - window.innerWidth
@@ -135,20 +137,20 @@ export class Scene_Boot extends Scene_Base {
     }
   }
 
-  screenScale() {
+  screenScale(): number {
     if ('screenScale' in $dataSystem.advanced) {
-      return $dataSystem.advanced.screenScale
+      return $dataSystem.advanced.screenScale!
     }
     else {
       return 1
     }
   }
 
-  updateDocumentTitle() {
+  updateDocumentTitle(): void {
     document.title = $dataSystem.gameTitle
   }
 
-  checkPlayerLocation() {
+  checkPlayerLocation(): void {
     if ($dataSystem.startMapId === 0) {
       throw new Error('Player\'s starting position is not set')
     }

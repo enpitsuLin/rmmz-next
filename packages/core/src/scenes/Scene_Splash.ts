@@ -10,19 +10,22 @@ import { Scene_Title } from './Scene_Title'
  /* The scene class of the splash screen.
  */
 export class Scene_Splash extends Scene_Base {
+  _backSprite!: Sprite
+  _waitCount!: number
+
   constructor() {
     super()
     this.initWaitCount()
   }
 
-  create() {
+  create(): void {
     super.create()
     if (this.isEnabled()) {
       this.createBackground()
     }
   }
 
-  start() {
+  start(): void {
     super.start()
     if (this.isEnabled()) {
       this.adjustBackground()
@@ -30,7 +33,8 @@ export class Scene_Splash extends Scene_Base {
     }
   }
 
-  update() {
+  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
+  update(): void {
     super.update()
     if (this.isActive()) {
       if (!this.updateWaitCount()) {
@@ -40,29 +44,29 @@ export class Scene_Splash extends Scene_Base {
     }
   }
 
-  stop() {
+  stop(): void {
     super.stop()
     if (this.isEnabled()) {
       this.startFadeOut(this.fadeSpeed())
     }
   }
 
-  createBackground() {
+  createBackground(): void {
     this._backSprite = new Sprite()
     this._backSprite.bitmap = ImageManager.loadSystem('Splash')
     this.addChild(this._backSprite)
   }
 
-  adjustBackground() {
+  adjustBackground(): void {
     this.scaleSprite(this._backSprite)
     this.centerSprite(this._backSprite)
   }
 
-  isEnabled() {
+  isEnabled(): boolean {
     return $dataSystem.optSplashScreen
   }
 
-  initWaitCount() {
+  initWaitCount(): void {
     if (this.isEnabled()) {
       this._waitCount = 120
     }
@@ -71,7 +75,7 @@ export class Scene_Splash extends Scene_Base {
     }
   }
 
-  updateWaitCount() {
+  updateWaitCount(): boolean {
     if (this._waitCount > 0) {
       this._waitCount--
       return true
@@ -79,13 +83,13 @@ export class Scene_Splash extends Scene_Base {
     return false
   }
 
-  checkSkip() {
+  checkSkip(): void {
     if (Input.isTriggered('ok') || TouchInput.isTriggered()) {
       this._waitCount = 0
     }
   }
 
-  gotoTitle() {
+  gotoTitle(): void {
     SceneManager.goto(Scene_Title)
   }
 }

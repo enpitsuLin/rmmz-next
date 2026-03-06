@@ -13,11 +13,19 @@ import { Scene_Base } from './Scene_Base'
  /* The superclass of all the menu-type scenes.
  */
 export class Scene_MenuBase extends Scene_Base {
+  _actor!: Game_Actor
+  _backgroundFilter!: PIXI.BlurFilter
+  _backgroundSprite!: Sprite
+  _helpWindow!: Window_Help
+  _cancelButton!: Sprite_Button
+  _pageupButton!: Sprite_Button
+  _pagedownButton!: Sprite_Button
+
   constructor() {
     super()
   }
 
-  create() {
+  create(): void {
     super.create()
     this.createBackground()
     this.updateActor()
@@ -25,12 +33,13 @@ export class Scene_MenuBase extends Scene_Base {
     this.createButtons()
   }
 
-  update() {
+  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
+  update(): void {
     super.update()
     this.updatePageButtons()
   }
 
-  helpAreaTop() {
+  helpAreaTop(): number {
     if (this.isBottomHelpMode()) {
       return this.mainAreaBottom()
     }
@@ -42,15 +51,15 @@ export class Scene_MenuBase extends Scene_Base {
     }
   }
 
-  helpAreaBottom() {
+  helpAreaBottom(): number {
     return this.helpAreaTop() + this.helpAreaHeight()
   }
 
-  helpAreaHeight() {
+  helpAreaHeight(): number {
     return this.calcWindowHeight(2, false)
   }
 
-  mainAreaTop() {
+  mainAreaTop(): number {
     if (!this.isBottomHelpMode()) {
       return this.helpAreaBottom()
     }
@@ -62,23 +71,23 @@ export class Scene_MenuBase extends Scene_Base {
     }
   }
 
-  mainAreaBottom() {
+  mainAreaBottom(): number {
     return this.mainAreaTop() + this.mainAreaHeight()
   }
 
-  mainAreaHeight() {
+  mainAreaHeight(): number {
     return Graphics.boxHeight - this.buttonAreaHeight() - this.helpAreaHeight()
   }
 
-  actor() {
+  actor(): Game_Actor {
     return this._actor
   }
 
-  updateActor() {
+  updateActor(): void {
     this._actor = $gameParty.menuActor()
   }
 
-  createBackground() {
+  createBackground(): void {
     this._backgroundFilter = new PIXI.BlurFilter()
     this._backgroundSprite = new Sprite()
     this._backgroundSprite.bitmap = SceneManager.backgroundBitmap()
@@ -87,17 +96,17 @@ export class Scene_MenuBase extends Scene_Base {
     this.setBackgroundOpacity(192)
   }
 
-  setBackgroundOpacity(opacity) {
+  setBackgroundOpacity(opacity: number): void {
     this._backgroundSprite.opacity = opacity
   }
 
-  createHelpWindow() {
+  createHelpWindow(): void {
     const rect = this.helpWindowRect()
     this._helpWindow = new Window_Help(rect)
     this.addWindow(this._helpWindow)
   }
 
-  helpWindowRect() {
+  helpWindowRect(): Rectangle {
     const wx = 0
     const wy = this.helpAreaTop()
     const ww = Graphics.boxWidth
@@ -105,7 +114,7 @@ export class Scene_MenuBase extends Scene_Base {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createButtons() {
+  createButtons(): void {
     if (ConfigManager.touchUI) {
       if (this.needsCancelButton()) {
         this.createCancelButton()
@@ -116,22 +125,22 @@ export class Scene_MenuBase extends Scene_Base {
     }
   }
 
-  needsCancelButton() {
+  needsCancelButton(): boolean {
     return true
   }
 
-  createCancelButton() {
+  createCancelButton(): void {
     this._cancelButton = new Sprite_Button('cancel')
     this._cancelButton.x = Graphics.boxWidth - this._cancelButton.width - 4
     this._cancelButton.y = this.buttonY()
     this.addWindow(this._cancelButton)
   }
 
-  needsPageButtons() {
+  needsPageButtons(): boolean {
     return false
   }
 
-  createPageButtons() {
+  createPageButtons(): void {
     this._pageupButton = new Sprite_Button('pageup')
     this._pageupButton.x = 4
     this._pageupButton.y = this.buttonY()
@@ -145,7 +154,7 @@ export class Scene_MenuBase extends Scene_Base {
     this._pagedownButton.setClickHandler(this.nextActor.bind(this))
   }
 
-  updatePageButtons() {
+  updatePageButtons(): void {
     if (this._pageupButton && this._pagedownButton) {
       const enabled = this.arePageButtonsEnabled()
       this._pageupButton.visible = enabled
@@ -153,23 +162,23 @@ export class Scene_MenuBase extends Scene_Base {
     }
   }
 
-  arePageButtonsEnabled() {
+  arePageButtonsEnabled(): boolean {
     return true
   }
 
-  nextActor() {
+  nextActor(): void {
     $gameParty.makeMenuActorNext()
     this.updateActor()
     this.onActorChange()
   }
 
-  previousActor() {
+  previousActor(): void {
     $gameParty.makeMenuActorPrevious()
     this.updateActor()
     this.onActorChange()
   }
 
-  onActorChange() {
+  onActorChange(): void {
     SoundManager.playCursor()
   }
 }

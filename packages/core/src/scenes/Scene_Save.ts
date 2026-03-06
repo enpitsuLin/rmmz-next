@@ -13,19 +13,19 @@ export class Scene_Save extends Scene_File {
     super()
   }
 
-  mode() {
+  mode(): 'save' {
     return 'save'
   }
 
-  helpWindowText() {
+  helpWindowText(): string {
     return TextManager.saveMessage
   }
 
-  firstSavefileId() {
+  firstSavefileId(): number {
     return $gameSystem.savefileId()
   }
 
-  onSavefileOk() {
+  onSavefileOk(): void {
     super.onSavefileOk()
     const savefileId = this.savefileId()
     if (this.isSavefileEnabled(savefileId)) {
@@ -36,7 +36,7 @@ export class Scene_Save extends Scene_File {
     }
   }
 
-  executeSave(savefileId) {
+  executeSave(savefileId: number): void {
     $gameSystem.setSavefileId(savefileId)
     $gameSystem.onBeforeSave()
     DataManager.saveGame(savefileId)
@@ -44,12 +44,12 @@ export class Scene_Save extends Scene_File {
       .catch(() => this.onSaveFailure())
   }
 
-  onSaveSuccess() {
+  onSaveSuccess(): void {
     SoundManager.playSave()
     this.popScene()
   }
 
-  onSaveFailure() {
+  onSaveFailure(): void {
     SoundManager.playBuzzer()
     this.activateListWindow()
   }

@@ -15,11 +15,16 @@ import { Scene_Options } from './Scene_Options'
  /* The scene class of the title screen.
  */
 export class Scene_Title extends Scene_Base {
+  _backSprite1!: Sprite
+  _backSprite2!: Sprite
+  _gameTitleSprite!: Sprite
+  _commandWindow!: Window_TitleCommand
+
   constructor() {
     super()
   }
 
-  create() {
+  create(): void {
     super.create()
     this.createBackground()
     this.createForeground()
@@ -27,7 +32,7 @@ export class Scene_Title extends Scene_Base {
     this.createCommandWindow()
   }
 
-  start() {
+  start(): void {
     super.start()
     SceneManager.clearStack()
     this.adjustBackground()
@@ -35,18 +40,19 @@ export class Scene_Title extends Scene_Base {
     this.startFadeIn(this.fadeSpeed(), false)
   }
 
-  update() {
+  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
+  update(): void {
     if (!this.isBusy()) {
       this._commandWindow.open()
     }
     super.update()
   }
 
-  isBusy() {
+  isBusy(): boolean {
     return this._commandWindow.isClosing() || super.isBusy()
   }
 
-  terminate() {
+  terminate(): void {
     super.terminate()
     SceneManager.snapForBackground()
     if (this._gameTitleSprite) {
@@ -54,7 +60,7 @@ export class Scene_Title extends Scene_Base {
     }
   }
 
-  createBackground() {
+  createBackground(): void {
     this._backSprite1 = new Sprite(
       ImageManager.loadTitle1($dataSystem.title1Name),
     )
@@ -65,7 +71,7 @@ export class Scene_Title extends Scene_Base {
     this.addChild(this._backSprite2)
   }
 
-  createForeground() {
+  createForeground(): void {
     this._gameTitleSprite = new Sprite(
       new Bitmap(Graphics.width, Graphics.height),
     )
@@ -75,7 +81,7 @@ export class Scene_Title extends Scene_Base {
     }
   }
 
-  drawGameTitle() {
+  drawGameTitle(): void {
     const x = 20
     const y = Graphics.height / 4
     const maxWidth = Graphics.width - x * 2
@@ -88,14 +94,14 @@ export class Scene_Title extends Scene_Base {
     bitmap.drawText(text, x, y, maxWidth, 48, 'center')
   }
 
-  adjustBackground() {
+  adjustBackground(): void {
     this.scaleSprite(this._backSprite1)
     this.scaleSprite(this._backSprite2)
     this.centerSprite(this._backSprite1)
     this.centerSprite(this._backSprite2)
   }
 
-  createCommandWindow() {
+  createCommandWindow(): void {
     const background = $dataSystem.titleCommandWindow.background
     const rect = this.commandWindowRect()
     this._commandWindow = new Window_TitleCommand(rect)
@@ -106,7 +112,7 @@ export class Scene_Title extends Scene_Base {
     this.addWindow(this._commandWindow)
   }
 
-  commandWindowRect() {
+  commandWindowRect(): Rectangle {
     const offsetX = $dataSystem.titleCommandWindow.offsetX
     const offsetY = $dataSystem.titleCommandWindow.offsetY
     const ww = this.mainCommandWidth()
@@ -116,24 +122,24 @@ export class Scene_Title extends Scene_Base {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  commandNewGame() {
+  commandNewGame(): void {
     DataManager.setupNewGame()
     this._commandWindow.close()
     this.fadeOutAll()
     SceneManager.goto(Scene_Map)
   }
 
-  commandContinue() {
+  commandContinue(): void {
     this._commandWindow.close()
     SceneManager.push(Scene_Load)
   }
 
-  commandOptions() {
+  commandOptions(): void {
     this._commandWindow.close()
     SceneManager.push(Scene_Options)
   }
 
-  playTitleMusic() {
+  playTitleMusic(): void {
     AudioManager.playBgm($dataSystem.titleBgm)
     AudioManager.stopBgs()
     AudioManager.stopMe()
