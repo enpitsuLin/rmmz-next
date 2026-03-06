@@ -1,3 +1,4 @@
+import type * as PIXI from 'pixi.js'
 import { Bitmap, Sprite } from '../core'
 
 /**
@@ -12,14 +13,14 @@ export class Sprite_Destination extends Sprite {
     this._frameCount = 0
   }
 
-  destroy(options) {
+  destroy(options?: PIXI.IDestroyOptions): void {
     if (this.bitmap) {
       this.bitmap.destroy()
     }
     super.destroy(options)
   }
 
-  update() {
+  update(): void {
     super.update()
     if ($gameTemp.isDestinationValid()) {
       this.updatePosition()
@@ -32,7 +33,7 @@ export class Sprite_Destination extends Sprite {
     }
   }
 
-  createBitmap() {
+  createBitmap(): void {
     const tileWidth = $gameMap.tileWidth()
     const tileHeight = $gameMap.tileHeight()
     this.bitmap = new Bitmap(tileWidth, tileHeight)
@@ -42,7 +43,7 @@ export class Sprite_Destination extends Sprite {
     this.blendMode = 1
   }
 
-  updatePosition() {
+  updatePosition(): void {
     const tileWidth = $gameMap.tileWidth()
     const tileHeight = $gameMap.tileHeight()
     const x = $gameTemp.destinationX()
@@ -51,7 +52,7 @@ export class Sprite_Destination extends Sprite {
     this.y = ($gameMap.adjustY(y) + 0.5) * tileHeight
   }
 
-  updateAnimation() {
+  updateAnimation(): void {
     this._frameCount++
     this._frameCount %= 20
     this.opacity = (20 - this._frameCount) * 6

@@ -1,3 +1,5 @@
+import type { Sprite } from '../core'
+import type { Game_Actor } from '../objects'
 import { Sprite_Battler } from './Sprite_Battler'
 
 /**
@@ -27,12 +29,12 @@ export class Sprite_Actor extends Sprite_Battler {
     dead: { index: 17, loop: true },
   }
 
-  constructor(battler) {
+  constructor(battler: Game_Actor | null) {
     super(battler)
     this.moveToStartPosition()
   }
 
-  initMembers() {
+  initMembers(): void {
     super.initMembers()
     this._battlerName = ''
     this._motion = null
@@ -44,18 +46,18 @@ export class Sprite_Actor extends Sprite_Battler {
     this.createStateSprite()
   }
 
-  mainSprite() {
+  mainSprite(): Sprite {
     return this._mainSprite
   }
 
-  createMainSprite() {
+  createMainSprite(): void {
     this._mainSprite = new Sprite()
     this._mainSprite.anchor.x = 0.5
     this._mainSprite.anchor.y = 1
     this.addChild(this._mainSprite)
   }
 
-  createShadowSprite() {
+  createShadowSprite(): void {
     this._shadowSprite = new Sprite()
     this._shadowSprite.bitmap = ImageManager.loadSystem('Shadow2')
     this._shadowSprite.anchor.x = 0.5
@@ -64,17 +66,17 @@ export class Sprite_Actor extends Sprite_Battler {
     this.addChild(this._shadowSprite)
   }
 
-  createWeaponSprite() {
+  createWeaponSprite(): void {
     this._weaponSprite = new Sprite_Weapon()
     this.addChild(this._weaponSprite)
   }
 
-  createStateSprite() {
+  createStateSprite(): void {
     this._stateSprite = new Sprite_StateOverlay()
     this.addChild(this._stateSprite)
   }
 
-  setBattler(battler) {
+  setBattler(battler: Game_Actor | null): void {
     super.setBattler(battler)
     if (battler !== this._actor) {
       this._actor = battler
@@ -90,15 +92,15 @@ export class Sprite_Actor extends Sprite_Battler {
     }
   }
 
-  moveToStartPosition() {
+  moveToStartPosition(): void {
     this.startMove(300, 0, 0)
   }
 
-  setActorHome(index) {
+  setActorHome(index: number): void {
     this.setHome(600 + index * 32, 280 + index * 48)
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateShadow()
     if (this._actor) {
@@ -106,32 +108,32 @@ export class Sprite_Actor extends Sprite_Battler {
     }
   }
 
-  updateShadow() {
+  updateShadow(): void {
     this._shadowSprite.visible = !!this._actor
   }
 
-  updateMain() {
+  updateMain(): void {
     super.updateMain()
     if (this._actor.isSpriteVisible() && !this.isMoving()) {
       this.updateTargetPosition()
     }
   }
 
-  setupMotion() {
+  setupMotion(): void {
     if (this._actor.isMotionRequested()) {
       this.startMotion(this._actor.motionType())
       this._actor.clearMotion()
     }
   }
 
-  setupWeaponAnimation() {
+  setupWeaponAnimation(): void {
     if (this._actor.isWeaponAnimationRequested()) {
       this._weaponSprite.setup(this._actor.weaponImageId())
       this._actor.clearWeaponAnimation()
     }
   }
 
-  startMotion(motionType) {
+  startMotion(motionType: Sprite_Actor.MotionName): void {
     const newMotion = Sprite_Actor.MOTIONS[motionType]
     if (this._motion !== newMotion) {
       this._motion = newMotion
@@ -140,7 +142,7 @@ export class Sprite_Actor extends Sprite_Battler {
     }
   }
 
-  updateTargetPosition() {
+  updateTargetPosition(): void {
     if (this._actor.canMove() && BattleManager.isEscaped()) {
       this.retreat()
     }
@@ -152,11 +154,11 @@ export class Sprite_Actor extends Sprite_Battler {
     }
   }
 
-  shouldStepForward() {
+  shouldStepForward(): boolean {
     return this._actor.isInputting() || this._actor.isActing()
   }
 
-  updateBitmap() {
+  updateBitmap(): void {
     super.updateBitmap()
     const name = this._actor.battlerName()
     if (this._battlerName !== name) {
@@ -165,7 +167,7 @@ export class Sprite_Actor extends Sprite_Battler {
     }
   }
 
-  updateFrame() {
+  updateFrame(): void {
     super.updateFrame()
     const bitmap = this._mainSprite.bitmap
     if (bitmap) {
@@ -180,14 +182,14 @@ export class Sprite_Actor extends Sprite_Battler {
     }
   }
 
-  updateMove() {
+  updateMove(): void {
     const bitmap = this._mainSprite.bitmap
     if (!bitmap || bitmap.isReady()) {
       super.updateMove()
     }
   }
 
-  updateMotion() {
+  updateMotion(): void {
     this.setupMotion()
     this.setupWeaponAnimation()
     if (this._actor.isMotionRefreshRequested()) {
@@ -197,7 +199,7 @@ export class Sprite_Actor extends Sprite_Battler {
     this.updateMotionCount()
   }
 
-  updateMotionCount() {
+  updateMotionCount(): void {
     if (this._motion && ++this._motionCount >= this.motionSpeed()) {
       if (this._motion.loop) {
         this._pattern = (this._pattern + 1) % 4
@@ -212,11 +214,11 @@ export class Sprite_Actor extends Sprite_Battler {
     }
   }
 
-  motionSpeed() {
+  motionSpeed(): number {
     return 12
   }
 
-  refreshMotion() {
+  refreshMotion(): void {
     const actor = this._actor
     if (actor) {
       const stateMotion = actor.stateMotionIndex()
@@ -250,7 +252,7 @@ export class Sprite_Actor extends Sprite_Battler {
     }
   }
 
-  startEntryMotion() {
+  startEntryMotion(): void {
     if (this._actor && this._actor.canMove()) {
       this.startMotion('walk')
       this.startMove(0, 0, 30)
@@ -261,30 +263,39 @@ export class Sprite_Actor extends Sprite_Battler {
     }
   }
 
-  stepForward() {
+  stepForward(): void {
     this.startMove(-48, 0, 12)
   }
 
-  stepBack() {
+  stepBack(): void {
     this.startMove(0, 0, 12)
   }
 
-  retreat() {
+  retreat(): void {
     this.startMove(300, 0, 30)
   }
 
-  onMoveEnd() {
+  onMoveEnd(): void {
     super.onMoveEnd()
     if (!BattleManager.isBattleEnd()) {
       this.refreshMotion()
     }
   }
 
-  damageOffsetX() {
+  damageOffsetX(): number {
     return super.damageOffsetX() - 32
   }
 
-  damageOffsetY() {
+  damageOffsetY(): number {
     return super.damageOffsetY()
+  }
+}
+
+export namespace Sprite_Actor {
+  export type MotionName = 'walk' | 'wait' | 'chant' | 'guard' | 'damage' | 'evade' | 'thrust' | 'swing' | 'missile' | 'skill' | 'spell' | 'item' | 'escape' | 'victory' | 'dying' | 'abnormal' | 'sleep' | 'dead'
+
+  export interface Motion {
+    index: number
+    loop: boolean
   }
 }

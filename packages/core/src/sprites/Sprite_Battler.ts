@@ -1,3 +1,6 @@
+import type { Sprite } from '../core'
+import type { Game_Battler } from '../objects'
+import type { Sprite_Damage } from './Sprite_Damage'
 import { Sprite_Clickable } from './Sprite_Clickable'
 
 /**
@@ -6,13 +9,13 @@ import { Sprite_Clickable } from './Sprite_Clickable'
  * The superclass of Sprite_Actor and Sprite_Enemy.
  */
 export class Sprite_Battler extends Sprite_Clickable {
-  constructor(battler) {
+  constructor(battler: Game_Battler | null) {
     super()
     this.initMembers()
     this.setBattler(battler)
   }
 
-  initMembers() {
+  initMembers(): void {
     this.anchor.x = 0.5
     this.anchor.y = 1
     this._battler = null
@@ -27,25 +30,25 @@ export class Sprite_Battler extends Sprite_Clickable {
     this._selectionEffectCount = 0
   }
 
-  setBattler(battler) {
+  setBattler(battler: Game_Battler | null): void {
     this._battler = battler
   }
 
-  checkBattler(battler) {
+  checkBattler(battler: Game_Battler): boolean {
     return this._battler === battler
   }
 
-  mainSprite() {
+  mainSprite(): Sprite {
     return this
   }
 
-  setHome(x, y) {
+  setHome(x: number, y: number): void {
     this._homeX = x
     this._homeY = y
     this.updatePosition()
   }
 
-  update() {
+  update(): void {
     super.update()
     if (this._battler) {
       this.updateMain()
@@ -58,14 +61,14 @@ export class Sprite_Battler extends Sprite_Clickable {
     }
   }
 
-  updateVisibility() {
+  updateVisibility(): void {
     super.updateVisibility()
     if (!this._battler || !this._battler.isSpriteVisible()) {
       this.visible = false
     }
   }
 
-  updateMain() {
+  updateMain(): void {
     if (this._battler.isSpriteVisible()) {
       this.updateBitmap()
       this.updateFrame()
@@ -74,15 +77,15 @@ export class Sprite_Battler extends Sprite_Clickable {
     this.updatePosition()
   }
 
-  updateBitmap() {
+  updateBitmap(): void {
     // Implementation goes here
   }
 
-  updateFrame() {
+  updateFrame(): void {
     // Implementation goes here
   }
 
-  updateMove() {
+  updateMove(): void {
     if (this._movementDuration > 0) {
       const d = this._movementDuration
       this._offsetX = (this._offsetX * (d - 1) + this._targetOffsetX) / d
@@ -94,12 +97,12 @@ export class Sprite_Battler extends Sprite_Clickable {
     }
   }
 
-  updatePosition() {
+  updatePosition(): void {
     this.x = this._homeX + this._offsetX
     this.y = this._homeY + this._offsetY
   }
 
-  updateDamagePopup() {
+  updateDamagePopup(): void {
     this.setupDamagePopup()
     if (this._damages.length > 0) {
       for (const damage of this._damages) {
@@ -111,7 +114,7 @@ export class Sprite_Battler extends Sprite_Clickable {
     }
   }
 
-  updateSelectionEffect() {
+  updateSelectionEffect(): void {
     const target = this.mainSprite()
     if (this._battler.isSelected()) {
       this._selectionEffectCount++
@@ -128,7 +131,7 @@ export class Sprite_Battler extends Sprite_Clickable {
     }
   }
 
-  setupDamagePopup() {
+  setupDamagePopup(): void {
     if (this._battler.isDamagePopupRequested()) {
       if (this._battler.isSpriteVisible()) {
         this.createDamageSprite()
@@ -138,7 +141,7 @@ export class Sprite_Battler extends Sprite_Clickable {
     }
   }
 
-  createDamageSprite() {
+  createDamageSprite(): void {
     const last = this._damages[this._damages.length - 1]
     const sprite = new Sprite_Damage()
     if (last) {
@@ -154,21 +157,21 @@ export class Sprite_Battler extends Sprite_Clickable {
     this.parent.addChild(sprite)
   }
 
-  destroyDamageSprite(sprite) {
+  destroyDamageSprite(sprite: Sprite_Damage): void {
     this.parent.removeChild(sprite)
     this._damages.splice(this._damages.indexOf(sprite), 1)
     sprite.destroy()
   }
 
-  damageOffsetX() {
+  damageOffsetX(): number {
     return 0
   }
 
-  damageOffsetY() {
+  damageOffsetY(): number {
     return 0
   }
 
-  startMove(x, y, duration) {
+  startMove(x: number, y: number, duration: number): void {
     if (this._targetOffsetX !== x || this._targetOffsetY !== y) {
       this._targetOffsetX = x
       this._targetOffsetY = y
@@ -180,31 +183,31 @@ export class Sprite_Battler extends Sprite_Clickable {
     }
   }
 
-  onMoveEnd() {
+  onMoveEnd(): void {
     // Implementation goes here
   }
 
-  isEffecting() {
+  isEffecting(): boolean {
     return false
   }
 
-  isMoving() {
+  isMoving(): boolean {
     return this._movementDuration > 0
   }
 
-  inHomePosition() {
+  inHomePosition(): boolean {
     return this._offsetX === 0 && this._offsetY === 0
   }
 
-  onMouseEnter() {
+  onMouseEnter(): void {
     $gameTemp.setTouchState(this._battler, 'select')
   }
 
-  onPress() {
+  onPress(): void {
     $gameTemp.setTouchState(this._battler, 'select')
   }
 
-  onClick() {
+  onClick(): void {
     $gameTemp.setTouchState(this._battler, 'click')
   }
 }

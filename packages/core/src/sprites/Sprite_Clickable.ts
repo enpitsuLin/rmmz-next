@@ -12,12 +12,12 @@ export class Sprite_Clickable extends Sprite {
     this._hovered = false
   }
 
-  update() {
+  update(): void {
     super.update()
     this.processTouch()
   }
 
-  processTouch() {
+  processTouch(): void {
     if (this.isClickEnabled()) {
       if (this.isBeingTouched()) {
         if (!this._hovered && TouchInput.isHovered()) {
@@ -47,21 +47,21 @@ export class Sprite_Clickable extends Sprite {
     }
   }
 
-  isPressed() {
+  isPressed(): boolean {
     return this._pressed
   }
 
-  isClickEnabled() {
+  isClickEnabled(): boolean {
     return this.worldVisible
   }
 
-  isBeingTouched() {
+  isBeingTouched(): boolean {
     const touchPos = new Point(TouchInput.x, TouchInput.y)
     const localPos = this.worldTransform.applyInverse(touchPos)
     return this.hitTest(localPos.x, localPos.y)
   }
 
-  hitTest(x, y) {
+  hitTest(x: number, y: number): boolean {
     const rect = new Rectangle(
       -this.anchor.x * this.width,
       -this.anchor.y * this.height,
@@ -71,19 +71,19 @@ export class Sprite_Clickable extends Sprite {
     return rect.contains(x, y)
   }
 
-  onMouseEnter() {
+  onMouseEnter(): void {
     //
   }
 
-  onMouseExit() {
+  onMouseExit(): void {
     //
   }
 
-  onPress() {
+  onPress(): void {
     //
   }
 
-  onClick() {
+  onClick(): void {
     //
   }
 }

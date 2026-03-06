@@ -1,6 +1,6 @@
+import type { Sprite_Animation } from './Sprite_Animation'
+import type { Sprite_AnimationMV } from './Sprite_AnimationMV'
 import { ColorFilter, Graphics, Rectangle, ScreenSprite, Sprite } from '../core'
-import { Sprite_Animation } from './Sprite_Animation'
-import { Sprite_AnimationMV } from './Sprite_AnimationMV'
 import { Sprite_Picture } from './Sprite_Picture'
 import { Sprite_Timer } from './Sprite_Timer'
 
@@ -19,27 +19,27 @@ export class Spriteset_Base extends Sprite {
     this._animationSprites = []
   }
 
-  destroy(options) {
+  destroy(options): void {
     this.removeAllAnimations()
     super.destroy(options)
   }
 
-  loadSystemImages() {
+  loadSystemImages(): void {
     //
   }
 
-  createLowerLayer() {
+  createLowerLayer(): void {
     this.createBaseSprite()
     this.createBaseFilters()
   }
 
-  createUpperLayer() {
+  createUpperLayer(): void {
     this.createPictures()
     this.createTimer()
     this.createOverallFilters()
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateBaseFilters()
     this.updateOverallFilters()
@@ -47,7 +47,7 @@ export class Spriteset_Base extends Sprite {
     this.updateAnimations()
   }
 
-  createBaseSprite() {
+  createBaseSprite(): void {
     this._baseSprite = new Sprite()
     this._blackScreen = new ScreenSprite()
     this._blackScreen.opacity = 255
@@ -55,13 +55,13 @@ export class Spriteset_Base extends Sprite {
     this._baseSprite.addChild(this._blackScreen)
   }
 
-  createBaseFilters() {
+  createBaseFilters(): void {
     this._baseSprite.filters = []
     this._baseColorFilter = new ColorFilter()
     this._baseSprite.filters.push(this._baseColorFilter)
   }
 
-  createPictures() {
+  createPictures(): void {
     const rect = this.pictureContainerRect()
     this._pictureContainer = new Sprite()
     this._pictureContainer.setFrame(rect.x, rect.y, rect.width, rect.height)
@@ -71,33 +71,33 @@ export class Spriteset_Base extends Sprite {
     this.addChild(this._pictureContainer)
   }
 
-  pictureContainerRect() {
+  pictureContainerRect(): Rectangle {
     return new Rectangle(0, 0, Graphics.width, Graphics.height)
   }
 
-  createTimer() {
+  createTimer(): void {
     this._timerSprite = new Sprite_Timer()
     this.addChild(this._timerSprite)
   }
 
-  createOverallFilters() {
+  createOverallFilters(): void {
     this.filters = []
     this._overallColorFilter = new ColorFilter()
     this.filters.push(this._overallColorFilter)
   }
 
-  updateBaseFilters() {
+  updateBaseFilters(): void {
     const filter = this._baseColorFilter
     filter.setColorTone($gameScreen.tone())
   }
 
-  updateOverallFilters() {
+  updateOverallFilters(): void {
     const filter = this._overallColorFilter
     filter.setBlendColor($gameScreen.flashColor())
     filter.setBrightness($gameScreen.brightness())
   }
 
-  updatePosition() {
+  updatePosition(): void {
     const screen = $gameScreen
     const scale = screen.zoomScale()
     this.scale.x = scale
@@ -107,11 +107,11 @@ export class Spriteset_Base extends Sprite {
     this.x += Math.round(screen.shake())
   }
 
-  findTargetSprite(/* target */) {
+  findTargetSprite(_target?): Sprite | null | undefined {
     return null
   }
 
-  updateAnimations() {
+  updateAnimations(): void {
     for (const sprite of this._animationSprites) {
       if (!sprite.isPlaying()) {
         this.removeAnimation(sprite)
@@ -120,7 +120,7 @@ export class Spriteset_Base extends Sprite {
     this.processAnimationRequests()
   }
 
-  processAnimationRequests() {
+  processAnimationRequests(): void {
     for (;;) {
       const request = $gameTemp.retrieveAnimation()
       if (request) {
@@ -132,7 +132,7 @@ export class Spriteset_Base extends Sprite {
     }
   }
 
-  createAnimation(request) {
+  createAnimation(request): void {
     const animation = $dataAnimations[request.animationId]
     const targets = request.targets
     const mirror = request.mirror
@@ -150,7 +150,7 @@ export class Spriteset_Base extends Sprite {
   }
 
   // prettier-ignore
-  createAnimationSprite(targets, animation, mirror, delay) {
+  createAnimationSprite(targets, animation, mirror, delay): void {
     const mv = this.isMVAnimation(animation)
     const sprite = new (mv ? Sprite_AnimationMV : Sprite_Animation)()
     const targetSprites = this.makeTargetSprites(targets)
@@ -165,11 +165,11 @@ export class Spriteset_Base extends Sprite {
     this._animationSprites.push(sprite)
   }
 
-  isMVAnimation(animation) {
+  isMVAnimation(animation): boolean {
     return !!animation.frames
   }
 
-  makeTargetSprites(targets) {
+  makeTargetSprites(targets): Sprite[] {
     const targetSprites = []
     for (const target of targets) {
       const targetSprite = this.findTargetSprite(target)
@@ -180,28 +180,28 @@ export class Spriteset_Base extends Sprite {
     return targetSprites
   }
 
-  lastAnimationSprite() {
+  lastAnimationSprite(): Sprite_Animation | Sprite_AnimationMV {
     return this._animationSprites[this._animationSprites.length - 1]
   }
 
-  isAnimationForEach(animation) {
+  isAnimationForEach(animation): boolean {
     const mv = this.isMVAnimation(animation)
     return mv ? animation.position !== 3 : animation.displayType === 0
   }
 
-  animationBaseDelay() {
+  animationBaseDelay(): number {
     return 8
   }
 
-  animationNextDelay() {
+  animationNextDelay(): number {
     return 12
   }
 
-  animationShouldMirror(target) {
+  animationShouldMirror(target): boolean {
     return target && target.isActor && target.isActor()
   }
 
-  removeAnimation(sprite) {
+  removeAnimation(sprite: Sprite_Animation | Sprite_AnimationMV): void {
     this._animationSprites.remove(sprite)
     this._effectsContainer.removeChild(sprite)
     for (const target of sprite.targetObjects) {
@@ -212,13 +212,13 @@ export class Spriteset_Base extends Sprite {
     sprite.destroy()
   }
 
-  removeAllAnimations() {
+  removeAllAnimations(): void {
     for (const sprite of this._animationSprites.clone()) {
       this.removeAnimation(sprite)
     }
   }
 
-  isAnimationPlaying() {
+  isAnimationPlaying(): boolean {
     return this._animationSprites.length > 0
   }
 }

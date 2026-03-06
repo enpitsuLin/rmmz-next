@@ -11,7 +11,7 @@ export class Sprite_AnimationMV extends Sprite {
     this.initMembers()
   }
 
-  initMembers() {
+  initMembers(): void {
     this._targets = []
     this._animation = null
     this._mirror = false
@@ -31,7 +31,7 @@ export class Sprite_AnimationMV extends Sprite {
     this.z = 8
   }
 
-  setup(targets, animation, mirror, delay) {
+  setup(targets: Sprite[], animation, mirror: boolean, delay: number): void {
     this._targets = targets
     this._animation = animation
     this._mirror = mirror
@@ -45,15 +45,15 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  setupRate() {
+  setupRate(): void {
     this._rate = 4
   }
 
-  setupDuration() {
+  setupDuration(): void {
     this._duration = this._animation.frames.length * this._rate + 1
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateMain()
     this.updateFlash()
@@ -61,7 +61,7 @@ export class Sprite_AnimationMV extends Sprite {
     this.updateHiding()
   }
 
-  updateFlash() {
+  updateFlash(): void {
     if (this._flashDuration > 0) {
       const d = this._flashDuration--
       this._flashColor[3] *= (d - 1) / d
@@ -71,7 +71,7 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  updateScreenFlash() {
+  updateScreenFlash(): void {
     if (this._screenFlashDuration > 0) {
       const d = this._screenFlashDuration--
       if (this._screenFlashSprite) {
@@ -83,7 +83,7 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  absoluteX() {
+  absoluteX(): number {
     let x = 0
     let object = this
     while (object) {
@@ -93,7 +93,7 @@ export class Sprite_AnimationMV extends Sprite {
     return x
   }
 
-  absoluteY() {
+  absoluteY(): number {
     let y = 0
     let object = this
     while (object) {
@@ -103,7 +103,7 @@ export class Sprite_AnimationMV extends Sprite {
     return y
   }
 
-  updateHiding() {
+  updateHiding(): void {
     if (this._hidingDuration > 0) {
       this._hidingDuration--
       if (this._hidingDuration === 0) {
@@ -114,11 +114,11 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  isPlaying() {
+  isPlaying(): boolean {
     return this._duration > 0
   }
 
-  loadBitmaps() {
+  loadBitmaps(): void {
     const name1 = this._animation.animation1Name
     const name2 = this._animation.animation2Name
     this._hue1 = this._animation.animation1Hue
@@ -127,7 +127,7 @@ export class Sprite_AnimationMV extends Sprite {
     this._bitmap2 = ImageManager.loadAnimation(name2)
   }
 
-  isReady() {
+  isReady(): boolean {
     return (
       this._bitmap1
       && this._bitmap1.isReady()
@@ -136,7 +136,7 @@ export class Sprite_AnimationMV extends Sprite {
     )
   }
 
-  createCellSprites() {
+  createCellSprites(): void {
     this._cellSprites = []
     for (let i = 0; i < 16; i++) {
       const sprite = new Sprite()
@@ -147,12 +147,12 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  createScreenFlashSprite() {
+  createScreenFlashSprite(): void {
     this._screenFlashSprite = new ScreenSprite()
     this.addChild(this._screenFlashSprite)
   }
 
-  updateMain() {
+  updateMain(): void {
     if (this.isPlaying() && this.isReady()) {
       if (this._delay > 0) {
         this._delay--
@@ -170,7 +170,7 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  updatePosition() {
+  updatePosition(): void {
     if (this._animation.position === 3) {
       this.x = this.parent.width / 2
       this.y = this.parent.height / 2
@@ -194,7 +194,7 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  updateFrame() {
+  updateFrame(): void {
     if (this._duration > 0) {
       const frameIndex = this.currentFrameIndex()
       this.updateAllCellSprites(this._animation.frames[frameIndex])
@@ -206,14 +206,14 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  currentFrameIndex() {
+  currentFrameIndex(): number {
     return (
       this._animation.frames.length
       - Math.floor((this._duration + this._rate - 1) / this._rate)
     )
   }
 
-  updateAllCellSprites(frame) {
+  updateAllCellSprites(frame: number[][]): void {
     if (this._targets.length > 0) {
       for (let i = 0; i < this._cellSprites.length; i++) {
         const sprite = this._cellSprites[i]
@@ -227,7 +227,7 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  updateCellSprite(sprite, cell) {
+  updateCellSprite(sprite: Sprite, cell: number[]): void {
     const pattern = cell[0]
     if (pattern >= 0) {
       const sx = (pattern % 5) * 192
@@ -260,7 +260,7 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  processTimingData(timing) {
+  processTimingData(timing): void {
     const duration = timing.flashDuration * this._rate
     switch (timing.flashScope) {
       case 1:
@@ -278,12 +278,12 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  startFlash(color, duration) {
+  startFlash(color: number[], duration: number): void {
     this._flashColor = color.clone()
     this._flashDuration = duration
   }
 
-  startScreenFlash(color, duration) {
+  startScreenFlash(color: number[], duration: number): void {
     this._screenFlashDuration = duration
     if (this._screenFlashSprite) {
       this._screenFlashSprite.setColor(color[0], color[1], color[2])
@@ -291,14 +291,14 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  startHiding(duration) {
+  startHiding(duration: number): void {
     this._hidingDuration = duration
     for (const target of this._targets) {
       target.hide()
     }
   }
 
-  onEnd() {
+  onEnd(): void {
     this._flashDuration = 0
     this._screenFlashDuration = 0
     this._hidingDuration = 0

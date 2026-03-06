@@ -1,3 +1,4 @@
+import type { Game_Battler } from '../objects'
 import { Sprite } from '../core'
 
 /**
@@ -12,7 +13,7 @@ export class Sprite_StateIcon extends Sprite {
     this.loadBitmap()
   }
 
-  initMembers() {
+  initMembers(): void {
     this._battler = null
     this._iconIndex = 0
     this._animationCount = 0
@@ -21,19 +22,19 @@ export class Sprite_StateIcon extends Sprite {
     this.anchor.y = 0.5
   }
 
-  loadBitmap() {
+  loadBitmap(): void {
     this.bitmap = ImageManager.loadSystem('IconSet')
     this.setFrame(0, 0, 0, 0)
   }
 
-  setup(battler) {
+  setup(battler: Game_Battler): void {
     if (this._battler !== battler) {
       this._battler = battler
       this._animationCount = this.animationWait()
     }
   }
 
-  update() {
+  update(): void {
     super.update()
     this._animationCount++
     if (this._animationCount >= this.animationWait()) {
@@ -43,11 +44,11 @@ export class Sprite_StateIcon extends Sprite {
     }
   }
 
-  animationWait() {
+  animationWait(): number {
     return 40
   }
 
-  updateIcon() {
+  updateIcon(): void {
     const icons = []
     if (this.shouldDisplay()) {
       icons.push(...this._battler.allIcons())
@@ -65,12 +66,12 @@ export class Sprite_StateIcon extends Sprite {
     }
   }
 
-  shouldDisplay() {
+  shouldDisplay(): boolean {
     const battler = this._battler
     return battler && (battler.isActor() || battler.isAlive())
   }
 
-  updateFrame() {
+  updateFrame(): void {
     const pw = ImageManager.iconWidth
     const ph = ImageManager.iconHeight
     const sx = (this._iconIndex % 16) * pw

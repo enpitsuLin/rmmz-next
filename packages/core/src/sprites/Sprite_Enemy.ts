@@ -1,3 +1,4 @@
+import type { Game_Battler, Game_Enemy } from '../objects'
 import { Sprite_Battler } from './Sprite_Battler'
 
 /**
@@ -6,11 +7,11 @@ import { Sprite_Battler } from './Sprite_Battler'
  * The sprite for displaying an enemy.
  */
 export class Sprite_Enemy extends Sprite_Battler {
-  constructor(battler) {
+  constructor(battler: Game_Enemy) {
     super(battler)
   }
 
-  initMembers() {
+  initMembers(): void {
     super.initMembers()
     this._enemy = null
     this._appeared = false
@@ -22,19 +23,19 @@ export class Sprite_Enemy extends Sprite_Battler {
     this.createStateIconSprite()
   }
 
-  createStateIconSprite() {
+  createStateIconSprite(): void {
     this._stateIconSprite = new Sprite_StateIcon()
     this.addChild(this._stateIconSprite)
   }
 
-  setBattler(battler) {
+  setBattler(battler: Game_Enemy): void {
     super.setBattler(battler)
     this._enemy = battler
     this.setHome(battler.screenX(), battler.screenY())
     this._stateIconSprite.setup(battler)
   }
 
-  update() {
+  update(): void {
     super.update()
     if (this._enemy) {
       this.updateEffect()
@@ -42,7 +43,7 @@ export class Sprite_Enemy extends Sprite_Battler {
     }
   }
 
-  updateBitmap() {
+  updateBitmap(): void {
     super.updateBitmap()
     const name = this._enemy.battlerName()
     const hue = this._enemy.battlerHue()
@@ -55,7 +56,7 @@ export class Sprite_Enemy extends Sprite_Battler {
     }
   }
 
-  loadBitmap(name) {
+  loadBitmap(name: string): void {
     if ($gameSystem.isSideView()) {
       this.bitmap = ImageManager.loadSvEnemy(name)
     }
@@ -64,7 +65,7 @@ export class Sprite_Enemy extends Sprite_Battler {
     }
   }
 
-  setHue(hue) {
+  setHue(hue: number): void {
     super.setHue(hue)
     for (const child of this.children) {
       if (child.setHue) {
@@ -73,7 +74,7 @@ export class Sprite_Enemy extends Sprite_Battler {
     }
   }
 
-  updateFrame() {
+  updateFrame(): void {
     super.updateFrame()
     if (this._effectType === 'bossCollapse') {
       this.setFrame(0, 0, this.bitmap.width, this._effectDuration)
@@ -83,26 +84,26 @@ export class Sprite_Enemy extends Sprite_Battler {
     }
   }
 
-  updatePosition() {
+  updatePosition(): void {
     super.updatePosition()
     this.x += this._shake
   }
 
-  updateStateSprite() {
+  updateStateSprite(): void {
     this._stateIconSprite.y = -Math.round((this.bitmap.height + 40) * 0.9)
     if (this._stateIconSprite.y < 20 - this.y) {
       this._stateIconSprite.y = 20 - this.y
     }
   }
 
-  initVisibility() {
+  initVisibility(): void {
     this._appeared = this._enemy.isAlive()
     if (!this._appeared) {
       this.opacity = 0
     }
   }
 
-  setupEffect() {
+  setupEffect(): void {
     if (this._appeared && this._enemy.isEffectRequested()) {
       this.startEffect(this._enemy.effectType())
       this._enemy.clearEffect()
@@ -115,7 +116,7 @@ export class Sprite_Enemy extends Sprite_Battler {
     }
   }
 
-  startEffect(effectType) {
+  startEffect(effectType: Sprite_Enemy.EffectType): void {
     this._effectType = effectType
     switch (this._effectType) {
       case 'appear':
@@ -143,40 +144,40 @@ export class Sprite_Enemy extends Sprite_Battler {
     this.revertToNormal()
   }
 
-  startAppear() {
+  startAppear(): void {
     this._effectDuration = 16
     this._appeared = true
   }
 
-  startDisappear() {
+  startDisappear(): void {
     this._effectDuration = 32
     this._appeared = false
   }
 
-  startWhiten() {
+  startWhiten(): void {
     this._effectDuration = 16
   }
 
-  startBlink() {
+  startBlink(): void {
     this._effectDuration = 20
   }
 
-  startCollapse() {
+  startCollapse(): void {
     this._effectDuration = 32
     this._appeared = false
   }
 
-  startBossCollapse() {
+  startBossCollapse(): void {
     this._effectDuration = this.bitmap.height
     this._appeared = false
   }
 
-  startInstantCollapse() {
+  startInstantCollapse(): void {
     this._effectDuration = 16
     this._appeared = false
   }
 
-  updateEffect() {
+  updateEffect(): void {
     this.setupEffect()
     if (this._effectDuration > 0) {
       this._effectDuration--
@@ -209,41 +210,41 @@ export class Sprite_Enemy extends Sprite_Battler {
     }
   }
 
-  isEffecting() {
+  isEffecting(): boolean {
     return this._effectType !== null
   }
 
-  revertToNormal() {
+  revertToNormal(): void {
     this._shake = 0
     this.blendMode = 0
     this.opacity = 255
     this.setBlendColor([0, 0, 0, 0])
   }
 
-  updateWhiten() {
+  updateWhiten(): void {
     const alpha = 128 - (16 - this._effectDuration) * 8
     this.setBlendColor([255, 255, 255, alpha])
   }
 
-  updateBlink() {
+  updateBlink(): void {
     this.opacity = this._effectDuration % 10 < 5 ? 255 : 0
   }
 
-  updateAppear() {
+  updateAppear(): void {
     this.opacity = (16 - this._effectDuration) * 16
   }
 
-  updateDisappear() {
+  updateDisappear(): void {
     this.opacity = 256 - (32 - this._effectDuration) * 10
   }
 
-  updateCollapse() {
+  updateCollapse(): void {
     this.blendMode = 1
     this.setBlendColor([255, 128, 128, 128])
     this.opacity *= this._effectDuration / (this._effectDuration + 1)
   }
 
-  updateBossCollapse() {
+  updateBossCollapse(): void {
     this._shake = (this._effectDuration % 2) * 4 - 2
     this.blendMode = 1
     this.opacity *= this._effectDuration / (this._effectDuration + 1)
@@ -253,15 +254,19 @@ export class Sprite_Enemy extends Sprite_Battler {
     }
   }
 
-  updateInstantCollapse() {
+  updateInstantCollapse(): void {
     this.opacity = 0
   }
 
-  damageOffsetX() {
+  damageOffsetX(): number {
     return super.damageOffsetX()
   }
 
-  damageOffsetY() {
+  damageOffsetY(): number {
     return super.damageOffsetY() - 8
   }
+}
+
+export namespace Sprite_Enemy {
+  export type EffectType = Game_Battler.EffectType | 'appear' | 'disappear'
 }

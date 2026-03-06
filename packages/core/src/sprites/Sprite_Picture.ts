@@ -6,18 +6,18 @@ import { Sprite_Clickable } from './Sprite_Clickable'
  * The sprite for displaying a picture.
  */
 export class Sprite_Picture extends Sprite_Clickable {
-  constructor(pictureId) {
+  constructor(pictureId: number) {
     super()
     this._pictureId = pictureId
     this._pictureName = ''
     this.update()
   }
 
-  picture() {
+  picture(): Game_Picture {
     return $gameScreen.picture(this._pictureId)
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateBitmap()
     if (this.visible) {
@@ -29,7 +29,7 @@ export class Sprite_Picture extends Sprite_Clickable {
     }
   }
 
-  updateBitmap() {
+  updateBitmap(): void {
     const picture = this.picture()
     if (picture) {
       const pictureName = picture.name()
@@ -46,7 +46,7 @@ export class Sprite_Picture extends Sprite_Clickable {
     }
   }
 
-  updateOrigin() {
+  updateOrigin(): void {
     const picture = this.picture()
     if (picture.origin() === 0) {
       this.anchor.x = 0
@@ -58,19 +58,19 @@ export class Sprite_Picture extends Sprite_Clickable {
     }
   }
 
-  updatePosition() {
+  updatePosition(): void {
     const picture = this.picture()
     this.x = Math.round(picture.x())
     this.y = Math.round(picture.y())
   }
 
-  updateScale() {
+  updateScale(): void {
     const picture = this.picture()
     this.scale.x = picture.scaleX() / 100
     this.scale.y = picture.scaleY() / 100
   }
 
-  updateTone() {
+  updateTone(): void {
     const picture = this.picture()
     if (picture.tone()) {
       this.setColorTone(picture.tone())
@@ -80,14 +80,14 @@ export class Sprite_Picture extends Sprite_Clickable {
     }
   }
 
-  updateOther() {
+  updateOther(): void {
     const picture = this.picture()
     this.opacity = picture.opacity()
     this.blendMode = picture.blendMode()
     this.rotation = (picture.angle() * Math.PI) / 180
   }
 
-  loadBitmap() {
+  loadBitmap(): void {
     this.bitmap = ImageManager.loadPicture(this._pictureName)
   }
 }

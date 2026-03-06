@@ -1,3 +1,4 @@
+import type { Point } from '../core'
 import { Graphics, Sprite } from '../core'
 
 /**
@@ -11,7 +12,7 @@ export class Sprite_Animation extends Sprite {
     this.initMembers()
   }
 
-  initMembers() {
+  initMembers(): void {
     this._targets = []
     this._animation = null
     this._mirror = false
@@ -29,7 +30,7 @@ export class Sprite_Animation extends Sprite {
     this.z = 8
   }
 
-  destroy(options) {
+  destroy(options): void {
     super.destroy(options)
     if (this._handle) {
       this._handle.stop()
@@ -40,7 +41,7 @@ export class Sprite_Animation extends Sprite {
     this._started = false
   }
 
-  setup(targets, animation, mirror, delay, previous) {
+  setup(targets, animation, mirror: boolean, delay: number, previous: Sprite_Animation | null): void {
     this._targets = targets
     this._animation = animation
     this._mirror = mirror
@@ -56,7 +57,7 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  update() {
+  update(): void {
     super.update()
     if (this._delay > 0) {
       this._delay--
@@ -84,7 +85,7 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  canStart() {
+  canStart(): boolean {
     if (this._previous && this.shouldWaitForPrevious()) {
       return !this._previous.isPlaying()
     }
@@ -93,13 +94,13 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  shouldWaitForPrevious() {
+  shouldWaitForPrevious(): boolean {
     // [Note] Older versions of Effekseer were very heavy on some mobile
     //   devices. We don't need this anymore.
     return false
   }
 
-  updateEffectGeometry() {
+  updateEffectGeometry(): void {
     const scale = this._animation.scale / 100
     const r = Math.PI / 180
     const rx = this._animation.rotation.x * r
@@ -113,14 +114,14 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  updateMain() {
+  updateMain(): void {
     this.processSoundTimings()
     this.processFlashTimings()
     this._frameIndex++
     this.checkEnd()
   }
 
-  processSoundTimings() {
+  processSoundTimings(): void {
     for (const timing of this._animation.soundTimings) {
       if (timing.frame === this._frameIndex) {
         AudioManager.playSe(timing.se)
@@ -128,7 +129,7 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  processFlashTimings() {
+  processFlashTimings(): void {
     for (const timing of this._animation.flashTimings) {
       if (timing.frame === this._frameIndex) {
         this._flashColor = timing.color.clone()
@@ -137,7 +138,7 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  checkEnd() {
+  checkEnd(): void {
     if (
       this._frameIndex > this._maxTimingFrames
       && this._flashDuration === 0
@@ -147,7 +148,7 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  updateFlash() {
+  updateFlash(): void {
     if (this._flashDuration > 0) {
       const d = this._flashDuration--
       this._flashColor[3] *= (d - 1) / d
@@ -157,17 +158,17 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  isPlaying() {
+  isPlaying(): boolean {
     return this._playing
   }
 
-  setRotation(x, y, z) {
+  setRotation(x: number, y: number, z: number): void {
     if (this._handle) {
       this._handle.setRotation(x, y, z)
     }
   }
 
-  _render(renderer) {
+  _render(renderer): void {
     if (this._targets.length > 0 && this._handle && this._handle.exists) {
       this.onBeforeRender(renderer)
       this.setProjectionMatrix(renderer)
@@ -181,7 +182,7 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  setProjectionMatrix(renderer) {
+  setProjectionMatrix(renderer): void {
     const x = this._mirror ? -1 : 1
     const y = -1
     const p = -(this._viewportSize / renderer.view.height)
@@ -206,7 +207,7 @@ export class Sprite_Animation extends Sprite {
     ])
   }
 
-  setCameraMatrix(/* renderer */) {
+  setCameraMatrix(/* renderer */): void {
     // prettier-ignore
     Graphics.effekseer.setCameraMatrix([
       1,
@@ -228,7 +229,7 @@ export class Sprite_Animation extends Sprite {
     ])
   }
 
-  setViewport(renderer) {
+  setViewport(renderer): void {
     const vw = this._viewportSize
     const vh = this._viewportSize
     const vx = this._animation.offsetX - vw / 2
@@ -237,7 +238,7 @@ export class Sprite_Animation extends Sprite {
     renderer.gl.viewport(vx + pos.x, vy + pos.y, vw, vh)
   }
 
-  targetPosition(renderer) {
+  targetPosition(renderer): Point {
     const pos = new Point()
     if (this._animation.displayType === 2) {
       pos.x = renderer.view.width / 2
@@ -255,7 +256,7 @@ export class Sprite_Animation extends Sprite {
     return pos
   }
 
-  targetSpritePosition(sprite) {
+  targetSpritePosition(sprite: Sprite): Point {
     const point = new Point(0, -sprite.height / 2)
     if (this._animation.alignBottom) {
       point.y = 0
@@ -264,16 +265,16 @@ export class Sprite_Animation extends Sprite {
     return sprite.worldTransform.apply(point)
   }
 
-  resetViewport(renderer) {
+  resetViewport(renderer): void {
     renderer.gl.viewport(0, 0, renderer.view.width, renderer.view.height)
   }
 
-  onBeforeRender(renderer) {
+  onBeforeRender(renderer): void {
     renderer.batch.flush()
     renderer.geometry.reset()
   }
 
-  onAfterRender(renderer) {
+  onAfterRender(renderer): void {
     renderer.texture.reset()
     renderer.geometry.reset()
     renderer.state.reset()

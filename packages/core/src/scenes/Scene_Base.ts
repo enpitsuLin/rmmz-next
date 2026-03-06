@@ -8,7 +8,6 @@ import { FontManager } from '../managers/FontManager'
 import { ImageManager } from '../managers/ImageManager'
 import { SceneManager } from '../managers/SceneManager'
 import { Window_Base, Window_Selectable } from '../windows'
-import { Scene_Gameover } from './Scene_Gameover'
 
 /*
  /* Scene_Base
@@ -148,7 +147,9 @@ export class Scene_Base extends Stage {
 
   checkGameover(): void {
     if ($gameParty.isAllDead()) {
-      SceneManager.goto(Scene_Gameover)
+      import('./Scene_Gameover').then(({ Scene_Gameover }) => {
+        SceneManager.goto(Scene_Gameover)
+      })
     }
   }
 
@@ -169,8 +170,8 @@ export class Scene_Base extends Stage {
   }
 
   scaleSprite(sprite: Sprite): void {
-    const ratioX = Graphics.width / sprite.bitmap.width
-    const ratioY = Graphics.height / sprite.bitmap.height
+    const ratioX = Graphics.width / sprite.bitmap!.width
+    const ratioY = Graphics.height / sprite.bitmap!.height
     const scale = Math.max(ratioX, ratioY, 1.0)
     sprite.scale.x = scale
     sprite.scale.y = scale

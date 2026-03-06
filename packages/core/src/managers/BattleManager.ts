@@ -805,7 +805,7 @@ export class BattleManager {
         SceneManager.pop()
       }
       else {
-        SceneManager.goto(Scene_Gameover as unknown as Parameters<typeof SceneManager.goto>[0])
+        SceneManager.goto(Scene_Gameover)
       }
     }
     else {

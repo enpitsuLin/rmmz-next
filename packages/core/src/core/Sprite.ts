@@ -42,8 +42,8 @@ export class Sprite extends PIXI.Sprite {
     this._onBitmapChange()
   }
 
-  get bitmap(): Bitmap {
-    return this._bitmap!
+  get bitmap(): Bitmap | null {
+    return this._bitmap
   }
 
   set bitmap(value) {

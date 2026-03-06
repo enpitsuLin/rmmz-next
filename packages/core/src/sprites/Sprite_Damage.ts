@@ -1,3 +1,5 @@
+import type * as PIXI from 'pixi.js'
+import type { Game_Battler } from '../objects'
 import { Bitmap, Sprite } from '../core'
 import { ColorManager } from '../managers'
 
@@ -15,7 +17,7 @@ export class Sprite_Damage extends Sprite {
     this._colorType = 0
   }
 
-  destroy(options) {
+  destroy(options?: PIXI.IDestroyOptions): void {
     for (const child of this.children) {
       if (child.bitmap) {
         child.bitmap.destroy()
@@ -24,7 +26,7 @@ export class Sprite_Damage extends Sprite {
     super.destroy(options)
   }
 
-  setup(target) {
+  setup(target: Game_Battler): void {
     const result = target.result()
     if (result.missed || result.evaded) {
       this._colorType = 0
@@ -43,32 +45,32 @@ export class Sprite_Damage extends Sprite {
     }
   }
 
-  setupCriticalEffect() {
+  setupCriticalEffect(): void {
     this._flashColor = [255, 0, 0, 160]
     this._flashDuration = 60
   }
 
-  fontFace() {
+  fontFace(): string {
     return $gameSystem.numberFontFace()
   }
 
-  fontSize() {
+  fontSize(): number {
     return $gameSystem.mainFontSize() + 4
   }
 
-  damageColor() {
+  damageColor(): string {
     return ColorManager.damageColor(this._colorType)
   }
 
-  outlineColor() {
+  outlineColor(): string {
     return 'rgba(0, 0, 0, 0.7)'
   }
 
-  outlineWidth() {
+  outlineWidth(): number {
     return 4
   }
 
-  createMiss() {
+  createMiss(): void {
     const h = this.fontSize()
     const w = Math.floor(h * 3.0)
     const sprite = this.createChildSprite(w, h)
@@ -76,7 +78,7 @@ export class Sprite_Damage extends Sprite {
     sprite.dy = 0
   }
 
-  createDigits(value) {
+  createDigits(value: number): void {
     const string = Math.abs(value).toString()
     const h = this.fontSize()
     const w = Math.floor(h * 0.75)
@@ -88,7 +90,7 @@ export class Sprite_Damage extends Sprite {
     }
   }
 
-  createChildSprite(width, height) {
+  createChildSprite(width: number, height: number): Sprite {
     const sprite = new Sprite()
     sprite.bitmap = this.createBitmap(width, height)
     sprite.anchor.x = 0.5
@@ -99,7 +101,7 @@ export class Sprite_Damage extends Sprite {
     return sprite
   }
 
-  createBitmap(width, height) {
+  createBitmap(width: number, height: number): Bitmap {
     const bitmap = new Bitmap(width, height)
     bitmap.fontFace = this.fontFace()
     bitmap.fontSize = this.fontSize()
@@ -109,7 +111,7 @@ export class Sprite_Damage extends Sprite {
     return bitmap
   }
 
-  update() {
+  update(): void {
     super.update()
     if (this._duration > 0) {
       this._duration--
@@ -121,7 +123,7 @@ export class Sprite_Damage extends Sprite {
     this.updateOpacity()
   }
 
-  updateChild(sprite) {
+  updateChild(sprite: Sprite): void {
     sprite.dy += 0.5
     sprite.ry += sprite.dy
     if (sprite.ry >= 0) {
@@ -132,20 +134,20 @@ export class Sprite_Damage extends Sprite {
     sprite.setBlendColor(this._flashColor)
   }
 
-  updateFlash() {
+  updateFlash(): void {
     if (this._flashDuration > 0) {
       const d = this._flashDuration--
       this._flashColor[3] *= (d - 1) / d
     }
   }
 
-  updateOpacity() {
+  updateOpacity(): void {
     if (this._duration < 10) {
       this.opacity = (255 * this._duration) / 10
     }
   }
 
-  isPlaying() {
+  isPlaying(): boolean {
     return this._duration > 0
   }
 }

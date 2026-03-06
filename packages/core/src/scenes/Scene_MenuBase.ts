@@ -1,4 +1,5 @@
-import { PIXI } from '..'
+import type { Game_Actor } from '../objects'
+import * as PIXI from 'pixi.js'
 import { Graphics, Rectangle, Sprite } from '../core'
 import { ConfigManager } from '../managers/ConfigManager'
 import { SceneManager } from '../managers/SceneManager'
@@ -33,7 +34,6 @@ export class Scene_MenuBase extends Scene_Base {
     this.createButtons()
   }
 
-  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
   update(): void {
     super.update()
     this.updatePageButtons()

@@ -1,4 +1,5 @@
-import { PIXI } from '..'
+import type { Sprite_Battler } from './Sprite_Battler'
+import * as PIXI from 'pixi.js'
 import { Graphics, Sprite } from '../core'
 import { ImageManager, SceneManager } from '../managers'
 import { Sprite_Actor } from './Sprite_Actor'
@@ -17,7 +18,7 @@ export class Spriteset_Battle extends Spriteset_Base {
     this._battlebackLocated = false
   }
 
-  loadSystemImages() {
+  loadSystemImages(): void {
     super.loadSystemImages()
     ImageManager.loadSystem('Shadow2')
     ImageManager.loadSystem('Weapons1')
@@ -25,7 +26,7 @@ export class Spriteset_Battle extends Spriteset_Base {
     ImageManager.loadSystem('Weapons3')
   }
 
-  createLowerLayer() {
+  createLowerLayer(): void {
     super.createLowerLayer()
     this.createBackground()
     this.createBattleback()
@@ -34,7 +35,7 @@ export class Spriteset_Battle extends Spriteset_Base {
     this.createActors()
   }
 
-  createBackground() {
+  createBackground(): void {
     this._backgroundFilter = new PIXI.BlurFilter()
     this._backgroundSprite = new Sprite()
     this._backgroundSprite.bitmap = SceneManager.backgroundBitmap()
@@ -42,14 +43,14 @@ export class Spriteset_Battle extends Spriteset_Base {
     this._baseSprite.addChild(this._backgroundSprite)
   }
 
-  createBattleback() {
+  createBattleback(): void {
     this._back1Sprite = new Sprite_Battleback(0)
     this._back2Sprite = new Sprite_Battleback(1)
     this._baseSprite.addChild(this._back1Sprite)
     this._baseSprite.addChild(this._back2Sprite)
   }
 
-  createBattleField() {
+  createBattleField(): void {
     const width = Graphics.boxWidth
     const height = Graphics.boxHeight
     const x = (Graphics.width - width) / 2
@@ -62,18 +63,18 @@ export class Spriteset_Battle extends Spriteset_Base {
     this._effectsContainer = this._battleField
   }
 
-  battleFieldOffsetY() {
+  battleFieldOffsetY(): number {
     return 24
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateActors()
     this.updateBattleback()
     this.updateAnimations()
   }
 
-  updateBattleback() {
+  updateBattleback(): void {
     if (!this._battlebackLocated) {
       this._back1Sprite.adjustPosition()
       this._back2Sprite.adjustPosition()
@@ -81,7 +82,7 @@ export class Spriteset_Battle extends Spriteset_Base {
     }
   }
 
-  createEnemies() {
+  createEnemies(): void {
     const enemies = $gameTroop.members()
     const sprites = []
     for (const enemy of enemies) {
@@ -94,7 +95,7 @@ export class Spriteset_Battle extends Spriteset_Base {
     this._enemySprites = sprites
   }
 
-  compareEnemySprite(a, b) {
+  compareEnemySprite(a: Sprite_Battler, b: Sprite_Battler): number {
     if (a.y !== b.y) {
       return a.y - b.y
     }
@@ -103,7 +104,7 @@ export class Spriteset_Battle extends Spriteset_Base {
     }
   }
 
-  createActors() {
+  createActors(): void {
     this._actorSprites = []
     if ($gameSystem.isSideView()) {
       for (let i = 0; i < $gameParty.maxBattleMembers(); i++) {
@@ -114,30 +115,30 @@ export class Spriteset_Battle extends Spriteset_Base {
     }
   }
 
-  updateActors() {
+  updateActors(): void {
     const members = $gameParty.battleMembers()
     for (let i = 0; i < this._actorSprites.length; i++) {
       this._actorSprites[i].setBattler(members[i])
     }
   }
 
-  findTargetSprite(target) {
+  findTargetSprite(target): Sprite_Battler | undefined {
     return this.battlerSprites().find(sprite => sprite.checkBattler(target))
   }
 
-  battlerSprites() {
+  battlerSprites(): Sprite_Battler[] {
     return this._enemySprites.concat(this._actorSprites)
   }
 
-  isEffecting() {
+  isEffecting(): boolean {
     return this.battlerSprites().some(sprite => sprite.isEffecting())
   }
 
-  isAnyoneMoving() {
+  isAnyoneMoving(): boolean {
     return this.battlerSprites().some(sprite => sprite.isMoving())
   }
 
-  isBusy() {
+  isBusy(): boolean {
     return this.isAnimationPlaying() || this.isAnyoneMoving()
   }
 }

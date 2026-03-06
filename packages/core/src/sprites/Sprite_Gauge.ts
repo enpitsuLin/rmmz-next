@@ -1,4 +1,5 @@
-import type { PIXI } from '..'
+import type * as PIXI from 'pixi.js'
+import type { Game_Battler } from '../objects'
 import { Bitmap, Sprite } from '../core'
 import { ColorManager, TextManager } from '../managers'
 
@@ -25,34 +26,34 @@ export class Sprite_Gauge extends Sprite {
     this._flashingCount = 0
   }
 
-  destroy(options: PIXI.IDestroyOptions) {
+  destroy(options?: PIXI.IDestroyOptions): void {
     this.bitmap.destroy()
     super.destroy(options)
   }
 
-  createBitmap() {
+  createBitmap(): void {
     const width = this.bitmapWidth()
     const height = this.bitmapHeight()
     this.bitmap = new Bitmap(width, height)
   }
 
-  bitmapWidth() {
+  bitmapWidth(): number {
     return 128
   }
 
-  bitmapHeight() {
+  bitmapHeight(): number {
     return 32
   }
 
-  textHeight() {
+  textHeight(): number {
     return 24
   }
 
-  gaugeHeight() {
+  gaugeHeight(): number {
     return 12
   }
 
-  gaugeX() {
+  gaugeX(): number {
     if (this._statusType === 'time') {
       return 0
     }
@@ -61,27 +62,27 @@ export class Sprite_Gauge extends Sprite {
     }
   }
 
-  labelY() {
+  labelY(): number {
     return 3
   }
 
-  labelFontFace() {
+  labelFontFace(): string {
     return $gameSystem.mainFontFace()
   }
 
-  labelFontSize() {
+  labelFontSize(): number {
     return $gameSystem.mainFontSize() - 2
   }
 
-  valueFontFace() {
+  valueFontFace(): string {
     return $gameSystem.numberFontFace()
   }
 
-  valueFontSize() {
+  valueFontSize(): number {
     return $gameSystem.mainFontSize() - 6
   }
 
-  setup(battler, statusType) {
+  setup(battler: Game_Battler, statusType: Sprite_Gauge.StatusType): void {
     this._battler = battler
     this._statusType = statusType
     this._value = this.currentValue()
@@ -89,12 +90,12 @@ export class Sprite_Gauge extends Sprite {
     this.updateBitmap()
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateBitmap()
   }
 
-  updateBitmap() {
+  updateBitmap(): void {
     const value = this.currentValue()
     const maxValue = this.currentMaxValue()
     if (value !== this._targetValue || maxValue !== this._targetMaxValue) {
@@ -104,10 +105,10 @@ export class Sprite_Gauge extends Sprite {
     this.updateFlashing()
   }
 
-  updateTargetValue(value, maxValue) {
+  updateTargetValue(value: number, maxValue: number): void {
     this._targetValue = value
     this._targetMaxValue = maxValue
-    if (isNaN(this._value)) {
+    if (Number.isNaN(this._value)) {
       this._value = value
       this._maxValue = maxValue
       this.redraw()
@@ -117,11 +118,11 @@ export class Sprite_Gauge extends Sprite {
     }
   }
 
-  smoothness() {
+  smoothness(): number {
     return this._statusType === 'time' ? 5 : 20
   }
 
-  updateGaugeAnimation() {
+  updateGaugeAnimation(): void {
     if (this._duration > 0) {
       const d = this._duration
       this._value = (this._value * (d - 1) + this._targetValue) / d
@@ -131,7 +132,7 @@ export class Sprite_Gauge extends Sprite {
     }
   }
 
-  updateFlashing() {
+  updateFlashing(): void {
     if (this._statusType === 'time') {
       this._flashingCount++
       if (this._battler.isInputting()) {
@@ -148,15 +149,15 @@ export class Sprite_Gauge extends Sprite {
     }
   }
 
-  flashingColor1() {
+  flashingColor1(): number[] {
     return [255, 255, 255, 64]
   }
 
-  flashingColor2() {
+  flashingColor2(): number[] {
     return [0, 0, 255, 48]
   }
 
-  isValid() {
+  isValid(): boolean {
     if (this._battler) {
       if (this._statusType === 'tp' && !this._battler.isPreserveTp()) {
         return $gameParty.inBattle()
@@ -168,7 +169,7 @@ export class Sprite_Gauge extends Sprite {
     return false
   }
 
-  currentValue() {
+  currentValue(): number {
     if (this._battler) {
       switch (this._statusType) {
         case 'hp':
@@ -184,7 +185,7 @@ export class Sprite_Gauge extends Sprite {
     return Number.NaN
   }
 
-  currentMaxValue() {
+  currentMaxValue(): number {
     if (this._battler) {
       switch (this._statusType) {
         case 'hp':
@@ -200,7 +201,7 @@ export class Sprite_Gauge extends Sprite {
     return Number.NaN
   }
 
-  label() {
+  label(): string {
     switch (this._statusType) {
       case 'hp':
         return TextManager.hpA
@@ -213,11 +214,11 @@ export class Sprite_Gauge extends Sprite {
     }
   }
 
-  gaugeBackColor() {
+  gaugeBackColor(): string {
     return ColorManager.gaugeBackColor()
   }
 
-  gaugeColor1() {
+  gaugeColor1(): string {
     switch (this._statusType) {
       case 'hp':
         return ColorManager.hpGaugeColor1()
@@ -232,7 +233,7 @@ export class Sprite_Gauge extends Sprite {
     }
   }
 
-  gaugeColor2() {
+  gaugeColor2(): string {
     switch (this._statusType) {
       case 'hp':
         return ColorManager.hpGaugeColor2()
@@ -247,19 +248,19 @@ export class Sprite_Gauge extends Sprite {
     }
   }
 
-  labelColor() {
+  labelColor(): string {
     return ColorManager.systemColor()
   }
 
-  labelOutlineColor() {
+  labelOutlineColor(): string {
     return ColorManager.outlineColor()
   }
 
-  labelOutlineWidth() {
+  labelOutlineWidth(): number {
     return 3
   }
 
-  valueColor() {
+  valueColor(): string {
     switch (this._statusType) {
       case 'hp':
         return ColorManager.hpColor(this._battler)
@@ -272,18 +273,18 @@ export class Sprite_Gauge extends Sprite {
     }
   }
 
-  valueOutlineColor() {
+  valueOutlineColor(): string {
     return 'rgba(0, 0, 0, 1)'
   }
 
-  valueOutlineWidth() {
+  valueOutlineWidth(): number {
     return 2
   }
 
-  redraw() {
+  redraw(): void {
     this.bitmap.clear()
     const currentValue = this.currentValue()
-    if (!isNaN(currentValue)) {
+    if (!Number.isNaN(currentValue)) {
       this.drawGauge()
       if (this._statusType !== 'time') {
         this.drawLabel()
@@ -294,7 +295,7 @@ export class Sprite_Gauge extends Sprite {
     }
   }
 
-  drawGauge() {
+  drawGauge(): void {
     const gaugeX = this.gaugeX()
     const gaugeY = this.textHeight() - this.gaugeHeight()
     const gaugewidth = this.bitmapWidth() - gaugeX
@@ -302,7 +303,7 @@ export class Sprite_Gauge extends Sprite {
     this.drawGaugeRect(gaugeX, gaugeY, gaugewidth, gaugeHeight)
   }
 
-  drawGaugeRect(x, y, width, height) {
+  drawGaugeRect(x: number, y: number, width: number, height: number): void {
     const rate = this.gaugeRate()
     const fillW = Math.floor((width - 2) * rate)
     const fillH = height - 2
@@ -313,7 +314,7 @@ export class Sprite_Gauge extends Sprite {
     this.bitmap.gradientFillRect(x + 1, y + 1, fillW, fillH, color1, color2)
   }
 
-  gaugeRate() {
+  gaugeRate(): number {
     if (this.isValid()) {
       const value = this._value
       const maxValue = this._maxValue
@@ -324,7 +325,7 @@ export class Sprite_Gauge extends Sprite {
     }
   }
 
-  drawLabel() {
+  drawLabel(): void {
     const label = this.label()
     const x = this.labelOutlineWidth() / 2
     const y = this.labelY()
@@ -336,7 +337,7 @@ export class Sprite_Gauge extends Sprite {
     this.bitmap.paintOpacity = 255
   }
 
-  setupLabelFont() {
+  setupLabelFont(): void {
     this.bitmap.fontFace = this.labelFontFace()
     this.bitmap.fontSize = this.labelFontSize()
     this.bitmap.textColor = this.labelColor()
@@ -344,18 +345,18 @@ export class Sprite_Gauge extends Sprite {
     this.bitmap.outlineWidth = this.labelOutlineWidth()
   }
 
-  measureLabelWidth() {
+  measureLabelWidth(): number {
     this.setupLabelFont()
     const labels = [TextManager.hpA, TextManager.mpA, TextManager.tpA]
     const widths = labels.map(str => this.bitmap.measureTextWidth(str))
     return Math.ceil(Math.max(...widths))
   }
 
-  labelOpacity() {
+  labelOpacity(): number {
     return this.isValid() ? 255 : 160
   }
 
-  drawValue() {
+  drawValue(): void {
     const currentValue = this.currentValue()
     const width = this.bitmapWidth()
     const height = this.textHeight()
@@ -363,11 +364,15 @@ export class Sprite_Gauge extends Sprite {
     this.bitmap.drawText(currentValue, 0, 0, width, height, 'right')
   }
 
-  setupValueFont() {
+  setupValueFont(): void {
     this.bitmap.fontFace = this.valueFontFace()
     this.bitmap.fontSize = this.valueFontSize()
     this.bitmap.textColor = this.valueColor()
     this.bitmap.outlineColor = this.valueOutlineColor()
     this.bitmap.outlineWidth = this.valueOutlineWidth()
   }
+}
+
+export namespace Sprite_Gauge {
+  export type StatusType = 'hp' | 'mp' | 'tp' | 'time' | ''
 }

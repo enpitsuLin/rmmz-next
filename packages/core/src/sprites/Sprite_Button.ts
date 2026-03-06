@@ -8,7 +8,7 @@ import { Sprite_Clickable } from './Sprite_Clickable'
  * The sprite for displaying a button.
  */
 export class Sprite_Button extends Sprite_Clickable {
-  constructor(buttonType) {
+  constructor(buttonType: Sprite_Button.ButtonType) {
     super()
     this._buttonType = buttonType
     this._clickHandler = null
@@ -17,7 +17,7 @@ export class Sprite_Button extends Sprite_Clickable {
     this.setupFrames()
   }
 
-  setupFrames() {
+  setupFrames(): void {
     const data = this.buttonData()
     const x = data.x * this.blockWidth()
     const width = data.w * this.blockWidth()
@@ -29,19 +29,19 @@ export class Sprite_Button extends Sprite_Clickable {
     this.updateOpacity()
   }
 
-  blockWidth() {
+  blockWidth(): number {
     return 48
   }
 
-  blockHeight() {
+  blockHeight(): number {
     return 48
   }
 
-  loadButtonImage() {
+  loadButtonImage(): void {
     this.bitmap = ImageManager.loadSystem('ButtonSet')
   }
 
-  buttonData() {
+  buttonData(): { x: number, w: number } {
     const buttonTable = {
       cancel: { x: 0, w: 2 },
       pageup: { x: 2, w: 1 },
@@ -56,7 +56,7 @@ export class Sprite_Button extends Sprite_Clickable {
     return buttonTable[this._buttonType]
   }
 
-  update() {
+  update(): void {
     super.update()
     this.checkBitmap()
     this.updateFrame()
@@ -64,37 +64,37 @@ export class Sprite_Button extends Sprite_Clickable {
     this.processTouch()
   }
 
-  checkBitmap() {
+  checkBitmap(): void {
     if (this.bitmap.isReady() && this.bitmap.width < this.blockWidth() * 11) {
       // Probably MV image is used
       throw new Error('ButtonSet image is too small')
     }
   }
 
-  updateFrame() {
+  updateFrame(): void {
     const frame = this.isPressed() ? this._hotFrame : this._coldFrame
     if (frame) {
       this.setFrame(frame.x, frame.y, frame.width, frame.height)
     }
   }
 
-  updateOpacity() {
+  updateOpacity(): void {
     this.opacity = this._pressed ? 255 : 192
   }
 
-  setColdFrame(x, y, width, height) {
+  setColdFrame(x: number, y: number, width: number, height: number): void {
     this._coldFrame = new Rectangle(x, y, width, height)
   }
 
-  setHotFrame(x, y, width, height) {
+  setHotFrame(x: number, y: number, width: number, height: number): void {
     this._hotFrame = new Rectangle(x, y, width, height)
   }
 
-  setClickHandler(method) {
+  setClickHandler(method: (() => void) | null): void {
     this._clickHandler = method
   }
 
-  onClick() {
+  onClick(): void {
     if (this._clickHandler) {
       this._clickHandler()
     }
@@ -102,4 +102,8 @@ export class Sprite_Button extends Sprite_Clickable {
       Input.virtualClick(this._buttonType)
     }
   }
+}
+
+export namespace Sprite_Button {
+  export type ButtonType = 'cancel' | 'pageup' | 'pagedown' | 'down' | 'up' | 'down2' | 'up2' | 'ok' | 'menu'
 }

@@ -204,9 +204,9 @@ export class AudioManager {
     }
   }
 
-  static playMe(me: MZ.AudioInfo): void {
+  static playMe(me: MZ.AudioInfo | null): void {
     this.stopMe()
-    if (me.name) {
+    if (me && me.name) {
       if (this._bgmBuffer && this._currentBgm) {
         this._currentBgm.pos = this._bgmBuffer.seek()
         this._bgmBuffer.stop()

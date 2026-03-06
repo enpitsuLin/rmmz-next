@@ -1,6 +1,7 @@
-import type { PIXI } from '..'
-import type { ColorManager } from '../managers'
+import type * as PIXI from 'pixi.js'
+import type { Game_Battler } from '../objects'
 import { Bitmap, Sprite } from '../core'
+import { ColorManager } from '../managers'
 
 /**
  * Sprite_Name
@@ -14,7 +15,7 @@ export class Sprite_Name extends Sprite {
     this.createBitmap()
   }
 
-  initMembers() {
+  initMembers(): void {
     this._battler = null
     this._name = ''
     this._textColor = ''
@@ -25,39 +26,39 @@ export class Sprite_Name extends Sprite {
     super.destroy(options)
   }
 
-  createBitmap() {
+  createBitmap(): void {
     const width = this.bitmapWidth()
     const height = this.bitmapHeight()
     this.bitmap = new Bitmap(width, height)
   }
 
-  bitmapWidth() {
+  bitmapWidth(): number {
     return 128
   }
 
-  bitmapHeight() {
+  bitmapHeight(): number {
     return 24
   }
 
-  fontFace() {
+  fontFace(): string {
     return $gameSystem.mainFontFace()
   }
 
-  fontSize() {
+  fontSize(): number {
     return $gameSystem.mainFontSize()
   }
 
-  setup(battler) {
+  setup(battler: Game_Battler): void {
     this._battler = battler
     this.updateBitmap()
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateBitmap()
   }
 
-  updateBitmap() {
+  updateBitmap(): void {
     const name = this.name
     const color = this.textColor()
     if (name !== this._name || color !== this._textColor) {
@@ -71,19 +72,19 @@ export class Sprite_Name extends Sprite {
     return this._battler ? this._battler.name() : ''
   }
 
-  textColor() {
+  textColor(): string {
     return ColorManager.hpColor(this._battler)
   }
 
-  outlineColor() {
+  outlineColor(): string {
     return ColorManager.outlineColor()
   }
 
-  outlineWidth() {
+  outlineWidth(): number {
     return 3
   }
 
-  redraw() {
+  redraw(): void {
     const name = this.name
     const width = this.bitmapWidth()
     const height = this.bitmapHeight()
@@ -92,7 +93,7 @@ export class Sprite_Name extends Sprite {
     this.bitmap.drawText(name, 0, 0, width, height, 'left')
   }
 
-  setupFont() {
+  setupFont(): void {
     this.bitmap.fontFace = this.fontFace()
     this.bitmap.fontSize = this.fontSize()
     this.bitmap.textColor = this.textColor()

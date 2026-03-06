@@ -16,18 +16,18 @@ export class Spriteset_Map extends Spriteset_Base {
     this._balloonSprites = []
   }
 
-  destroy(options) {
+  destroy(options): void {
     this.removeAllBalloons()
     super.destroy(options)
   }
 
-  loadSystemImages() {
+  loadSystemImages(): void {
     super.loadSystemImages()
     ImageManager.loadSystem('Balloon')
     ImageManager.loadSystem('Shadow1')
   }
 
-  createLowerLayer() {
+  createLowerLayer(): void {
     super.createLowerLayer()
     this.createParallax()
     this.createTilemap()
@@ -37,7 +37,7 @@ export class Spriteset_Map extends Spriteset_Base {
     this.createWeather()
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateTileset()
     this.updateParallax()
@@ -48,7 +48,7 @@ export class Spriteset_Map extends Spriteset_Base {
     this.updateBalloons()
   }
 
-  hideCharacters() {
+  hideCharacters(): void {
     for (const sprite of this._characterSprites) {
       if (!sprite.isTile() && !sprite.isObjectCharacter()) {
         sprite.hide()
@@ -56,13 +56,13 @@ export class Spriteset_Map extends Spriteset_Base {
     }
   }
 
-  createParallax() {
+  createParallax(): void {
     this._parallax = new TilingSprite()
     this._parallax.move(0, 0, Graphics.width, Graphics.height)
     this._baseSprite.addChild(this._parallax)
   }
 
-  createTilemap() {
+  createTilemap(): void {
     const tilemap = new Tilemap()
     tilemap.tileWidth = $gameMap.tileWidth()
     tilemap.tileHeight = $gameMap.tileHeight()
@@ -75,7 +75,7 @@ export class Spriteset_Map extends Spriteset_Base {
     this.loadTileset()
   }
 
-  loadTileset() {
+  loadTileset(): void {
     this._tileset = $gameMap.tileset()
     if (this._tileset) {
       const bitmaps = []
@@ -88,7 +88,7 @@ export class Spriteset_Map extends Spriteset_Base {
     }
   }
 
-  createCharacters() {
+  createCharacters(): void {
     this._characterSprites = []
     for (const event of $gameMap.events()) {
       this._characterSprites.push(new Sprite_Character(event))
@@ -105,7 +105,7 @@ export class Spriteset_Map extends Spriteset_Base {
     }
   }
 
-  createShadow() {
+  createShadow(): void {
     this._shadowSprite = new Sprite()
     this._shadowSprite.bitmap = ImageManager.loadSystem('Shadow1')
     this._shadowSprite.anchor.x = 0.5
@@ -114,24 +114,24 @@ export class Spriteset_Map extends Spriteset_Base {
     this._tilemap.addChild(this._shadowSprite)
   }
 
-  createDestination() {
+  createDestination(): void {
     this._destinationSprite = new Sprite_Destination()
     this._destinationSprite.z = 9
     this._tilemap.addChild(this._destinationSprite)
   }
 
-  createWeather() {
+  createWeather(): void {
     this._weather = new Weather()
     this.addChild(this._weather)
   }
 
-  updateTileset() {
+  updateTileset(): void {
     if (this._tileset !== $gameMap.tileset()) {
       this.loadTileset()
     }
   }
 
-  updateParallax() {
+  updateParallax(): void {
     if (this._parallaxName !== $gameMap.parallaxName()) {
       this._parallaxName = $gameMap.parallaxName()
       this._parallax.bitmap = ImageManager.loadParallax(this._parallaxName)
@@ -143,26 +143,26 @@ export class Spriteset_Map extends Spriteset_Base {
     }
   }
 
-  updateTilemap() {
+  updateTilemap(): void {
     this._tilemap.origin.x = $gameMap.displayX() * $gameMap.tileWidth()
     this._tilemap.origin.y = $gameMap.displayY() * $gameMap.tileHeight()
   }
 
-  updateShadow() {
+  updateShadow(): void {
     const airship = $gameMap.airship()
     this._shadowSprite.x = airship.shadowX()
     this._shadowSprite.y = airship.shadowY()
     this._shadowSprite.opacity = airship.shadowOpacity()
   }
 
-  updateWeather() {
+  updateWeather(): void {
     this._weather.type = $gameScreen.weatherType()
     this._weather.power = $gameScreen.weatherPower()
     this._weather.origin.x = $gameMap.displayX() * $gameMap.tileWidth()
     this._weather.origin.y = $gameMap.displayY() * $gameMap.tileHeight()
   }
 
-  updateBalloons() {
+  updateBalloons(): void {
     for (const sprite of this._balloonSprites) {
       if (!sprite.isPlaying()) {
         this.removeBalloon(sprite)
@@ -171,7 +171,7 @@ export class Spriteset_Map extends Spriteset_Base {
     this.processBalloonRequests()
   }
 
-  processBalloonRequests() {
+  processBalloonRequests(): void {
     for (; ;) {
       const request = $gameTemp.retrieveBalloon()
       if (request) {
@@ -183,7 +183,7 @@ export class Spriteset_Map extends Spriteset_Base {
     }
   }
 
-  createBalloon(request) {
+  createBalloon(request): void {
     const targetSprite = this.findTargetSprite(request.target)
     if (targetSprite) {
       const sprite = new Sprite_Balloon()
@@ -194,7 +194,7 @@ export class Spriteset_Map extends Spriteset_Base {
     }
   }
 
-  removeBalloon(sprite) {
+  removeBalloon(sprite: Sprite_Balloon): void {
     this._balloonSprites.remove(sprite)
     this._effectsContainer.removeChild(sprite)
     if (sprite.targetObject.endBalloon) {
@@ -203,17 +203,17 @@ export class Spriteset_Map extends Spriteset_Base {
     sprite.destroy()
   }
 
-  removeAllBalloons() {
+  removeAllBalloons(): void {
     for (const sprite of this._balloonSprites.clone()) {
       this.removeBalloon(sprite)
     }
   }
 
-  findTargetSprite(target) {
+  findTargetSprite(target): Sprite_Character | undefined {
     return this._characterSprites.find(sprite => sprite.checkCharacter(target))
   }
 
-  animationBaseDelay() {
+  animationBaseDelay(): number {
     return 0
   }
 }

@@ -1,3 +1,4 @@
+import type { Game_Battler } from '../objects'
 import { Sprite } from '../core'
 
 /**
@@ -12,7 +13,7 @@ export class Sprite_StateOverlay extends Sprite {
     this.loadBitmap()
   }
 
-  initMembers() {
+  initMembers(): void {
     this._battler = null
     this._overlayIndex = 0
     this._animationCount = 0
@@ -21,16 +22,16 @@ export class Sprite_StateOverlay extends Sprite {
     this.anchor.y = 1
   }
 
-  loadBitmap() {
+  loadBitmap(): void {
     this.bitmap = ImageManager.loadSystem('States')
     this.setFrame(0, 0, 0, 0)
   }
 
-  setup(battler) {
+  setup(battler: Game_Battler): void {
     this._battler = battler
   }
 
-  update() {
+  update(): void {
     super.update()
     this._animationCount++
     if (this._animationCount >= this.animationWait()) {
@@ -40,11 +41,11 @@ export class Sprite_StateOverlay extends Sprite {
     }
   }
 
-  animationWait() {
+  animationWait(): number {
     return 8
   }
 
-  updatePattern() {
+  updatePattern(): void {
     this._pattern++
     this._pattern %= 8
     if (this._battler) {
@@ -55,7 +56,7 @@ export class Sprite_StateOverlay extends Sprite {
     }
   }
 
-  updateFrame() {
+  updateFrame(): void {
     if (this._overlayIndex > 0) {
       const w = 96
       const h = 96

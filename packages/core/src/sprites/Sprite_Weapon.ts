@@ -11,7 +11,7 @@ export class Sprite_Weapon extends Sprite {
     this.initMembers()
   }
 
-  initMembers() {
+  initMembers(): void {
     this._weaponImageId = 0
     this._animationCount = 0
     this._pattern = 0
@@ -20,7 +20,7 @@ export class Sprite_Weapon extends Sprite {
     this.x = -16
   }
 
-  setup(weaponImageId) {
+  setup(weaponImageId: number): void {
     this._weaponImageId = weaponImageId
     this._animationCount = 0
     this._pattern = 0
@@ -28,7 +28,7 @@ export class Sprite_Weapon extends Sprite {
     this.updateFrame()
   }
 
-  update() {
+  update(): void {
     super.update()
     this._animationCount++
     if (this._animationCount >= this.animationWait()) {
@@ -38,18 +38,18 @@ export class Sprite_Weapon extends Sprite {
     }
   }
 
-  animationWait() {
+  animationWait(): number {
     return 12
   }
 
-  updatePattern() {
+  updatePattern(): void {
     this._pattern++
     if (this._pattern >= 3) {
       this._weaponImageId = 0
     }
   }
 
-  loadBitmap() {
+  loadBitmap(): void {
     const pageId = Math.floor((this._weaponImageId - 1) / 12) + 1
     if (pageId >= 1) {
       this.bitmap = ImageManager.loadSystem(`Weapons${pageId}`)
@@ -59,7 +59,7 @@ export class Sprite_Weapon extends Sprite {
     }
   }
 
-  updateFrame() {
+  updateFrame(): void {
     if (this._weaponImageId > 0) {
       const index = (this._weaponImageId - 1) % 12
       const w = 96
@@ -73,7 +73,7 @@ export class Sprite_Weapon extends Sprite {
     }
   }
 
-  isPlaying() {
+  isPlaying(): boolean {
     return this._weaponImageId > 0
   }
 }

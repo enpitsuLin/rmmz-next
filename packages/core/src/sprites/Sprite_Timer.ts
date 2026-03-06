@@ -1,3 +1,4 @@
+import type * as PIXI from 'pixi.js'
 import { Bitmap, Graphics, Sprite } from '../core'
 import { ColorManager } from '../managers'
 
@@ -14,41 +15,41 @@ export class Sprite_Timer extends Sprite {
     this.update()
   }
 
-  destroy(options) {
+  destroy(options?: PIXI.IDestroyOptions): void {
     this.bitmap.destroy()
     super.destroy(options)
   }
 
-  createBitmap() {
+  createBitmap(): void {
     this.bitmap = new Bitmap(96, 48)
     this.bitmap.fontFace = this.fontFace()
     this.bitmap.fontSize = this.fontSize()
     this.bitmap.outlineColor = ColorManager.outlineColor()
   }
 
-  fontFace() {
+  fontFace(): string {
     return $gameSystem.numberFontFace()
   }
 
-  fontSize() {
+  fontSize(): number {
     return $gameSystem.mainFontSize() + 8
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateBitmap()
     this.updatePosition()
     this.updateVisibility()
   }
 
-  updateBitmap() {
+  updateBitmap(): void {
     if (this._seconds !== $gameTimer.seconds()) {
       this._seconds = $gameTimer.seconds()
       this.redraw()
     }
   }
 
-  redraw() {
+  redraw(): void {
     const text = this.timerText()
     const width = this.bitmap.width
     const height = this.bitmap.height
@@ -56,18 +57,18 @@ export class Sprite_Timer extends Sprite {
     this.bitmap.drawText(text, 0, 0, width, height, 'center')
   }
 
-  timerText() {
+  timerText(): string {
     const min = Math.floor(this._seconds / 60) % 60
     const sec = this._seconds % 60
     return `${min.padZero(2)}:${sec.padZero(2)}`
   }
 
-  updatePosition() {
+  updatePosition(): void {
     this.x = (Graphics.width - this.bitmap.width) / 2
     this.y = 0
   }
 
-  updateVisibility() {
+  updateVisibility(): void {
     this.visible = $gameTimer.isWorking()
   }
 }

@@ -1,3 +1,5 @@
+import type { Bitmap } from '../core'
+import type { Game_CharacterBase } from '../objects'
 import { Sprite } from '../core'
 import { ImageManager } from '../managers'
 
@@ -7,13 +9,13 @@ import { ImageManager } from '../managers'
  * The sprite for displaying a character.
  */
 export class Sprite_Character extends Sprite {
-  constructor(character) {
+  constructor(character: Game_CharacterBase) {
     super()
     this.initMembers()
     this.setCharacter(character)
   }
 
-  initMembers() {
+  initMembers(): void {
     this.anchor.x = 0.5
     this.anchor.y = 1
     this._character = null
@@ -23,15 +25,15 @@ export class Sprite_Character extends Sprite {
     this._lowerBody = null
   }
 
-  setCharacter(character) {
+  setCharacter(character: Game_CharacterBase): void {
     this._character = character
   }
 
-  checkCharacter(character) {
+  checkCharacter(character: Game_CharacterBase): boolean {
     return this._character === character
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateBitmap()
     this.updateFrame()
@@ -40,32 +42,32 @@ export class Sprite_Character extends Sprite {
     this.updateVisibility()
   }
 
-  updateVisibility() {
+  updateVisibility(): void {
     super.updateVisibility()
     if (this.isEmptyCharacter() || this._character.isTransparent()) {
       this.visible = false
     }
   }
 
-  isTile() {
+  isTile(): boolean {
     return this._character.isTile()
   }
 
-  isObjectCharacter() {
+  isObjectCharacter(): boolean {
     return this._character.isObjectCharacter()
   }
 
-  isEmptyCharacter() {
+  isEmptyCharacter(): boolean {
     return this._tileId === 0 && !this._characterName
   }
 
-  tilesetBitmap(tileId) {
+  tilesetBitmap(tileId: number): Bitmap {
     const tileset = $gameMap.tileset()
     const setNumber = 5 + Math.floor(tileId / 256)
     return ImageManager.loadTileset(tileset.tilesetNames[setNumber])
   }
 
-  updateBitmap() {
+  updateBitmap(): void {
     if (this.isImageChanged()) {
       this._tilesetId = $gameMap.tilesetId()
       this._tileId = this._character.tileId()
@@ -80,7 +82,7 @@ export class Sprite_Character extends Sprite {
     }
   }
 
-  isImageChanged() {
+  isImageChanged(): boolean {
     return (
       this._tilesetId !== $gameMap.tilesetId()
       || this._tileId !== this._character.tileId()
@@ -89,16 +91,16 @@ export class Sprite_Character extends Sprite {
     )
   }
 
-  setTileBitmap() {
+  setTileBitmap(): void {
     this.bitmap = this.tilesetBitmap(this._tileId)
   }
 
-  setCharacterBitmap() {
+  setCharacterBitmap(): void {
     this.bitmap = ImageManager.loadCharacter(this._characterName)
     this._isBigCharacter = ImageManager.isBigCharacter(this._characterName)
   }
 
-  updateFrame() {
+  updateFrame(): void {
     if (this._tileId > 0) {
       this.updateTileFrame()
     }
@@ -107,7 +109,7 @@ export class Sprite_Character extends Sprite {
     }
   }
 
-  updateTileFrame() {
+  updateTileFrame(): void {
     const tileId = this._tileId
     const pw = this.patternWidth()
     const ph = this.patternHeight()
@@ -116,7 +118,7 @@ export class Sprite_Character extends Sprite {
     this.setFrame(sx, sy, pw, ph)
   }
 
-  updateCharacterFrame() {
+  updateCharacterFrame(): void {
     const pw = this.patternWidth()
     const ph = this.patternHeight()
     const sx = (this.characterBlockX() + this.characterPatternX()) * pw
@@ -133,7 +135,7 @@ export class Sprite_Character extends Sprite {
     }
   }
 
-  characterBlockX() {
+  characterBlockX(): number {
     if (this._isBigCharacter) {
       return 0
     }
@@ -143,7 +145,7 @@ export class Sprite_Character extends Sprite {
     }
   }
 
-  characterBlockY() {
+  characterBlockY(): number {
     if (this._isBigCharacter) {
       return 0
     }
@@ -153,15 +155,15 @@ export class Sprite_Character extends Sprite {
     }
   }
 
-  characterPatternX() {
+  characterPatternX(): number {
     return this._character.pattern()
   }
 
-  characterPatternY() {
+  characterPatternY(): number {
     return (this._character.direction() - 2) / 2
   }
 
-  patternWidth() {
+  patternWidth(): number {
     if (this._tileId > 0) {
       return $gameMap.tileWidth()
     }
@@ -173,7 +175,7 @@ export class Sprite_Character extends Sprite {
     }
   }
 
-  patternHeight() {
+  patternHeight(): number {
     if (this._tileId > 0) {
       return $gameMap.tileHeight()
     }
@@ -185,7 +187,7 @@ export class Sprite_Character extends Sprite {
     }
   }
 
-  updateHalfBodySprites() {
+  updateHalfBodySprites(): void {
     if (this._bushDepth > 0) {
       this.createHalfBodySprites()
       this._upperBody.bitmap = this.bitmap
@@ -206,7 +208,7 @@ export class Sprite_Character extends Sprite {
     }
   }
 
-  createHalfBodySprites() {
+  createHalfBodySprites(): void {
     if (!this._upperBody) {
       this._upperBody = new Sprite()
       this._upperBody.anchor.x = 0.5
@@ -222,13 +224,13 @@ export class Sprite_Character extends Sprite {
     }
   }
 
-  updatePosition() {
+  updatePosition(): void {
     this.x = this._character.screenX()
     this.y = this._character.screenY()
     this.z = this._character.screenZ()
   }
 
-  updateOther() {
+  updateOther(): void {
     this.opacity = this._character.opacity()
     this.blendMode = this._character.blendMode()
     this._bushDepth = this._character.bushDepth()

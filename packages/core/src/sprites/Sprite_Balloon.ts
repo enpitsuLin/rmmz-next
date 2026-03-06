@@ -12,7 +12,7 @@ export class Sprite_Balloon extends Sprite {
     this.loadBitmap()
   }
 
-  initMembers() {
+  initMembers(): void {
     this._target = null
     this._balloonId = 0
     this._duration = 0
@@ -21,18 +21,18 @@ export class Sprite_Balloon extends Sprite {
     this.z = 7
   }
 
-  loadBitmap() {
+  loadBitmap(): void {
     this.bitmap = ImageManager.loadSystem('Balloon')
     this.setFrame(0, 0, 0, 0)
   }
 
-  setup(targetSprite, balloonId) {
+  setup(targetSprite: Sprite, balloonId: number): void {
     this._target = targetSprite
     this._balloonId = balloonId
     this._duration = 8 * this.speed() + this.waitTime()
   }
 
-  update() {
+  update(): void {
     super.update()
     if (this._duration > 0) {
       this._duration--
@@ -43,12 +43,12 @@ export class Sprite_Balloon extends Sprite {
     }
   }
 
-  updatePosition() {
+  updatePosition(): void {
     this.x = this._target.x
     this.y = this._target.y - this._target.height
   }
 
-  updateFrame() {
+  updateFrame(): void {
     const w = 48
     const h = 48
     const sx = this.frameIndex() * w
@@ -56,20 +56,20 @@ export class Sprite_Balloon extends Sprite {
     this.setFrame(sx, sy, w, h)
   }
 
-  speed() {
+  speed(): number {
     return 8
   }
 
-  waitTime() {
+  waitTime(): number {
     return 12
   }
 
-  frameIndex() {
+  frameIndex(): number {
     const index = (this._duration - this.waitTime()) / this.speed()
     return 7 - Math.max(Math.floor(index), 0)
   }
 
-  isPlaying() {
+  isPlaying(): boolean {
     return this._duration > 0
   }
 }
