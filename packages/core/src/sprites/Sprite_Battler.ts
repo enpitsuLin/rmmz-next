@@ -9,6 +9,8 @@ import { Sprite_Clickable } from './Sprite_Clickable'
  * The superclass of Sprite_Actor and Sprite_Enemy.
  */
 export class Sprite_Battler extends Sprite_Clickable {
+  _battler!: Game_Battler
+
   constructor(battler: Game_Battler | null) {
     super()
     this.initMembers()

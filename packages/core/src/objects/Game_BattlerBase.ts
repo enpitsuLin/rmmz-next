@@ -8,7 +8,7 @@ import { DataManager } from '../managers/DataManager'
  *
  * It mainly contains parameters calculation.
  */
-class Game_BattlerBase<T extends MZ.TraitObject> {
+class Game_BattlerBase<T extends MZ.TraitObject = MZ.TraitObject> {
   _hp!: number
   _mp!: number
   _tp!: number

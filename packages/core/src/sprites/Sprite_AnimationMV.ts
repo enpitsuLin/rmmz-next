@@ -1,3 +1,4 @@
+import type { MV } from '@rmmz-lib/database-types'
 import { Sprite } from '../core'
 
 /**
@@ -31,7 +32,12 @@ export class Sprite_AnimationMV extends Sprite {
     this.z = 8
   }
 
-  setup(targets: Sprite[], animation, mirror: boolean, delay: number): void {
+  setup(
+    targets: Sprite[],
+    animation: MV.Animation,
+    mirror: boolean,
+    delay: number,
+  ): void {
     this._targets = targets
     this._animation = animation
     this._mirror = mirror

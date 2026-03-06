@@ -1,5 +1,8 @@
-import type { Point } from '../core'
-import { Graphics, Sprite } from '../core'
+import type { MZ } from '@rmmz-lib/database-types'
+import type { PIXI } from '../pixi'
+import type { RGBA } from '../types'
+import { Graphics, Point, Sprite } from '../core'
+import { AudioManager, EffectManager } from '../managers'
 
 /**
  * Sprite_Animation
@@ -7,6 +10,23 @@ import { Graphics, Sprite } from '../core'
  * The sprite for displaying an animation.
  */
 export class Sprite_Animation extends Sprite {
+  z!: number
+
+  _targets!: Sprite[]
+  _animation!: null | MZ.Animation
+  _mirror!: boolean
+  _delay!: number
+  _previous!: Sprite_Animation | null
+  _effect!: effekseer.EffekseerHandle | null
+  _handle!: effekseer.EffekseerHandle | null
+  _playing!: boolean
+  _started!: boolean
+  _frameIndex!: number
+  _maxTimingFrames!: number
+  _flashColor!: RGBA
+  _flashDuration!: number
+  _viewportSize!: number
+
   constructor() {
     super()
     this.initMembers()
@@ -30,7 +50,7 @@ export class Sprite_Animation extends Sprite {
     this.z = 8
   }
 
-  destroy(options): void {
+  destroy(options?: PIXI.IDestroyOptions): void {
     super.destroy(options)
     if (this._handle) {
       this._handle.stop()
@@ -41,7 +61,13 @@ export class Sprite_Animation extends Sprite {
     this._started = false
   }
 
-  setup(targets, animation, mirror: boolean, delay: number, previous: Sprite_Animation | null): void {
+  setup(
+    targets: Sprite[],
+    animation: MZ.Animation,
+    mirror: boolean,
+    delay: number,
+    previous: Sprite_Animation | null,
+  ): void {
     this._targets = targets
     this._animation = animation
     this._mirror = mirror
@@ -49,7 +75,7 @@ export class Sprite_Animation extends Sprite {
     this._previous = previous
     this._effect = EffectManager.load(animation.effectName)
     this._playing = true
-    const timings = animation.soundTimings.concat(animation.flashTimings)
+    const timings = ([] as (MZ.Animation.SoundTiming | MZ.Animation.FlashTiming)[]).concat(animation.soundTimings).concat(animation.flashTimings)
     for (const timing of timings) {
       if (timing.frame > this._maxTimingFrames) {
         this._maxTimingFrames = timing.frame
@@ -101,16 +127,16 @@ export class Sprite_Animation extends Sprite {
   }
 
   updateEffectGeometry(): void {
-    const scale = this._animation.scale / 100
+    const scale = this._animation!.scale / 100
     const r = Math.PI / 180
-    const rx = this._animation.rotation.x * r
-    const ry = this._animation.rotation.y * r
-    const rz = this._animation.rotation.z * r
+    const rx = this._animation!.rotation.x * r
+    const ry = this._animation!.rotation.y * r
+    const rz = this._animation!.rotation.z * r
     if (this._handle) {
       this._handle.setLocation(0, 0, 0)
       this._handle.setRotation(rx, ry, rz)
       this._handle.setScale(scale, scale, scale)
-      this._handle.setSpeed(this._animation.speed / 100)
+      this._handle.setSpeed(this._animation!.speed / 100)
     }
   }
 
@@ -122,7 +148,7 @@ export class Sprite_Animation extends Sprite {
   }
 
   processSoundTimings(): void {
-    for (const timing of this._animation.soundTimings) {
+    for (const timing of this._animation!.soundTimings) {
       if (timing.frame === this._frameIndex) {
         AudioManager.playSe(timing.se)
       }
@@ -130,9 +156,9 @@ export class Sprite_Animation extends Sprite {
   }
 
   processFlashTimings(): void {
-    for (const timing of this._animation.flashTimings) {
+    for (const timing of this._animation!.flashTimings) {
       if (timing.frame === this._frameIndex) {
-        this._flashColor = timing.color.clone()
+        this._flashColor = timing.color.clone() as RGBA
         this._flashDuration = timing.duration
       }
     }
@@ -168,7 +194,7 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  _render(renderer): void {
+  _render(renderer: PIXI.Renderer): void {
     if (this._targets.length > 0 && this._handle && this._handle.exists) {
       this.onBeforeRender(renderer)
       this.setProjectionMatrix(renderer)
@@ -182,11 +208,11 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  setProjectionMatrix(renderer): void {
+  setProjectionMatrix(renderer: PIXI.Renderer): void {
     const x = this._mirror ? -1 : 1
     const y = -1
     const p = -(this._viewportSize / renderer.view.height)
-    // prettier-ignore
+
     Graphics.effekseer.setProjectionMatrix([
       x,
       0,
@@ -207,40 +233,22 @@ export class Sprite_Animation extends Sprite {
     ])
   }
 
-  setCameraMatrix(/* renderer */): void {
-    // prettier-ignore
-    Graphics.effekseer.setCameraMatrix([
-      1,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      -10,
-      1,
-    ])
+  setCameraMatrix(_renderer: PIXI.Renderer): void {
+    Graphics.effekseer.setCameraMatrix([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -10, 1])
   }
 
-  setViewport(renderer): void {
+  setViewport(renderer: PIXI.Renderer): void {
     const vw = this._viewportSize
     const vh = this._viewportSize
-    const vx = this._animation.offsetX - vw / 2
-    const vy = this._animation.offsetY - vh / 2
+    const vx = this._animation!.offsetX - vw / 2
+    const vy = this._animation!.offsetY - vh / 2
     const pos = this.targetPosition(renderer)
     renderer.gl.viewport(vx + pos.x, vy + pos.y, vw, vh)
   }
 
-  targetPosition(renderer): Point {
+  targetPosition(renderer: PIXI.Renderer): Point {
     const pos = new Point()
-    if (this._animation.displayType === 2) {
+    if (this._animation!.displayType === 2) {
       pos.x = renderer.view.width / 2
       pos.y = renderer.view.height / 2
     }
@@ -258,23 +266,23 @@ export class Sprite_Animation extends Sprite {
 
   targetSpritePosition(sprite: Sprite): Point {
     const point = new Point(0, -sprite.height / 2)
-    if (this._animation.alignBottom) {
+    if (this._animation!.alignBottom) {
       point.y = 0
     }
     sprite.updateTransform()
     return sprite.worldTransform.apply(point)
   }
 
-  resetViewport(renderer): void {
+  resetViewport(renderer: PIXI.Renderer): void {
     renderer.gl.viewport(0, 0, renderer.view.width, renderer.view.height)
   }
 
-  onBeforeRender(renderer): void {
+  onBeforeRender(renderer: PIXI.Renderer): void {
     renderer.batch.flush()
     renderer.geometry.reset()
   }
 
-  onAfterRender(renderer): void {
+  onAfterRender(renderer: PIXI.Renderer): void {
     renderer.texture.reset()
     renderer.geometry.reset()
     renderer.state.reset()

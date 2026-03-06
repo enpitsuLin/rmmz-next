@@ -50,7 +50,7 @@ export class Graphics {
   /**
    * The context object of Effekseer.
    */
-  static get effekseer(): Effekseer {
+  static get effekseer(): effekseer.EffekseerContext {
     return this._effekseer!
   }
 

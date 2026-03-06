@@ -1,6 +1,6 @@
-import type { MZ } from '@rmmz-lib/database-types'
+import type { MV, MZ } from '@rmmz-lib/database-types'
 import type { Tilemap } from '../core'
-import type { Game_Temp } from '../objects'
+import type { Game_Battler, Game_Character, Game_Temp } from '../objects'
 import type { PIXI } from '../pixi'
 import { ColorFilter, Graphics, Rectangle, ScreenSprite, Sprite } from '../core'
 import { Sprite_Animation } from './Sprite_Animation'
@@ -13,7 +13,9 @@ import { Sprite_Timer } from './Sprite_Timer'
  *
  * The superclass of Spriteset_Map and Spriteset_Battle.
  */
-export abstract class Spriteset_Base<Target> extends Sprite {
+export abstract class Spriteset_Base<
+  Target extends Game_Battler | Game_Character,
+> extends Sprite {
   _animationSprites: (Sprite_Animation | Sprite_AnimationMV)[]
   _baseSprite!: Sprite
   _blackScreen!: ScreenSprite
@@ -147,23 +149,27 @@ export abstract class Spriteset_Base<Target> extends Sprite {
 
   createAnimation(request: Game_Temp.AnimationRequest): void {
     const animation = $dataAnimations[request.animationId]
-    const targets = request.targets
+    const targets = request.targets as Target[]
     const mirror = request.mirror
     let delay = this.animationBaseDelay()
     const nextDelay = this.animationNextDelay()
-    if (this.isAnimationForEach(animation)) {
+    if (this.isAnimationForEach(animation!)) {
       for (const target of targets) {
         this.createAnimationSprite([target], animation!, mirror, delay)
         delay += nextDelay
       }
     }
     else {
-      this.createAnimationSprite(targets, animation, mirror, delay)
+      this.createAnimationSprite(targets, animation!, mirror, delay)
     }
   }
 
-  // prettier-ignore
-  createAnimationSprite(targets, animation: MZ.Animation, mirror, delay): void {
+  createAnimationSprite(
+    targets: Target[],
+    animation: MZ.Animation | MV.Animation,
+    mirror: boolean,
+    delay: number,
+  ): void {
     const mv = this.isMVAnimation(animation)
     const sprite = new (mv ? Sprite_AnimationMV : Sprite_Animation)()
     const targetSprites = this.makeTargetSprites(targets)
@@ -172,17 +178,22 @@ export abstract class Spriteset_Base<Target> extends Sprite {
     if (this.animationShouldMirror(targets[0])) {
       mirror = !mirror
     }
+    // @ts-expect-error to fix
     sprite.targetObjects = targets
-    sprite.setup(targetSprites, animation, mirror, delay, previous)
+    if (mv)
+      (sprite as Sprite_AnimationMV).setup(targetSprites, animation, mirror, delay)
+    else
+      (sprite as Sprite_Animation).setup(targetSprites, animation, mirror, delay, previous as Sprite_Animation)
+
     this._effectsContainer.addChild(sprite)
     this._animationSprites.push(sprite)
   }
 
-  isMVAnimation(animation): boolean {
-    return !!animation.frames
+  isMVAnimation(animation: MZ.Animation | MV.Animation): animation is MV.Animation {
+    return !!(animation as MV.Animation).frames
   }
 
-  makeTargetSprites(targets): Sprite[] {
+  makeTargetSprites(targets: Target[]): Sprite[] {
     const targetSprites = []
     for (const target of targets) {
       const targetSprite = this.findTargetSprite(target)
@@ -210,13 +221,14 @@ export abstract class Spriteset_Base<Target> extends Sprite {
     return 12
   }
 
-  animationShouldMirror(target): boolean {
-    return target && target.isActor && target.isActor()
+  animationShouldMirror(target: Target): boolean {
+    return target && 'isActor' in target && target.isActor()
   }
 
   removeAnimation(sprite: Sprite_Animation | Sprite_AnimationMV): void {
     this._animationSprites.remove(sprite)
     this._effectsContainer.removeChild(sprite)
+    // @ts-expect-error to fix this
     for (const target of sprite.targetObjects) {
       if (target.endAnimation) {
         target.endAnimation()

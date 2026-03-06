@@ -1,6 +1,6 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_Battler } from './Game_Battler'
-import type { Game_CharacterBase } from './Game_CharacterBase'
+import type { Game_Character } from './Game_Character'
 import { Utils } from '../core'
 
 /**
@@ -109,9 +109,8 @@ export class Game_Temp {
     return this._commonEventQueue.length > 0
   }
 
-  // prettier-ignore
   requestAnimation(
-    targets: Game_CharacterBase[],
+    targets: (Game_Battler | Game_Character)[],
     animationId: number,
     mirror = false,
   ): void {
@@ -123,7 +122,7 @@ export class Game_Temp {
       }
       this._animationQueue.push(request)
       for (const target of targets) {
-        if (target.startAnimation) {
+        if ('startAnimation' in target && target.startAnimation) {
           target.startAnimation()
         }
       }
@@ -134,7 +133,7 @@ export class Game_Temp {
     return this._animationQueue.shift()
   }
 
-  requestBalloon(target: Game_CharacterBase, balloonId: number): void {
+  requestBalloon(target: Game_Character, balloonId: number): void {
     const request: Game_Temp.BalloonRequest = { target, balloonId }
     this._balloonQueue.push(request)
     if (target.startBalloon) {
@@ -181,13 +180,13 @@ export class Game_Temp {
 
 export namespace Game_Temp {
   export interface AnimationRequest {
-    targets: Game_CharacterBase[]
+    targets: (Game_Battler | Game_Character)[]
     animationId: number
     mirror: boolean
   }
 
   export interface BalloonRequest {
-    target: Game_CharacterBase
+    target: Game_Character
     balloonId: number
   }
 

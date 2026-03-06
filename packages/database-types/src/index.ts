@@ -679,7 +679,7 @@ export declare namespace MZ {
     scrollY: number
   }
 
-  export interface Animation {
+  interface Animation {
     id: number
     displayType: number
     effectName: string
@@ -715,5 +715,36 @@ export declare namespace MZ {
     export interface MVTiming {
 
     }
+  }
+}
+
+export declare namespace MV {
+  namespace Animation {
+    export interface AnimationFrame {
+
+    }
+    export interface Timing {
+      frame: number
+      se?: MZ.AudioInfo
+      flashScope: number
+      flashColor: number[]
+      flashDuration: number
+    }
+    type Frame = Cell[]
+    type Cell = number[]
+  }
+
+  export interface Animation {
+    id: number
+    animation1Hue: number
+    animation1Name: string
+    animation2Hue: number
+    animation2Name: string
+    frames: Animation.Frame[]
+    name: string
+    position: number
+    timings: Animation.Timing[]
+    flashTimings: Animation.Timing[]
+    soundTimings: Animation.Timing[]
   }
 }

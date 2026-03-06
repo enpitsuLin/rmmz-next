@@ -1,4 +1,4 @@
-import type { Game_CharacterBase } from '../objects'
+import type { Game_Character } from '../objects'
 import type { PIXI } from '../pixi'
 import { Graphics, Sprite, Tilemap, TilingSprite, Weather } from '../core'
 import { ImageManager } from '../managers'
@@ -12,7 +12,7 @@ import { Spriteset_Base } from './Spriteset_Base'
  *
  * The set of sprites on the map screen.
  */
-export class Spriteset_Map extends Spriteset_Base<Game_CharacterBase> {
+export class Spriteset_Map extends Spriteset_Base<Game_Character> {
   _balloonSprites: Sprite_Balloon[]
   _characterSprites!: Sprite_Character[]
   _parallax!: TilingSprite
@@ -217,7 +217,7 @@ export class Spriteset_Map extends Spriteset_Base<Game_CharacterBase> {
     }
   }
 
-  findTargetSprite(target: Game_CharacterBase): Sprite_Character | undefined {
+  findTargetSprite(target: Game_Character): Sprite_Character | undefined {
     return this._characterSprites.find(sprite => sprite.checkCharacter(target))
   }
 

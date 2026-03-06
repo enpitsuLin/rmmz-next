@@ -1,3 +1,4 @@
+import type { Game_Battler, Game_BattlerBase } from '../objects'
 import type { Sprite_Battler } from './Sprite_Battler'
 import { Graphics, Sprite } from '../core'
 import { ImageManager, SceneManager } from '../managers'
@@ -12,7 +13,7 @@ import { Spriteset_Base } from './Spriteset_Base'
  /*
  /* The set of sprites on the battle screen.
  */
-export class Spriteset_Battle extends Spriteset_Base<Sprite_Battler> {
+export class Spriteset_Battle extends Spriteset_Base<Game_Battler> {
   _battlebackLocated: boolean
 
   _battleField!: Sprite
@@ -127,7 +128,7 @@ export class Spriteset_Battle extends Spriteset_Base<Sprite_Battler> {
     }
   }
 
-  findTargetSprite(target: Sprite_Battler): Sprite_Battler | undefined {
+  findTargetSprite(target: Game_Battler): Sprite_Battler | undefined {
     return this.battlerSprites().find(sprite => sprite.checkBattler(target))
   }
 
