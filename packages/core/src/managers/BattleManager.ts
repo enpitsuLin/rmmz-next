@@ -39,8 +39,8 @@ export class BattleManager {
   static _surprise = false
   static _currentActor: Game_Actor | null = null
   static _actionForcedBattler: Game_Battler | null = null
-  static _mapBgm: AudioManager.AudioWithPos | null = null
-  static _mapBgs: AudioManager.AudioWithPos | null = null
+  static _mapBgm: MZ.AudioInfo | null = null
+  static _mapBgs: MZ.AudioInfo | null = null
   static _actionBattlers: Game_Battler[] = []
   static _subject: Game_Battler | null = null
   static _action: Game_Action | null = null

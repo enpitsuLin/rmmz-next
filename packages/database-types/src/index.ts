@@ -291,7 +291,7 @@ export declare namespace MZ {
     currencyUnit: string
 
     // windowtone
-    windowTone: number[]
+    windowTone: [r: number, g: number, b: number, a: number]
 
     // vehicle
     boat: System.Boat

@@ -1,5 +1,4 @@
 import type { MZ } from '@rmmz-lib/database-types'
-import type { Game_Enemy } from './Game_Enemy'
 import type { Game_Unit } from './Game_Unit'
 import { BattleManager, DataManager, SoundManager } from '../managers'
 import { Game_Action } from './Game_Action'
@@ -529,7 +528,7 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
     this._actions.shift()
   }
 
-  setLastTarget(target: Game_Enemy): void {
+  setLastTarget(target: Game_Battler): void {
     this._lastTargetIndex = target ? target.index() : 0
   }
 
@@ -756,7 +755,7 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
 }
 
 export namespace Game_Battler {
-  export type ActionState = 'undecided' | 'inputting' | 'waiting' | 'acting' | ''
+  export type ActionState = 'undecided' | 'inputting' | 'waiting' | 'acting' | 'done' | ''
 
   export type TbpState = 'acting' | 'casting' | 'charging' | 'ready' | 'charged' | ''
 

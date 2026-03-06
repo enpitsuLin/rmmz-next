@@ -15,8 +15,8 @@ export class AudioManager {
   static _bgsVolume = 100
   static _meVolume = 100
   static _seVolume = 100
-  static _currentBgm: AudioManager.AudioWithPos | null = null
-  static _currentBgs: AudioManager.AudioWithPos | null = null
+  static _currentBgm: MZ.AudioInfo | null = null
+  static _currentBgs: MZ.AudioInfo | null = null
   static _currentMe: MZ.AudioInfo | null = null
   static _bgmBuffer: WebAudio | null = null
   static _bgsBuffer: WebAudio | null = null
@@ -61,7 +61,7 @@ export class AudioManager {
     this._seVolume = value
   }
 
-  static playBgm(bgm?: AudioManager.AudioWithPos | null, pos?: number): void {
+  static playBgm(bgm?: MZ.AudioInfo | null, pos?: number): void {
     if (this.isCurrentBgm(bgm)) {
       this.updateBgmParameters(bgm)
     }
@@ -78,7 +78,7 @@ export class AudioManager {
     this.updateCurrentBgm(bgm, pos)
   }
 
-  static replayBgm(bgm: AudioManager.AudioWithPos | null): void {
+  static replayBgm(bgm: MZ.AudioInfo | null): void {
     if (this.isCurrentBgm(bgm)) {
       this.updateBgmParameters(bgm)
     }
@@ -90,7 +90,7 @@ export class AudioManager {
     }
   }
 
-  static isCurrentBgm(bgm?: AudioManager.AudioWithPos | null): boolean {
+  static isCurrentBgm(bgm?: MZ.AudioInfo | null): boolean {
     return (
       !!this._currentBgm
       && !!this._bgmBuffer
@@ -98,11 +98,11 @@ export class AudioManager {
     )
   }
 
-  static updateBgmParameters(bgm?: AudioManager.AudioWithPos | null): void {
+  static updateBgmParameters(bgm?: MZ.AudioInfo | null): void {
     this.updateBufferParameters(this._bgmBuffer, this._bgmVolume, bgm)
   }
 
-  static updateCurrentBgm(bgm?: AudioManager.AudioWithPos | null, pos?: number): void {
+  static updateCurrentBgm(bgm?: MZ.AudioInfo | null, pos?: number): void {
     // TODO: fix this
     this._currentBgm = {
       name: bgm!.name,
@@ -134,7 +134,7 @@ export class AudioManager {
     }
   }
 
-  static playBgs(bgs: AudioManager.AudioWithPos | null, pos?: number): void {
+  static playBgs(bgs: MZ.AudioInfo | null, pos?: number): void {
     if (this.isCurrentBgs(bgs)) {
       this.updateBgsParameters(bgs)
     }
@@ -149,7 +149,7 @@ export class AudioManager {
     this.updateCurrentBgs(bgs, pos)
   }
 
-  static replayBgs(bgs: AudioManager.AudioWithPos): void {
+  static replayBgs(bgs: MZ.AudioInfo): void {
     if (this.isCurrentBgs(bgs)) {
       this.updateBgsParameters(bgs)
     }
@@ -161,7 +161,7 @@ export class AudioManager {
     }
   }
 
-  static isCurrentBgs(bgs: AudioManager.AudioWithPos | null): boolean {
+  static isCurrentBgs(bgs: MZ.AudioInfo | null): boolean {
     return (
       !!this._currentBgs
       && !!this._bgsBuffer
@@ -169,11 +169,11 @@ export class AudioManager {
     )
   }
 
-  static updateBgsParameters(bgs: AudioManager.AudioWithPos | null): void {
+  static updateBgsParameters(bgs: MZ.AudioInfo | null): void {
     this.updateBufferParameters(this._bgsBuffer, this._bgsVolume, bgs)
   }
 
-  static updateCurrentBgs(bgs: AudioManager.AudioWithPos | null, pos?: number): void {
+  static updateCurrentBgs(bgs: MZ.AudioInfo | null, pos?: number): void {
     this._currentBgs = {
       name: bgs!.name,
       volume: bgs!.volume,
@@ -313,7 +313,7 @@ export class AudioManager {
     this.stopSe()
   }
 
-  static saveBgm(): AudioManager.AudioWithPos {
+  static saveBgm(): MZ.AudioInfo {
     if (this._currentBgm) {
       const bgm = this._currentBgm
       return {
@@ -329,7 +329,7 @@ export class AudioManager {
     }
   }
 
-  static saveBgs(): AudioManager.AudioWithPos {
+  static saveBgs(): MZ.AudioInfo {
     if (this._currentBgs) {
       const bgs = this._currentBgs
       return {
@@ -345,7 +345,7 @@ export class AudioManager {
     }
   }
 
-  static makeEmptyAudioObject(): AudioManager.AudioWithPos {
+  static makeEmptyAudioObject(): MZ.AudioInfo {
     return { name: '', volume: 0, pitch: 0, pan: 0 }
   }
 
@@ -390,11 +390,5 @@ export class AudioManager {
     // TODO fix this
     // eslint-disable-next-line no-throw-literal
     throw ['LoadError', webAudio.url, retry]
-  }
-}
-
-export namespace AudioManager {
-  export interface AudioWithPos extends MZ.AudioInfo {
-    pos?: number
   }
 }

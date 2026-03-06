@@ -49,159 +49,159 @@ export class Game_System {
     this._walkingBgm = null
   }
 
-  isJapanese() {
-    return $dataSystem.locale.match(/^ja/)
+  isJapanese(): boolean {
+    return !!$dataSystem.locale.match(/^ja/)
   }
 
-  isChinese() {
-    return $dataSystem.locale.match(/^zh/)
+  isChinese(): boolean {
+    return !!$dataSystem.locale.match(/^zh/)
   }
 
-  isKorean() {
-    return $dataSystem.locale.match(/^ko/)
+  isKorean(): boolean {
+    return !!$dataSystem.locale.match(/^ko/)
   }
 
-  isCJK() {
-    return $dataSystem.locale.match(/^(ja|zh|ko)/)
+  isCJK(): boolean {
+    return !!$dataSystem.locale.match(/^(ja|zh|ko)/)
   }
 
-  isRussian() {
-    return $dataSystem.locale.match(/^ru/)
+  isRussian(): boolean {
+    return !!$dataSystem.locale.match(/^ru/)
   }
 
-  isSideView() {
+  isSideView(): boolean {
     return $dataSystem.optSideView
   }
 
-  isAutosaveEnabled() {
+  isAutosaveEnabled(): boolean {
     return $dataSystem.optAutosave
   }
 
-  isMessageSkipEnabled() {
+  isMessageSkipEnabled(): boolean {
     return $dataSystem.optMessageSkip
   }
 
-  isSaveEnabled() {
+  isSaveEnabled(): boolean {
     return this._saveEnabled
   }
 
-  disableSave() {
+  disableSave(): void {
     this._saveEnabled = false
   }
 
-  enableSave() {
+  enableSave(): void {
     this._saveEnabled = true
   }
 
-  isMenuEnabled() {
+  isMenuEnabled(): boolean {
     return this._menuEnabled
   }
 
-  disableMenu() {
+  disableMenu(): void {
     this._menuEnabled = false
   }
 
-  enableMenu() {
+  enableMenu(): void {
     this._menuEnabled = true
   }
 
-  isEncounterEnabled() {
+  isEncounterEnabled(): boolean {
     return this._encounterEnabled
   }
 
-  disableEncounter() {
+  disableEncounter(): void {
     this._encounterEnabled = false
   }
 
-  enableEncounter() {
+  enableEncounter(): void {
     this._encounterEnabled = true
   }
 
-  isFormationEnabled() {
+  isFormationEnabled(): boolean {
     return this._formationEnabled
   }
 
-  disableFormation() {
+  disableFormation(): void {
     this._formationEnabled = false
   }
 
-  enableFormation() {
+  enableFormation(): void {
     this._formationEnabled = true
   }
 
-  battleCount() {
+  battleCount(): number {
     return this._battleCount
   }
 
-  winCount() {
+  winCount(): number {
     return this._winCount
   }
 
-  escapeCount() {
+  escapeCount(): number {
     return this._escapeCount
   }
 
-  saveCount() {
+  saveCount(): number {
     return this._saveCount
   }
 
-  versionId() {
+  versionId(): number {
     return this._versionId
   }
 
-  savefileId() {
+  savefileId(): number {
     return this._savefileId || 0
   }
 
-  setSavefileId(savefileId: number) {
+  setSavefileId(savefileId: number): void {
     this._savefileId = savefileId
   }
 
-  windowTone() {
+  windowTone(): RGBA {
     return this._windowTone || $dataSystem.windowTone
   }
 
-  setWindowTone(value: RGBA | null) {
+  setWindowTone(value: RGBA | null): void {
     this._windowTone = value
   }
 
-  battleBgm() {
+  battleBgm(): MZ.AudioInfo | null {
     return this._battleBgm || $dataSystem.battleBgm
   }
 
-  setBattleBgm(value: MZ.AudioInfo | null) {
+  setBattleBgm(value: MZ.AudioInfo | null): void {
     this._battleBgm = value
   }
 
-  victoryMe() {
+  victoryMe(): MZ.AudioInfo | null {
     return this._victoryMe || $dataSystem.victoryMe
   }
 
-  setVictoryMe(value: MZ.AudioInfo | null) {
+  setVictoryMe(value: MZ.AudioInfo | null): void {
     this._victoryMe = value
   }
 
-  defeatMe() {
+  defeatMe(): MZ.AudioInfo {
     return this._defeatMe || $dataSystem.defeatMe
   }
 
-  setDefeatMe(value: MZ.AudioInfo | null) {
+  setDefeatMe(value: MZ.AudioInfo | null): void {
     this._defeatMe = value
   }
 
-  onBattleStart() {
+  onBattleStart(): void {
     this._battleCount++
   }
 
-  onBattleWin() {
+  onBattleWin(): void {
     this._winCount++
   }
 
-  onBattleEscape() {
+  onBattleEscape(): void {
     this._escapeCount++
   }
 
-  onBeforeSave() {
+  onBeforeSave(): void {
     this._saveCount++
     this._versionId = $dataSystem.versionId
     this._framesOnSave = Graphics.frameCount
@@ -209,64 +209,64 @@ export class Game_System {
     this._bgsOnSave = AudioManager.saveBgs()
   }
 
-  onAfterLoad() {
+  onAfterLoad(): void {
     Graphics.frameCount = this._framesOnSave
     AudioManager.playBgm(this._bgmOnSave)
     AudioManager.playBgs(this._bgsOnSave)
   }
 
-  playtime() {
+  playtime(): number {
     return Math.floor(Graphics.frameCount / 60)
   }
 
-  playtimeText() {
+  playtimeText(): string {
     const hour = Math.floor(this.playtime() / 3600)
     const min = Math.floor(this.playtime() / 60) % 60
     const sec = this.playtime() % 60
     return `${hour.padZero(2)}:${min.padZero(2)}:${sec.padZero(2)}`
   }
 
-  saveBgm() {
+  saveBgm(): void {
     this._savedBgm = AudioManager.saveBgm()
   }
 
-  replayBgm() {
+  replayBgm(): void {
     if (this._savedBgm) {
       AudioManager.replayBgm(this._savedBgm)
     }
   }
 
-  saveWalkingBgm() {
+  saveWalkingBgm(): void {
     this._walkingBgm = AudioManager.saveBgm()
   }
 
-  replayWalkingBgm() {
+  replayWalkingBgm(): void {
     if (this._walkingBgm) {
       AudioManager.playBgm(this._walkingBgm)
     }
   }
 
-  saveWalkingBgm2() {
+  saveWalkingBgm2(): void {
     this._walkingBgm = $dataMap.bgm
   }
 
-  mainFontFace() {
+  mainFontFace(): string {
     return `rmmz-mainfont, ${$dataSystem.advanced.fallbackFonts}`
   }
 
-  numberFontFace() {
+  numberFontFace(): string {
     return `rmmz-numberfont, ${this.mainFontFace()}`
   }
 
-  mainFontSize() {
+  mainFontSize(): number {
     return $dataSystem.advanced.fontSize
   }
 
-  windowPadding() {
+  windowPadding(): number {
     return 12
   }
 
-  windowOpacity() {
+  windowOpacity(): number {
     return $dataSystem.advanced.windowOpacity
   }
 }
