@@ -1,7 +1,3 @@
-interface BooleanConstructor {
-  (): <T>(value: T | null | undefined, index: number, array: (T | null | undefined)[]) => value is NonNullable<T>
-}
-
 interface Array<T> {
   /**
    * Makes a shallow copy of the array.

@@ -102,15 +102,15 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   items(): MZ.Item[] {
-    return Object.keys(this._items).map(id => $dataItems[Number(id)]).filter(Boolean)
+    return Object.keys(this._items).map(id => $dataItems[Number(id)]).filter(x => !!x)
   }
 
   weapons(): MZ.Weapon[] {
-    return Object.keys(this._weapons).map(id => $dataWeapons[Number(id)]).filter(Boolean)
+    return Object.keys(this._weapons).map(id => $dataWeapons[Number(id)]).filter(x => !!x)
   }
 
   armors(): MZ.Armor[] {
-    return Object.keys(this._armors).map(id => $dataArmors[Number(id)]).filter(Boolean)
+    return Object.keys(this._armors).map(id => $dataArmors[Number(id)]).filter(x => !!x)
   }
 
   equipItems(): MZ.Equip[] {
@@ -275,7 +275,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   gainItem(
-    item: MZ.EquipOrItem,
+    item: MZ.EquipOrItem | null,
     amount: number,
     includeEquip?: boolean,
   ): void {
@@ -283,9 +283,9 @@ class Game_Party extends Game_Unit<Game_Actor> {
     if (container) {
       const lastNumber = this.numItems(item)
       const newNumber = lastNumber + amount
-      container[item.id] = Math.min(Math.max(newNumber, 0), this.maxItems(item))
-      if (container[item.id] === 0) {
-        delete container[item.id]
+      container[item!.id] = Math.min(Math.max(newNumber, 0), this.maxItems(item!))
+      if (container[item!.id] === 0) {
+        delete container[item!.id]
       }
       if (includeEquip && newNumber < 0) {
         this.discardMembersEquip(item as MZ.Equip, -newNumber)
@@ -305,14 +305,14 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   loseItem(
-    item: MZ.Item | MZ.Weapon | MZ.Armor,
+    item: MZ.EquipOrItem | null,
     amount: number,
     includeEquip?: boolean,
   ): void {
     this.gainItem(item, -amount, includeEquip)
   }
 
-  consumeItem(item: MZ.Item | MZ.Weapon | MZ.Armor): void {
+  consumeItem(item: MZ.EquipOrItem): void {
     if (DataManager.isItem(item) && item.consumable) {
       this.loseItem(item, 1)
     }
@@ -424,27 +424,27 @@ class Game_Party extends Game_Unit<Game_Actor> {
     return this.battleMembers().some(actor => actor.partyAbility(abilityId))
   }
 
-  hasEncounterHalf() {
+  hasEncounterHalf(): boolean {
     return this.partyAbility(Game_Party.ABILITY_ENCOUNTER_HALF)
   }
 
-  hasEncounterNone() {
+  hasEncounterNone(): boolean {
     return this.partyAbility(Game_Party.ABILITY_ENCOUNTER_NONE)
   }
 
-  hasCancelSurprise() {
+  hasCancelSurprise(): boolean {
     return this.partyAbility(Game_Party.ABILITY_CANCEL_SURPRISE)
   }
 
-  hasRaisePreemptive() {
+  hasRaisePreemptive(): boolean {
     return this.partyAbility(Game_Party.ABILITY_RAISE_PREEMPTIVE)
   }
 
-  hasGoldDouble() {
+  hasGoldDouble(): boolean {
     return this.partyAbility(Game_Party.ABILITY_GOLD_DOUBLE)
   }
 
-  hasDropItemDouble() {
+  hasDropItemDouble(): boolean {
     return this.partyAbility(Game_Party.ABILITY_DROP_ITEM_DOUBLE)
   }
 

@@ -9,7 +9,7 @@ import { Game_Item } from './Game_Item'
 /**
  * The game object class for a battle action.
  */
-class Game_Action<Item extends MZ.UsableItem = MZ.UsableItem> {
+export class Game_Action<Item extends Game_Item.ItemType = Game_Item.ItemType> {
   _reflectionTarget?: Game_Battler
 
   _subjectActorId!: number
@@ -117,11 +117,11 @@ class Game_Action<Item extends MZ.UsableItem = MZ.UsableItem> {
     return this._item.object() as MZ.UsableItem
   }
 
-  isSkill(): this is Game_Action<MZ.Skill> {
+  isSkill(): this is Game_Action<'skill'> {
     return this._item.isSkill()
   }
 
-  isItem(): this is Game_Action<MZ.Item> {
+  isItem(): this is Game_Action<'item'> {
     return this._item.isItem()
   }
 
@@ -924,5 +924,3 @@ class Game_Action<Item extends MZ.UsableItem = MZ.UsableItem> {
     }
   }
 }
-
-export { Game_Action }

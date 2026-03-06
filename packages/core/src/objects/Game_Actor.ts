@@ -10,7 +10,7 @@ import { Game_Item } from './Game_Item'
 /**
  * The game object class for an actor.
  */
-class Game_Actor extends Game_Battler {
+export class Game_Actor extends Game_Battler {
   _actorId!: number
   _name!: string
   _nickname!: string
@@ -24,13 +24,13 @@ class Game_Actor extends Game_Battler {
   _battlerName!: string
   _exp!: Record<number, number>
   _skills!: number[]
-  _equips!: Game_Item[]
+  _equips!: Game_Item<'armor' | 'weapon'>[]
   _actionInputIndex!: number
   _lastMenuSkill!: Game_Item
   _lastBattleSkill!: Game_Item
   _lastCommandSymbol!: string
 
-  _stateSteps: Record<number, number> | null
+  _stateSteps!: Record<number, number>
 
   constructor(actorId?: number) {
     super()
@@ -139,12 +139,12 @@ class Game_Actor extends Game_Battler {
 
   eraseState(stateId: number): void {
     super.eraseState(stateId)
-    delete this._stateSteps![stateId]
+    delete this._stateSteps[stateId]
   }
 
   resetStateCounts(stateId: number): void {
     super.resetStateCounts(stateId)
-    this._stateSteps![stateId] = $dataStates[stateId]!.stepsToRemove
+    this._stateSteps[stateId] = $dataStates[stateId]!.stepsToRemove
   }
 
   initImages(): void {
@@ -233,16 +233,16 @@ class Game_Actor extends Game_Battler {
     return slots
   }
 
-  equips(): (MZ.GeneralItem | null)[] {
+  equips(): MZ.Equip[] {
     return this._equips.map(item => item.object())
   }
 
-  weapons(): (MZ.GeneralItem | null)[] {
-    return this.equips().filter(item => item && DataManager.isWeapon(item))
+  weapons(): MZ.Weapon[] {
+    return this.equips().filter(item => !!item && DataManager.isWeapon(item))
   }
 
-  armors(): (MZ.GeneralItem | null)[] {
-    return this.equips().filter(item => item && DataManager.isArmor(item))
+  armors(): MZ.Armor[] {
+    return this.equips().filter(item => !!item && DataManager.isArmor(item))
   }
 
   hasWeapon(weapon: MZ.Weapon): boolean {
@@ -276,8 +276,8 @@ class Game_Actor extends Game_Battler {
     this.refresh()
   }
 
-  tradeItemWithParty(newItem: MZ.GeneralItem | null, oldItem: MZ.GeneralItem | null): boolean {
-    if (newItem && !$gameParty.hasItem(newItem)) {
+  tradeItemWithParty(newItem: MZ.EquipOrItem | null, oldItem: MZ.EquipOrItem | null): boolean {
+    if (!!newItem && !$gameParty.hasItem(newItem)) {
       return false
     }
     else {
@@ -297,11 +297,11 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  isEquipped(item: MZ.GeneralItem | null): boolean {
+  isEquipped(item: MZ.Equip): boolean {
     return this.equips().includes(item)
   }
 
-  discardEquip(item: MZ.GeneralItem | null): void {
+  discardEquip(item: MZ.Equip): void {
     const slotId = this.equips().indexOf(item)
     if (slotId >= 0) {
       this._equips[slotId].setObject(null)
@@ -600,7 +600,7 @@ class Game_Actor extends Game_Battler {
     return this.skills().includes($dataSkills[skillId]!)
   }
 
-  changeClass(classId, keepExp) {
+  changeClass(classId: number, keepExp?: boolean): void {
     if (keepExp) {
       this._exp[classId] = this.currentExp()
     }
@@ -610,30 +610,30 @@ class Game_Actor extends Game_Battler {
     this.refresh()
   }
 
-  setCharacterImage(characterName, characterIndex) {
+  setCharacterImage(characterName: string, characterIndex: number): void {
     this._characterName = characterName
     this._characterIndex = characterIndex
   }
 
-  setFaceImage(faceName, faceIndex) {
+  setFaceImage(faceName: string, faceIndex: number): void {
     this._faceName = faceName
     this._faceIndex = faceIndex
     $gameTemp.requestBattleRefresh()
   }
 
-  setBattlerImage(battlerName) {
+  setBattlerImage(battlerName: string): void {
     this._battlerName = battlerName
   }
 
-  isSpriteVisible() {
+  isSpriteVisible(): boolean {
     return $gameSystem.isSideView()
   }
 
-  performActionStart(action) {
+  performActionStart(action: Game_Action): void {
     super.performActionStart(action)
   }
 
-  performAction(action) {
+  performAction(action: Game_Action): void {
     super.performAction(action)
     if (action.isAttack()) {
       this.performAttack()
@@ -652,11 +652,11 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  performActionEnd() {
+  performActionEnd(): void {
     super.performActionEnd()
   }
 
-  performAttack() {
+  performAttack(): void {
     const weapons = this.weapons()
     const wtypeId = weapons[0] ? weapons[0].wtypeId : 0
     const attackMotion = $dataSystem.attackMotions[wtypeId]
@@ -674,7 +674,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  performDamage() {
+  performDamage(): void {
     super.performDamage()
     if (this.isSpriteVisible()) {
       this.requestMotion('damage')
@@ -685,42 +685,42 @@ class Game_Actor extends Game_Battler {
     SoundManager.playActorDamage()
   }
 
-  performEvasion() {
+  performEvasion(): void {
     super.performEvasion()
     this.requestMotion('evade')
   }
 
-  performMagicEvasion() {
+  performMagicEvasion(): void {
     super.performMagicEvasion()
     this.requestMotion('evade')
   }
 
-  performCounter() {
+  performCounter(): void {
     super.performCounter()
     this.performAttack()
   }
 
-  performCollapse() {
+  performCollapse(): void {
     super.performCollapse()
     if ($gameParty.inBattle()) {
       SoundManager.playActorCollapse()
     }
   }
 
-  performVictory() {
+  performVictory(): void {
     this.setActionState('done')
     if (this.canMove()) {
       this.requestMotion('victory')
     }
   }
 
-  performEscape() {
+  performEscape(): void {
     if (this.canMove()) {
       this.requestMotion('escape')
     }
   }
 
-  makeActionList() {
+  makeActionList(): Game_Action[] {
     const list = []
     const attackAction = new Game_Action(this)
     attackAction.setAttack()
@@ -733,7 +733,7 @@ class Game_Actor extends Game_Battler {
     return list
   }
 
-  makeAutoBattleActions() {
+  makeAutoBattleActions(): void {
     for (let i = 0; i < this.numActions(); i++) {
       const list = this.makeActionList()
       let maxValue = -Number.MAX_VALUE
@@ -748,14 +748,14 @@ class Game_Actor extends Game_Battler {
     this.setActionState('waiting')
   }
 
-  makeConfusionActions() {
+  makeConfusionActions(): void {
     for (let i = 0; i < this.numActions(); i++) {
       this.action(i).setConfusion()
     }
     this.setActionState('waiting')
   }
 
-  makeActions() {
+  makeActions(): void {
     super.makeActions()
     if (this.numActions() > 0) {
       this.setActionState('undecided')
@@ -771,7 +771,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  onPlayerWalk() {
+  onPlayerWalk(): void {
     this.clearResult()
     this.checkFloorEffect()
     if ($gamePlayer.isNormal()) {
@@ -784,7 +784,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  updateStateSteps(state) {
+  updateStateSteps(state: MZ.State): void {
     if (state.removeByWalking) {
       if (this._stateSteps[state.id] > 0) {
         if (--this._stateSteps[state.id] === 0) {
@@ -794,7 +794,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  showAddedStates() {
+  showAddedStates(): void {
     for (const state of this.result().addedStateObjects()) {
       if (state.message1) {
         $gameMessage.add(state.message1.format(this._name))
@@ -802,7 +802,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  showRemovedStates() {
+  showRemovedStates(): void {
     for (const state of this.result().removedStateObjects()) {
       if (state.message4) {
         $gameMessage.add(state.message4.format(this._name))
@@ -810,11 +810,11 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  stepsForTurn() {
+  stepsForTurn(): number {
     return 20
   }
 
-  turnEndOnMap() {
+  turnEndOnMap(): void {
     if ($gameParty.steps() % this.stepsForTurn() === 0) {
       this.onTurnEnd()
       if (this.result().hpDamage > 0) {
@@ -823,13 +823,13 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  checkFloorEffect() {
+  checkFloorEffect(): void {
     if ($gamePlayer.isOnDamageFloor()) {
       this.executeFloorDamage()
     }
   }
 
-  executeFloorDamage() {
+  executeFloorDamage(): void {
     const floorDamage = Math.floor(this.basicFloorDamage() * this.fdr)
     const realDamage = Math.min(floorDamage, this.maxFloorDamage())
     this.gainHp(-realDamage)
@@ -838,30 +838,30 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  basicFloorDamage() {
+  basicFloorDamage(): number {
     return 10
   }
 
-  maxFloorDamage() {
+  maxFloorDamage(): number {
     return $dataSystem.optFloorDeath ? this.hp : Math.max(this.hp - 1, 0)
   }
 
-  performMapDamage() {
+  performMapDamage(): void {
     if (!$gameParty.inBattle()) {
       $gameScreen.startFlashForDamage()
     }
   }
 
-  clearActions() {
+  clearActions(): void {
     super.clearActions()
     this._actionInputIndex = 0
   }
 
-  inputtingAction() {
+  inputtingAction(): Game_Action {
     return this.action(this._actionInputIndex)
   }
 
-  selectNextCommand() {
+  selectNextCommand(): boolean {
     if (this._actionInputIndex < this.numActions() - 1) {
       this._actionInputIndex++
       return true
@@ -871,7 +871,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  selectPreviousCommand() {
+  selectPreviousCommand(): boolean {
     if (this._actionInputIndex > 0) {
       this._actionInputIndex--
       return true
@@ -881,7 +881,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  lastSkill() {
+  lastSkill(): MZ.GeneralItem | null {
     if ($gameParty.inBattle()) {
       return this.lastBattleSkill()
     }
@@ -890,37 +890,37 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  lastMenuSkill() {
+  lastMenuSkill(): MZ.GeneralItem | null {
     return this._lastMenuSkill.object()
   }
 
-  setLastMenuSkill(skill) {
+  setLastMenuSkill(skill: MZ.Skill): void {
     this._lastMenuSkill.setObject(skill)
   }
 
-  lastBattleSkill() {
+  lastBattleSkill(): MZ.GeneralItem | null {
     return this._lastBattleSkill.object()
   }
 
-  setLastBattleSkill(skill) {
+  setLastBattleSkill(skill: MZ.Skill): void {
     this._lastBattleSkill.setObject(skill)
   }
 
-  lastCommandSymbol() {
+  lastCommandSymbol(): string {
     return this._lastCommandSymbol
   }
 
-  setLastCommandSymbol(symbol) {
+  setLastCommandSymbol(symbol: string): void {
     this._lastCommandSymbol = symbol
   }
 
-  testEscape(item) {
+  testEscape(item: MZ.UsableItem): boolean {
     return item.effects.some(
       effect => effect && effect.code === Game_Action.EFFECT_SPECIAL,
     )
   }
 
-  meetsUsableItemConditions(item) {
+  meetsUsableItemConditions(item: MZ.UsableItem): boolean {
     if ($gameParty.inBattle()) {
       if (!BattleManager.canEscape() && this.testEscape(item)) {
         return false
@@ -929,7 +929,7 @@ class Game_Actor extends Game_Battler {
     return super.meetsUsableItemConditions(item)
   }
 
-  onEscapeFailure() {
+  onEscapeFailure(): void {
     if (BattleManager.isTpb()) {
       this.applyTpbPenalty()
     }
@@ -937,5 +937,3 @@ class Game_Actor extends Game_Battler {
     this.requestMotionRefresh()
   }
 }
-
-export { Game_Actor }
