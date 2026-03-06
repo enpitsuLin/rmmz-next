@@ -1,11 +1,11 @@
 import type { MZ } from '@rmmz-lib/database-types'
+import type { Game_Party } from './Game_Party'
+import type { Game_Troop } from './Game_Troop'
 import { BattleManager, SoundManager, TextManager } from '../managers'
 import { DataManager } from '../managers/DataManager'
 import { Game_Action } from './Game_Action'
 import { Game_Battler } from './Game_Battler'
 import { Game_Item } from './Game_Item'
-import type { Game_Party } from './Game_Party'
-import type { Game_Troop } from './Game_Troop'
 
 /**
  * The game object class for an actor.
@@ -29,6 +29,8 @@ class Game_Actor extends Game_Battler {
   _lastMenuSkill!: Game_Item
   _lastBattleSkill!: Game_Item
   _lastCommandSymbol!: string
+
+  _stateSteps: Record<number, number> | null
 
   constructor(actorId?: number) {
     super()
@@ -63,7 +65,7 @@ class Game_Actor extends Game_Battler {
   }
 
   setup(actorId: number): void {
-    const actor = $dataActors[actorId]
+    const actor = $dataActors[actorId]!
     this._actorId = actorId
     this._name = actor.name
     this._nickname = actor.nickname
@@ -135,17 +137,17 @@ class Game_Actor extends Game_Battler {
     this._stateSteps = {}
   }
 
-  eraseState(stateId) {
+  eraseState(stateId: number): void {
     super.eraseState(stateId)
-    delete this._stateSteps[stateId]
+    delete this._stateSteps![stateId]
   }
 
-  resetStateCounts(stateId) {
+  resetStateCounts(stateId: number): void {
     super.resetStateCounts(stateId)
-    this._stateSteps[stateId] = $dataStates[stateId].stepsToRemove
+    this._stateSteps![stateId] = $dataStates[stateId]!.stepsToRemove
   }
 
-  initImages() {
+  initImages(): void {
     const actor = this.actor()
     this._characterName = actor.characterName
     this._characterIndex = actor.characterIndex
@@ -154,7 +156,7 @@ class Game_Actor extends Game_Battler {
     this._battlerName = actor.battlerName
   }
 
-  expForLevel(level: number) {
+  expForLevel(level: number): number {
     const c = this.currentClass()
     const basis = c.expParams[0]
     const extra = c.expParams[1]
@@ -167,35 +169,35 @@ class Game_Actor extends Game_Battler {
     )
   }
 
-  initExp() {
+  initExp(): void {
     this._exp[this._classId] = this.currentLevelExp()
   }
 
-  currentExp() {
+  currentExp(): number {
     return this._exp[this._classId]
   }
 
-  currentLevelExp() {
+  currentLevelExp(): number {
     return this.expForLevel(this._level)
   }
 
-  nextLevelExp() {
+  nextLevelExp(): number {
     return this.expForLevel(this._level + 1)
   }
 
-  nextRequiredExp() {
+  nextRequiredExp(): number {
     return this.nextLevelExp() - this.currentExp()
   }
 
-  maxLevel() {
+  maxLevel(): number {
     return this.actor().maxLevel
   }
 
-  isMaxLevel() {
+  isMaxLevel(): boolean {
     return this._level >= this.maxLevel()
   }
 
-  initSkills() {
+  initSkills(): void {
     this._skills = []
     for (const learning of this.currentClass().learnings) {
       if (learning.level <= this._level) {
@@ -204,7 +206,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  initEquips(equips: number[]) {
+  initEquips(equips: number[]): void {
     const slots = this.equipSlots()
     const maxSlots = slots.length
     this._equips = []
@@ -220,8 +222,8 @@ class Game_Actor extends Game_Battler {
     this.refresh()
   }
 
-  equipSlots() {
-    const slots = []
+  equipSlots(): number[] {
+    const slots: number[] = []
     for (let i = 1; i < $dataSystem.equipTypes.length; i++) {
       slots.push(i)
     }
@@ -231,34 +233,34 @@ class Game_Actor extends Game_Battler {
     return slots
   }
 
-  equips() {
+  equips(): (MZ.GeneralItem | null)[] {
     return this._equips.map(item => item.object())
   }
 
-  weapons() {
+  weapons(): (MZ.GeneralItem | null)[] {
     return this.equips().filter(item => item && DataManager.isWeapon(item))
   }
 
-  armors() {
+  armors(): (MZ.GeneralItem | null)[] {
     return this.equips().filter(item => item && DataManager.isArmor(item))
   }
 
-  hasWeapon(weapon) {
+  hasWeapon(weapon: MZ.Weapon): boolean {
     return this.weapons().includes(weapon)
   }
 
-  hasArmor(armor) {
+  hasArmor(armor: MZ.Armor): boolean {
     return this.armors().includes(armor)
   }
 
-  isEquipChangeOk(slotId) {
+  isEquipChangeOk(slotId: number): boolean {
     return (
       !this.isEquipTypeLocked(this.equipSlots()[slotId])
       && !this.isEquipTypeSealed(this.equipSlots()[slotId])
     )
   }
 
-  changeEquip(slotId, item) {
+  changeEquip(slotId: number, item: MZ.Weapon | MZ.Armor | null): void {
     if (
       this.tradeItemWithParty(item, this.equips()[slotId])
       && (!item || this.equipSlots()[slotId] === item.etypeId)
@@ -268,13 +270,13 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  forceChangeEquip(slotId, item) {
+  forceChangeEquip(slotId: number, item: MZ.Weapon | MZ.Armor | null): void {
     this._equips[slotId].setObject(item)
     this.releaseUnequippableItems(true)
     this.refresh()
   }
 
-  tradeItemWithParty(newItem, oldItem) {
+  tradeItemWithParty(newItem: MZ.GeneralItem | null, oldItem: MZ.GeneralItem | null): boolean {
     if (newItem && !$gameParty.hasItem(newItem)) {
       return false
     }
@@ -285,7 +287,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  changeEquipById(etypeId, itemId) {
+  changeEquipById(etypeId: number, itemId: number): void {
     const slotId = etypeId - 1
     if (this.equipSlots()[slotId] === 1) {
       this.changeEquip(slotId, $dataWeapons[itemId])
@@ -295,18 +297,18 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  isEquipped(item) {
+  isEquipped(item: MZ.GeneralItem | null): boolean {
     return this.equips().includes(item)
   }
 
-  discardEquip(item) {
+  discardEquip(item: MZ.GeneralItem | null): void {
     const slotId = this.equips().indexOf(item)
     if (slotId >= 0) {
       this._equips[slotId].setObject(null)
     }
   }
 
-  releaseUnequippableItems(forcing) {
+  releaseUnequippableItems(forcing: boolean): void {
     for (; ;) {
       const slots = this.equipSlots()
       const equips = this.equips()
@@ -327,7 +329,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  clearEquipments() {
+  clearEquipments(): void {
     const maxSlots = this.equipSlots().length
     for (let i = 0; i < maxSlots; i++) {
       if (this.isEquipChangeOk(i)) {
@@ -336,7 +338,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  optimizeEquipments() {
+  optimizeEquipments(): void {
     const maxSlots = this.equipSlots().length
     this.clearEquipments()
     for (let i = 0; i < maxSlots; i++) {
@@ -346,7 +348,7 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  bestEquipItem(slotId) {
+  bestEquipItem(slotId: number): MZ.Weapon | MZ.Armor | null {
     const etypeId = this.equipSlots()[slotId]
     const items = $gameParty
       .equipItems()
@@ -363,11 +365,11 @@ class Game_Actor extends Game_Battler {
     return bestItem
   }
 
-  calcEquipItemPerformance(item) {
+  calcEquipItemPerformance(item: MZ.Weapon | MZ.Armor): number {
     return item.params.reduce((a, b) => a + b)
   }
 
-  isSkillWtypeOk(skill) {
+  isSkillWtypeOk(skill: MZ.Skill): boolean {
     const wtypeId1 = skill.requiredWtypeId1
     const wtypeId2 = skill.requiredWtypeId2
     if (
@@ -382,16 +384,16 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  isWtypeEquipped(wtypeId) {
+  isWtypeEquipped(wtypeId: number): boolean {
     return this.weapons().some(weapon => weapon.wtypeId === wtypeId)
   }
 
-  refresh() {
+  refresh(): void {
     this.releaseUnequippableItems(false)
     super.refresh()
   }
 
-  hide() {
+  hide(): void {
     super.hide()
     $gameTemp.requestBattleRefresh()
   }
@@ -400,65 +402,65 @@ class Game_Actor extends Game_Battler {
     return true
   }
 
-  friendsUnit() {
+  friendsUnit(): Game_Party {
     return $gameParty
   }
 
-  opponentsUnit() {
+  opponentsUnit(): Game_Troop {
     return $gameTroop
   }
 
-  index() {
+  index(): number {
     return $gameParty.members().indexOf(this)
   }
 
-  isBattleMember() {
+  isBattleMember(): boolean {
     return $gameParty.battleMembers().includes(this)
   }
 
-  isFormationChangeOk() {
+  isFormationChangeOk(): boolean {
     return true
   }
 
-  currentClass() {
-    return $dataClasses[this._classId]
+  currentClass(): MZ.Class {
+    return $dataClasses[this._classId]!
   }
 
-  isClass(gameClass) {
+  isClass(gameClass: MZ.Class): boolean {
     return gameClass && this._classId === gameClass.id
   }
 
-  skillTypes() {
+  skillTypes(): number[] {
     const skillTypes = this.addedSkillTypes().sort((a, b) => a - b)
     return skillTypes.filter((x, i, self) => self.indexOf(x) === i)
   }
 
-  skills() {
-    const list = []
+  skills(): MZ.Skill[] {
+    const list: MZ.Skill[] = []
     for (const id of this._skills.concat(this.addedSkills())) {
-      if (!list.includes($dataSkills[id])) {
-        list.push($dataSkills[id])
+      if (!list.includes($dataSkills[id]!)) {
+        list.push($dataSkills[id]!)
       }
     }
     return list
   }
 
-  usableSkills() {
+  usableSkills(): MZ.Skill[] {
     return this.skills().filter(skill => this.canUse(skill))
   }
 
-  traitObjects() {
+  traitObjects(): MZ.TraitObject[] {
     const objects = super.traitObjects()
     objects.push(this.actor(), this.currentClass())
     for (const item of this.equips()) {
       if (item) {
-        objects.push(item)
+        objects.push(item as MZ.TraitObject)
       }
     }
     return objects
   }
 
-  attackElements() {
+  attackElements(): number[] {
     const set = super.attackElements()
     if (this.hasNoWeapons() && !set.includes(this.bareHandsElementId())) {
       set.push(this.bareHandsElementId())
@@ -466,19 +468,19 @@ class Game_Actor extends Game_Battler {
     return set
   }
 
-  hasNoWeapons() {
+  hasNoWeapons(): boolean {
     return this.weapons().length === 0
   }
 
-  bareHandsElementId() {
+  bareHandsElementId(): number {
     return 1
   }
 
-  paramBase(paramId) {
+  paramBase(paramId: number): number {
     return this.currentClass().params[paramId][this._level]
   }
 
-  paramPlus(paramId) {
+  paramPlus(paramId: number): number {
     let value = super.paramPlus(paramId)
     for (const item of this.equips()) {
       if (item) {
@@ -488,7 +490,7 @@ class Game_Actor extends Game_Battler {
     return value
   }
 
-  attackAnimationId1() {
+  attackAnimationId1(): number {
     if (this.hasNoWeapons()) {
       return this.bareHandsAnimationId()
     }
@@ -498,16 +500,16 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  attackAnimationId2() {
+  attackAnimationId2(): number {
     const weapons = this.weapons()
     return weapons[1] ? weapons[1].animationId : 0
   }
 
-  bareHandsAnimationId() {
+  bareHandsAnimationId(): number {
     return 1
   }
 
-  changeExp(exp, show) {
+  changeExp(exp: number, show: boolean): void {
     this._exp[this._classId] = Math.max(exp, 0)
     const lastLevel = this._level
     const lastSkills = this.skills()
@@ -523,7 +525,7 @@ class Game_Actor extends Game_Battler {
     this.refresh()
   }
 
-  levelUp() {
+  levelUp(): void {
     this._level++
     for (const learning of this.currentClass().learnings) {
       if (learning.level === this._level) {
@@ -532,11 +534,11 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  levelDown() {
+  levelDown(): void {
     this._level--
   }
 
-  findNewSkills(lastSkills) {
+  findNewSkills(lastSkills: MZ.Skill[]): MZ.Skill[] {
     const newSkills = this.skills()
     for (const lastSkill of lastSkills) {
       newSkills.remove(lastSkill)
@@ -544,7 +546,7 @@ class Game_Actor extends Game_Battler {
     return newSkills
   }
 
-  displayLevelUp(newSkills) {
+  displayLevelUp(newSkills: MZ.Skill[]): void {
     const text = TextManager.levelUp.format(
       this._name,
       TextManager.level,
@@ -557,45 +559,45 @@ class Game_Actor extends Game_Battler {
     }
   }
 
-  gainExp(exp) {
+  gainExp(exp: number): void {
     const newExp = this.currentExp() + Math.round(exp * this.finalExpRate())
     this.changeExp(newExp, this.shouldDisplayLevelUp())
   }
 
-  finalExpRate() {
+  finalExpRate(): number {
     return this.exr * (this.isBattleMember() ? 1 : this.benchMembersExpRate())
   }
 
-  benchMembersExpRate() {
+  benchMembersExpRate(): number {
     return $dataSystem.optExtraExp ? 1 : 0
   }
 
-  shouldDisplayLevelUp() {
+  shouldDisplayLevelUp(): boolean {
     return true
   }
 
-  changeLevel(level, show) {
+  changeLevel(level: number, show: boolean): void {
     level = level.clamp(1, this.maxLevel())
     this.changeExp(this.expForLevel(level), show)
   }
 
-  learnSkill(skillId) {
+  learnSkill(skillId: number): void {
     if (!this.isLearnedSkill(skillId)) {
       this._skills.push(skillId)
       this._skills.sort((a, b) => a - b)
     }
   }
 
-  forgetSkill(skillId) {
+  forgetSkill(skillId: number): void {
     this._skills.remove(skillId)
   }
 
-  isLearnedSkill(skillId) {
+  isLearnedSkill(skillId: number): boolean {
     return this._skills.includes(skillId)
   }
 
-  hasSkill(skillId) {
-    return this.skills().includes($dataSkills[skillId])
+  hasSkill(skillId: number): boolean {
+    return this.skills().includes($dataSkills[skillId]!)
   }
 
   changeClass(classId, keepExp) {

@@ -1,11 +1,8 @@
-interface Array<T> {
-  /**
-   * Returns the elements of an array that meet the condition specified in a callback function.
-   * @param predicate A function that accepts up to three arguments. The filter method calls the predicate function one time for each element in the array.
-   * @param thisArg An object to which the this keyword can refer in the predicate function. If thisArg is omitted, undefined is used as the this value.
-   */
-  filter: <S extends T>(predicate: BooleanConstructor, thisArg?: any) => NonNullable<S>[]
+interface BooleanConstructor {
+  (): <T>(value: T | null | undefined, index: number, array: (T | null | undefined)[]) => value is NonNullable<T>
+}
 
+interface Array<T> {
   /**
    * Makes a shallow copy of the array.
    *

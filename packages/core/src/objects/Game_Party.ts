@@ -117,11 +117,11 @@ class Game_Party extends Game_Unit<Game_Actor> {
     return (this.weapons() as MZ.Equip[]).concat(this.armors())
   }
 
-  allItems(): (MZ.EquipOrItem)[] {
-    return (this.items() as MZ.EquipOrItem[]).concat(this.equipItems())
+  allItems(): MZ.GeneralItem[] {
+    return (this.items() as MZ.GeneralItem[]).concat(this.equipItems())
   }
 
-  itemContainer(item: MZ.EquipOrItem | null): Game_Party.ItemContainer | null {
+  itemContainer(item: MZ.GeneralItem | null): Game_Party.ItemContainer | null {
     if (!item) {
       return null
     }

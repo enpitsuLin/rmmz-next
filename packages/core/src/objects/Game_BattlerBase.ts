@@ -833,7 +833,7 @@ class Game_BattlerBase<T extends MZ.TraitObject> {
     }
   }
 
-  canEquip(item: MZ.GeneralItem): item is MZ.EquipOrItem {
+  canEquip(item: MZ.GeneralItem): item is MZ.Equip {
     if (!item) {
       return false
     }
