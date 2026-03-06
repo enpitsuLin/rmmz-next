@@ -1,5 +1,7 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { VehicleType } from '../types'
+import type { Game_CharacterBase } from './Game_CharacterBase'
+import type { Game_Vehicle } from './Game_Vehicle'
 import { Input, TouchInput } from '../core'
 import { BattleManager } from '../managers/BattleManager'
 import { ConfigManager } from '../managers/ConfigManager'
@@ -11,7 +13,7 @@ import { Game_Followers } from './Game_Followers'
  *
  * It contains event starting determinants and map scrolling functions.
  */
-class Game_Player extends Game_Character {
+export class Game_Player extends Game_Character {
   _vehicleType!: VehicleType
   _vehicleGettingOn!: boolean
   _vehicleGettingOff!: boolean
@@ -31,7 +33,7 @@ class Game_Player extends Game_Character {
     this.setTransparent($dataSystem.optTransparent)
   }
 
-  initMembers() {
+  initMembers(): void {
     super.initMembers()
     this._vehicleType = 'walk'
     this._vehicleGettingOn = false
@@ -48,7 +50,7 @@ class Game_Player extends Game_Character {
     this._encounterCount = 0
   }
 
-  clearTransferInfo() {
+  clearTransferInfo(): void {
     this._transferring = false
     this._newMapId = 0
     this._newX = 0
@@ -56,11 +58,11 @@ class Game_Player extends Game_Character {
     this._newDirection = 0
   }
 
-  followers() {
+  followers(): Game_Followers {
     return this._followers
   }
 
-  refresh() {
+  refresh(): void {
     const actor = $gameParty.leader()
     const characterName = actor ? actor.characterName() : ''
     const characterIndex = actor ? actor.characterIndex() : 0
@@ -68,14 +70,14 @@ class Game_Player extends Game_Character {
     this._followers.refresh()
   }
 
-  isStopping() {
+  isStopping(): boolean {
     if (this._vehicleGettingOn || this._vehicleGettingOff) {
       return false
     }
     return super.isStopping()
   }
 
-  reserveTransfer(mapId: number, x: number, y: number, d: number, fadeType: number) {
+  reserveTransfer(mapId: number, x: number, y: number, d: number, fadeType: number): void {
     this._transferring = true
     this._newMapId = mapId
     this._newX = x
@@ -84,30 +86,30 @@ class Game_Player extends Game_Character {
     this._fadeType = fadeType
   }
 
-  setupForNewGame() {
+  setupForNewGame(): void {
     const mapId = $dataSystem.startMapId
     const x = $dataSystem.startX
     const y = $dataSystem.startY
     this.reserveTransfer(mapId, x, y, 2, 0)
   }
 
-  requestMapReload() {
+  requestMapReload(): void {
     this._needsMapReload = true
   }
 
-  isTransferring() {
+  isTransferring(): boolean {
     return this._transferring
   }
 
-  newMapId() {
+  newMapId(): number {
     return this._newMapId
   }
 
-  fadeType() {
+  fadeType(): number {
     return this._fadeType
   }
 
-  performTransfer() {
+  performTransfer(): void {
     if (this.isTransferring()) {
       this.setDirection(this._newDirection)
       if (this._newMapId !== $gameMap.mapId() || this._needsMapReload) {
@@ -120,7 +122,7 @@ class Game_Player extends Game_Character {
     }
   }
 
-  isMapPassable(x: number, y: number, d: number) {
+  isMapPassable(x: number, y: number, d: number): boolean {
     const vehicle = this.vehicle()
     if (vehicle) {
       return vehicle.isMapPassable(x, y, d)
@@ -130,39 +132,39 @@ class Game_Player extends Game_Character {
     }
   }
 
-  vehicle() {
+  vehicle(): Game_Vehicle | null {
     return $gameMap.vehicle(this._vehicleType)
   }
 
-  isInBoat() {
+  isInBoat(): boolean {
     return this._vehicleType === 'boat'
   }
 
-  isInShip() {
+  isInShip(): boolean {
     return this._vehicleType === 'ship'
   }
 
-  isInAirship() {
+  isInAirship(): boolean {
     return this._vehicleType === 'airship'
   }
 
-  isInVehicle() {
+  isInVehicle(): boolean {
     return this.isInBoat() || this.isInShip() || this.isInAirship()
   }
 
-  isNormal() {
+  isNormal(): boolean {
     return this._vehicleType === 'walk' && !this.isMoveRouteForcing()
   }
 
-  isDashing() {
+  isDashing(): boolean {
     return this._dashing
   }
 
-  isDebugThrough() {
+  isDebugThrough(): boolean {
     return Input.isPressed('control') && $gameTemp.isPlaytest()
   }
 
-  isCollided(x: number, y: number) {
+  isCollided(x: number, y: number): boolean {
     if (this.isThrough()) {
       return false
     }
@@ -171,19 +173,19 @@ class Game_Player extends Game_Character {
     }
   }
 
-  centerX() {
+  centerX(): number {
     return ($gameMap.screenTileX() - 1) / 2
   }
 
-  centerY() {
+  centerY(): number {
     return ($gameMap.screenTileY() - 1) / 2
   }
 
-  center(x: number, y: number) {
+  center(x: number, y: number): void {
     return $gameMap.setDisplayPos(x - this.centerX(), y - this.centerY())
   }
 
-  locate(x: number, y: number) {
+  locate(x: number, y: number): void {
     super.locate(x, y)
     this.center(x, y)
     this.makeEncounterCount()
@@ -193,19 +195,19 @@ class Game_Player extends Game_Character {
     this._followers.synchronize(x, y, this.direction())
   }
 
-  increaseSteps() {
+  increaseSteps(): void {
     super.increaseSteps()
     if (this.isNormal()) {
       $gameParty.increaseSteps()
     }
   }
 
-  makeEncounterCount() {
+  makeEncounterCount(): void {
     const n = $gameMap.encounterStep()
     this._encounterCount = Math.randomInt(n) + Math.randomInt(n) + 1
   }
 
-  makeEncounterTroopId() {
+  makeEncounterTroopId(): number {
     const encounterList = []
     let weightSum = 0
     for (const encounter of $gameMap.encounterList()) {
@@ -226,14 +228,14 @@ class Game_Player extends Game_Character {
     return 0
   }
 
-  meetsEncounterConditions(encounter: MZ.Map.EncounterList) {
+  meetsEncounterConditions(encounter: MZ.Map.EncounterList): boolean {
     return (
       encounter.regionSet.length === 0
       || encounter.regionSet.includes(this.regionId())
     )
   }
 
-  executeEncounter() {
+  executeEncounter(): boolean {
     if (!$gameMap.isEventRunning() && this._encounterCount <= 0) {
       this.makeEncounterCount()
       const troopId = this.makeEncounterTroopId()
@@ -251,7 +253,7 @@ class Game_Player extends Game_Character {
     }
   }
 
-  startMapEvent(x: number, y: number, triggers: number[], normal: boolean) {
+  startMapEvent(x: number, y: number, triggers: Game_Player.EventTrigger[], normal: boolean): void {
     if (!$gameMap.isEventRunning()) {
       for (const event of $gameMap.eventsXy(x, y)) {
         if (
@@ -281,7 +283,7 @@ class Game_Player extends Game_Character {
     }
   }
 
-  canMove() {
+  canMove(): boolean {
     if ($gameMap.isEventRunning() || $gameMessage.isBusy()) {
       return false
     }
@@ -297,15 +299,15 @@ class Game_Player extends Game_Character {
     return true
   }
 
-  getInputDirection() {
-    return Input.dir4
+  getInputDirection(): Game_CharacterBase.CharacterDirection | 0 {
+    return Input.dir4 as Game_CharacterBase.CharacterDirection | 0
   }
 
-  executeMove(direction: number) {
+  executeMove(direction: Game_CharacterBase.CharacterDirection | 0): void {
     this.moveStraight(direction)
   }
 
-  update(sceneActive = false) {
+  update(sceneActive = false): void {
     const lastScrolledX = this.scrolledX()
     const lastScrolledY = this.scrolledY()
     const wasMoving = this.isMoving()
@@ -322,7 +324,7 @@ class Game_Player extends Game_Character {
     this._followers.update()
   }
 
-  updateDashing() {
+  updateDashing(): void {
     if (this.isMoving()) {
       return
     }
@@ -335,12 +337,12 @@ class Game_Player extends Game_Character {
     }
   }
 
-  isDashButtonPressed() {
+  isDashButtonPressed(): boolean {
     const shift = Input.isPressed('shift')
     return ConfigManager.alwaysDash ? !shift : shift
   }
 
-  updateScroll(lastScrolledX: number, lastScrolledY: number) {
+  updateScroll(lastScrolledX: number, lastScrolledY: number): void {
     const x1 = lastScrolledX
     const y1 = lastScrolledY
     const x2 = this.scrolledX()
@@ -359,7 +361,7 @@ class Game_Player extends Game_Character {
     }
   }
 
-  updateVehicle() {
+  updateVehicle(): void {
     if (this.isInVehicle() && !this.areFollowersGathering()) {
       if (this._vehicleGettingOn) {
         this.updateVehicleGetOn()
@@ -373,7 +375,7 @@ class Game_Player extends Game_Character {
     }
   }
 
-  updateVehicleGetOn() {
+  updateVehicleGetOn(): void {
     if (!this.areFollowersGathering() && !this.isMoving()) {
       this.setDirection(this.vehicle()!.direction())
       this.setMoveSpeed(this.vehicle()!.moveSpeed())
@@ -386,7 +388,7 @@ class Game_Player extends Game_Character {
     }
   }
 
-  updateVehicleGetOff() {
+  updateVehicleGetOff(): void {
     if (!this.areFollowersGathering() && this.vehicle()!.isLowest()) {
       this._vehicleGettingOff = false
       this._vehicleType = 'walk'
@@ -394,7 +396,7 @@ class Game_Player extends Game_Character {
     }
   }
 
-  updateNonmoving(wasMoving: boolean, sceneActive: boolean) {
+  updateNonmoving(wasMoving: boolean, sceneActive: boolean): void {
     if (!$gameMap.isEventRunning()) {
       if (wasMoving) {
         $gameParty.onPlayerWalk()
@@ -415,7 +417,7 @@ class Game_Player extends Game_Character {
     }
   }
 
-  triggerAction() {
+  triggerAction(): boolean {
     if (this.canMove()) {
       if (this.triggerButtonAction()) {
         return true
@@ -427,7 +429,7 @@ class Game_Player extends Game_Character {
     return false
   }
 
-  triggerButtonAction() {
+  triggerButtonAction(): boolean {
     if (Input.isTriggered('ok')) {
       if (this.getOnOffVehicle()) {
         return true
@@ -444,7 +446,7 @@ class Game_Player extends Game_Character {
     return false
   }
 
-  triggerTouchAction() {
+  triggerTouchAction(): boolean {
     if ($gameTemp.isDestinationValid()) {
       const direction = this.direction()
       const x1 = this.x
@@ -468,7 +470,7 @@ class Game_Player extends Game_Character {
     return false
   }
 
-  triggerTouchActionD1(x1: number, y1: number) {
+  triggerTouchActionD1(x1: number, y1: number): boolean {
     if ($gameMap.airship().pos(x1, y1)) {
       if (TouchInput.isTriggered() && this.getOnOffVehicle()) {
         return true
@@ -478,7 +480,7 @@ class Game_Player extends Game_Character {
     return $gameMap.setupStartingEvent()
   }
 
-  triggerTouchActionD2(x2: number, y2: number) {
+  triggerTouchActionD2(x2: number, y2: number): boolean {
     if ($gameMap.boat().pos(x2, y2) || $gameMap.ship().pos(x2, y2)) {
       if (TouchInput.isTriggered() && this.getOnVehicle()) {
         return true
@@ -493,20 +495,20 @@ class Game_Player extends Game_Character {
     return $gameMap.setupStartingEvent()
   }
 
-  triggerTouchActionD3(x2: number, y2: number) {
+  triggerTouchActionD3(x2: number, y2: number): boolean {
     if ($gameMap.isCounter(x2, y2)) {
       this.checkEventTriggerThere([0, 1, 2])
     }
     return $gameMap.setupStartingEvent()
   }
 
-  updateEncounterCount() {
+  updateEncounterCount(): void {
     if (this.canEncounter()) {
       this._encounterCount -= this.encounterProgressValue()
     }
   }
 
-  canEncounter() {
+  canEncounter(): boolean {
     return (
       !$gameParty.hasEncounterNone()
       && $gameSystem.isEncounterEnabled()
@@ -516,7 +518,7 @@ class Game_Player extends Game_Character {
     )
   }
 
-  encounterProgressValue() {
+  encounterProgressValue(): number {
     let value = $gameMap.isBush(this.x, this.y) ? 2 : 1
     if ($gameParty.hasEncounterHalf()) {
       value *= 0.5
@@ -527,13 +529,13 @@ class Game_Player extends Game_Character {
     return value
   }
 
-  checkEventTriggerHere(triggers: number[]) {
+  checkEventTriggerHere(triggers: Game_Player.EventTrigger[]): void {
     if (this.canStartLocalEvents()) {
       this.startMapEvent(this.x, this.y, triggers, false)
     }
   }
 
-  checkEventTriggerThere(triggers: number[]) {
+  checkEventTriggerThere(triggers: Game_Player.EventTrigger[]): void {
     if (this.canStartLocalEvents()) {
       const direction = this.direction()
       const x1 = this.x
@@ -549,17 +551,17 @@ class Game_Player extends Game_Character {
     }
   }
 
-  checkEventTriggerTouch(x: number, y: number) {
+  checkEventTriggerTouch(x: number, y: number): void {
     if (this.canStartLocalEvents()) {
       this.startMapEvent(x, y, [1, 2], true)
     }
   }
 
-  canStartLocalEvents() {
+  canStartLocalEvents(): boolean {
     return !this.isInAirship()
   }
 
-  getOnOffVehicle() {
+  getOnOffVehicle(): boolean {
     if (this.isInVehicle()) {
       return this.getOffVehicle()
     }
@@ -568,7 +570,7 @@ class Game_Player extends Game_Character {
     }
   }
 
-  getOnVehicle() {
+  getOnVehicle(): boolean {
     const direction = this.direction()
     const x1 = this.x
     const y1 = this.y
@@ -593,7 +595,7 @@ class Game_Player extends Game_Character {
     return this._vehicleGettingOn
   }
 
-  getOffVehicle() {
+  getOffVehicle(): boolean {
     if (this.vehicle()?.isLandOk(this.x, this.y, this.direction())) {
       if (this.isInAirship()) {
         this.setDirection(2)
@@ -613,54 +615,57 @@ class Game_Player extends Game_Character {
     return this._vehicleGettingOff
   }
 
-  forceMoveForward() {
+  forceMoveForward(): void {
     this.setThrough(true)
     this.moveForward()
     this.setThrough(false)
   }
 
-  isOnDamageFloor() {
+  isOnDamageFloor(): boolean {
     return $gameMap.isDamageFloor(this.x, this.y) && !this.isInAirship()
   }
 
-  moveStraight(d: number) {
+  moveStraight(d: number): void {
     if (this.canPass(this.x, this.y, d)) {
       this._followers.updateMove()
     }
     super.moveStraight(d)
   }
 
-  moveDiagonally(horz: number, vert: number) {
+  moveDiagonally(horz: number, vert: number): void {
     if (this.canPassDiagonally(this.x, this.y, horz, vert)) {
       this._followers.updateMove()
     }
     super.moveDiagonally(horz, vert)
   }
 
-  jump(xPlus: number, yPlus: number) {
+  jump(xPlus: number, yPlus: number): void {
     super.jump(xPlus, yPlus)
     this._followers.jumpAll()
   }
 
-  showFollowers() {
+  showFollowers(): void {
     this._followers.show()
   }
 
-  hideFollowers() {
+  hideFollowers(): void {
     this._followers.hide()
   }
 
-  gatherFollowers() {
+  gatherFollowers(): void {
     this._followers.gather()
   }
 
-  areFollowersGathering() {
+  areFollowersGathering(): boolean {
     return this._followers.areGathering()
   }
 
-  areFollowersGathered() {
+  areFollowersGathered(): boolean {
     return this._followers.areGathered()
   }
 }
 
-export { Game_Player }
+namespace Game_Player {
+  /** Event trigger types (0=Action Button, 1=Player Touch, 2=Event Touch) */
+  export type EventTrigger = 0 | 1 | 2
+}
