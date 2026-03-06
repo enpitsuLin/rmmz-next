@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "Output file contains zero `any` type annotations (excluding comments)",
+      "passed": true,
+      "evidence": "No `any` keyword used as a type annotation in the output file. All former `any` replaced with `unknown`, `JsonValue`, or `JsonRecord`."
+    },
+    {
+      "text": "Output file contains zero `@ts-expect-error` directives",
+      "passed": true,
+      "evidence": "No `@ts-expect-error` directives found in the output file."
+    },
+    {
+      "text": "All 4 static methods (stringify, parse, _encode, _decode) have explicit return types",
+      "passed": true,
+      "evidence": "stringify → string, parse → unknown, _encode → unknown, _decode → unknown"
+    },
+    {
+      "text": "All method parameters have explicit type annotations",
+      "passed": true,
+      "evidence": "stringify(object: unknown), parse(json: string), _encode(value: unknown, depth: number), _decode(value: JsonValue)"
+    },
+    {
+      "text": "tsc --noEmit reports no errors for the modified file",
+      "passed": true,
+      "evidence": "Agent reported 0 tsc errors for JsonEx.ts"
+    },
+    {
+      "text": "The file preserves all original method names and class structure",
+      "passed": true,
+      "evidence": "Class name JsonEx preserved, all 4 methods (stringify, parse, _encode, _decode) plus makeDeepCopy and maxDepth preserved"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  }
+}

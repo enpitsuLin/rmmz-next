@@ -1,0 +1,45 @@
+{
+  "skill_name": "ts-type-optimizer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "优化 packages/core/src/core/JsonEx.ts 的 TypeScript 类型，消除 any 和 @ts-expect-error",
+      "expected_output": "JsonEx.ts 中的 4 个 any 被替换为 unknown 或具体类型，1 个 @ts-expect-error 被消除，所有方法有显式参数和返回类型",
+      "files": [],
+      "expectations": [
+        "File contains zero `any` type annotations (excluding comments)",
+        "File contains zero `@ts-expect-error` directives",
+        "All static methods have explicit return types",
+        "All method parameters have explicit type annotations",
+        "tsc --noEmit produces no new errors for this file",
+        "The runtime behavior is unchanged (no logic modifications)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "优化 packages/core/src/objects/Game_Temp.ts 的类型，补全所有缺失的参数类型和返回类型",
+      "expected_output": "Game_Temp.ts 中所有方法参数都有类型标注，@ts-expect-error 被消除，属性有显式类型声明",
+      "files": [],
+      "expectations": [
+        "All method parameters have explicit type annotations",
+        "All public methods have explicit return types",
+        "File contains zero `@ts-expect-error` directives",
+        "Class properties have explicit type declarations (not just inferred from constructor)",
+        "tsc --noEmit produces no new errors for this file"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "优化 packages/core/src/core/Utils.ts 的类型，消除 any 和 @ts-expect-error",
+      "expected_output": "Utils.ts 中的 any 被替换，@ts-expect-error 被消除或有充分理由保留，所有方法有完整类型",
+      "files": [],
+      "expectations": [
+        "File contains zero unnecessary `any` type annotations",
+        "`@ts-expect-error` directives are either eliminated or have clear justification comments",
+        "All method parameters have explicit type annotations",
+        "All public methods have explicit return types",
+        "tsc --noEmit produces no new errors for this file"
+      ]
+    }
+  ]
+}

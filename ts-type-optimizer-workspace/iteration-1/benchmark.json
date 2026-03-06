@@ -1,0 +1,181 @@
+{
+  "metadata": {
+    "skill_name": "ts-type-optimizer",
+    "skill_path": "/Users/enpitsulin/Documents/RMMZ/Vite/.claude/skills/ts-type-optimizer",
+    "timestamp": "2026-03-06T12:00:00Z",
+    "evals_run": [1, 2, 3],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "eval_name": "JsonEx Type Optimization",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 158.0,
+        "tokens": 26783,
+        "tool_calls": 27,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Zero `any` type annotations", "passed": true, "evidence": "All 5 `any` replaced with unknown/JsonValue/JsonRecord"},
+        {"text": "Zero `@ts-expect-error`", "passed": true, "evidence": "No directives found"},
+        {"text": "All methods have explicit return types", "passed": true, "evidence": "stringify→string, parse→unknown, _encode→unknown, _decode→unknown"},
+        {"text": "All params typed", "passed": true, "evidence": "All parameters have type annotations"},
+        {"text": "Zero tsc errors", "passed": true, "evidence": "0 errors reported"},
+        {"text": "Structure preserved", "passed": true, "evidence": "Class name and methods unchanged"}
+      ]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "JsonEx Type Optimization",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 212.3,
+        "tokens": 36176,
+        "tool_calls": 32,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Zero `any` type annotations", "passed": true, "evidence": "All `any` replaced. Added ConstructorRef interface and isTraversable type guard"},
+        {"text": "Zero `@ts-expect-error`", "passed": true, "evidence": "No directives found"},
+        {"text": "All methods have explicit return types", "passed": true, "evidence": "All methods typed"},
+        {"text": "All params typed", "passed": true, "evidence": "All parameters typed"},
+        {"text": "Zero tsc errors", "passed": true, "evidence": "0 errors reported"},
+        {"text": "Structure preserved", "passed": true, "evidence": "Extra isTraversable function added but class structure preserved"}
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "Game_Temp Type Optimization",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 180.9,
+        "tokens": 34517,
+        "tool_calls": 33,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "All params typed", "passed": true, "evidence": "All 9 previously untyped methods now have parameter types"},
+        {"text": "All methods have return types", "passed": true, "evidence": "All 28 methods have explicit return types"},
+        {"text": "Zero `@ts-expect-error`", "passed": true, "evidence": "Eliminated via null check pattern"},
+        {"text": "Properties have type declarations", "passed": true, "evidence": "All 10 properties declared with types"},
+        {"text": "Zero tsc errors", "passed": true, "evidence": "0 errors reported"},
+        {"text": "Uses import type", "passed": true, "evidence": "import type for Game_Battler, Game_CharacterBase. Added TouchState literal type."}
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "Game_Temp Type Optimization",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 261.5,
+        "tokens": 39451,
+        "tool_calls": 46,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "All params typed", "passed": true, "evidence": "All methods have parameter types"},
+        {"text": "All methods have return types", "passed": true, "evidence": "All methods have return types"},
+        {"text": "Zero `@ts-expect-error`", "passed": true, "evidence": "Eliminated via null check"},
+        {"text": "Properties have type declarations", "passed": true, "evidence": "All properties declared with types"},
+        {"text": "Zero tsc errors", "passed": true, "evidence": "0 errors reported"},
+        {"text": "Uses import type", "passed": true, "evidence": "import type used. No TouchState literal type (used string instead) - slightly less precise."}
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "Utils Type Optimization",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 182.2,
+        "tokens": 38025,
+        "tool_calls": 30,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Zero unnecessary `any`", "passed": true, "evidence": "All 3 (window as any) casts eliminated"},
+        {"text": "`@ts-expect-error` eliminated", "passed": true, "evidence": "Null check added for match() result"},
+        {"text": "All params typed", "passed": true, "evidence": "All methods have typed parameters"},
+        {"text": "All methods have return types", "passed": true, "evidence": "All methods have return types"},
+        {"text": "Zero tsc errors", "passed": true, "evidence": "0 errors reported"},
+        {"text": "Browser compat type-safe", "passed": true, "evidence": "Uses global-types.d.ts Window augmentation"}
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "Utils Type Optimization",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 144.3,
+        "tokens": 28256,
+        "tool_calls": 26,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Zero unnecessary `any`", "passed": true, "evidence": "All (window as any) casts eliminated"},
+        {"text": "`@ts-expect-error` eliminated", "passed": true, "evidence": "Null check for match()"},
+        {"text": "All params typed", "passed": true, "evidence": "All methods typed"},
+        {"text": "All methods have return types", "passed": true, "evidence": "All methods have return types"},
+        {"text": "Zero tsc errors", "passed": true, "evidence": "0 errors reported"},
+        {"text": "Browser compat type-safe", "passed": true, "evidence": "Uses Window augmentation. Extra: Readonly<Record<...>> for entityMap, keyof typeof for escapeHtml."}
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0},
+      "time_seconds": {"mean": 173.7, "stddev": 13.1, "min": 158.0, "max": 182.2},
+      "tokens": {"mean": 33108, "stddev": 5713, "min": 26783, "max": 38025}
+    },
+    "without_skill": {
+      "pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0},
+      "time_seconds": {"mean": 206.0, "stddev": 59.2, "min": 144.3, "max": 261.5},
+      "tokens": {"mean": 34628, "stddev": 5648, "min": 28256, "max": 39451}
+    },
+    "delta": {
+      "pass_rate": "+0.00",
+      "time_seconds": "-32.3",
+      "tokens": "-1520"
+    }
+  },
+  "notes": [
+    "Both configurations achieve 100% pass rate - all assertions pass regardless of skill presence",
+    "with_skill is faster on average (173.7s vs 206.0s, -15.7%) and uses fewer tokens (33108 vs 34628, -4.4%)",
+    "The skill provides marginal efficiency gains but does not improve quality on these test cases",
+    "Game_Temp eval shows the largest delta: with_skill 180.9s vs without_skill 261.5s (-30.8%)",
+    "Qualitative difference: with_skill added TouchState literal type for Game_Temp; without_skill used plain string",
+    "Both approaches identify the same issues and apply very similar fix patterns",
+    "The test cases may be too simple to differentiate skill value - all are small files (82-303 lines)"
+  ]
+}

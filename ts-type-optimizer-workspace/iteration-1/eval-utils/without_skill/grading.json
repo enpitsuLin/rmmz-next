@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "Output file contains zero unnecessary `any` type annotations",
+      "passed": true,
+      "evidence": "No `any` keyword used anywhere in the output. All 3 (window as any) casts eliminated."
+    },
+    {
+      "text": "`@ts-expect-error` directives are eliminated or clearly justified",
+      "passed": true,
+      "evidence": "The single @ts-expect-error in decryptArrayBuffer eliminated by adding null check for match() result."
+    },
+    {
+      "text": "All method parameters have explicit type annotations",
+      "passed": true,
+      "evidence": "All methods have typed parameters. Same as with_skill version."
+    },
+    {
+      "text": "All public methods have explicit return types",
+      "passed": true,
+      "evidence": "All methods have return types. Same as with_skill version."
+    },
+    {
+      "text": "tsc --noEmit reports no errors for the modified file",
+      "passed": true,
+      "evidence": "Agent reported 0 tsc errors for Utils.ts"
+    },
+    {
+      "text": "Browser compatibility checks (webkitAudioContext etc) are handled type-safely",
+      "passed": true,
+      "evidence": "window.webkitAudioContext and window.mozIndexedDB/webkitIndexedDB accessed directly. Extra: Used Readonly<Record<...>> for entityMap and keyof typeof for escapeHtml - slightly more precise typing."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  }
+}

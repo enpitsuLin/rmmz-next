@@ -135,8 +135,8 @@ export class Utils {
       const canvas = document.createElement('canvas')
       return !!canvas.getContext('webgl')
     }
-    catch (e) {
-      console.error(e)
+    catch (error: unknown) {
+      console.error(error)
       return false
     }
   }
@@ -147,7 +147,7 @@ export class Utils {
    * @returns {boolean} True if the browser supports Web Audio API.
    */
   static canUseWebAudioAPI(): boolean {
-    return !!(window.AudioContext || (window as any).webkitAudioContext)
+    return !!(window.AudioContext || window.webkitAudioContext)
   }
 
   /**
@@ -166,7 +166,7 @@ export class Utils {
    */
   static canUseIndexedDB(): boolean {
     return !!(
-      window.indexedDB || (window as any).mozIndexedDB || (window as any).webkitIndexedDB
+      window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB
     )
   }
 
@@ -217,7 +217,7 @@ export class Utils {
    * @returns {string} The filename without subfolders.
    */
   static extractFileName(filename: string): string {
-    return filename.split('/').pop()!
+    return filename.split('/').pop() ?? ''
   }
 
   /**
@@ -227,7 +227,7 @@ export class Utils {
    * @returns {string} Escaped string.
    */
   static escapeHtml(str: string): string {
-    const entityMap: Record<string, string> = {
+    const entityMap: Readonly<Record<'&' | '<' | '>' | '"' | '\'' | '/', string>> = {
       '&': '&amp;',
       '<': '&lt;',
       '>': '&gt;',
@@ -235,7 +235,7 @@ export class Utils {
       '\'': '&#39;',
       '/': '&#x2F;',
     }
-    return String(str).replace(/[&<>"'/]/g, s => entityMap[s])
+    return String(str).replace(/[&<>"'/]/g, s => entityMap[s as keyof typeof entityMap])
   }
 
   /**
@@ -294,8 +294,10 @@ export class Utils {
     const body = source.slice(16)
     const view = new DataView(body)
     const key = this._encryptionKey.match(/.{2}/g)
+    if (!key) {
+      throw new Error('Decryption error: invalid encryption key')
+    }
     for (let i = 0; i < 16; i++) {
-      // @ts-expect-error to fix
       view.setUint8(i, view.getUint8(i) ^ Number.parseInt(key[i], 16))
     }
     return body

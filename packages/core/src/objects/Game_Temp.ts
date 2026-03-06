@@ -1,6 +1,20 @@
 import type { MZ } from '@rmmz-lib/database-types'
+import type { Game_Battler } from './Game_Battler'
 import type { Game_CharacterBase } from './Game_CharacterBase'
 import { Utils } from '../core'
+
+interface AnimationRequest {
+  targets: Game_CharacterBase[]
+  animationId: number
+  mirror: boolean
+}
+
+interface BalloonRequest {
+  target: Game_CharacterBase
+  balloonId: number
+}
+
+type TouchState = '' | 'select' | 'click'
 
 /**
  * The game object class for temporary data that is not included in save data.
@@ -9,12 +23,12 @@ class Game_Temp {
   _isPlaytest!: boolean
   _destinationX!: number | null
   _destinationY!: number | null
-  _touchTarget!: unknown | null
-  _touchState!: string
+  _touchTarget!: Game_Battler | null
+  _touchState!: TouchState
   _needsBattleRefresh!: boolean
   _commonEventQueue!: number[]
-  _animationQueue!: unknown[]
-  _balloonQueue!: unknown[]
+  _animationQueue!: AnimationRequest[]
+  _balloonQueue!: BalloonRequest[]
   _lastActionData!: number[]
 
   constructor() {
@@ -30,78 +44,81 @@ class Game_Temp {
     this._lastActionData = [0, 0, 0, 0, 0, 0]
   }
 
-  isPlaytest() {
+  isPlaytest(): boolean {
     return this._isPlaytest
   }
 
-  setDestination(x: number, y: number) {
+  setDestination(x: number, y: number): void {
     this._destinationX = x
     this._destinationY = y
   }
 
-  clearDestination() {
+  clearDestination(): void {
     this._destinationX = null
     this._destinationY = null
   }
 
-  isDestinationValid() {
+  isDestinationValid(): boolean {
     return this._destinationX !== null
   }
 
-  destinationX() {
+  destinationX(): number | null {
     return this._destinationX
   }
 
-  destinationY() {
+  destinationY(): number | null {
     return this._destinationY
   }
 
-  setTouchState(target: unknown, state: string) {
+  setTouchState(target: Game_Battler | null, state: TouchState): void {
     this._touchTarget = target
     this._touchState = state
   }
 
-  clearTouchState() {
+  clearTouchState(): void {
     this._touchTarget = null
     this._touchState = ''
   }
 
-  touchTarget() {
+  touchTarget(): Game_Battler | null {
     return this._touchTarget
   }
 
-  touchState() {
+  touchState(): TouchState {
     return this._touchState
   }
 
-  requestBattleRefresh() {
+  requestBattleRefresh(): void {
     if ($gameParty.inBattle()) {
       this._needsBattleRefresh = true
     }
   }
 
-  clearBattleRefreshRequest() {
+  clearBattleRefreshRequest(): void {
     this._needsBattleRefresh = false
   }
 
-  isBattleRefreshRequested() {
+  isBattleRefreshRequested(): boolean {
     return this._needsBattleRefresh
   }
 
-  reserveCommonEvent(commonEventId: number) {
+  reserveCommonEvent(commonEventId: number): void {
     this._commonEventQueue.push(commonEventId)
   }
 
   retrieveCommonEvent(): MZ.CommonEvent | undefined {
-    // @ts-expect-error to fix
-    return $dataCommonEvents[this._commonEventQueue.shift()]
+    const id = this._commonEventQueue.shift()
+    if (id != null) {
+      return $dataCommonEvents[id] ?? undefined
+    }
+    return undefined
   }
 
-  clearCommonEventReservation() {
+  clearCommonEventReservation(): void {
     this._commonEventQueue.length = 0
   }
 
-  isCommonEventReserved() {
+  isCommonEventReserved(): boolean {
     return this._commonEventQueue.length > 0
   }
 
@@ -110,9 +127,9 @@ class Game_Temp {
     targets: Game_CharacterBase[],
     animationId: number,
     mirror = false,
-  ) {
+  ): void {
     if ($dataAnimations[animationId]) {
-      const request = {
+      const request: AnimationRequest = {
         targets,
         animationId,
         mirror,
@@ -126,51 +143,51 @@ class Game_Temp {
     }
   }
 
-  retrieveAnimation() {
+  retrieveAnimation(): AnimationRequest | undefined {
     return this._animationQueue.shift()
   }
 
-  requestBalloon(target, balloonId) {
-    const request = { target, balloonId }
+  requestBalloon(target: Game_CharacterBase, balloonId: number): void {
+    const request: BalloonRequest = { target, balloonId }
     this._balloonQueue.push(request)
     if (target.startBalloon) {
       target.startBalloon()
     }
   }
 
-  retrieveBalloon() {
+  retrieveBalloon(): BalloonRequest | undefined {
     return this._balloonQueue.shift()
   }
 
-  lastActionData(type) {
+  lastActionData(type: number): number {
     return this._lastActionData[type] || 0
   }
 
-  setLastActionData(type, value) {
+  setLastActionData(type: number, value: number): void {
     this._lastActionData[type] = value
   }
 
-  setLastUsedSkillId(skillID) {
+  setLastUsedSkillId(skillID: number): void {
     this.setLastActionData(0, skillID)
   }
 
-  setLastUsedItemId(itemID) {
+  setLastUsedItemId(itemID: number): void {
     this.setLastActionData(1, itemID)
   }
 
-  setLastSubjectActorId(actorID) {
+  setLastSubjectActorId(actorID: number): void {
     this.setLastActionData(2, actorID)
   }
 
-  setLastSubjectEnemyIndex(enemyIndex) {
+  setLastSubjectEnemyIndex(enemyIndex: number): void {
     this.setLastActionData(3, enemyIndex)
   }
 
-  setLastTargetActorId(actorID) {
+  setLastTargetActorId(actorID: number): void {
     this.setLastActionData(4, actorID)
   }
 
-  setLastTargetEnemyIndex(enemyIndex) {
+  setLastTargetEnemyIndex(enemyIndex: number): void {
     this.setLastActionData(5, enemyIndex)
   }
 }
