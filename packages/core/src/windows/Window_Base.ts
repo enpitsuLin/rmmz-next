@@ -31,7 +31,7 @@ export class Window_Base extends Window {
   destroy(options: PIXI.IDestroyOptions): void {
     this.destroyContents()
     if (this._dimmerSprite) {
-      this._dimmerSprite.bitmap.destroy()
+      this._dimmerSprite.bitmap!.destroy()
     }
     super.destroy(options)
   }
@@ -523,7 +523,7 @@ export class Window_Base extends Window {
     if (!this._dimmerSprite) {
       this.createDimmerSprite()
     }
-    const bitmap = this._dimmerSprite!.bitmap
+    const bitmap = this._dimmerSprite!.bitmap!
     if (bitmap.width !== this.width || bitmap.height !== this.height) {
       this.refreshDimmerBitmap()
     }
@@ -552,7 +552,7 @@ export class Window_Base extends Window {
 
   refreshDimmerBitmap(): void {
     if (this._dimmerSprite) {
-      const bitmap = this._dimmerSprite.bitmap
+      const bitmap = this._dimmerSprite.bitmap!
       const w = this.width > 0 ? this.width + 8 : 0
       const h = this.height
       const m = this.padding

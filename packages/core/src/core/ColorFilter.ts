@@ -1,5 +1,5 @@
 import type { RGBA } from '../types'
-import * as PIXI from 'pixi.js'
+import { PIXI } from '../pixi'
 
 /**
  * The color filter for WebGL.

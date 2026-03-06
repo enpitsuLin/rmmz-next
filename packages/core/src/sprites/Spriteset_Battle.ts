@@ -1,7 +1,7 @@
 import type { Sprite_Battler } from './Sprite_Battler'
-import * as PIXI from 'pixi.js'
 import { Graphics, Sprite } from '../core'
 import { ImageManager, SceneManager } from '../managers'
+import { PIXI } from '../pixi'
 import { Sprite_Actor } from './Sprite_Actor'
 import { Sprite_Battleback } from './Sprite_Battleback'
 import { Sprite_Enemy } from './Sprite_Enemy'
@@ -12,7 +12,12 @@ import { Spriteset_Base } from './Spriteset_Base'
  /*
  /* The set of sprites on the battle screen.
  */
-export class Spriteset_Battle extends Spriteset_Base {
+export class Spriteset_Battle extends Spriteset_Base<Sprite_Battler> {
+  _battlebackLocated: boolean
+
+  _battleField!: Sprite
+  _effectsContainer!: Sprite
+
   constructor() {
     super()
     this._battlebackLocated = false
@@ -122,7 +127,7 @@ export class Spriteset_Battle extends Spriteset_Base {
     }
   }
 
-  findTargetSprite(target): Sprite_Battler | undefined {
+  findTargetSprite(target: Sprite_Battler): Sprite_Battler | undefined {
     return this.battlerSprites().find(sprite => sprite.checkBattler(target))
   }
 

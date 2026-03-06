@@ -1,5 +1,5 @@
 import type { Game_Actor } from '../objects'
-import * as PIXI from 'pixi.js'
+import { PIXI } from '../pixi'
 import { Graphics, Rectangle, Sprite } from '../core'
 import { ConfigManager } from '../managers/ConfigManager'
 import { SceneManager } from '../managers/SceneManager'

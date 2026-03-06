@@ -1,4 +1,4 @@
-import * as PIXI from 'pixi.js'
+import { PIXI } from '../pixi'
 import { Graphics } from './Graphics'
 import { Rectangle } from './Rectangle'
 import { Utils } from './Utils'

@@ -1,5 +1,5 @@
 import type { Window } from './Window'
-import * as PIXI from 'pixi.js'
+import { PIXI } from '../pixi'
 
 /**
  * The layer which contains game windows.
@@ -17,7 +17,6 @@ export class WindowLayer extends PIXI.Container {
   /**
    * Updates the window layer for each frame.
    */
-  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
   update(): void {
     for (const child of this.children) {
       if (child.update) {

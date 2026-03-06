@@ -1,3 +1,4 @@
+import type * as PIXI from 'pixi.js'
 import type { Sprite } from '../core'
 import type { RGBA } from '../types'
 import { ColorFilter, Graphics, Stage, WindowLayer } from '../core'
@@ -23,6 +24,8 @@ export class Scene_Base extends Stage {
   _fadeOpacity!: number
   _colorFilter!: ColorFilter
   _windowLayer!: WindowLayer
+
+  override children!: PIXI.Sprite[]
 
   constructor() {
     super()
@@ -54,7 +57,6 @@ export class Scene_Base extends Stage {
     this._active = true
   }
 
-  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
   update(): void {
     this.updateFade()
     this.updateColorFilter()

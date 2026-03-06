@@ -1,4 +1,4 @@
-import * as PIXI from 'pixi.js'
+import { PIXI } from '../pixi'
 import { TilemapRenderer } from './TilemapRenderer'
 
 PIXI.extensions.add({

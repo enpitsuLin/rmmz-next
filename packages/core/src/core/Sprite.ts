@@ -1,6 +1,6 @@
 import type { RGBA } from '../types'
 import type { Bitmap } from './Bitmap'
-import * as PIXI from 'pixi.js'
+import { PIXI } from '../pixi'
 import { ColorFilter } from './ColorFilter'
 import { Rectangle } from './Rectangle'
 
@@ -12,6 +12,10 @@ import { Rectangle } from './Rectangle'
  * @param {Bitmap} bitmap - The image for the sprite.
  */
 export class Sprite extends PIXI.Sprite {
+  isPlaying(): boolean {
+    throw new Error('Method not implemented.')
+  }
+
   spriteId: number
 
   _bitmap: Bitmap | null
@@ -26,6 +30,8 @@ export class Sprite extends PIXI.Sprite {
 
   static _emptyBaseTexture: PIXI.BaseTexture | null = null
   static _counter: number = 0
+
+  override children!: PIXI.Sprite[]
 
   constructor(bitmap?: Bitmap | null) {
     super()
@@ -101,7 +107,6 @@ export class Sprite extends PIXI.Sprite {
     super.destroy(options)
   }
 
-  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
   update(): void {
     for (const child of this.children) {
       if (child.update) {

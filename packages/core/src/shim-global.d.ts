@@ -160,19 +160,14 @@ interface VorbisDecoderConstructor {
 declare var VorbisDecoder: VorbisDecoderConstructor
 
 declare namespace GlobalMixins {
-  interface RMMZDisplayObject {
-    update: () => void
-  }
-
-  interface DisplayObject extends RMMZDisplayObject {
-
-  }
 
   interface IRendererPlugins {
     rpgtilemap: import('.').TilemapRenderer
   }
 
   interface Sprite {
+    // eslint-disable-next-line ts/method-signature-style
+    update(): void
     ax?: number
     ay?: number
   }

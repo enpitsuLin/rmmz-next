@@ -55,7 +55,7 @@ export class Window_ShopNumber extends Window_Selectable {
   createButtons(): void {
     this._buttons = []
     if (ConfigManager.touchUI) {
-      for (const type of ['down2', 'down', 'up', 'up2', 'ok']) {
+      for (const type of ['down2', 'down', 'up', 'up2', 'ok'] as Sprite_Button.ButtonType[]) {
         const button = new Sprite_Button(type)
         this._buttons.push(button)
         this.addInnerChild(button)

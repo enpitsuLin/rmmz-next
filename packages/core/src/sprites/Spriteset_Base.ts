@@ -1,6 +1,10 @@
-import type { Sprite_Animation } from './Sprite_Animation'
-import type { Sprite_AnimationMV } from './Sprite_AnimationMV'
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Tilemap } from '../core'
+import type { Game_Temp } from '../objects'
+import type { PIXI } from '../pixi'
 import { ColorFilter, Graphics, Rectangle, ScreenSprite, Sprite } from '../core'
+import { Sprite_Animation } from './Sprite_Animation'
+import { Sprite_AnimationMV } from './Sprite_AnimationMV'
 import { Sprite_Picture } from './Sprite_Picture'
 import { Sprite_Timer } from './Sprite_Timer'
 
@@ -9,7 +13,16 @@ import { Sprite_Timer } from './Sprite_Timer'
  *
  * The superclass of Spriteset_Map and Spriteset_Battle.
  */
-export class Spriteset_Base extends Sprite {
+export abstract class Spriteset_Base<Target> extends Sprite {
+  _animationSprites: (Sprite_Animation | Sprite_AnimationMV)[]
+  _baseSprite!: Sprite
+  _blackScreen!: ScreenSprite
+  _baseColorFilter!: ColorFilter
+  _pictureContainer!: Sprite
+  _timerSprite!: Sprite_Timer
+  _overallColorFilter!: ColorFilter
+  abstract _effectsContainer: Sprite | Tilemap
+
   constructor() {
     super()
     this.setFrame(0, 0, Graphics.width, Graphics.height)
@@ -19,7 +32,7 @@ export class Spriteset_Base extends Sprite {
     this._animationSprites = []
   }
 
-  destroy(options): void {
+  destroy(options: PIXI.IDestroyOptions): void {
     this.removeAllAnimations()
     super.destroy(options)
   }
@@ -107,7 +120,7 @@ export class Spriteset_Base extends Sprite {
     this.x += Math.round(screen.shake())
   }
 
-  findTargetSprite(_target?): Sprite | null | undefined {
+  findTargetSprite(_target?: Target): Sprite | null | undefined {
     return null
   }
 
@@ -121,7 +134,7 @@ export class Spriteset_Base extends Sprite {
   }
 
   processAnimationRequests(): void {
-    for (;;) {
+    for (; ;) {
       const request = $gameTemp.retrieveAnimation()
       if (request) {
         this.createAnimation(request)
@@ -132,7 +145,7 @@ export class Spriteset_Base extends Sprite {
     }
   }
 
-  createAnimation(request): void {
+  createAnimation(request: Game_Temp.AnimationRequest): void {
     const animation = $dataAnimations[request.animationId]
     const targets = request.targets
     const mirror = request.mirror
@@ -140,7 +153,7 @@ export class Spriteset_Base extends Sprite {
     const nextDelay = this.animationNextDelay()
     if (this.isAnimationForEach(animation)) {
       for (const target of targets) {
-        this.createAnimationSprite([target], animation, mirror, delay)
+        this.createAnimationSprite([target], animation!, mirror, delay)
         delay += nextDelay
       }
     }
@@ -150,7 +163,7 @@ export class Spriteset_Base extends Sprite {
   }
 
   // prettier-ignore
-  createAnimationSprite(targets, animation, mirror, delay): void {
+  createAnimationSprite(targets, animation: MZ.Animation, mirror, delay): void {
     const mv = this.isMVAnimation(animation)
     const sprite = new (mv ? Sprite_AnimationMV : Sprite_Animation)()
     const targetSprites = this.makeTargetSprites(targets)
@@ -184,7 +197,7 @@ export class Spriteset_Base extends Sprite {
     return this._animationSprites[this._animationSprites.length - 1]
   }
 
-  isAnimationForEach(animation): boolean {
+  isAnimationForEach(animation: MZ.Animation): boolean {
     const mv = this.isMVAnimation(animation)
     return mv ? animation.position !== 3 : animation.displayType === 0
   }

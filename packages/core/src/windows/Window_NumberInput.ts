@@ -104,7 +104,7 @@ export class Window_NumberInput extends Window_Selectable {
   createButtons(): void {
     this._buttons = []
     if (ConfigManager.touchUI) {
-      for (const type of ['down', 'up', 'ok']) {
+      for (const type of ['down', 'up', 'ok'] as Sprite_Button.ButtonType[]) {
         const button = new Sprite_Button(type)
         this._buttons.push(button)
         this.addInnerChild(button)

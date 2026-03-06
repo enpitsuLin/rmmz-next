@@ -1,6 +1,6 @@
 import type { RGBA } from '../types'
 import type { Bitmap } from './Bitmap'
-import * as PIXI from 'pixi.js'
+import { PIXI } from '../pixi'
 import { Point } from './Point'
 import { Rectangle } from './Rectangle'
 import { Sprite } from './Sprite'
@@ -69,6 +69,8 @@ export class Window extends PIXI.Container<PIXI.Container> {
    * The visibility of the pause sign.
    */
   pause: boolean
+
+  override children!: PIXI.Sprite[]
 
   // TODO: should no more initialize sprites to null type, because this._createAllParts() will create them
   constructor() {
@@ -362,7 +364,6 @@ export class Window extends PIXI.Container<PIXI.Container> {
   /**
    * Updates the window for each frame.
    */
-  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
   update(): void {
     if (this.active) {
       this._animationCount++
