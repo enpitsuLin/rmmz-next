@@ -1,3 +1,6 @@
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Rectangle } from '../core'
+import type { Game_Actor } from '../objects/Game_Actor'
 import { ConfigManager, TextManager } from '../managers'
 import { Window_Command } from './Window_Command'
 
@@ -7,14 +10,16 @@ import { Window_Command } from './Window_Command'
  * The window for selecting an actor's action on the battle screen.
  */
 export class Window_ActorCommand extends Window_Command {
-  constructor(rect) {
+  _actor: Game_Actor | null = null
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this.openness = 0
     this.deactivate()
     this._actor = null
   }
 
-  makeCommandList() {
+  makeCommandList(): void {
     if (this._actor) {
       this.addAttackCommand()
       this.addSkillCommands()
@@ -23,27 +28,27 @@ export class Window_ActorCommand extends Window_Command {
     }
   }
 
-  addAttackCommand() {
-    this.addCommand(TextManager.attack, 'attack', this._actor.canAttack())
+  addAttackCommand(): void {
+    this.addCommand(TextManager.attack, 'attack', this._actor!.canAttack())
   }
 
-  addSkillCommands() {
-    const skillTypes = this._actor.skillTypes()
+  addSkillCommands(): void {
+    const skillTypes = this._actor!.skillTypes()
     for (const stypeId of skillTypes) {
       const name = $dataSystem.skillTypes[stypeId]
       this.addCommand(name, 'skill', true, stypeId)
     }
   }
 
-  addGuardCommand() {
-    this.addCommand(TextManager.guard, 'guard', this._actor.canGuard())
+  addGuardCommand(): void {
+    this.addCommand(TextManager.guard, 'guard', this._actor!.canGuard())
   }
 
-  addItemCommand() {
+  addItemCommand(): void {
     this.addCommand(TextManager.item, 'item')
   }
 
-  setup(actor) {
+  setup(actor: Game_Actor | null): void {
     this._actor = actor
     this.refresh()
     this.selectLast()
@@ -51,14 +56,14 @@ export class Window_ActorCommand extends Window_Command {
     this.open()
   }
 
-  actor() {
+  actor(): Game_Actor | null {
     return this._actor
   }
 
-  processOk() {
+  processOk(): void {
     if (this._actor) {
       if (ConfigManager.commandRemember) {
-        this._actor.setLastCommandSymbol(this.currentSymbol())
+        this._actor.setLastCommandSymbol(this.currentSymbol()!)
       }
       else {
         this._actor.setLastCommandSymbol('')
@@ -67,13 +72,13 @@ export class Window_ActorCommand extends Window_Command {
     super.processOk()
   }
 
-  selectLast() {
+  selectLast(): void {
     this.forceSelect(0)
     if (this._actor && ConfigManager.commandRemember) {
       const symbol = this._actor.lastCommandSymbol()
       this.selectSymbol(symbol)
       if (symbol === 'skill') {
-        const skill = this._actor.lastBattleSkill()
+        const skill = this._actor.lastBattleSkill() as MZ.Skill | null
         if (skill) {
           this.selectExt(skill.stypeId)
         }

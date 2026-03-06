@@ -1,3 +1,5 @@
+import type { Rectangle } from '../core'
+import type { Game_Actor } from '../objects/Game_Actor'
 import { ColorManager, ImageManager, TextManager } from '../managers'
 import { Window_StatusBase } from './Window_StatusBase'
 
@@ -7,25 +9,28 @@ import { Window_StatusBase } from './Window_StatusBase'
  * The window for displaying parameter changes on the equipment screen.
  */
 export class Window_EquipStatus extends Window_StatusBase {
-  constructor(rect) {
+  _actor: Game_Actor | null
+  _tempActor: Game_Actor | null
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this._actor = null
     this._tempActor = null
     this.refresh()
   }
 
-  setActor(actor) {
+  setActor(actor: Game_Actor): void {
     if (this._actor !== actor) {
       this._actor = actor
       this.refresh()
     }
   }
 
-  colSpacing() {
+  colSpacing(): number {
     return 0
   }
 
-  refresh() {
+  refresh(): void {
     this.contents.clear()
     if (this._actor) {
       const nameRect = this.itemLineRect(0)
@@ -35,22 +40,22 @@ export class Window_EquipStatus extends Window_StatusBase {
     }
   }
 
-  setTempActor(tempActor) {
+  setTempActor(tempActor: Game_Actor | null): void {
     if (this._tempActor !== tempActor) {
       this._tempActor = tempActor
       this.refresh()
     }
   }
 
-  drawAllParams() {
+  drawAllParams(): void {
     for (let i = 0; i < 6; i++) {
       const x = this.itemPadding()
       const y = this.paramY(i)
-      this.drawItem(x, y, 2 + i)
+      this.drawParam(x, y, 2 + i)
     }
   }
 
-  drawItem(x, y, paramId) {
+  drawParam(x: number, y: number, paramId: number): void {
     const paramX = this.paramX()
     const paramWidth = this.paramWidth()
     const rightArrowWidth = this.rightArrowWidth()
@@ -64,48 +69,48 @@ export class Window_EquipStatus extends Window_StatusBase {
     }
   }
 
-  drawParamName(x, y, paramId) {
+  drawParamName(x: number, y: number, paramId: number): void {
     const width = this.paramX() - this.itemPadding() * 2
     this.changeTextColor(ColorManager.systemColor())
     this.drawText(TextManager.param(paramId), x, y, width)
   }
 
-  drawCurrentParam(x, y, paramId) {
+  drawCurrentParam(x: number, y: number, paramId: number): void {
     const paramWidth = this.paramWidth()
     this.resetTextColor()
-    this.drawText(this._actor.param(paramId), x, y, paramWidth, 'right')
+    this.drawText(String(this._actor!.param(paramId)), x, y, paramWidth, 'right')
   }
 
-  drawRightArrow(x, y) {
+  drawRightArrow(x: number, y: number): void {
     const rightArrowWidth = this.rightArrowWidth()
     this.changeTextColor(ColorManager.systemColor())
     this.drawText('\u2192', x, y, rightArrowWidth, 'center')
   }
 
-  drawNewParam(x, y, paramId) {
+  drawNewParam(x: number, y: number, paramId: number): void {
     const paramWidth = this.paramWidth()
-    const newValue = this._tempActor.param(paramId)
-    const diffvalue = newValue - this._actor.param(paramId)
+    const newValue = this._tempActor!.param(paramId)
+    const diffvalue = newValue - this._actor!.param(paramId)
     this.changeTextColor(ColorManager.paramchangeTextColor(diffvalue))
-    this.drawText(newValue, x, y, paramWidth, 'right')
+    this.drawText(String(newValue), x, y, paramWidth, 'right')
   }
 
-  rightArrowWidth() {
+  rightArrowWidth(): number {
     return 32
   }
 
-  paramWidth() {
+  paramWidth(): number {
     return 48
   }
 
-  paramX() {
+  paramX(): number {
     const itemPadding = this.itemPadding()
     const rightArrowWidth = this.rightArrowWidth()
     const paramWidth = this.paramWidth()
     return this.innerWidth - itemPadding - paramWidth * 2 - rightArrowWidth
   }
 
-  paramY(index) {
+  paramY(index: number): number {
     const faceHeight = ImageManager.standardFaceHeight
     return faceHeight + Math.floor(this.lineHeight() * (index + 1.5))
   }

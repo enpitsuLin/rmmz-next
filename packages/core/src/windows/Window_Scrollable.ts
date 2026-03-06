@@ -1,3 +1,4 @@
+import type { Rectangle } from '../core'
 import { Input, Point, TouchInput } from '../core'
 import { Window_Base } from './Window_Base'
 
@@ -7,7 +8,21 @@ import { Window_Base } from './Window_Base'
  * The window class with scroll functions.
  */
 export class Window_Scrollable extends Window_Base {
-  constructor(rect) {
+  _scrollX: number
+  _scrollY: number
+  _scrollBaseX: number
+  _scrollBaseY: number
+  _scrollTargetX!: number
+  _scrollTargetY!: number
+  _scrollDuration!: number
+  _scrollAccelX!: number
+  _scrollAccelY!: number
+  _scrollTouching!: boolean
+  _scrollLastTouchX!: number
+  _scrollLastTouchY!: number
+  _scrollLastCursorVisible!: boolean
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this._scrollX = 0
     this._scrollY = 0
@@ -16,7 +31,7 @@ export class Window_Scrollable extends Window_Base {
     this.clearScrollStatus()
   }
 
-  clearScrollStatus() {
+  clearScrollStatus(): void {
     this._scrollTargetX = 0
     this._scrollTargetY = 0
     this._scrollDuration = 0
@@ -28,23 +43,23 @@ export class Window_Scrollable extends Window_Base {
     this._scrollLastCursorVisible = false
   }
 
-  scrollX() {
+  scrollX(): number {
     return this._scrollX
   }
 
-  scrollY() {
+  scrollY(): number {
     return this._scrollY
   }
 
-  scrollBaseX() {
+  scrollBaseX(): number {
     return this._scrollBaseX
   }
 
-  scrollBaseY() {
+  scrollBaseY(): number {
     return this._scrollBaseY
   }
 
-  scrollTo(x, y) {
+  scrollTo(x: number, y: number): void {
     const scrollX = x.clamp(0, this.maxScrollX())
     const scrollY = y.clamp(0, this.maxScrollY())
     if (this._scrollX !== scrollX || this._scrollY !== scrollY) {
@@ -54,17 +69,17 @@ export class Window_Scrollable extends Window_Base {
     }
   }
 
-  scrollBy(x, y) {
+  scrollBy(x: number, y: number): void {
     this.scrollTo(this._scrollX + x, this._scrollY + y)
   }
 
-  smoothScrollTo(x, y) {
+  smoothScrollTo(x: number, y: number): void {
     this._scrollTargetX = x.clamp(0, this.maxScrollX())
     this._scrollTargetY = y.clamp(0, this.maxScrollY())
     this._scrollDuration = Input.keyRepeatInterval
   }
 
-  smoothScrollBy(x, y) {
+  smoothScrollBy(x: number, y: number): void {
     if (this._scrollDuration === 0) {
       this._scrollTargetX = this.scrollX()
       this._scrollTargetY = this.scrollY()
@@ -72,44 +87,44 @@ export class Window_Scrollable extends Window_Base {
     this.smoothScrollTo(this._scrollTargetX + x, this._scrollTargetY + y)
   }
 
-  setScrollAccel(x, y) {
+  setScrollAccel(x: number, y: number): void {
     this._scrollAccelX = x
     this._scrollAccelY = y
   }
 
-  overallWidth() {
+  overallWidth(): number {
     return this.innerWidth
   }
 
-  overallHeight() {
+  overallHeight(): number {
     return this.innerHeight
   }
 
-  maxScrollX() {
+  maxScrollX(): number {
     return Math.max(0, this.overallWidth() - this.innerWidth)
   }
 
-  maxScrollY() {
+  maxScrollY(): number {
     return Math.max(0, this.overallHeight() - this.innerHeight)
   }
 
-  scrollBlockWidth() {
+  scrollBlockWidth(): number {
     return this.itemWidth()
   }
 
-  scrollBlockHeight() {
+  scrollBlockHeight(): number {
     return this.itemHeight()
   }
 
-  smoothScrollDown(n) {
+  smoothScrollDown(n: number): void {
     this.smoothScrollBy(0, this.itemHeight() * n)
   }
 
-  smoothScrollUp(n) {
+  smoothScrollUp(n: number): void {
     this.smoothScrollBy(0, -this.itemHeight() * n)
   }
 
-  update() {
+  update(): void {
     super.update()
     this.processWheelScroll()
     this.processTouchScroll()
@@ -119,7 +134,7 @@ export class Window_Scrollable extends Window_Base {
     this.updateOrigin()
   }
 
-  processWheelScroll() {
+  processWheelScroll(): void {
     if (this.isWheelScrollEnabled() && this.isTouchedInsideFrame()) {
       const threshold = 20
       if (TouchInput.wheelY >= threshold) {
@@ -131,7 +146,7 @@ export class Window_Scrollable extends Window_Base {
     }
   }
 
-  processTouchScroll() {
+  processTouchScroll(): void {
     if (this.isTouchScrollEnabled()) {
       if (TouchInput.isTriggered() && this.isTouchedInsideFrame()) {
         this.onTouchScrollStart()
@@ -147,25 +162,25 @@ export class Window_Scrollable extends Window_Base {
     }
   }
 
-  isWheelScrollEnabled() {
+  isWheelScrollEnabled(): boolean {
     return this.isScrollEnabled()
   }
 
-  isTouchScrollEnabled() {
+  isTouchScrollEnabled(): boolean {
     return this.isScrollEnabled()
   }
 
-  isScrollEnabled() {
+  isScrollEnabled(): boolean {
     return true
   }
 
-  isTouchedInsideFrame() {
+  isTouchedInsideFrame(): boolean {
     const touchPos = new Point(TouchInput.x, TouchInput.y)
     const localPos = this.worldTransform.applyInverse(touchPos)
     return this.innerRect.contains(localPos.x, localPos.y)
   }
 
-  onTouchScrollStart() {
+  onTouchScrollStart(): void {
     this._scrollTouching = true
     this._scrollLastTouchX = TouchInput.x
     this._scrollLastTouchY = TouchInput.y
@@ -173,7 +188,7 @@ export class Window_Scrollable extends Window_Base {
     this.setScrollAccel(0, 0)
   }
 
-  onTouchScroll() {
+  onTouchScroll(): void {
     const accelX = this._scrollLastTouchX - TouchInput.x
     const accelY = this._scrollLastTouchY - TouchInput.y
     this.setScrollAccel(accelX, accelY)
@@ -182,12 +197,12 @@ export class Window_Scrollable extends Window_Base {
     this.cursorVisible = false
   }
 
-  onTouchScrollEnd() {
+  onTouchScrollEnd(): void {
     this._scrollTouching = false
     this.cursorVisible = this._scrollLastCursorVisible
   }
 
-  updateSmoothScroll() {
+  updateSmoothScroll(): void {
     if (this._scrollDuration > 0) {
       const d = this._scrollDuration
       const deltaX = (this._scrollTargetX - this._scrollX) / d
@@ -197,7 +212,7 @@ export class Window_Scrollable extends Window_Base {
     }
   }
 
-  updateScrollAccel() {
+  updateScrollAccel(): void {
     if (this._scrollAccelX !== 0 || this._scrollAccelY !== 0) {
       this.scrollBy(this._scrollAccelX, this._scrollAccelY)
       this._scrollAccelX *= 0.92
@@ -211,12 +226,12 @@ export class Window_Scrollable extends Window_Base {
     }
   }
 
-  updateArrows() {
+  updateArrows(): void {
     this.downArrowVisible = this._scrollY < this.maxScrollY()
     this.upArrowVisible = this._scrollY > 0
   }
 
-  updateOrigin() {
+  updateOrigin(): void {
     const blockWidth = this.scrollBlockWidth() || 1
     const blockHeight = this.scrollBlockHeight() || 1
     const baseX = this._scrollX - (this._scrollX % blockWidth)
@@ -229,7 +244,7 @@ export class Window_Scrollable extends Window_Base {
     this.origin.y = this._scrollY % blockHeight
   }
 
-  updateScrollBase(baseX, baseY) {
+  updateScrollBase(baseX: number, baseY: number): void {
     const deltaX = baseX - this._scrollBaseX
     const deltaY = baseY - this._scrollBaseY
     this._scrollBaseX = baseX
@@ -238,7 +253,7 @@ export class Window_Scrollable extends Window_Base {
     this.moveInnerChildrenBy(-deltaX, -deltaY)
   }
 
-  paint() {
+  paint(): void {
     // to be overridden
   }
 }

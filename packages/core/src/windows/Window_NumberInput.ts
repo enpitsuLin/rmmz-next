@@ -1,3 +1,4 @@
+import type { Window_Message } from './Window_Message'
 import { Graphics, Input, Rectangle } from '../core'
 import { ConfigManager } from '../managers'
 import { Sprite_Button } from '../sprites'
@@ -9,22 +10,29 @@ import { Window_Selectable } from './Window_Selectable'
  * The window used for the event command [Input Number].
  */
 export class Window_NumberInput extends Window_Selectable {
+  _number: number
+  _maxDigits: number
+  _messageWindow: Window_Message | null
+  _buttons: Sprite_Button[]
+
   constructor(rect?: Rectangle) {
     rect = rect || new Rectangle()
     super(rect)
     this._number = 0
     this._maxDigits = 1
+    this._messageWindow = null
+    this._buttons = []
     this.openness = 0
     this.createButtons()
     this.deactivate()
     this._canRepeat = false
   }
 
-  setMessageWindow(messageWindow) {
+  setMessageWindow(messageWindow: Window_Message): void {
     this._messageWindow = messageWindow
   }
 
-  start() {
+  start(): void {
     this._maxDigits = $gameMessage.numInputMaxDigits()
     this._number = $gameVariables.value($gameMessage.numInputVariableId())
     this._number = this._number.clamp(0, 10 ** this._maxDigits - 1)
@@ -37,8 +45,8 @@ export class Window_NumberInput extends Window_Selectable {
     this.select(0)
   }
 
-  updatePlacement() {
-    const messageY = this._messageWindow.y
+  updatePlacement(): void {
+    const messageY = this._messageWindow!.y
     const spacing = 8
     this.width = this.windowWidth()
     this.height = this.windowHeight()
@@ -47,17 +55,17 @@ export class Window_NumberInput extends Window_Selectable {
       this.y = messageY - this.height - spacing
     }
     else {
-      this.y = messageY + this._messageWindow.height + spacing
+      this.y = messageY + this._messageWindow!.height + spacing
     }
   }
 
-  windowWidth() {
+  windowWidth(): number {
     const totalItemWidth = this.maxCols() * this.itemWidth()
     const totalButtonWidth = this.totalButtonWidth()
     return Math.max(totalItemWidth, totalButtonWidth) + this.padding * 2
   }
 
-  windowHeight() {
+  windowHeight(): number {
     if (ConfigManager.touchUI) {
       return this.fittingHeight(1) + this.buttonSpacing() + 48
     }
@@ -66,34 +74,34 @@ export class Window_NumberInput extends Window_Selectable {
     }
   }
 
-  maxCols() {
+  maxCols(): number {
     return this._maxDigits
   }
 
-  maxItems() {
+  maxItems(): number {
     return this._maxDigits
   }
 
-  itemWidth() {
+  itemWidth(): number {
     return 48
   }
 
-  itemRect(index) {
+  itemRect(index: number): Rectangle {
     const rect = super.itemRect(index)
     const innerMargin = this.innerWidth - this.maxCols() * this.itemWidth()
     rect.x += innerMargin / 2
     return rect
   }
 
-  isScrollEnabled() {
+  isScrollEnabled(): boolean {
     return false
   }
 
-  isHoverEnabled() {
+  isHoverEnabled(): boolean {
     return false
   }
 
-  createButtons() {
+  createButtons(): void {
     this._buttons = []
     if (ConfigManager.touchUI) {
       for (const type of ['down', 'up', 'ok']) {
@@ -107,7 +115,7 @@ export class Window_NumberInput extends Window_Selectable {
     }
   }
 
-  placeButtons() {
+  placeButtons(): void {
     const sp = this.buttonSpacing()
     const totalWidth = this.totalButtonWidth()
     let x = (this.innerWidth - totalWidth) / 2
@@ -118,25 +126,25 @@ export class Window_NumberInput extends Window_Selectable {
     }
   }
 
-  totalButtonWidth() {
+  totalButtonWidth(): number {
     const sp = this.buttonSpacing()
     return this._buttons.reduce((r, button) => r + button.width + sp, -sp)
   }
 
-  buttonSpacing() {
+  buttonSpacing(): number {
     return 8
   }
 
-  buttonY() {
+  buttonY(): number {
     return this.itemHeight() + this.buttonSpacing()
   }
 
-  update() {
+  update(): void {
     super.update()
     this.processDigitChange()
   }
 
-  processDigitChange() {
+  processDigitChange(): void {
     if (this.isOpenAndActive()) {
       if (Input.isRepeated('up')) {
         this.changeDigit(true)
@@ -147,7 +155,7 @@ export class Window_NumberInput extends Window_Selectable {
     }
   }
 
-  changeDigit(up) {
+  changeDigit(up: boolean): void {
     const index = this.index()
     const place = 10 ** (this._maxDigits - 1 - index)
     let n = Math.floor(this._number / place) % 10
@@ -163,28 +171,28 @@ export class Window_NumberInput extends Window_Selectable {
     this.playCursorSound()
   }
 
-  isTouchOkEnabled() {
+  isTouchOkEnabled(): boolean {
     return false
   }
 
-  isOkEnabled() {
+  isOkEnabled(): boolean {
     return true
   }
 
-  isCancelEnabled() {
+  isCancelEnabled(): boolean {
     return false
   }
 
-  processOk() {
+  processOk(): void {
     this.playOkSound()
     $gameVariables.setValue($gameMessage.numInputVariableId(), this._number)
-    this._messageWindow.terminateMessage()
+    this._messageWindow!.terminateMessage()
     this.updateInputData()
     this.deactivate()
     this.close()
   }
 
-  drawItem(index) {
+  drawItem(index: number): void {
     const rect = this.itemLineRect(index)
     const align = 'center'
     const s = this._number.padZero(this._maxDigits)
@@ -193,15 +201,15 @@ export class Window_NumberInput extends Window_Selectable {
     this.drawText(c, rect.x, rect.y, rect.width, align)
   }
 
-  onButtonUp() {
+  onButtonUp(): void {
     this.changeDigit(true)
   }
 
-  onButtonDown() {
+  onButtonDown(): void {
     this.changeDigit(false)
   }
 
-  onButtonOk() {
+  onButtonOk(): void {
     this.processOk()
   }
 }

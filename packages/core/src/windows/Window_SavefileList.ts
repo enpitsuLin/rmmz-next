@@ -1,3 +1,4 @@
+import type { Rectangle } from '../core'
 import { DataManager, TextManager } from '../managers'
 import { Window_Selectable } from './Window_Selectable'
 
@@ -7,32 +8,35 @@ import { Window_Selectable } from './Window_Selectable'
  * The window for selecting a save file on the save and load screens.
  */
 export class Window_SavefileList extends Window_Selectable {
-  constructor(rect) {
+  _mode: 'save' | 'load' | null
+  _autosave: boolean
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this.activate()
     this._mode = null
     this._autosave = false
   }
 
-  setMode(mode, autosave) {
+  setMode(mode: 'save' | 'load', autosave: boolean): void {
     this._mode = mode
     this._autosave = autosave
     this.refresh()
   }
 
-  maxItems() {
+  maxItems(): number {
     return DataManager.maxSavefiles() - (this._autosave ? 0 : 1)
   }
 
-  numVisibleRows() {
+  numVisibleRows(): number {
     return 5
   }
 
-  itemHeight() {
+  itemHeight(): number {
     return Math.floor(this.innerHeight / this.numVisibleRows())
   }
 
-  drawItem(index) {
+  drawItem(index: number): void {
     const savefileId = this.indexToSavefileId(index)
     const info = DataManager.savefileInfo(savefileId)
     const rect = this.itemRectWithPadding(index)
@@ -44,15 +48,15 @@ export class Window_SavefileList extends Window_Selectable {
     }
   }
 
-  indexToSavefileId(index) {
+  indexToSavefileId(index: number): number {
     return index + (this._autosave ? 0 : 1)
   }
 
-  savefileIdToIndex(savefileId) {
+  savefileIdToIndex(savefileId: number): number {
     return savefileId - (this._autosave ? 0 : 1)
   }
 
-  isEnabled(savefileId) {
+  isEnabled(savefileId: number): boolean {
     if (this._mode === 'save') {
       return savefileId > 0
     }
@@ -61,17 +65,17 @@ export class Window_SavefileList extends Window_Selectable {
     }
   }
 
-  savefileId() {
+  savefileId(): number {
     return this.indexToSavefileId(this.index())
   }
 
-  selectSavefile(savefileId) {
+  selectSavefile(savefileId: number): void {
     const index = Math.max(0, this.savefileIdToIndex(savefileId))
     this.select(index)
     this.setTopRow(index - 2)
   }
 
-  drawTitle(savefileId, x, y) {
+  drawTitle(savefileId: number, x: number, y: number): void {
     if (savefileId === 0) {
       this.drawText(TextManager.autosave, x, y, 180)
     }
@@ -80,7 +84,7 @@ export class Window_SavefileList extends Window_Selectable {
     }
   }
 
-  drawContents(info, rect) {
+  drawContents(info: DataManager.SavefileInfo, rect: Rectangle): void {
     const bottom = rect.y + rect.height
     if (rect.width >= 420) {
       this.drawPartyCharacters(info, rect.x + 220, bottom - 8)
@@ -92,7 +96,7 @@ export class Window_SavefileList extends Window_Selectable {
     }
   }
 
-  drawPartyCharacters(info, x, y) {
+  drawPartyCharacters(info: DataManager.SavefileInfo, x: number, y: number): void {
     if (info.characters) {
       let characterX = x
       for (const data of info.characters) {
@@ -102,13 +106,13 @@ export class Window_SavefileList extends Window_Selectable {
     }
   }
 
-  drawPlaytime(info, x, y, width) {
+  drawPlaytime(info: DataManager.SavefileInfo, x: number, y: number, width: number): void {
     if (info.playtime) {
       this.drawText(info.playtime, x, y, width, 'right')
     }
   }
 
-  playOkSound() {
+  playOkSound(): void {
     // empty method body
   }
 }

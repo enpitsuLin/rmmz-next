@@ -1,3 +1,11 @@
+import type { Bitmap, Rectangle } from '../core'
+import type { Window_ChoiceList } from './Window_ChoiceList'
+import type { Window_EventItem } from './Window_EventItem'
+import type { Window_Gold } from './Window_Gold'
+import type { Window_NameBox } from './Window_NameBox'
+import type { Window_NumberInput } from './Window_NumberInput'
+import { Graphics, Input, TouchInput } from '../core'
+import { ImageManager } from '../managers'
 import { Window_Base } from './Window_Base'
 
 /**
@@ -6,13 +14,40 @@ import { Window_Base } from './Window_Base'
  * The window for displaying text messages.
  */
 export class Window_Message extends Window_Base {
-  constructor(rect) {
+  _background: Window_Message.BackgroundType
+  _positionType: number
+  _waitCount: number
+  _faceBitmap: Bitmap | null
+  _textState: Window_Base.TextState | null
+  _goldWindow: Window_Gold | null
+  _nameBoxWindow: Window_NameBox | null
+  _choiceListWindow: Window_ChoiceList | null
+  _numberInputWindow: Window_NumberInput | null
+  _eventItemWindow: Window_EventItem | null
+  _showFast: boolean
+  _lineShowFast: boolean
+  _pauseSkip: boolean
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this.openness = 0
-    this.initMembers()
+    this._background = 0
+    this._positionType = 2
+    this._waitCount = 0
+    this._faceBitmap = null
+    this._textState = null
+    this._goldWindow = null
+    this._nameBoxWindow = null
+    this._choiceListWindow = null
+    this._numberInputWindow = null
+    this._eventItemWindow = null
+    this._showFast = false
+    this._lineShowFast = false
+    this._pauseSkip = false
+    this.clearFlags()
   }
 
-  initMembers() {
+  initMembers(): void {
     this._background = 0
     this._positionType = 2
     this._waitCount = 0
@@ -26,33 +61,33 @@ export class Window_Message extends Window_Base {
     this.clearFlags()
   }
 
-  setGoldWindow(goldWindow) {
+  setGoldWindow(goldWindow: Window_Gold): void {
     this._goldWindow = goldWindow
   }
 
-  setNameBoxWindow(nameBoxWindow) {
+  setNameBoxWindow(nameBoxWindow: Window_NameBox): void {
     this._nameBoxWindow = nameBoxWindow
   }
 
-  setChoiceListWindow(choiceListWindow) {
+  setChoiceListWindow(choiceListWindow: Window_ChoiceList): void {
     this._choiceListWindow = choiceListWindow
   }
 
-  setNumberInputWindow(numberInputWindow) {
+  setNumberInputWindow(numberInputWindow: Window_NumberInput): void {
     this._numberInputWindow = numberInputWindow
   }
 
-  setEventItemWindow(eventItemWindow) {
+  setEventItemWindow(eventItemWindow: Window_EventItem): void {
     this._eventItemWindow = eventItemWindow
   }
 
-  clearFlags() {
+  clearFlags(): void {
     this._showFast = false
     this._lineShowFast = false
     this._pauseSkip = false
   }
 
-  update() {
+  update(): void {
     this.checkToNotClose()
     super.update()
     this.synchronizeNameBox()
@@ -79,21 +114,21 @@ export class Window_Message extends Window_Base {
     }
   }
 
-  checkToNotClose() {
+  checkToNotClose(): void {
     if (this.isOpen() && this.isClosing() && this.doesContinue()) {
       this.open()
     }
   }
 
-  synchronizeNameBox() {
-    this._nameBoxWindow.openness = this.openness
+  synchronizeNameBox(): void {
+    this._nameBoxWindow!.openness = this.openness
   }
 
-  canStart() {
+  canStart(): boolean {
     return $gameMessage.hasText() && !$gameMessage.scrollMode()
   }
 
-  startMessage() {
+  startMessage(): void {
     const text = $gameMessage.allText()
     const textState = this.createTextState(text, 0, 0, 0)
     textState.x = this.newLineX(textState)
@@ -103,10 +138,10 @@ export class Window_Message extends Window_Base {
     this.updatePlacement()
     this.updateBackground()
     this.open()
-    this._nameBoxWindow.start()
+    this._nameBoxWindow!.start()
   }
 
-  newLineX(textState) {
+  newLineX(textState: Window_Base.TextState): number {
     const faceExists = $gameMessage.faceName() !== ''
     const faceWidth = ImageManager.standardFaceWidth
     const spacing = 20
@@ -114,7 +149,7 @@ export class Window_Message extends Window_Base {
     return textState.rtl ? this.innerWidth - margin : margin
   }
 
-  updatePlacement() {
+  updatePlacement(): void {
     const goldWindow = this._goldWindow
     this._positionType = $gameMessage.positionType()
     this.y = (this._positionType * (Graphics.boxHeight - this.height)) / 2
@@ -123,18 +158,18 @@ export class Window_Message extends Window_Base {
     }
   }
 
-  updateBackground() {
-    this._background = $gameMessage.background()
+  updateBackground(): void {
+    this._background = $gameMessage.background() as Window_Message.BackgroundType
     this.setBackgroundType(this._background)
   }
 
-  terminateMessage() {
+  terminateMessage(): void {
     this.close()
-    this._goldWindow.close()
+    this._goldWindow!.close()
     $gameMessage.clear()
   }
 
-  updateWait() {
+  updateWait(): boolean {
     if (this._waitCount > 0) {
       this._waitCount--
       return true
@@ -144,13 +179,13 @@ export class Window_Message extends Window_Base {
     }
   }
 
-  cancelWait() {
+  cancelWait(): void {
     if ($gameSystem.isMessageSkipEnabled()) {
       this._waitCount = 0
     }
   }
 
-  updateLoading() {
+  updateLoading(): boolean {
     if (this._faceBitmap) {
       if (this._faceBitmap.isReady()) {
         this.drawMessageFace()
@@ -166,7 +201,7 @@ export class Window_Message extends Window_Base {
     }
   }
 
-  updateInput() {
+  updateInput(): boolean {
     if (this.isAnySubWindowActive()) {
       return true
     }
@@ -183,15 +218,15 @@ export class Window_Message extends Window_Base {
     return false
   }
 
-  isAnySubWindowActive() {
+  isAnySubWindowActive(): boolean {
     return (
-      this._choiceListWindow.active
-      || this._numberInputWindow.active
-      || this._eventItemWindow.active
+      this._choiceListWindow!.active
+      || this._numberInputWindow!.active
+      || this._eventItemWindow!.active
     )
   }
 
-  updateMessage() {
+  updateMessage(): boolean {
     const textState = this._textState
     if (textState) {
       while (!this.isEndOfText(textState)) {
@@ -215,7 +250,7 @@ export class Window_Message extends Window_Base {
     }
   }
 
-  shouldBreakHere(textState) {
+  shouldBreakHere(textState: Window_Base.TextState): boolean {
     if (this.canBreakHere(textState)) {
       if (!this._showFast && !this._lineShowFast) {
         return true
@@ -227,7 +262,7 @@ export class Window_Message extends Window_Base {
     return false
   }
 
-  canBreakHere(textState) {
+  canBreakHere(textState: Window_Base.TextState): boolean {
     if (!this.isEndOfText(textState)) {
       const c = textState.text[textState.index]
       if (c.charCodeAt(0) >= 0xDC00 && c.charCodeAt(0) <= 0xDFFF) {
@@ -241,7 +276,7 @@ export class Window_Message extends Window_Base {
     return true
   }
 
-  onEndOfText() {
+  onEndOfText(): void {
     if (!this.startInput()) {
       if (!this._pauseSkip) {
         this.startPause()
@@ -253,17 +288,17 @@ export class Window_Message extends Window_Base {
     this._textState = null
   }
 
-  startInput() {
+  startInput(): boolean {
     if ($gameMessage.isChoice()) {
-      this._choiceListWindow.start()
+      this._choiceListWindow!.start()
       return true
     }
     else if ($gameMessage.isNumberInput()) {
-      this._numberInputWindow.start()
+      this._numberInputWindow!.start()
       return true
     }
     else if ($gameMessage.isItemChoice()) {
-      this._eventItemWindow.start()
+      this._eventItemWindow!.start()
       return true
     }
     else {
@@ -271,7 +306,7 @@ export class Window_Message extends Window_Base {
     }
   }
 
-  isTriggered() {
+  isTriggered(): boolean {
     return (
       Input.isRepeated('ok')
       || Input.isRepeated('cancel')
@@ -279,7 +314,7 @@ export class Window_Message extends Window_Base {
     )
   }
 
-  doesContinue() {
+  doesContinue(): boolean {
     return (
       $gameMessage.hasText()
       && !$gameMessage.scrollMode()
@@ -287,20 +322,20 @@ export class Window_Message extends Window_Base {
     )
   }
 
-  areSettingsChanged() {
+  areSettingsChanged(): boolean {
     return (
       this._background !== $gameMessage.background()
       || this._positionType !== $gameMessage.positionType()
     )
   }
 
-  updateShowFast() {
+  updateShowFast(): void {
     if (this.isTriggered()) {
       this._showFast = true
     }
   }
 
-  newPage(textState) {
+  newPage(textState: Window_Base.TextState): void {
     this.contents.clear()
     this.resetFontSettings()
     this.clearFlags()
@@ -311,15 +346,15 @@ export class Window_Message extends Window_Base {
     textState.height = this.calcTextHeight(textState)
   }
 
-  updateSpeakerName() {
-    this._nameBoxWindow.setName($gameMessage.speakerName())
+  updateSpeakerName(): void {
+    this._nameBoxWindow!.setName($gameMessage.speakerName())
   }
 
-  loadMessageFace() {
+  loadMessageFace(): void {
     this._faceBitmap = ImageManager.loadFace($gameMessage.faceName())
   }
 
-  drawMessageFace() {
+  drawMessageFace(): void {
     const faceName = $gameMessage.faceName()
     const faceIndex = $gameMessage.faceIndex()
     const rtl = $gameMessage.isRTL()
@@ -329,14 +364,14 @@ export class Window_Message extends Window_Base {
     this.drawFace(faceName, faceIndex, x, 0, width, height)
   }
 
-  processControlCharacter(textState, c) {
+  processControlCharacter(textState: Window_Base.TextState, c: string): void {
     super.processControlCharacter(textState, c)
     if (c === '\f') {
       this.processNewPage(textState)
     }
   }
 
-  processNewLine(textState) {
+  processNewLine(textState: Window_Base.TextState): void {
     this._lineShowFast = false
     super.processNewLine(textState)
     if (this.needsNewPage(textState)) {
@@ -344,7 +379,7 @@ export class Window_Message extends Window_Base {
     }
   }
 
-  processNewPage(textState) {
+  processNewPage(textState: Window_Base.TextState): void {
     if (textState.text[textState.index] === '\n') {
       textState.index++
     }
@@ -352,21 +387,21 @@ export class Window_Message extends Window_Base {
     this.startPause()
   }
 
-  isEndOfText(textState) {
+  isEndOfText(textState: Window_Base.TextState): boolean {
     return textState.index >= textState.text.length
   }
 
-  needsNewPage(textState) {
+  needsNewPage(textState: Window_Base.TextState): boolean {
     return (
       !this.isEndOfText(textState)
       && textState.y + textState.height > this.contents.height
     )
   }
 
-  processEscapeCharacter(code, textState) {
+  processEscapeCharacter(code: string, textState: Window_Base.TextState): void {
     switch (code) {
       case '$':
-        this._goldWindow.open()
+        this._goldWindow!.open()
         break
       case '.':
         this.startWait(15)
@@ -392,16 +427,20 @@ export class Window_Message extends Window_Base {
     }
   }
 
-  startWait(count) {
+  startWait(count: number): void {
     this._waitCount = count
   }
 
-  startPause() {
+  startPause(): void {
     this.startWait(10)
     this.pause = true
   }
 
-  isWaiting() {
+  isWaiting(): boolean {
     return this.pause || this._waitCount > 0
   }
+}
+
+export namespace Window_Message {
+  export type BackgroundType = 0 | 1 | 2
 }

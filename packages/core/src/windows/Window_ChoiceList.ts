@@ -1,3 +1,4 @@
+import type { Window_Message } from './Window_Message'
 import { Graphics, Rectangle } from '../core'
 import { ConfigManager } from '../managers/ConfigManager'
 import { Sprite_Button } from '../sprites'
@@ -9,22 +10,28 @@ import { Window_Command } from './Window_Command'
  * The window used for the event command [Show Choices].
  */
 export class Window_ChoiceList extends Window_Command {
-  constructor(rect) {
+  _background: number
+  _messageWindow: Window_Message | null
+  _cancelButton: Sprite_Button | null
+
+  constructor(rect?: Rectangle) {
     rect = rect || new Rectangle()
     super(rect)
 
+    this._background = 0
+    this._messageWindow = null
+    this._cancelButton = null
     this.createCancelButton()
     this.openness = 0
     this.deactivate()
-    this._background = 0
     this._canRepeat = false
   }
 
-  setMessageWindow(messageWindow) {
+  setMessageWindow(messageWindow: Window_Message): void {
     this._messageWindow = messageWindow
   }
 
-  createCancelButton() {
+  createCancelButton(): void {
     if (ConfigManager.touchUI) {
       this._cancelButton = new Sprite_Button('cancel')
       this._cancelButton.visible = false
@@ -32,7 +39,7 @@ export class Window_ChoiceList extends Window_Command {
     }
   }
 
-  start() {
+  start(): void {
     this.updatePlacement()
     this.updateBackground()
     this.placeCancelButton()
@@ -44,34 +51,34 @@ export class Window_ChoiceList extends Window_Command {
     this.activate()
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateCancelButton()
   }
 
-  updateCancelButton() {
+  updateCancelButton(): void {
     if (this._cancelButton) {
       this._cancelButton.visible = this.needsCancelButton() && this.isOpen()
     }
   }
 
-  selectDefault() {
+  selectDefault(): void {
     this.select($gameMessage.choiceDefaultType())
   }
 
-  updatePlacement() {
+  updatePlacement(): void {
     this.x = this.windowX()
     this.y = this.windowY()
     this.width = this.windowWidth()
     this.height = this.windowHeight()
   }
 
-  updateBackground() {
+  updateBackground(): void {
     this._background = $gameMessage.choiceBackground()
     this.setBackgroundType(this._background)
   }
 
-  placeCancelButton() {
+  placeCancelButton(): void {
     if (this._cancelButton) {
       const spacing = 8
       const button = this._cancelButton
@@ -86,7 +93,7 @@ export class Window_ChoiceList extends Window_Command {
     }
   }
 
-  windowX() {
+  windowX(): number {
     const positionType = $gameMessage.choicePositionType()
     if (positionType === 1) {
       return (Graphics.boxWidth - this.windowWidth()) / 2
@@ -99,31 +106,31 @@ export class Window_ChoiceList extends Window_Command {
     }
   }
 
-  windowY() {
-    const messageY = this._messageWindow.y
+  windowY(): number {
+    const messageY = this._messageWindow!.y
     if (messageY >= Graphics.boxHeight / 2) {
       return messageY - this.windowHeight()
     }
     else {
-      return messageY + this._messageWindow.height
+      return messageY + this._messageWindow!.height
     }
   }
 
-  windowWidth() {
+  windowWidth(): number {
     const width = this.maxChoiceWidth() + this.colSpacing() + this.padding * 2
     return Math.min(width, Graphics.boxWidth)
   }
 
-  windowHeight() {
+  windowHeight(): number {
     return this.fittingHeight(this.numVisibleRows())
   }
 
-  numVisibleRows() {
+  numVisibleRows(): number {
     const choices = $gameMessage.choices()
     return Math.min(choices.length, this.maxLines())
   }
 
-  maxLines() {
+  maxLines(): number {
     const messageWindow = this._messageWindow
     const messageY = messageWindow ? messageWindow.y : 0
     const messageHeight = messageWindow ? messageWindow.height : 0
@@ -136,7 +143,7 @@ export class Window_ChoiceList extends Window_Command {
     }
   }
 
-  maxChoiceWidth() {
+  maxChoiceWidth(): number {
     let maxWidth = 96
     const choices = $gameMessage.choices()
     for (const choice of choices) {
@@ -149,35 +156,35 @@ export class Window_ChoiceList extends Window_Command {
     return maxWidth
   }
 
-  makeCommandList() {
+  makeCommandList(): void {
     const choices = $gameMessage.choices()
     for (const choice of choices) {
       this.addCommand(choice, 'choice')
     }
   }
 
-  drawItem(index) {
+  drawItem(index: number): void {
     const rect = this.itemLineRect(index)
     this.drawTextEx(this.commandName(index), rect.x, rect.y, rect.width)
   }
 
-  isCancelEnabled() {
+  isCancelEnabled(): boolean {
     return $gameMessage.choiceCancelType() !== -1
   }
 
-  needsCancelButton() {
+  needsCancelButton(): boolean {
     return $gameMessage.choiceCancelType() === -2
   }
 
-  callOkHandler() {
+  callOkHandler(): void {
     $gameMessage.onChoice(this.index())
-    this._messageWindow.terminateMessage()
+    this._messageWindow!.terminateMessage()
     this.close()
   }
 
-  callCancelHandler() {
+  callCancelHandler(): void {
     $gameMessage.onChoice($gameMessage.choiceCancelType())
-    this._messageWindow.terminateMessage()
+    this._messageWindow!.terminateMessage()
     this.close()
   }
 }

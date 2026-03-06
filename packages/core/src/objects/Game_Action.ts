@@ -105,7 +105,7 @@ export class Game_Action<Item extends Game_Item.ItemType = Game_Item.ItemType> {
     this._item.setObject($dataItems[itemId]!)
   }
 
-  setItemObject(object: MZ.Item): void {
+  setItemObject(object: MZ.GeneralItem | null): void {
     this._item.setObject(object)
   }
 

@@ -1,3 +1,5 @@
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Rectangle } from '../core'
 import { DataManager } from '../managers'
 import { Game_Action } from '../objects'
 import { Window_MenuStatus } from './Window_MenuStatus'
@@ -8,23 +10,23 @@ import { Window_MenuStatus } from './Window_MenuStatus'
  * The window for selecting a target actor on the item and skill screens.
  */
 export class Window_MenuActor extends Window_MenuStatus {
-  constructor(rect) {
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this.hide()
   }
 
-  processOk() {
+  processOk(): void {
     if (!this.cursorAll()) {
       $gameParty.setTargetActor($gameParty.members()[this.index()])
     }
     this.callOkHandler()
   }
 
-  selectLast() {
+  selectLast(): void {
     this.forceSelect($gameParty.targetActor().index() || 0)
   }
 
-  selectForItem(item) {
+  selectForItem(item: MZ.GeneralItem | null): void {
     const actor = $gameParty.menuActor()
     const action = new Game_Action(actor)
     action.setItemObject(item)

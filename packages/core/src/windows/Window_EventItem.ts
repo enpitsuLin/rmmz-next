@@ -1,3 +1,6 @@
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Rectangle } from '../core'
+import type { Window_Message } from './Window_Message'
 import { Graphics } from '../core'
 import { ConfigManager, DataManager } from '../managers'
 import { Sprite_Button } from '../sprites'
@@ -9,8 +12,13 @@ import { Window_ItemList } from './Window_ItemList'
  * The window used for the event command [Select Item].
  */
 export class Window_EventItem extends Window_ItemList {
-  constructor(rect) {
+  _messageWindow: Window_Message | null
+  _cancelButton: Sprite_Button | null
+
+  constructor(rect: Rectangle) {
     super(rect)
+    this._messageWindow = null
+    this._cancelButton = null
     this.createCancelButton()
     this.openness = 0
     this.deactivate()
@@ -19,11 +27,11 @@ export class Window_EventItem extends Window_ItemList {
     this._canRepeat = false
   }
 
-  setMessageWindow(messageWindow) {
+  setMessageWindow(messageWindow: Window_Message): void {
     this._messageWindow = messageWindow
   }
 
-  createCancelButton() {
+  createCancelButton(): void {
     if (ConfigManager.touchUI) {
       this._cancelButton = new Sprite_Button('cancel')
       this._cancelButton.visible = false
@@ -31,7 +39,7 @@ export class Window_EventItem extends Window_ItemList {
     }
   }
 
-  start() {
+  start(): void {
     this.refresh()
     this.updatePlacement()
     this.placeCancelButton()
@@ -40,19 +48,19 @@ export class Window_EventItem extends Window_ItemList {
     this.activate()
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateCancelButton()
   }
 
-  updateCancelButton() {
+  updateCancelButton(): void {
     if (this._cancelButton) {
       this._cancelButton.visible = this.isOpen()
     }
   }
 
-  updatePlacement() {
-    if (this._messageWindow.y >= Graphics.boxHeight / 2) {
+  updatePlacement(): void {
+    if (this._messageWindow!.y >= Graphics.boxHeight / 2) {
       this.y = 0
     }
     else {
@@ -60,15 +68,15 @@ export class Window_EventItem extends Window_ItemList {
     }
   }
 
-  placeCancelButton() {
+  placeCancelButton(): void {
     if (this._cancelButton) {
       const spacing = 8
       const button = this._cancelButton
       if (this.y === 0) {
         button.y = this.height + spacing
       }
-      else if (this._messageWindow.y >= Graphics.boxHeight / 4) {
-        const distance = this.y - this._messageWindow.y
+      else if (this._messageWindow!.y >= Graphics.boxHeight / 4) {
+        const distance = this.y - this._messageWindow!.y
         button.y = -button.height - spacing - distance
       }
       else {
@@ -78,12 +86,12 @@ export class Window_EventItem extends Window_ItemList {
     }
   }
 
-  includes(item) {
+  includes(item: MZ.GeneralItem | null): boolean {
     const itypeId = $gameMessage.itemChoiceItypeId()
     return DataManager.isItem(item) && item.itypeId === itypeId
   }
 
-  needsNumber() {
+  needsNumber(): boolean {
     const itypeId = $gameMessage.itemChoiceItypeId()
     if (itypeId === 2) {
       // Key Item
@@ -99,21 +107,21 @@ export class Window_EventItem extends Window_ItemList {
     }
   }
 
-  isEnabled(/* item */) {
+  isEnabled(_item: MZ.GeneralItem | null): boolean {
     return true
   }
 
-  onOk() {
+  onOk(): void {
     const item = this.item()
     const itemId = item ? item.id : 0
     $gameVariables.setValue($gameMessage.itemChoiceVariableId(), itemId)
-    this._messageWindow.terminateMessage()
+    this._messageWindow!.terminateMessage()
     this.close()
   }
 
-  onCancel() {
+  onCancel(): void {
     $gameVariables.setValue($gameMessage.itemChoiceVariableId(), 0)
-    this._messageWindow.terminateMessage()
+    this._messageWindow!.terminateMessage()
     this.close()
   }
 }

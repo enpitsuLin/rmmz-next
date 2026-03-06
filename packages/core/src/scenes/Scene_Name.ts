@@ -70,7 +70,7 @@ export class Scene_Name extends Scene_MenuBase {
   }
 
   onInputOk(): void {
-    this._actor.setName(this._editWindow.name())
+    this._actor.setName(this._editWindow.name)
     this.popScene()
   }
 }

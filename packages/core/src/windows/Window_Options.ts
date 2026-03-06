@@ -1,3 +1,4 @@
+import type { Rectangle } from '../core'
 import { ConfigManager, TextManager } from '../managers'
 import { Window_Command } from './Window_Command'
 
@@ -7,29 +8,29 @@ import { Window_Command } from './Window_Command'
  * The window for changing various settings on the options screen.
  */
 export class Window_Options extends Window_Command {
-  constructor(rect) {
+  constructor(rect: Rectangle.Shape) {
     super(rect)
   }
 
-  makeCommandList() {
+  makeCommandList(): void {
     this.addGeneralOptions()
     this.addVolumeOptions()
   }
 
-  addGeneralOptions() {
+  addGeneralOptions(): void {
     this.addCommand(TextManager.alwaysDash, 'alwaysDash')
     this.addCommand(TextManager.commandRemember, 'commandRemember')
     this.addCommand(TextManager.touchUI, 'touchUI')
   }
 
-  addVolumeOptions() {
+  addVolumeOptions(): void {
     this.addCommand(TextManager.bgmVolume, 'bgmVolume')
     this.addCommand(TextManager.bgsVolume, 'bgsVolume')
     this.addCommand(TextManager.meVolume, 'meVolume')
     this.addCommand(TextManager.seVolume, 'seVolume')
   }
 
-  drawItem(index) {
+  drawItem(index: number): void {
     const title = this.commandName(index)
     const status = this.statusText(index)
     const rect = this.itemLineRect(index)
@@ -41,36 +42,36 @@ export class Window_Options extends Window_Command {
     this.drawText(status, rect.x + titleWidth, rect.y, statusWidth, 'right')
   }
 
-  statusWidth() {
+  statusWidth(): number {
     return 120
   }
 
-  statusText(index) {
-    const symbol = this.commandSymbol(index)
+  statusText(index: number): string {
+    const symbol = this.commandSymbol(index) as Window_Options.OptionSymbol
     const value = this.getConfigValue(symbol)
     if (this.isVolumeSymbol(symbol)) {
-      return this.volumeStatusText(value)
+      return this.volumeStatusText(value as number)
     }
     else {
-      return this.booleanStatusText(value)
+      return this.booleanStatusText(value as boolean)
     }
   }
 
-  isVolumeSymbol(symbol) {
+  isVolumeSymbol(symbol: string): symbol is Window_Options.VolumeSymbol {
     return symbol.includes('Volume')
   }
 
-  booleanStatusText(value) {
+  booleanStatusText(value: boolean): string {
     return value ? 'ON' : 'OFF'
   }
 
-  volumeStatusText(value) {
+  volumeStatusText(value: number): string {
     return `${value}%`
   }
 
-  processOk() {
+  processOk(): void {
     const index = this.index()
-    const symbol = this.commandSymbol(index)
+    const symbol = this.commandSymbol(index) as Window_Options.OptionSymbol
     if (this.isVolumeSymbol(symbol)) {
       this.changeVolume(symbol, true, true)
     }
@@ -79,9 +80,9 @@ export class Window_Options extends Window_Command {
     }
   }
 
-  cursorRight() {
+  cursorRight(): void {
     const index = this.index()
-    const symbol = this.commandSymbol(index)
+    const symbol = this.commandSymbol(index) as Window_Options.OptionSymbol
     if (this.isVolumeSymbol(symbol)) {
       this.changeVolume(symbol, true, false)
     }
@@ -90,9 +91,9 @@ export class Window_Options extends Window_Command {
     }
   }
 
-  cursorLeft() {
+  cursorLeft(): void {
     const index = this.index()
-    const symbol = this.commandSymbol(index)
+    const symbol = this.commandSymbol(index) as Window_Options.OptionSymbol
     if (this.isVolumeSymbol(symbol)) {
       this.changeVolume(symbol, false, false)
     }
@@ -101,8 +102,8 @@ export class Window_Options extends Window_Command {
     }
   }
 
-  changeVolume(symbol, forward, wrap) {
-    const lastValue = this.getConfigValue(symbol)
+  changeVolume(symbol: Window_Options.VolumeSymbol, forward: boolean, wrap: boolean): void {
+    const lastValue = this.getConfigValue(symbol) as number
     const offset = this.volumeOffset()
     const value = lastValue + (forward ? offset : -offset)
     if (value > 100 && wrap) {
@@ -113,11 +114,11 @@ export class Window_Options extends Window_Command {
     }
   }
 
-  volumeOffset() {
+  volumeOffset(): number {
     return 20
   }
 
-  changeValue(symbol, value) {
+  changeValue(symbol: Window_Options.OptionSymbol, value: boolean | number): void {
     const lastValue = this.getConfigValue(symbol)
     if (lastValue !== value) {
       this.setConfigValue(symbol, value)
@@ -126,11 +127,17 @@ export class Window_Options extends Window_Command {
     }
   }
 
-  getConfigValue(symbol) {
+  getConfigValue(symbol: Window_Options.OptionSymbol): boolean | number {
     return ConfigManager[symbol]
   }
 
-  setConfigValue(symbol, volume) {
-    ConfigManager[symbol] = volume
+  setConfigValue(symbol: Window_Options.OptionSymbol, value: boolean | number): void {
+    (ConfigManager as unknown as Record<string, boolean | number>)[symbol] = value
   }
+}
+
+export namespace Window_Options {
+  export type VolumeSymbol = 'bgmVolume' | 'bgsVolume' | 'meVolume' | 'seVolume'
+  export type BooleanSymbol = 'alwaysDash' | 'commandRemember' | 'touchUI'
+  export type OptionSymbol = VolumeSymbol | BooleanSymbol
 }

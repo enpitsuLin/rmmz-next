@@ -1,3 +1,4 @@
+import type { Game_Actor } from '../objects'
 import { Graphics, Rectangle } from '../core'
 import { SoundManager } from '../managers/SoundManager'
 import { Window_ItemCategory, Window_ItemList } from '../windows'
@@ -68,10 +69,10 @@ export class Scene_Item extends Scene_ItemBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  user(): Game_Actor | null {
+  user(): Game_Actor {
     const members = $gameParty.movableMembers()
     const bestPha = Math.max(...members.map(member => member.pha))
-    return members.find(member => member.pha === bestPha) ?? null
+    return members.find(member => member.pha === bestPha)!
   }
 
   onCategoryOk(): void {

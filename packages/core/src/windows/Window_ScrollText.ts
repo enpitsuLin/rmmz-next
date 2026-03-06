@@ -8,7 +8,15 @@ import { Window_Base } from './Window_Base'
  * is handled as a window for convenience.
  */
 export class Window_ScrollText extends Window_Base {
-  constructor(rect) {
+  _reservedRect: Rectangle
+  _text: string | null
+  _maxBitmapHeight: number
+  _allTextHeight: number
+  _blockHeight: number
+  _blockIndex: number
+  _scrollY: number
+
+  constructor(rect: Rectangle) {
     super(new Rectangle())
     this.opacity = 0
     this.hide()
@@ -21,7 +29,7 @@ export class Window_ScrollText extends Window_Base {
     this._scrollY = 0
   }
 
-  update() {
+  update(): void {
     super.update()
     if ($gameMessage.scrollMode()) {
       if (this._text) {
@@ -33,7 +41,7 @@ export class Window_ScrollText extends Window_Base {
     }
   }
 
-  startMessage() {
+  startMessage(): void {
     this._text = $gameMessage.allText()
     if (this._text) {
       this.updatePlacement()
@@ -50,19 +58,19 @@ export class Window_ScrollText extends Window_Base {
     }
   }
 
-  refresh() {
+  refresh(): void {
     const rect = this.baseTextRect()
     const y = rect.y - this._scrollY + (this._scrollY % this._blockHeight)
     this.contents.clear()
-    this.drawTextEx(this._text, rect.x, y, rect.width)
+    this.drawTextEx(this._text!, rect.x, y, rect.width)
   }
 
-  updatePlacement() {
+  updatePlacement(): void {
     const rect = this._reservedRect
     this.move(rect.x, rect.y, rect.width, rect.height)
   }
 
-  contentsHeight() {
+  contentsHeight(): number {
     if (this._allTextHeight > 0) {
       return Math.min(this._allTextHeight, this._maxBitmapHeight)
     }
@@ -71,7 +79,7 @@ export class Window_ScrollText extends Window_Base {
     }
   }
 
-  updateMessage() {
+  updateMessage(): void {
     this._scrollY += this.scrollSpeed()
     if (this._scrollY >= this._allTextHeight) {
       this.terminateMessage()
@@ -86,7 +94,7 @@ export class Window_ScrollText extends Window_Base {
     }
   }
 
-  scrollSpeed() {
+  scrollSpeed(): number {
     let speed = $gameMessage.scrollSpeed() / 2
     if (this.isFastForward()) {
       speed *= this.fastForwardRate()
@@ -94,7 +102,7 @@ export class Window_ScrollText extends Window_Base {
     return speed
   }
 
-  isFastForward() {
+  isFastForward(): boolean {
     if ($gameMessage.scrollNoFast()) {
       return false
     }
@@ -107,11 +115,11 @@ export class Window_ScrollText extends Window_Base {
     }
   }
 
-  fastForwardRate() {
+  fastForwardRate(): number {
     return 3
   }
 
-  terminateMessage() {
+  terminateMessage(): void {
     this._text = null
     $gameMessage.clear()
     this.hide()

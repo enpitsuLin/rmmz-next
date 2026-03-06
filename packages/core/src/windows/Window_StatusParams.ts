@@ -1,3 +1,5 @@
+import type { Rectangle } from '../core'
+import type { Game_Actor } from '../objects/Game_Actor'
 import { ColorManager } from '../managers/ColorManager'
 import { TextManager } from '../managers/TextManager'
 import { Window_StatusBase } from './Window_StatusBase'
@@ -8,38 +10,40 @@ import { Window_StatusBase } from './Window_StatusBase'
  * The window for displaying parameters on the status screen.
  */
 export class Window_StatusParams extends Window_StatusBase {
-  constructor(rect) {
+  _actor: Game_Actor | null
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this._actor = null
   }
 
-  setActor(actor) {
+  setActor(actor: Game_Actor): void {
     if (this._actor !== actor) {
       this._actor = actor
       this.refresh()
     }
   }
 
-  maxItems() {
+  maxItems(): number {
     return 6
   }
 
-  itemHeight() {
+  itemHeight(): number {
     return this.lineHeight()
   }
 
-  drawItem(index) {
+  drawItem(index: number): void {
     const rect = this.itemLineRect(index)
     const paramId = index + 2
     const name = TextManager.param(paramId)
-    const value = this._actor.param(paramId)
+    const value = this._actor!.param(paramId)
     this.changeTextColor(ColorManager.systemColor())
     this.drawText(name, rect.x, rect.y, 160)
     this.resetTextColor()
-    this.drawText(value, rect.x + 160, rect.y, 60, 'right')
+    this.drawText(String(value), rect.x + 160, rect.y, 60, 'right')
   }
 
-  drawItemBackground(/* index */) {
+  drawItemBackground(_index: number): void {
     // empty method body
   }
 }

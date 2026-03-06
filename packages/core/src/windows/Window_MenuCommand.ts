@@ -1,3 +1,4 @@
+import type { Rectangle } from '../core'
 import { DataManager, TextManager } from '../managers'
 import { Window_Command } from './Window_Command'
 
@@ -7,19 +8,19 @@ import { Window_Command } from './Window_Command'
  * The window for selecting a command on the menu screen.
  */
 export class Window_MenuCommand extends Window_Command {
-  static _lastCommandSymbol = null
+  static _lastCommandSymbol: string | null = null
 
-  static initCommandPosition() {
+  static initCommandPosition(): void {
     this._lastCommandSymbol = null
   }
 
-  constructor(rect) {
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this.selectLast()
     this._canRepeat = false
   }
 
-  makeCommandList() {
+  makeCommandList(): void {
     this.addMainCommands()
     this.addFormationCommand()
     this.addOriginalCommands()
@@ -28,7 +29,7 @@ export class Window_MenuCommand extends Window_Command {
     this.addGameEndCommand()
   }
 
-  addMainCommands() {
+  addMainCommands(): void {
     const enabled = this.areMainCommandsEnabled()
     if (this.needsCommand('item')) {
       this.addCommand(TextManager.item, 'item', enabled)
@@ -44,37 +45,37 @@ export class Window_MenuCommand extends Window_Command {
     }
   }
 
-  addFormationCommand() {
+  addFormationCommand(): void {
     if (this.needsCommand('formation')) {
       const enabled = this.isFormationEnabled()
       this.addCommand(TextManager.formation, 'formation', enabled)
     }
   }
 
-  addOriginalCommands() {
+  addOriginalCommands(): void {
     // Add custom commands here
   }
 
-  addOptionsCommand() {
+  addOptionsCommand(): void {
     if (this.needsCommand('options')) {
       const enabled = this.isOptionsEnabled()
       this.addCommand(TextManager.options, 'options', enabled)
     }
   }
 
-  addSaveCommand() {
+  addSaveCommand(): void {
     if (this.needsCommand('save')) {
       const enabled = this.isSaveEnabled()
       this.addCommand(TextManager.save, 'save', enabled)
     }
   }
 
-  addGameEndCommand() {
+  addGameEndCommand(): void {
     const enabled = this.isGameEndEnabled()
     this.addCommand(TextManager.gameEnd, 'gameEnd', enabled)
   }
 
-  needsCommand(name) {
+  needsCommand(name: string): boolean {
     const table = ['item', 'skill', 'equip', 'status', 'formation', 'save']
     const index = table.indexOf(name)
     if (index >= 0) {
@@ -83,32 +84,32 @@ export class Window_MenuCommand extends Window_Command {
     return true
   }
 
-  areMainCommandsEnabled() {
+  areMainCommandsEnabled(): boolean {
     return $gameParty.exists()
   }
 
-  isFormationEnabled() {
+  isFormationEnabled(): boolean {
     return $gameParty.size() >= 2 && $gameSystem.isFormationEnabled()
   }
 
-  isOptionsEnabled() {
+  isOptionsEnabled(): boolean {
     return true
   }
 
-  isSaveEnabled() {
+  isSaveEnabled(): boolean {
     return !DataManager.isEventTest() && $gameSystem.isSaveEnabled()
   }
 
-  isGameEndEnabled() {
+  isGameEndEnabled(): boolean {
     return true
   }
 
-  processOk() {
+  processOk(): void {
     Window_MenuCommand._lastCommandSymbol = this.currentSymbol()
     super.processOk()
   }
 
-  selectLast() {
-    this.selectSymbol(Window_MenuCommand._lastCommandSymbol)
+  selectLast(): void {
+    this.selectSymbol(Window_MenuCommand._lastCommandSymbol!)
   }
 }

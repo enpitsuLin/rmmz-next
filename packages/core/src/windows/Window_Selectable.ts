@@ -1,3 +1,5 @@
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Window_Help } from './Window_Help'
 import { Input, Point, Rectangle, TouchInput } from '../core'
 import { ColorManager, SoundManager } from '../managers'
 import { Window_Scrollable } from './Window_Scrollable'
@@ -7,8 +9,20 @@ import { Window_Scrollable } from './Window_Scrollable'
  *
  * The window class with cursor movement functions.
  */
-export class Window_Selectable extends Window_Scrollable {
-  constructor(rect) {
+export class Window_Selectable<Item extends MZ.GeneralItem = MZ.GeneralItem>
+  extends Window_Scrollable {
+  _index: number
+  _cursorFixed: boolean
+  _cursorAll: boolean
+  _helpWindow: Window_Help | null
+  _handlers: Record<string, () => void>
+  _doubleTouch: boolean
+  _canRepeat: boolean
+
+  _data?: (Item | null)[]
+  item?(): Item | null
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this._index = -1
     this._cursorFixed = false
@@ -20,136 +34,136 @@ export class Window_Selectable extends Window_Scrollable {
     this.deactivate()
   }
 
-  index() {
+  index(): number {
     return this._index
   }
 
-  cursorFixed() {
+  cursorFixed(): boolean {
     return this._cursorFixed
   }
 
-  setCursorFixed(cursorFixed) {
+  setCursorFixed(cursorFixed: boolean): void {
     this._cursorFixed = cursorFixed
   }
 
-  cursorAll() {
+  cursorAll(): boolean {
     return this._cursorAll
   }
 
-  setCursorAll(cursorAll) {
+  setCursorAll(cursorAll: boolean): void {
     this._cursorAll = cursorAll
   }
 
-  maxCols() {
+  maxCols(): number {
     return 1
   }
 
-  maxItems() {
+  maxItems(): number {
     return 0
   }
 
-  colSpacing() {
+  colSpacing(): number {
     return 8
   }
 
-  rowSpacing() {
+  rowSpacing(): number {
     return 4
   }
 
-  itemWidth() {
+  itemWidth(): number {
     return Math.floor(this.innerWidth / this.maxCols())
   }
 
-  itemHeight() {
+  itemHeight(): number {
     return super.itemHeight() + 8
   }
 
-  contentsHeight() {
+  contentsHeight(): number {
     return this.innerHeight + this.itemHeight()
   }
 
-  maxRows() {
+  maxRows(): number {
     return Math.max(Math.ceil(this.maxItems() / this.maxCols()), 1)
   }
 
-  overallHeight() {
+  overallHeight(): number {
     return this.maxRows() * this.itemHeight()
   }
 
-  activate() {
+  activate(): void {
     super.activate()
     this.reselect()
   }
 
-  deactivate() {
+  deactivate(): void {
     super.deactivate()
     this.reselect()
   }
 
-  select(index) {
+  select(index: number): void {
     this._index = index
     this.refreshCursor()
     this.callUpdateHelp()
   }
 
-  forceSelect(index) {
+  forceSelect(index: number): void {
     this.select(index)
     this.ensureCursorVisible(false)
   }
 
-  smoothSelect(index) {
+  smoothSelect(index: number): void {
     this.select(index)
     this.ensureCursorVisible(true)
   }
 
-  deselect() {
+  deselect(): void {
     this.select(-1)
   }
 
-  reselect() {
+  reselect(): void {
     this.select(this._index)
     this.ensureCursorVisible(true)
     this.cursorVisible = true
   }
 
-  row() {
+  row(): number {
     return Math.floor(this.index() / this.maxCols())
   }
 
-  topRow() {
+  topRow(): number {
     return Math.floor(this.scrollY() / this.itemHeight())
   }
 
-  maxTopRow() {
+  maxTopRow(): number {
     return Math.max(0, this.maxRows() - this.maxPageRows())
   }
 
-  setTopRow(row) {
+  setTopRow(row: number): void {
     this.scrollTo(this.scrollX(), row * this.itemHeight())
   }
 
-  maxPageRows() {
+  maxPageRows(): number {
     return Math.floor(this.innerHeight / this.itemHeight())
   }
 
-  maxPageItems() {
+  maxPageItems(): number {
     return this.maxPageRows() * this.maxCols()
   }
 
-  maxVisibleItems() {
+  maxVisibleItems(): number {
     const visibleRows = Math.ceil(this.contentsHeight() / this.itemHeight())
     return visibleRows * this.maxCols()
   }
 
-  isHorizontal() {
+  isHorizontal(): boolean {
     return this.maxPageRows() === 1
   }
 
-  topIndex() {
+  topIndex(): number {
     return this.topRow() * this.maxCols()
   }
 
-  itemRect(index) {
+  itemRect(index: number): Rectangle {
     const maxCols = this.maxCols()
     const itemWidth = this.itemWidth()
     const itemHeight = this.itemHeight()
@@ -164,7 +178,7 @@ export class Window_Selectable extends Window_Scrollable {
     return new Rectangle(x, y, width, height)
   }
 
-  itemRectWithPadding(index) {
+  itemRectWithPadding(index: number): Rectangle {
     const rect = this.itemRect(index)
     const padding = this.itemPadding()
     rect.x += padding
@@ -172,7 +186,7 @@ export class Window_Selectable extends Window_Scrollable {
     return rect
   }
 
-  itemLineRect(index) {
+  itemLineRect(index: number): Rectangle {
     const rect = this.itemRectWithPadding(index)
     const padding = (rect.height - this.lineHeight()) / 2
     rect.y += padding
@@ -180,42 +194,42 @@ export class Window_Selectable extends Window_Scrollable {
     return rect
   }
 
-  setHelpWindow(helpWindow) {
+  setHelpWindow(helpWindow: Window_Help): void {
     this._helpWindow = helpWindow
     this.callUpdateHelp()
   }
 
-  showHelpWindow() {
+  showHelpWindow(): void {
     if (this._helpWindow) {
       this._helpWindow.show()
     }
   }
 
-  hideHelpWindow() {
+  hideHelpWindow(): void {
     if (this._helpWindow) {
       this._helpWindow.hide()
     }
   }
 
-  setHandler(symbol, method) {
+  setHandler(symbol: string, method: () => void): void {
     this._handlers[symbol] = method
   }
 
-  isHandled(symbol) {
+  isHandled(symbol: string): boolean {
     return !!this._handlers[symbol]
   }
 
-  callHandler(symbol) {
+  callHandler(symbol: string): void {
     if (this.isHandled(symbol)) {
       this._handlers[symbol]()
     }
   }
 
-  isOpenAndActive() {
+  isOpenAndActive(): boolean {
     return this.isOpen() && this.visible && this.active
   }
 
-  isCursorMovable() {
+  isCursorMovable(): boolean {
     return (
       this.isOpenAndActive()
       && !this._cursorFixed
@@ -224,7 +238,7 @@ export class Window_Selectable extends Window_Scrollable {
     )
   }
 
-  cursorDown(wrap) {
+  cursorDown(wrap: boolean): void {
     const index = this.index()
     const maxItems = this.maxItems()
     const maxCols = this.maxCols()
@@ -233,7 +247,7 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  cursorUp(wrap) {
+  cursorUp(wrap: boolean): void {
     const index = Math.max(0, this.index())
     const maxItems = this.maxItems()
     const maxCols = this.maxCols()
@@ -242,7 +256,7 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  cursorRight(wrap) {
+  cursorRight(wrap: boolean): void {
     const index = this.index()
     const maxItems = this.maxItems()
     const maxCols = this.maxCols()
@@ -252,7 +266,7 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  cursorLeft(wrap) {
+  cursorLeft(wrap: boolean): void {
     const index = Math.max(0, this.index())
     const maxItems = this.maxItems()
     const maxCols = this.maxCols()
@@ -262,7 +276,7 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  cursorPagedown() {
+  cursorPagedown(): void {
     const index = this.index()
     const maxItems = this.maxItems()
     if (this.topRow() + this.maxPageRows() < this.maxRows()) {
@@ -271,7 +285,7 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  cursorPageup() {
+  cursorPageup(): void {
     const index = this.index()
     if (this.topRow() > 0) {
       this.smoothScrollUp(this.maxPageRows())
@@ -279,18 +293,18 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  isScrollEnabled() {
+  isScrollEnabled(): boolean {
     return this.active || this.index() < 0
   }
 
-  update() {
+  update(): void {
     this.processCursorMove()
     this.processHandling()
     this.processTouch()
     super.update()
   }
 
-  processCursorMove() {
+  processCursorMove(): void {
     if (this.isCursorMovable()) {
       const lastIndex = this.index()
       if (Input.isRepeated('down')) {
@@ -317,7 +331,7 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  processHandling() {
+  processHandling(): void {
     if (this.isOpenAndActive()) {
       if (this.isOkEnabled() && this.isOkTriggered()) {
         return this.processOk()
@@ -334,7 +348,7 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  processTouch() {
+  processTouch(): void {
     if (this.isOpenAndActive()) {
       if (this.isHoverEnabled() && TouchInput.isHovered()) {
         this.onTouchSelect(false)
@@ -351,11 +365,11 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  isHoverEnabled() {
+  isHoverEnabled(): boolean {
     return true
   }
 
-  onTouchSelect(trigger) {
+  onTouchSelect(trigger: boolean): void {
     this._doubleTouch = false
     if (this.isCursorMovable()) {
       const lastIndex = this.index()
@@ -372,7 +386,7 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  onTouchOk() {
+  onTouchOk(): void {
     if (this.isTouchOkEnabled()) {
       const hitIndex = this.hitIndex()
       if (this._cursorFixed) {
@@ -386,19 +400,19 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  onTouchCancel() {
+  onTouchCancel(): void {
     if (this.isCancelEnabled()) {
       this.processCancel()
     }
   }
 
-  hitIndex() {
+  hitIndex(): number {
     const touchPos = new Point(TouchInput.x, TouchInput.y)
     const localPos = this.worldTransform.applyInverse(touchPos)
     return this.hitTest(localPos.x, localPos.y)
   }
 
-  hitTest(x, y) {
+  hitTest(x: number, y: number): number {
     if (this.innerRect.contains(x, y)) {
       const cx = this.origin.x + x - this.padding
       const cy = this.origin.y + y - this.padding
@@ -416,30 +430,30 @@ export class Window_Selectable extends Window_Scrollable {
     return -1
   }
 
-  isTouchOkEnabled() {
+  isTouchOkEnabled(): boolean {
     return (
       this.isOkEnabled()
       && (this._cursorFixed || this._cursorAll || this._doubleTouch)
     )
   }
 
-  isOkEnabled() {
+  isOkEnabled(): boolean {
     return this.isHandled('ok')
   }
 
-  isCancelEnabled() {
+  isCancelEnabled(): boolean {
     return this.isHandled('cancel')
   }
 
-  isOkTriggered() {
+  isOkTriggered(): boolean {
     return this._canRepeat ? Input.isRepeated('ok') : Input.isTriggered('ok')
   }
 
-  isCancelTriggered() {
+  isCancelTriggered(): boolean {
     return Input.isRepeated('cancel')
   }
 
-  processOk() {
+  processOk(): void {
     if (this.isCurrentItemEnabled()) {
       this.playOkSound()
       this.updateInputData()
@@ -451,40 +465,40 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  callOkHandler() {
+  callOkHandler(): void {
     this.callHandler('ok')
   }
 
-  processCancel() {
+  processCancel(): void {
     SoundManager.playCancel()
     this.updateInputData()
     this.deactivate()
     this.callCancelHandler()
   }
 
-  callCancelHandler() {
+  callCancelHandler(): void {
     this.callHandler('cancel')
   }
 
-  processPageup() {
+  processPageup(): void {
     this.updateInputData()
     this.deactivate()
     this.callHandler('pageup')
   }
 
-  processPagedown() {
+  processPagedown(): void {
     this.updateInputData()
     this.deactivate()
     this.callHandler('pagedown')
   }
 
-  updateInputData() {
+  updateInputData(): void {
     Input.update()
     TouchInput.update()
     this.clearScrollStatus()
   }
 
-  ensureCursorVisible(smooth) {
+  ensureCursorVisible(smooth: boolean): void {
     if (this._cursorAll) {
       this.scrollTo(0, 0)
     }
@@ -512,27 +526,27 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  callUpdateHelp() {
+  callUpdateHelp(): void {
     if (this.active && this._helpWindow) {
       this.updateHelp()
     }
   }
 
-  updateHelp() {
-    this._helpWindow.clear()
+  updateHelp(): void {
+    this._helpWindow!.clear()
   }
 
-  setHelpWindowItem(item) {
+  setHelpWindowItem(item: MZ.GeneralItem | null): void {
     if (this._helpWindow) {
       this._helpWindow.setItem(item)
     }
   }
 
-  isCurrentItemEnabled() {
+  isCurrentItemEnabled(): boolean {
     return true
   }
 
-  drawAllItems() {
+  drawAllItems(): void {
     const topIndex = this.topIndex()
     for (let i = 0; i < this.maxVisibleItems(); i++) {
       const index = topIndex + i
@@ -543,22 +557,22 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  drawItem(/* index */) {
+  drawItem(_index: number): void {
     //
   }
 
-  clearItem(index) {
+  clearItem(index: number): void {
     const rect = this.itemRect(index)
     this.contents.clearRect(rect.x, rect.y, rect.width, rect.height)
     this.contentsBack.clearRect(rect.x, rect.y, rect.width, rect.height)
   }
 
-  drawItemBackground(index) {
+  drawItemBackground(index: number): void {
     const rect = this.itemRect(index)
     this.drawBackgroundRect(rect)
   }
 
-  drawBackgroundRect(rect) {
+  drawBackgroundRect(rect: Rectangle): void {
     const c1 = ColorManager.itemBackColor1()
     const c2 = ColorManager.itemBackColor2()
     const x = rect.x
@@ -569,7 +583,7 @@ export class Window_Selectable extends Window_Scrollable {
     this.contentsBack.strokeRect(x, y, w, h, c1)
   }
 
-  redrawItem(index) {
+  redrawItem(index: number): void {
     if (index >= 0) {
       this.clearItem(index)
       this.drawItemBackground(index)
@@ -577,15 +591,15 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  redrawCurrentItem() {
+  redrawCurrentItem(): void {
     this.redrawItem(this.index())
   }
 
-  refresh() {
+  refresh(): void {
     this.paint()
   }
 
-  paint() {
+  paint(): void {
     if (this.contents) {
       this.contents.clear()
       this.contentsBack.clear()
@@ -593,7 +607,7 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  refreshCursor() {
+  refreshCursor(): void {
     if (this._cursorAll) {
       this.refreshCursorForAll()
     }
@@ -606,7 +620,7 @@ export class Window_Selectable extends Window_Scrollable {
     }
   }
 
-  refreshCursorForAll() {
+  refreshCursorForAll(): void {
     const maxItems = this.maxItems()
     if (maxItems > 0) {
       const rect = this.itemRect(0)

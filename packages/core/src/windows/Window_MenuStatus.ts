@@ -1,3 +1,5 @@
+import type { Rectangle } from '../core'
+import type { Game_Actor } from '../objects/Game_Actor'
 import { ColorManager, ImageManager } from '../managers'
 import { Window_StatusBase } from './Window_StatusBase'
 
@@ -7,36 +9,39 @@ import { Window_StatusBase } from './Window_StatusBase'
  * The window for displaying party member status on the menu screen.
  */
 export class Window_MenuStatus extends Window_StatusBase {
-  constructor(rect) {
+  _formationMode: boolean
+  _pendingIndex: number
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this._formationMode = false
     this._pendingIndex = -1
     this.refresh()
   }
 
-  maxItems() {
+  maxItems(): number {
     return $gameParty.size()
   }
 
-  numVisibleRows() {
+  numVisibleRows(): number {
     return 4
   }
 
-  itemHeight() {
+  itemHeight(): number {
     return Math.floor(this.innerHeight / this.numVisibleRows())
   }
 
-  actor(index) {
+  actor(index: number): Game_Actor {
     return $gameParty.members()[index]
   }
 
-  drawItem(index) {
+  drawItem(index: number): void {
     this.drawPendingItemBackground(index)
     this.drawItemImage(index)
     this.drawItemStatus(index)
   }
 
-  drawPendingItemBackground(index) {
+  drawPendingItemBackground(index: number): void {
     if (index === this._pendingIndex) {
       const rect = this.itemRect(index)
       const color = ColorManager.pendingColor()
@@ -46,7 +51,7 @@ export class Window_MenuStatus extends Window_StatusBase {
     }
   }
 
-  drawItemImage(index) {
+  drawItemImage(index: number): void {
     const actor = this.actor(index)
     const rect = this.itemRect(index)
     const width = ImageManager.standardFaceWidth
@@ -56,7 +61,7 @@ export class Window_MenuStatus extends Window_StatusBase {
     this.changePaintOpacity(true)
   }
 
-  drawItemStatus(index) {
+  drawItemStatus(index: number): void {
     const actor = this.actor(index)
     const rect = this.itemRect(index)
     const x = rect.x + 180
@@ -64,13 +69,13 @@ export class Window_MenuStatus extends Window_StatusBase {
     this.drawActorSimpleStatus(actor, x, y)
   }
 
-  processOk() {
+  processOk(): void {
     super.processOk()
     const actor = this.actor(this.index())
     $gameParty.setMenuActor(actor)
   }
 
-  isCurrentItemEnabled() {
+  isCurrentItemEnabled(): boolean {
     if (this._formationMode) {
       const actor = this.actor(this.index())
       return actor && actor.isFormationChangeOk()
@@ -80,23 +85,23 @@ export class Window_MenuStatus extends Window_StatusBase {
     }
   }
 
-  selectLast() {
+  selectLast(): void {
     this.smoothSelect($gameParty.menuActor().index() || 0)
   }
 
-  formationMode() {
+  formationMode(): boolean {
     return this._formationMode
   }
 
-  setFormationMode(formationMode) {
+  setFormationMode(formationMode: boolean): void {
     this._formationMode = formationMode
   }
 
-  pendingIndex() {
+  pendingIndex(): number {
     return this._pendingIndex
   }
 
-  setPendingIndex(index) {
+  setPendingIndex(index: number): void {
     const lastPendingIndex = this._pendingIndex
     this._pendingIndex = index
     this.redrawItem(this._pendingIndex)

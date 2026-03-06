@@ -250,7 +250,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
     return container ? container[item!.id] || 0 : 0
   }
 
-  maxItems(_item: MZ.EquipOrItem): number {
+  maxItems(_item: MZ.EquipOrItem | null): number {
     return 99
   }
 
@@ -318,7 +318,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
     }
   }
 
-  canUse(item: MZ.Item | MZ.Skill): boolean {
+  canUse(item?: MZ.GeneralItem | null): item is MZ.UsableItem {
     return this.members().some(actor => actor.canUse(item))
   }
 

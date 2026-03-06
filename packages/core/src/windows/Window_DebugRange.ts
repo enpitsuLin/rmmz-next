@@ -1,3 +1,6 @@
+import type { Rectangle } from '../core'
+import type { Window_DebugEdit } from './Window_DebugEdit'
+import { Input } from '../core'
 import { Window_Selectable } from './Window_Selectable'
 
 /**
@@ -6,11 +9,16 @@ import { Window_Selectable } from './Window_Selectable'
  * The window for selecting a block of switches/variables on the debug screen.
  */
 export class Window_DebugRange extends Window_Selectable {
-  static lastTopRow = 0
-  static lastIndex = 0
+  static lastTopRow: number = 0
+  static lastIndex: number = 0
 
-  constructor(rect) {
+  _maxSwitches: number
+  _maxVariables: number
+  _editWindow: Window_DebugEdit | null
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
+    this._editWindow = null
     this._maxSwitches = Math.ceil(($dataSystem.switches.length - 1) / 10)
     this._maxVariables = Math.ceil(($dataSystem.variables.length - 1) / 10)
     this.refresh()
@@ -19,11 +27,11 @@ export class Window_DebugRange extends Window_Selectable {
     this.activate()
   }
 
-  maxItems() {
+  maxItems(): number {
     return this._maxSwitches + this._maxVariables
   }
 
-  update() {
+  update(): void {
     super.update()
     if (this._editWindow) {
       const index = this.index()
@@ -36,7 +44,7 @@ export class Window_DebugRange extends Window_Selectable {
     return this.isSwitchMode(index) ? 'switch' : 'variable'
   }
 
-  topId(index) {
+  topId(index: number): number {
     if (this.isSwitchMode(index)) {
       return index * 10 + 1
     }
@@ -45,11 +53,11 @@ export class Window_DebugRange extends Window_Selectable {
     }
   }
 
-  isSwitchMode(index) {
-    return index < this._maxSwitches
+  isSwitchMode(index?: number): boolean {
+    return (index ?? this.index()) < this._maxSwitches
   }
 
-  drawItem(index) {
+  drawItem(index: number): void {
     const rect = this.itemLineRect(index)
     const c = this.isSwitchMode(index) ? 'S' : 'V'
     const start = this.topId(index)
@@ -58,19 +66,19 @@ export class Window_DebugRange extends Window_Selectable {
     this.drawText(text, rect.x, rect.y, rect.width)
   }
 
-  isCancelTriggered() {
+  isCancelTriggered(): boolean {
     return (
       super.isCancelTriggered() || Input.isTriggered('debug')
     )
   }
 
-  processCancel() {
+  processCancel(): void {
     super.processCancel()
     Window_DebugRange.lastTopRow = this.topRow()
     Window_DebugRange.lastIndex = this.index()
   }
 
-  setEditWindow(editWindow) {
+  setEditWindow(editWindow: Window_DebugEdit): void {
     this._editWindow = editWindow
   }
 }

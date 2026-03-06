@@ -1,3 +1,5 @@
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Rectangle } from '../core'
 import { Window_Base } from './Window_Base'
 
 /**
@@ -6,27 +8,29 @@ import { Window_Base } from './Window_Base'
  * The window for displaying the description of the selected item.
  */
 export class Window_Help extends Window_Base {
-  constructor(rect) {
+  _text: string
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this._text = ''
   }
 
-  setText(text) {
+  setText(text: string): void {
     if (this._text !== text) {
       this._text = text
       this.refresh()
     }
   }
 
-  clear() {
+  clear(): void {
     this.setText('')
   }
 
-  setItem(item) {
+  setItem(item: MZ.GeneralItem | null): void {
     this.setText(item ? item.description : '')
   }
 
-  refresh() {
+  refresh(): void {
     const rect = this.baseTextRect()
     this.contents.clear()
     this.drawTextEx(this._text, rect.x, rect.y, rect.width)

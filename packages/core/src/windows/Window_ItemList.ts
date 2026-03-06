@@ -1,3 +1,4 @@
+import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
 import { DataManager } from '../managers'
 import { Window_Selectable } from './Window_Selectable'
@@ -7,46 +8,50 @@ import { Window_Selectable } from './Window_Selectable'
  *
  * The window for selecting an item on the item screen.
  */
-export class Window_ItemList extends Window_Selectable {
-  constructor(rect: Rectangle) {
+export class Window_ItemList<Item extends MZ.EquipOrItem = MZ.EquipOrItem>
+  extends Window_Selectable {
+  _category: string
+  _data: (Item | null)[]
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this._category = 'none'
     this._data = []
   }
 
-  setCategory(category) {
+  setCategory(category: string | null): void {
     if (this._category !== category) {
-      this._category = category
+      this._category = category ?? 'none'
       this.refresh()
       this.scrollTo(0, 0)
     }
   }
 
-  maxCols() {
+  maxCols(): number {
     return 2
   }
 
-  colSpacing() {
+  colSpacing(): number {
     return 16
   }
 
-  maxItems() {
+  maxItems(): number {
     return this._data ? this._data.length : 1
   }
 
-  item() {
-    return this.itemAt(this.index())
+  item(): Item | null {
+    return this.itemAt(this.index()) as Item | null
   }
 
-  itemAt(index) {
-    return this._data && index >= 0 ? this._data[index] : null
+  itemAt(index: number): MZ.EquipOrItem | null {
+    return this._data && index >= 0 ? this._data[index] ?? null : null
   }
 
-  isCurrentItemEnabled() {
+  isCurrentItemEnabled(): boolean {
     return this.isEnabled(this.item())
   }
 
-  includes(item) {
+  includes(item: MZ.GeneralItem | null): boolean {
     switch (this._category) {
       case 'item':
         return DataManager.isItem(item) && item.itypeId === 1
@@ -61,7 +66,7 @@ export class Window_ItemList extends Window_Selectable {
     }
   }
 
-  needsNumber() {
+  needsNumber(): boolean {
     if (this._category === 'keyItem') {
       return $dataSystem.optKeyItemsNumber
     }
@@ -70,50 +75,50 @@ export class Window_ItemList extends Window_Selectable {
     }
   }
 
-  isEnabled(item) {
+  isEnabled(item?: MZ.GeneralItem | null): boolean {
     return $gameParty.canUse(item)
   }
 
-  makeItemList() {
-    this._data = $gameParty.allItems().filter(item => this.includes(item))
+  makeItemList(): void {
+    this._data = $gameParty.allItems().filter((item): item is Item => this.includes(item))
     if (this.includes(null)) {
       this._data.push(null)
     }
   }
 
-  selectLast() {
-    const index = this._data.indexOf($gameParty.lastItem())
+  selectLast(): void {
+    const index = this._data.indexOf($gameParty.lastItem() as Item)
     this.forceSelect(index >= 0 ? index : 0)
   }
 
-  drawItem(index) {
+  drawItem(index: number): void {
     const item = this.itemAt(index)
     if (item) {
       const numberWidth = this.numberWidth()
       const rect = this.itemLineRect(index)
       this.changePaintOpacity(this.isEnabled(item))
-      this.drawItemName(item, rect.x, rect.y, rect.width - numberWidth)
+      this.drawItemName(item as MZ.Item, rect.x, rect.y, rect.width - numberWidth)
       this.drawItemNumber(item, rect.x, rect.y, rect.width)
-      this.changePaintOpacity(1)
+      this.changePaintOpacity(true)
     }
   }
 
-  numberWidth() {
+  numberWidth(): number {
     return this.textWidth('000')
   }
 
-  drawItemNumber(item, x, y, width) {
+  drawItemNumber(item: MZ.GeneralItem, x: number, y: number, width: number): void {
     if (this.needsNumber()) {
       this.drawText(':', x, y, width - this.textWidth('00'), 'right')
-      this.drawText($gameParty.numItems(item), x, y, width, 'right')
+      this.drawText(String($gameParty.numItems(item as MZ.EquipOrItem)), x, y, width, 'right')
     }
   }
 
-  updateHelp() {
+  updateHelp(): void {
     this.setHelpWindowItem(this.item())
   }
 
-  refresh() {
+  refresh(): void {
     this.makeItemList()
     super.refresh()
   }

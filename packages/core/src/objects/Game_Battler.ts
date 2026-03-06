@@ -41,6 +41,8 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
 
   abstract index(): number
 
+  abstract name(): string
+
   initMembers(): void {
     super.initMembers()
     this._actions = []
@@ -550,7 +552,7 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
     }
   }
 
-  useItem(item: MZ.GeneralItem): void {
+  useItem(item: MZ.GeneralItem | null): void {
     if (DataManager.isSkill(item)) {
       this.paySkillCost(item)
     }

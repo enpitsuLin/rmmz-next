@@ -558,7 +558,7 @@ export class Scene_Battle extends Scene_Message {
   }
 
   onSkillOk(): void {
-    const skill = this._skillWindow.item()
+    const skill = this._skillWindow.item()!
     const action = BattleManager.inputtingAction()
     action?.setSkill(skill.id)
     BattleManager.actor()?.setLastBattleSkill(skill)
@@ -573,7 +573,7 @@ export class Scene_Battle extends Scene_Message {
   }
 
   onItemOk(): void {
-    const item = this._itemWindow.item()
+    const item = this._itemWindow.item()!
     const action = BattleManager.inputtingAction()
     action?.setItem(item.id)
     $gameParty.setLastItem(item)

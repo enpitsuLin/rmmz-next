@@ -1,6 +1,9 @@
-import type { ColorManager } from '../managers/ColorManager'
-import type { DataManager } from '../managers/DataManager'
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Rectangle } from '../core'
+import type { Game_Actor } from '../objects/Game_Actor'
 import { Input, TouchInput } from '../core'
+import { ColorManager } from '../managers/ColorManager'
+import { DataManager } from '../managers/DataManager'
 import { TextManager } from '../managers/TextManager'
 import { Window_StatusBase } from './Window_StatusBase'
 
@@ -11,14 +14,17 @@ import { Window_StatusBase } from './Window_StatusBase'
  * equipment on the shop screen.
  */
 export class Window_ShopStatus extends Window_StatusBase {
-  constructor(rect) {
+  _item: MZ.EquipOrItem | null
+  _pageIndex: number
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this._item = null
     this._pageIndex = 0
     this.refresh()
   }
 
-  refresh() {
+  refresh(): void {
     this.contents.clear()
     if (this._item) {
       const x = this.itemPadding()
@@ -30,25 +36,25 @@ export class Window_ShopStatus extends Window_StatusBase {
     }
   }
 
-  setItem(item) {
+  setItem(item: MZ.EquipOrItem | null): void {
     this._item = item
     this.refresh()
   }
 
-  isEquipItem() {
+  isEquipItem(): boolean {
     return DataManager.isWeapon(this._item) || DataManager.isArmor(this._item)
   }
 
-  drawPossession(x, y) {
+  drawPossession(x: number, y: number): void {
     const width = this.innerWidth - this.itemPadding() - x
     const possessionWidth = this.textWidth('0000')
     this.changeTextColor(ColorManager.systemColor())
     this.drawText(TextManager.possession, x, y, width - possessionWidth)
     this.resetTextColor()
-    this.drawText($gameParty.numItems(this._item), x, y, width, 'right')
+    this.drawText(String($gameParty.numItems(this._item)), x, y, width, 'right')
   }
 
-  drawEquipInfo(x, y) {
+  drawEquipInfo(x: number, y: number): void {
     const members = this.statusMembers()
     for (let i = 0; i < members.length; i++) {
       const actorY = y + Math.floor(this.lineHeight() * i * 2.2)
@@ -56,48 +62,49 @@ export class Window_ShopStatus extends Window_StatusBase {
     }
   }
 
-  statusMembers() {
+  statusMembers(): Game_Actor[] {
     const start = this._pageIndex * this.pageSize()
     const end = start + this.pageSize()
     return $gameParty.members().slice(start, end)
   }
 
-  pageSize() {
+  pageSize(): number {
     return 4
   }
 
-  maxPages() {
+  maxPages(): number {
     return Math.floor(($gameParty.size() + this.pageSize() - 1) / this.pageSize())
   }
 
-  drawActorEquipInfo(x, y, actor) {
-    const item1 = this.currentEquippedItem(actor, this._item.etypeId)
+  drawActorEquipInfo(x: number, y: number, actor: Game_Actor): void {
+    const item1 = this.currentEquippedItem(actor, (this._item as MZ.Armor | MZ.Weapon).etypeId)
     const width = this.innerWidth - x - this.itemPadding()
-    const enabled = actor.canEquip(this._item)
+    const enabled = actor.canEquip(this._item as MZ.EquipOrItem)
     this.changePaintOpacity(enabled)
     this.resetTextColor()
     this.drawText(actor.name(), x, y, width)
     if (enabled) {
       this.drawActorParamChange(x, y, actor, item1)
     }
-    this.drawItemName(item1, x, y + this.lineHeight(), width)
+    this.drawItemName(item1 as unknown as MZ.Item ?? undefined, x, y + this.lineHeight(), width)
     this.changePaintOpacity(true)
   }
 
-  drawActorParamChange(x, y, actor, item1) {
+  drawActorParamChange(x: number, y: number, actor: Game_Actor, item1: MZ.Armor | MZ.Weapon | null): void {
     const width = this.innerWidth - this.itemPadding() - x
     const paramId = this.paramId()
-    const change = this._item.params[paramId] - (item1 ? item1.params[paramId] : 0)
+    const item = this._item as MZ.Armor | MZ.Weapon
+    const change = item.params[paramId] - (item1 ? item1.params[paramId] : 0)
     this.changeTextColor(ColorManager.paramchangeTextColor(change))
     this.drawText((change > 0 ? '+' : '') + change, x, y, width, 'right')
   }
 
-  paramId() {
+  paramId(): number {
     return DataManager.isWeapon(this._item) ? 2 : 3
   }
 
-  currentEquippedItem(actor, etypeId) {
-    const list = []
+  currentEquippedItem(actor: Game_Actor, etypeId: number): MZ.Armor | MZ.Weapon | null {
+    const list: (MZ.Armor | MZ.Weapon | null)[] = []
     const equips = actor.equips()
     const slots = actor.equipSlots()
     for (let i = 0; i < slots.length; i++) {
@@ -107,7 +114,7 @@ export class Window_ShopStatus extends Window_StatusBase {
     }
     const paramId = this.paramId()
     let worstParam = Number.MAX_VALUE
-    let worstItem = null
+    let worstItem: MZ.Armor | MZ.Weapon | null = null
     for (const item of list) {
       if (item && item.params[paramId] < worstParam) {
         worstParam = item.params[paramId]
@@ -117,22 +124,22 @@ export class Window_ShopStatus extends Window_StatusBase {
     return worstItem
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updatePage()
   }
 
-  updatePage() {
+  updatePage(): void {
     if (this.isPageChangeEnabled() && this.isPageChangeRequested()) {
       this.changePage()
     }
   }
 
-  isPageChangeEnabled() {
+  isPageChangeEnabled(): boolean {
     return this.visible && this.maxPages() >= 2
   }
 
-  isPageChangeRequested() {
+  isPageChangeRequested(): boolean {
     if (Input.isTriggered('shift')) {
       return true
     }
@@ -142,7 +149,7 @@ export class Window_ShopStatus extends Window_StatusBase {
     return false
   }
 
-  changePage() {
+  changePage(): void {
     this._pageIndex = (this._pageIndex + 1) % this.maxPages()
     this.refresh()
     this.playCursorSound()

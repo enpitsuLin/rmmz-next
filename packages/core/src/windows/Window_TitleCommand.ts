@@ -1,3 +1,4 @@
+import type { Rectangle } from '../core'
 import { DataManager } from '../managers/DataManager'
 import { TextManager } from '../managers/TextManager'
 import { Window_Command } from './Window_Command'
@@ -8,35 +9,35 @@ import { Window_Command } from './Window_Command'
  * The window for selecting New Game/Continue on the title screen.
  */
 export class Window_TitleCommand extends Window_Command {
-  constructor(rect) {
+  static _lastCommandSymbol: string | null = null
+
+  static initCommandPosition(): void {
+    this._lastCommandSymbol = null
+  }
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this.openness = 0
     this.selectLast()
   }
 
-  static _lastCommandSymbol = null
-
-  static initCommandPosition() {
-    this._lastCommandSymbol = null
-  }
-
-  makeCommandList() {
+  makeCommandList(): void {
     const continueEnabled = this.isContinueEnabled()
     this.addCommand(TextManager.newGame, 'newGame')
     this.addCommand(TextManager.continue_, 'continue', continueEnabled)
     this.addCommand(TextManager.options, 'options')
   }
 
-  isContinueEnabled() {
+  isContinueEnabled(): boolean {
     return DataManager.isAnySavefileExists()
   }
 
-  processOk() {
+  processOk(): void {
     Window_TitleCommand._lastCommandSymbol = this.currentSymbol()
     super.processOk()
   }
 
-  selectLast() {
+  selectLast(): void {
     if (Window_TitleCommand._lastCommandSymbol) {
       this.selectSymbol(Window_TitleCommand._lastCommandSymbol)
     }

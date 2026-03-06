@@ -1,10 +1,14 @@
 import type { Rectangle } from '../core'
+import { Input } from '../core'
 import { Window_Selectable } from './Window_Selectable'
 
 /**
  * The window for displaying switches and variables on the debug screen.
  */
 export class Window_DebugEdit extends Window_Selectable {
+  _mode: 'switch' | 'variable'
+  _topId: number
+
   constructor(rect: Rectangle.Shape) {
     super(rect)
     this._mode = 'switch'
@@ -12,11 +16,11 @@ export class Window_DebugEdit extends Window_Selectable {
     this.refresh()
   }
 
-  maxItems() {
+  maxItems(): number {
     return 10
   }
 
-  drawItem(index) {
+  drawItem(index: number): void {
     const dataId = this._topId + index
     const idText = `${dataId.padZero(4)}:`
     const idWidth = this.textWidth(idText)
@@ -32,33 +36,33 @@ export class Window_DebugEdit extends Window_Selectable {
     this.drawText(status, rect.x + rect.width, rect.y, statusWidth, 'right')
   }
 
-  itemName(dataId) {
+  itemName(dataId: number): string {
     return this._mode === 'switch' ? $dataSystem.switches[dataId] : $dataSystem.variables[dataId]
   }
 
-  itemStatus(dataId) {
+  itemStatus(dataId: number): string {
     return this._mode === 'switch' ? ($gameSwitches.value(dataId) ? '[ON]' : '[OFF]') : String($gameVariables.value(dataId))
   }
 
-  setMode(mode) {
+  setMode(mode: 'switch' | 'variable'): void {
     if (this._mode !== mode) {
       this._mode = mode
       this.refresh()
     }
   }
 
-  setTopId(id) {
+  setTopId(id: number): void {
     if (this._topId !== id) {
       this._topId = id
       this.refresh()
     }
   }
 
-  currentId() {
+  currentId(): number {
     return this._topId + this.index()
   }
 
-  update() {
+  update(): void {
     super.update()
     if (this.active) {
       if (this._mode === 'switch') {
@@ -70,7 +74,7 @@ export class Window_DebugEdit extends Window_Selectable {
     }
   }
 
-  updateSwitch() {
+  updateSwitch(): void {
     if (Input.isRepeated('ok')) {
       const switchId = this.currentId()
       this.playCursorSound()
@@ -79,7 +83,7 @@ export class Window_DebugEdit extends Window_Selectable {
     }
   }
 
-  updateVariable() {
+  updateVariable(): void {
     const variableId = this.currentId()
     const value = $gameVariables.value(variableId)
     if (typeof value === 'number') {
@@ -92,7 +96,7 @@ export class Window_DebugEdit extends Window_Selectable {
     }
   }
 
-  deltaForVariable() {
+  deltaForVariable(): number {
     if (Input.isRepeated('right')) {
       return 1
     }

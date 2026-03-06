@@ -40,7 +40,6 @@ export class Scene_Title extends Scene_Base {
     this.startFadeIn(this.fadeSpeed(), false)
   }
 
-  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
   update(): void {
     if (!this.isBusy()) {
       this._commandWindow.open()

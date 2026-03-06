@@ -1,4 +1,7 @@
-import { TextManager } from '../managers/TextManager'
+import type { MZ } from '@rmmz-lib/database-types'
+import { Input, Rectangle } from '../core'
+import { ConfigManager, TextManager } from '../managers'
+import { Sprite_Button } from '../sprites/Sprite_Button'
 import { Window_Selectable } from './Window_Selectable'
 
 /**
@@ -8,7 +11,14 @@ import { Window_Selectable } from './Window_Selectable'
  * screen.
  */
 export class Window_ShopNumber extends Window_Selectable {
-  constructor(rect) {
+  _item: MZ.EquipOrItem | null
+  _max: number
+  _price: number
+  _number: number
+  _currencyUnit: string
+  _buttons: Sprite_Button[] = []
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this._item = null
     this._max = 1
@@ -20,15 +30,15 @@ export class Window_ShopNumber extends Window_Selectable {
     this._canRepeat = false
   }
 
-  isScrollEnabled() {
+  isScrollEnabled(): boolean {
     return false
   }
 
-  number() {
+  number(): number {
     return this._number
   }
 
-  setup(item, max, price) {
+  setup(item: MZ.EquipOrItem | null, max: number, price: number): void {
     this._item = item
     this._max = Math.floor(max)
     this._price = price
@@ -37,12 +47,12 @@ export class Window_ShopNumber extends Window_Selectable {
     this.refresh()
   }
 
-  setCurrencyUnit(currencyUnit) {
+  setCurrencyUnit(currencyUnit: string): void {
     this._currencyUnit = currencyUnit
     this.refresh()
   }
 
-  createButtons() {
+  createButtons(): void {
     this._buttons = []
     if (ConfigManager.touchUI) {
       for (const type of ['down2', 'down', 'up', 'up2', 'ok']) {
@@ -58,7 +68,7 @@ export class Window_ShopNumber extends Window_Selectable {
     }
   }
 
-  placeButtons() {
+  placeButtons(): void {
     const sp = this.buttonSpacing()
     const totalWidth = this.totalButtonWidth()
     let x = (this.innerWidth - totalWidth) / 2
@@ -69,16 +79,16 @@ export class Window_ShopNumber extends Window_Selectable {
     }
   }
 
-  totalButtonWidth() {
+  totalButtonWidth(): number {
     const sp = this.buttonSpacing()
     return this._buttons.reduce((r, button) => r + button.width + sp, -sp)
   }
 
-  buttonSpacing() {
+  buttonSpacing(): number {
     return 8
   }
 
-  refresh() {
+  refresh(): void {
     super.refresh()
     this.drawItemBackground(0)
     this.drawCurrentItemName()
@@ -88,15 +98,15 @@ export class Window_ShopNumber extends Window_Selectable {
     this.drawTotalPrice()
   }
 
-  drawCurrentItemName() {
+  drawCurrentItemName(): void {
     const padding = this.itemPadding()
     const x = padding * 2
     const y = this.itemNameY()
     const width = this.multiplicationSignX() - padding * 3
-    this.drawItemName(this._item, x, y, width)
+    this.drawItemName(this._item as MZ.Item ?? undefined, x, y, width)
   }
 
-  drawMultiplicationSign() {
+  drawMultiplicationSign(): void {
     const sign = this.multiplicationSign()
     const width = this.textWidth(sign)
     const x = this.multiplicationSignX()
@@ -105,25 +115,25 @@ export class Window_ShopNumber extends Window_Selectable {
     this.drawText(sign, x, y, width)
   }
 
-  multiplicationSign() {
+  multiplicationSign(): string {
     return '\u00D7'
   }
 
-  multiplicationSignX() {
+  multiplicationSignX(): number {
     const sign = this.multiplicationSign()
     const width = this.textWidth(sign)
     return this.cursorX() - width * 2
   }
 
-  drawNumber() {
+  drawNumber(): void {
     const x = this.cursorX()
     const y = this.itemNameY()
     const width = this.cursorWidth() - this.itemPadding()
     this.resetTextColor()
-    this.drawText(this._number, x, y, width, 'right')
+    this.drawText(String(this._number), x, y, width, 'right')
   }
 
-  drawHorzLine() {
+  drawHorzLine(): void {
     const padding = this.itemPadding()
     const lineHeight = this.lineHeight()
     const itemY = this.itemNameY()
@@ -134,51 +144,51 @@ export class Window_ShopNumber extends Window_Selectable {
     this.drawRect(x, y, width, 5)
   }
 
-  drawTotalPrice() {
+  drawTotalPrice(): void {
     const padding = this.itemPadding()
     const total = this._price * this._number
     const width = this.innerWidth - padding * 2
     const y = this.totalPriceY()
-    this.drawCurrencyValue(total, this._currencyUnit, 0, y, width)
+    this.drawCurrencyValue(String(total), this._currencyUnit, 0, y, width)
   }
 
-  itemNameY() {
+  itemNameY(): number {
     return Math.floor(this.innerHeight / 2 - this.lineHeight() * 1.5)
   }
 
-  totalPriceY() {
+  totalPriceY(): number {
     return Math.floor(this.itemNameY() + this.lineHeight() * 2)
   }
 
-  buttonY() {
+  buttonY(): number {
     return Math.floor(this.totalPriceY() + this.lineHeight() * 2)
   }
 
-  cursorWidth() {
+  cursorWidth(): number {
     const padding = this.itemPadding()
     const digitWidth = this.textWidth('0')
     return this.maxDigits() * digitWidth + padding * 2
   }
 
-  cursorX() {
+  cursorX(): number {
     const padding = this.itemPadding()
     return this.innerWidth - this.cursorWidth() - padding * 2
   }
 
-  maxDigits() {
+  maxDigits(): number {
     return 2
   }
 
-  update() {
+  update(): void {
     super.update()
     this.processNumberChange()
   }
 
-  playOkSound() {
+  playOkSound(): void {
     // empty method body
   }
 
-  processNumberChange() {
+  processNumberChange(): void {
     if (this.isOpenAndActive()) {
       if (Input.isRepeated('right')) {
         this.changeNumber(1)
@@ -195,7 +205,7 @@ export class Window_ShopNumber extends Window_Selectable {
     }
   }
 
-  changeNumber(amount) {
+  changeNumber(amount: number): void {
     const lastNumber = this._number
     this._number = (this._number + amount).clamp(1, this._max)
     if (this._number !== lastNumber) {
@@ -204,7 +214,7 @@ export class Window_ShopNumber extends Window_Selectable {
     }
   }
 
-  itemRect() {
+  itemRect(): Rectangle {
     const rect = new Rectangle()
     rect.x = this.cursorX()
     rect.y = this.itemNameY()
@@ -213,27 +223,27 @@ export class Window_ShopNumber extends Window_Selectable {
     return rect
   }
 
-  isTouchOkEnabled() {
+  isTouchOkEnabled(): boolean {
     return false
   }
 
-  onButtonUp() {
+  onButtonUp(): void {
     this.changeNumber(1)
   }
 
-  onButtonUp2() {
+  onButtonUp2(): void {
     this.changeNumber(10)
   }
 
-  onButtonDown() {
+  onButtonDown(): void {
     this.changeNumber(-1)
   }
 
-  onButtonDown2() {
+  onButtonDown2(): void {
     this.changeNumber(-10)
   }
 
-  onButtonOk() {
+  onButtonOk(): void {
     this.processOk()
   }
 }

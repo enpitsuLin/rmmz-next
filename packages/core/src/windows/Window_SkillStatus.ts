@@ -1,3 +1,5 @@
+import type { Rectangle } from '../core'
+import type { Game_Actor } from '../objects/Game_Actor'
 import { Window_StatusBase } from './Window_StatusBase'
 
 /**
@@ -6,19 +8,21 @@ import { Window_StatusBase } from './Window_StatusBase'
  * The window for displaying the skill user's status on the skill screen.
  */
 export class Window_SkillStatus extends Window_StatusBase {
-  constructor(rect) {
+  _actor: Game_Actor | null
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this._actor = null
   }
 
-  setActor(actor) {
+  setActor(actor: Game_Actor): void {
     if (this._actor !== actor) {
       this._actor = actor
       this.refresh()
     }
   }
 
-  refresh() {
+  refresh(): void {
     super.refresh()
     if (this._actor) {
       const x = this.colSpacing() / 2

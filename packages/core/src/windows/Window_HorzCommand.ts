@@ -1,3 +1,4 @@
+import type { Rectangle } from '../core'
 import { Window_Command } from './Window_Command'
 
 /**
@@ -6,15 +7,15 @@ import { Window_Command } from './Window_Command'
  * The command window for the horizontal selection format.
  */
 export class Window_HorzCommand extends Window_Command {
-  constructor(rect) {
+  constructor(rect: Rectangle.Shape) {
     super(rect)
   }
 
-  maxCols() {
+  maxCols(): number {
     return 4
   }
 
-  itemTextAlign() {
+  itemTextAlign(): CanvasTextAlign {
     return 'center'
   }
 }

@@ -1,3 +1,6 @@
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Game_Actor, Game_Battler } from '../objects'
+import type { Window_Selectable } from '../windows'
 import { Graphics, Rectangle } from '../core'
 import { SceneManager } from '../managers/SceneManager'
 import { SoundManager } from '../managers/SoundManager'
@@ -11,8 +14,11 @@ import { Scene_MenuBase } from './Scene_MenuBase'
  /*
  /* The superclass of Scene_Item and Scene_Skill.
  */
-export class Scene_ItemBase extends Scene_MenuBase {
+export abstract class Scene_ItemBase extends Scene_MenuBase {
   _actorWindow!: Window_MenuActor
+  abstract _itemWindow: Window_Selectable
+  abstract user(): Game_Battler
+  abstract playSeForItem(): void
 
   constructor() {
     super()
@@ -38,12 +44,8 @@ export class Scene_ItemBase extends Scene_MenuBase {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  item() {
-    return this._itemWindow.item()
-  }
-
-  user(): Game_Actor | null {
-    return null
+  item(): MZ.GeneralItem | null {
+    return this._itemWindow.item!()
   }
 
   isCursorLeft(): boolean {

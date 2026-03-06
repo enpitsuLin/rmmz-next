@@ -1,3 +1,4 @@
+import type { Rectangle } from '../core'
 import { Window_Selectable } from './Window_Selectable'
 
 /**
@@ -6,63 +7,67 @@ import { Window_Selectable } from './Window_Selectable'
  * The superclass of windows for selecting a command.
  */
 export class Window_Command extends Window_Selectable {
-  constructor(rect) {
+  _list!: Window_Command.CommandItem[]
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this.refresh()
     this.select(0)
     this.activate()
   }
 
-  maxItems() {
+  maxItems(): number {
     return this._list.length
   }
 
-  clearCommandList() {
+  clearCommandList(): void {
     this._list = []
   }
 
-  makeCommandList() {
+  makeCommandList(): void {
     //
   }
 
-  // prettier-ignore
-  addCommand(name, symbol, enabled = true, ext = null) {
+  addCommand(name: string, symbol: string, enabled: boolean = true, ext: number | null = null): void {
     this._list.push({ name, symbol, enabled, ext })
   }
 
-  commandName(index) {
+  commandName(index: number): string {
     return this._list[index].name
   }
 
-  commandSymbol(index) {
+  commandSymbol(index: number): string {
     return this._list[index].symbol
   }
 
-  isCommandEnabled(index) {
+  isCommandEnabled(index: number): boolean {
     return this._list[index].enabled
   }
 
-  currentData() {
+  currentData(): Window_Command.CommandItem | null {
     return this.index() >= 0 ? this._list[this.index()] : null
   }
 
-  isCurrentItemEnabled() {
-    return this.currentData() ? this.currentData().enabled : false
+  isCurrentItemEnabled(): boolean {
+    const data = this.currentData()
+    return data ? data.enabled : false
   }
 
-  currentSymbol() {
-    return this.currentData() ? this.currentData().symbol : null
+  currentSymbol(): string | null {
+    const data = this.currentData()
+    return data ? data.symbol : null
   }
 
-  currentExt() {
-    return this.currentData() ? this.currentData().ext : null
+  currentExt(): number | null {
+    const data = this.currentData()
+    return data ? data.ext : null
   }
 
-  findSymbol(symbol) {
+  findSymbol(symbol: string): number {
     return this._list.findIndex(item => item.symbol === symbol)
   }
 
-  selectSymbol(symbol) {
+  selectSymbol(symbol: string): void {
     const index = this.findSymbol(symbol)
     if (index >= 0) {
       this.forceSelect(index)
@@ -72,11 +77,11 @@ export class Window_Command extends Window_Selectable {
     }
   }
 
-  findExt(ext) {
+  findExt(ext: number): number {
     return this._list.findIndex(item => item.ext === ext)
   }
 
-  selectExt(ext) {
+  selectExt(ext: number): void {
     const index = this.findExt(ext)
     if (index >= 0) {
       this.forceSelect(index)
@@ -86,7 +91,7 @@ export class Window_Command extends Window_Selectable {
     }
   }
 
-  drawItem(index) {
+  drawItem(index: number): void {
     const rect = this.itemLineRect(index)
     const align = this.itemTextAlign()
     this.resetTextColor()
@@ -94,17 +99,17 @@ export class Window_Command extends Window_Selectable {
     this.drawText(this.commandName(index), rect.x, rect.y, rect.width, align)
   }
 
-  itemTextAlign() {
+  itemTextAlign(): CanvasTextAlign {
     return 'center'
   }
 
-  isOkEnabled() {
+  isOkEnabled(): boolean {
     return true
   }
 
-  callOkHandler() {
+  callOkHandler(): void {
     const symbol = this.currentSymbol()
-    if (this.isHandled(symbol)) {
+    if (symbol !== null && this.isHandled(symbol)) {
       this.callHandler(symbol)
     }
     else if (this.isHandled('ok')) {
@@ -115,9 +120,18 @@ export class Window_Command extends Window_Selectable {
     }
   }
 
-  refresh() {
+  refresh(): void {
     this.clearCommandList()
     this.makeCommandList()
     super.refresh()
+  }
+}
+
+export namespace Window_Command {
+  export interface CommandItem {
+    name: string
+    symbol: string
+    enabled: boolean
+    ext: number | null
   }
 }

@@ -97,8 +97,7 @@ export class Sprite extends PIXI.Sprite {
     }
   }
 
-  destroy(): void {
-    const options: PIXI.IDestroyOptions = { children: true, texture: true }
+  destroy(options: PIXI.IDestroyOptions = { children: true, texture: true }): void {
     super.destroy(options)
   }
 

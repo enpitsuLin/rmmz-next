@@ -391,7 +391,7 @@ export class Bitmap {
    * @param {string} color2 - The gradient ending color.
    * @param {boolean} vertical - True for a vertical gradient, false for horizontal.
    */
-  gradientFillRect(x: number, y: number, width: number, height: number, color1: string, color2: string, vertical: boolean): void {
+  gradientFillRect(x: number, y: number, width: number, height: number, color1: string, color2: string, vertical = false): void {
     const context = this.context
     const x1 = vertical ? x : x + width
     const y1 = vertical ? y + height : y

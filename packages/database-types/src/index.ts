@@ -279,6 +279,8 @@ export declare namespace MZ {
   }
 
   interface System {
+    /** 显示启动画面 */
+    optSplashScreen: boolean
     iconSize?: number
     faceSize?: number
     // title

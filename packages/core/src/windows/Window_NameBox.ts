@@ -1,3 +1,4 @@
+import type { Window_Message } from './Window_Message'
 import { Graphics, Rectangle } from '../core'
 import { Window_Base } from './Window_Base'
 
@@ -7,40 +8,44 @@ import { Window_Base } from './Window_Base'
  * The window for displaying a speaker name above the message window.
  */
 export class Window_NameBox extends Window_Base {
+  _name: string
+  _messageWindow: Window_Message | null
+
   constructor(rect?: Rectangle) {
     rect = rect || new Rectangle()
     super(rect)
 
     this.openness = 0
     this._name = ''
+    this._messageWindow = null
   }
 
-  setMessageWindow(messageWindow) {
+  setMessageWindow(messageWindow: Window_Message): void {
     this._messageWindow = messageWindow
   }
 
-  setName(name) {
+  setName(name: string): void {
     if (this._name !== name) {
       this._name = name
       this.refresh()
     }
   }
 
-  clear() {
+  clear(): void {
     this.setName('')
   }
 
-  start() {
+  start(): void {
     this.updatePlacement()
     this.updateBackground()
     this.createContents()
     this.refresh()
   }
 
-  updatePlacement() {
+  updatePlacement(): void {
     this.width = this.windowWidth()
     this.height = this.windowHeight()
-    const messageWindow = this._messageWindow
+    const messageWindow = this._messageWindow!
     if ($gameMessage.isRTL()) {
       this.x = messageWindow.x + messageWindow.width - this.width
     }
@@ -55,11 +60,11 @@ export class Window_NameBox extends Window_Base {
     }
   }
 
-  updateBackground() {
+  updateBackground(): void {
     this.setBackgroundType($gameMessage.background())
   }
 
-  windowWidth() {
+  windowWidth(): number {
     if (this._name) {
       const textWidth = this.textSizeEx(this._name).width
       const padding = this.padding + this.itemPadding()
@@ -71,11 +76,11 @@ export class Window_NameBox extends Window_Base {
     }
   }
 
-  windowHeight() {
+  windowHeight(): number {
     return this.fittingHeight(1)
   }
 
-  refresh() {
+  refresh(): void {
     const rect = this.baseTextRect()
     this.contents.clear()
     this.drawTextEx(this._name, rect.x, rect.y, rect.width)

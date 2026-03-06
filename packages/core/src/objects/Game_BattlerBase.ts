@@ -818,7 +818,7 @@ class Game_BattlerBase<T extends MZ.TraitObject> {
     return this.meetsUsableItemConditions(item) && $gameParty.hasItem(item)
   }
 
-  canUse(item: MZ.Item | MZ.Skill): boolean {
+  canUse(item?: MZ.GeneralItem | null): item is MZ.UsableItem {
     if (!item) {
       return false
     }

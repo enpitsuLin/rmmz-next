@@ -1,3 +1,4 @@
+import type { PIXI } from '..'
 import type { ColorManager } from '../managers'
 import { Bitmap, Sprite } from '../core'
 
@@ -19,7 +20,7 @@ export class Sprite_Name extends Sprite {
     this._textColor = ''
   }
 
-  destroy(options) {
+  destroy(options: PIXI.IDestroyOptions = { children: true, texture: true }): void {
     this.bitmap.destroy()
     super.destroy(options)
   }
@@ -57,7 +58,7 @@ export class Sprite_Name extends Sprite {
   }
 
   updateBitmap() {
-    const name = this.name()
+    const name = this.name
     const color = this.textColor()
     if (name !== this._name || color !== this._textColor) {
       this._name = name
@@ -66,7 +67,7 @@ export class Sprite_Name extends Sprite {
     }
   }
 
-  name() {
+  get name(): string {
     return this._battler ? this._battler.name() : ''
   }
 
@@ -83,7 +84,7 @@ export class Sprite_Name extends Sprite {
   }
 
   redraw() {
-    const name = this.name()
+    const name = this.name
     const width = this.bitmapWidth()
     const height = this.bitmapHeight()
     this.setupFont()

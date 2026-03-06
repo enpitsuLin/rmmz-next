@@ -1,3 +1,4 @@
+import type { Game_Actor } from '../objects'
 import { Rectangle } from '../core'
 import { ColorManager, ImageManager } from '../managers'
 import { Window_StatusBase } from './Window_StatusBase'
@@ -8,17 +9,23 @@ import { Window_StatusBase } from './Window_StatusBase'
  * The window for editing an actor's name on the name input screen.
  */
 export class Window_NameEdit extends Window_StatusBase {
-  constructor(rect) {
+  _actor: Game_Actor | null
+  _maxLength: number
+  _name: string
+  _index: number
+  _defaultName: string
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this._actor = null
     this._maxLength = 0
     this._name = ''
     this._index = 0
-    this._defaultName = 0
+    this._defaultName = ''
     this.deactivate()
   }
 
-  setup(actor, maxLength) {
+  setup(actor: Game_Actor, maxLength: number): void {
     this._actor = actor
     this._maxLength = maxLength
     this._name = actor.name().slice(0, this._maxLength)
@@ -27,18 +34,18 @@ export class Window_NameEdit extends Window_StatusBase {
     ImageManager.loadFace(actor.faceName())
   }
 
-  name() {
+  get name(): string {
     return this._name
   }
 
-  restoreDefault() {
+  restoreDefault(): boolean {
     this._name = this._defaultName
     this._index = this._name.length
     this.refresh()
     return this._name.length > 0
   }
 
-  add(ch) {
+  add(ch: string): boolean {
     if (this._index < this._maxLength) {
       this._name += ch
       this._index++
@@ -50,7 +57,7 @@ export class Window_NameEdit extends Window_StatusBase {
     }
   }
 
-  back() {
+  back(): boolean {
     if (this._index > 0) {
       this._index--
       this._name = this._name.slice(0, this._index)
@@ -62,22 +69,22 @@ export class Window_NameEdit extends Window_StatusBase {
     }
   }
 
-  faceWidth() {
+  faceWidth(): number {
     return 144
   }
 
-  charWidth() {
+  charWidth(): number {
     const text = $gameSystem.isJapanese() ? '\uFF21' : 'A'
     return this.textWidth(text)
   }
 
-  left() {
+  left(): number {
     const nameCenter = (this.innerWidth + this.faceWidth()) / 2
     const nameWidth = (this._maxLength + 1) * this.charWidth()
     return Math.min(nameCenter - nameWidth / 2, this.innerWidth - nameWidth)
   }
 
-  itemRect(index) {
+  itemRect(index: number): Rectangle {
     const x = this.left() + index * this.charWidth()
     const y = 54
     const width = this.charWidth()
@@ -85,7 +92,7 @@ export class Window_NameEdit extends Window_StatusBase {
     return new Rectangle(x, y, width, height)
   }
 
-  underlineRect(index) {
+  underlineRect(index: number): Rectangle {
     const rect = this.itemRect(index)
     rect.x++
     rect.y += rect.height - 4
@@ -94,11 +101,11 @@ export class Window_NameEdit extends Window_StatusBase {
     return rect
   }
 
-  underlineColor() {
+  underlineColor(): string {
     return ColorManager.normalColor()
   }
 
-  drawUnderline(index) {
+  drawUnderline(index: number): void {
     const rect = this.underlineRect(index)
     const color = this.underlineColor()
     this.contents.paintOpacity = 48
@@ -106,15 +113,15 @@ export class Window_NameEdit extends Window_StatusBase {
     this.contents.paintOpacity = 255
   }
 
-  drawChar(index) {
+  drawChar(index: number): void {
     const rect = this.itemRect(index)
     this.resetTextColor()
-    this.drawText(this._name[index] || '', rect.x, rect.y)
+    this.drawText(this._name[index] || '', rect.x, rect.y, rect.width)
   }
 
-  refresh() {
+  refresh(): void {
     this.contents.clear()
-    this.drawActorFace(this._actor, 0, 0)
+    this.drawActorFace(this._actor!, 0, 0)
     for (let i = 0; i < this._maxLength; i++) {
       this.drawUnderline(i)
     }

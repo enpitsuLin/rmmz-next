@@ -1,3 +1,4 @@
+import type { Rectangle } from '../core'
 import { TextManager } from '../managers'
 import { Window_Selectable } from './Window_Selectable'
 
@@ -7,33 +8,33 @@ import { Window_Selectable } from './Window_Selectable'
  * The window for displaying the party's gold.
  */
 export class Window_Gold extends Window_Selectable {
-  constructor(rect) {
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this.refresh()
   }
 
-  colSpacing() {
+  colSpacing(): number {
     return 0
   }
 
-  refresh() {
+  refresh(): void {
     const rect = this.itemLineRect(0)
     const x = rect.x
     const y = rect.y
     const width = rect.width
     this.contents.clear()
-    this.drawCurrencyValue(this.value(), this.currencyUnit(), x, y, width)
+    this.drawCurrencyValue(String(this.value()), this.currencyUnit(), x, y, width)
   }
 
-  value() {
+  value(): number {
     return $gameParty.gold()
   }
 
-  currencyUnit() {
+  currencyUnit(): string {
     return TextManager.currencyUnit
   }
 
-  open() {
+  open(): void {
     this.refresh()
     super.open()
   }

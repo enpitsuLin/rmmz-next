@@ -1,3 +1,5 @@
+import type { Rectangle } from '../core'
+import type { Window_ItemList } from './Window_ItemList'
 import { TextManager } from '../managers'
 import { Window_HorzCommand } from './Window_HorzCommand'
 
@@ -7,22 +9,24 @@ import { Window_HorzCommand } from './Window_HorzCommand'
  * The window for selecting a category of items on the item and shop screens.
  */
 export class Window_ItemCategory extends Window_HorzCommand {
-  constructor(rect) {
+  _itemWindow: Window_ItemList | null = null
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
   }
 
-  maxCols() {
+  maxCols(): number {
     return 4
   }
 
-  update() {
+  update(): void {
     super.update()
     if (this._itemWindow) {
       this._itemWindow.setCategory(this.currentSymbol())
     }
   }
 
-  makeCommandList() {
+  makeCommandList(): void {
     if (this.needsCommand('item')) {
       this.addCommand(TextManager.item, 'item')
     }
@@ -37,7 +41,7 @@ export class Window_ItemCategory extends Window_HorzCommand {
     }
   }
 
-  needsCommand(name) {
+  needsCommand(name: string): boolean {
     const table = ['item', 'weapon', 'armor', 'keyItem']
     const index = table.indexOf(name)
     if (index >= 0) {
@@ -46,11 +50,11 @@ export class Window_ItemCategory extends Window_HorzCommand {
     return true
   }
 
-  setItemWindow(itemWindow) {
+  setItemWindow(itemWindow: Window_ItemList): void {
     this._itemWindow = itemWindow
   }
 
-  needsSelection() {
+  needsSelection(): boolean {
     return this.maxItems() >= 2
   }
 }

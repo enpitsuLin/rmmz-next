@@ -1,3 +1,4 @@
+import type { Game_Actor } from '../objects'
 import { Graphics, Rectangle } from '../core'
 import { SoundManager } from '../managers/SoundManager'
 import { Window_SkillList, Window_SkillStatus, Window_SkillType } from '../windows'

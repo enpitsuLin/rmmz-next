@@ -1,3 +1,5 @@
+import type { Rectangle } from '../core'
+import { ColorManager } from '../managers'
 import { Window_Base } from './Window_Base'
 
 /**
@@ -6,7 +8,9 @@ import { Window_Base } from './Window_Base'
  * The window for displaying the map name on the map screen.
  */
 export class Window_MapName extends Window_Base {
-  constructor(rect) {
+  _showCount: number
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this.opacity = 0
     this.contentsOpacity = 0
@@ -14,7 +18,7 @@ export class Window_MapName extends Window_Base {
     this.refresh()
   }
 
-  update() {
+  update(): void {
     super.update()
     if (this._showCount > 0 && $gameMap.isNameDisplayEnabled()) {
       this.updateFadeIn()
@@ -25,24 +29,24 @@ export class Window_MapName extends Window_Base {
     }
   }
 
-  updateFadeIn() {
+  updateFadeIn(): void {
     this.contentsOpacity += 16
   }
 
-  updateFadeOut() {
+  updateFadeOut(): void {
     this.contentsOpacity -= 16
   }
 
-  open() {
+  open(): void {
     this.refresh()
     this._showCount = 150
   }
 
-  close() {
+  close(): void {
     this._showCount = 0
   }
 
-  refresh() {
+  refresh(): void {
     this.contents.clear()
     if ($gameMap.displayName()) {
       const width = this.innerWidth
@@ -51,7 +55,7 @@ export class Window_MapName extends Window_Base {
     }
   }
 
-  drawBackground(x, y, width, height) {
+  drawBackground(x: number, y: number, width: number, height: number): void {
     const color1 = ColorManager.dimColor1()
     const color2 = ColorManager.dimColor2()
     const half = width / 2

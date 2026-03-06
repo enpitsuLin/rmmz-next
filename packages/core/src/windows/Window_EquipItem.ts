@@ -1,5 +1,7 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
+import type { Game_Actor } from '../objects'
+import type { Window_EquipStatus } from './Window_EquipStatus'
 import { JsonEx } from '../core'
 import { Window_ItemList } from './Window_ItemList'
 
@@ -8,22 +10,26 @@ import { Window_ItemList } from './Window_ItemList'
  *
  * The window for selecting an equipment item on the equipment screen.
  */
-export class Window_EquipItem extends Window_ItemList {
-  constructor(rect: Rectangle) {
+export class Window_EquipItem extends Window_ItemList<MZ.Equip> {
+  _actor: Game_Actor | null
+  _slotId: number
+  _statusWindow: Window_EquipStatus | null = null
+
+  constructor(rect: Rectangle.Shape) {
     super(rect)
     this._actor = null
     this._slotId = 0
   }
 
-  maxCols() {
+  maxCols(): number {
     return 1
   }
 
-  colSpacing() {
+  colSpacing(): number {
     return 8
   }
 
-  setActor(actor) {
+  setActor(actor: Game_Actor | null): void {
     if (this._actor !== actor) {
       this._actor = actor
       this.refresh()
@@ -31,7 +37,7 @@ export class Window_EquipItem extends Window_ItemList {
     }
   }
 
-  setSlotId(slotId) {
+  setSlotId(slotId: number): void {
     if (this._slotId !== slotId) {
       this._slotId = slotId
       this.refresh()
@@ -39,25 +45,25 @@ export class Window_EquipItem extends Window_ItemList {
     }
   }
 
-  includes(item) {
+  includes(item: MZ.GeneralItem | null): item is MZ.Equip {
     if (item === null) {
       return true
     }
     return (
-      this._actor && this._actor.canEquip(item) && item.etypeId === this.etypeId()
+      !!this._actor && this._actor.canEquip(item) && item.etypeId === this.etypeId()
     )
   }
 
-  etypeId() {
+  etypeId(): number {
     if (this._actor && this._slotId >= 0) {
-      return this._actor.equipSlots()[this._slotId]
+      return this._actor.equipSlots()[this._slotId] ?? 0
     }
     else {
       return 0
     }
   }
 
-  isEnabled(_item: MZ.Item | MZ.Skill): boolean {
+  isEnabled(_item: MZ.GeneralItem | null): boolean {
     return true
   }
 
@@ -65,7 +71,7 @@ export class Window_EquipItem extends Window_ItemList {
     // empty method body
   }
 
-  setStatusWindow(statusWindow): void {
+  setStatusWindow(statusWindow: Window_EquipStatus): void {
     this._statusWindow = statusWindow
     this.callUpdateHelp()
   }

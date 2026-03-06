@@ -11,6 +11,8 @@ import { Scene_Map } from './Scene_Map'
  /* The scene class of the load screen.
  */
 export class Scene_Load extends Scene_File {
+  _loadSuccess: boolean
+
   constructor() {
     super()
     this._loadSuccess = false

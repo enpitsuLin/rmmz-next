@@ -33,7 +33,6 @@ export class Scene_Splash extends Scene_Base {
     }
   }
 
-  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
   update(): void {
     super.update()
     if (this.isActive()) {

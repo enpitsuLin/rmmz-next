@@ -1,3 +1,4 @@
+import type { PIXI } from '..'
 import { Bitmap, Sprite } from '../core'
 import { ColorManager, TextManager } from '../managers'
 
@@ -13,7 +14,7 @@ export class Sprite_Gauge extends Sprite {
     this.createBitmap()
   }
 
-  initMembers() {
+  initMembers(): void {
     this._battler = null
     this._statusType = ''
     this._value = Number.NaN
@@ -24,7 +25,7 @@ export class Sprite_Gauge extends Sprite {
     this._flashingCount = 0
   }
 
-  destroy(options) {
+  destroy(options: PIXI.IDestroyOptions) {
     this.bitmap.destroy()
     super.destroy(options)
   }
