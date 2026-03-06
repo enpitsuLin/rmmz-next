@@ -258,20 +258,20 @@ export class DataManager {
     return Utils.isOptionValid('tskip')
   }
 
-  static isSkill(a: MZ.GeneralItem): a is MZ.Skill {
-    return a && $dataSkills.includes(a as MZ.Skill)
+  static isSkill(a?: MZ.GeneralItem | null): a is MZ.Skill {
+    return !!a && $dataSkills.includes(a as MZ.Skill)
   }
 
-  static isItem(a: MZ.GeneralItem): a is MZ.Item {
-    return a && $dataItems.includes(a as MZ.Item)
+  static isItem(a?: MZ.GeneralItem | null): a is MZ.Item {
+    return !!a && $dataItems.includes(a as MZ.Item)
   }
 
-  static isWeapon(a: MZ.GeneralItem): a is MZ.Weapon {
-    return a && $dataWeapons.includes(a as MZ.Weapon)
+  static isWeapon(a?: MZ.GeneralItem | null): a is MZ.Weapon {
+    return !!a && $dataWeapons.includes(a as MZ.Weapon)
   }
 
-  static isArmor(a: MZ.GeneralItem): a is MZ.Armor {
-    return a && $dataArmors.includes(a as MZ.Armor)
+  static isArmor(a?: MZ.GeneralItem | null): a is MZ.Armor {
+    return !!a && $dataArmors.includes(a as MZ.Armor)
   }
 
   static createGameObjects(): void {
