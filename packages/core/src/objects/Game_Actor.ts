@@ -1,3 +1,4 @@
+import type { MZ } from '@rmmz-lib/database-types'
 import { BattleManager, SoundManager, TextManager } from '../managers'
 import { DataManager } from '../managers/DataManager'
 import { Game_Action } from './Game_Action'
@@ -38,7 +39,7 @@ class Game_Actor extends Game_Battler {
     return this._level
   }
 
-  initMembers() {
+  initMembers(): void {
     super.initMembers()
     this._actorId = 0
     this._name = ''
@@ -79,8 +80,8 @@ class Game_Actor extends Game_Battler {
     return this._actorId
   }
 
-  actor() {
-    return $dataActors[this._actorId]
+  actor(): MZ.Actor {
+    return $dataActors[this._actorId]!
   }
 
   name() {

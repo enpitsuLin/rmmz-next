@@ -1,24 +1,7 @@
 /**
- * A JSON-compatible value: primitives, arrays, or plain objects.
- */
-type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue }
-
-/**
- * A record-like structure used during encode/decode traversal.
- */
-type JsonRecord = Record<string, JsonValue>
-
-/**
- * Represents a constructor-like value retrieved from the global scope.
- */
-interface ConstructorRef {
-  prototype: object
-}
-
-/**
  * Checks whether a value is a traversable JSON record (plain object or array).
  */
-function isTraversable(value: unknown): value is JsonRecord {
+function isTraversable(value: unknown): value is JsonEx.JsonRecord {
   const tag = Object.prototype.toString.call(value)
   return tag === '[object Object]' || tag === '[object Array]'
 }
@@ -57,7 +40,7 @@ export class JsonEx {
    * @returns The reconstructed object.
    */
   static parse(json: string): unknown {
-    return this._decode(JSON.parse(json) as JsonValue)
+    return this._decode(JSON.parse(json) as JsonEx.JsonValue)
   }
 
   /**
@@ -82,25 +65,45 @@ export class JsonEx {
         value['@'] = constructorName
       }
       for (const key of Object.keys(value)) {
-        value[key] = this._encode(value[key], depth + 1) as JsonValue
+        value[key] = this._encode(value[key], depth + 1) as JsonEx.JsonValue
       }
     }
     return value
   }
 
-  static _decode(value: JsonValue): unknown {
+  static _decode(value: JsonEx.JsonValue): unknown {
     if (isTraversable(value)) {
       const tag = value['@']
       if (typeof tag === 'string') {
-        const ctor = (window as unknown as Record<string, ConstructorRef | undefined>)[tag]
+        const ctor = (window as unknown as Record<string, JsonEx.ConstructorRef | undefined>)[tag]
         if (ctor) {
           Object.setPrototypeOf(value, ctor.prototype)
         }
       }
       for (const key of Object.keys(value)) {
-        value[key] = this._decode(value[key]) as JsonValue
+        value[key] = this._decode(value[key]) as JsonEx.JsonValue
       }
     }
     return value
+  }
+}
+
+
+export namespace JsonEx {
+  /**
+   * A JSON-compatible value: primitives, arrays, or plain objects.
+   */
+  export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue }
+
+  /**
+   * A record-like structure used during encode/decode traversal.
+   */
+  export type JsonRecord = Record<string, JsonValue>
+
+  /**
+   * Represents a constructor-like value retrieved from the global scope.
+   */
+  export interface ConstructorRef {
+    prototype: object
   }
 }

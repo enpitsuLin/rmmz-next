@@ -549,7 +549,7 @@ export class BattleManager {
       if (!battler) {
         return null
       }
-      if ((battler as Game_Actor | Game_Enemy).isBattleMember() && battler.isAlive()) {
+      if (battler.isBattleMember() && battler.isAlive()) {
         return battler
       }
     }

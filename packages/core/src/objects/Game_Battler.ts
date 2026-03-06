@@ -1,4 +1,9 @@
-import type { EffectType, MotionType } from '../types'
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Game_Enemy } from './Game_Enemy'
+import type { Game_Party } from './Game_Party'
+import type { Game_Troop } from './Game_Troop'
+import type { Game_Unit } from './Game_Unit'
+import { BattleManager, DataManager, SoundManager } from '../managers'
 import { Game_Action } from './Game_Action'
 import { Game_ActionResult } from './Game_ActionResult'
 import { Game_BattlerBase } from './Game_BattlerBase'
@@ -8,19 +13,19 @@ import { Game_BattlerBase } from './Game_BattlerBase'
  *
  * It contains methods for sprites and actions.
  */
-class Game_Battler extends Game_BattlerBase {
+export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> extends Game_BattlerBase<T> {
   _actions!: Game_Action[]
   _speed!: number
   _result!: Game_ActionResult
-  _actionState!: string
+  _actionState!: Game_Battler.ActionState
   _lastTargetIndex!: number
   _damagePopup!: boolean
-  _effectType!: EffectType | null
-  _motionType!: MotionType | null
+  _effectType!: Game_Battler.EffectType | null
+  _motionType!: Game_Battler.MotionType | null
   _weaponImageId!: number
   _motionRefresh!: boolean
   _selected!: boolean
-  _tpbState!: string
+  _tpbState!: Game_Battler.TbpState
   _tpbChargeTime!: number
   _tpbCastTime!: number
   _tpbIdleTime!: number
@@ -31,7 +36,15 @@ class Game_Battler extends Game_BattlerBase {
     super()
   }
 
-  initMembers() {
+  abstract isBattleMember(): boolean
+
+  abstract friendsUnit(): Game_Unit
+
+  abstract opponentsUnit(): Game_Unit
+
+  abstract index(): number
+
+  initMembers(): void {
     super.initMembers()
     this._actions = []
     this._speed = 0
@@ -52,88 +65,88 @@ class Game_Battler extends Game_BattlerBase {
     this._tpbTurnEnd = false
   }
 
-  clearDamagePopup() {
+  clearDamagePopup(): void {
     this._damagePopup = false
   }
 
-  clearWeaponAnimation() {
+  clearWeaponAnimation(): void {
     this._weaponImageId = 0
   }
 
-  clearEffect() {
+  clearEffect(): void {
     this._effectType = null
   }
 
-  clearMotion() {
+  clearMotion(): void {
     this._motionType = null
     this._motionRefresh = false
   }
 
-  requestEffect(effectType: EffectType) {
+  requestEffect(effectType: Game_Battler.EffectType): void {
     this._effectType = effectType
   }
 
-  requestMotion(motionType: MotionType) {
+  requestMotion(motionType: Game_Battler.MotionType): void {
     this._motionType = motionType
   }
 
-  requestMotionRefresh() {
+  requestMotionRefresh(): void {
     this._motionRefresh = true
   }
 
-  cancelMotionRefresh() {
+  cancelMotionRefresh(): void {
     this._motionRefresh = false
   }
 
-  select() {
+  select(): void {
     this._selected = true
   }
 
-  deselect() {
+  deselect(): void {
     this._selected = false
   }
 
-  isDamagePopupRequested() {
+  isDamagePopupRequested(): boolean {
     return this._damagePopup
   }
 
-  isEffectRequested() {
+  isEffectRequested(): boolean {
     return !!this._effectType
   }
 
-  isMotionRequested() {
+  isMotionRequested(): boolean {
     return !!this._motionType
   }
 
-  isWeaponAnimationRequested() {
+  isWeaponAnimationRequested(): boolean {
     return this._weaponImageId > 0
   }
 
-  isMotionRefreshRequested() {
+  isMotionRefreshRequested(): boolean {
     return this._motionRefresh
   }
 
-  isSelected() {
+  isSelected(): boolean {
     return this._selected
   }
 
-  effectType() {
-    return this._effectType
+  effectType(): Game_Battler.EffectType {
+    return this._effectType!
   }
 
-  motionType() {
-    return this._motionType
+  motionType(): Game_Battler.MotionType {
+    return this._motionType!
   }
 
-  weaponImageId() {
+  weaponImageId(): number {
     return this._weaponImageId
   }
 
-  startDamagePopup() {
+  startDamagePopup(): void {
     this._damagePopup = true
   }
 
-  shouldPopupDamage() {
+  shouldPopupDamage(): boolean {
     const result = this._result
     return (
       result.missed
@@ -143,45 +156,45 @@ class Game_Battler extends Game_BattlerBase {
     )
   }
 
-  startWeaponAnimation(weaponImageId: number) {
+  startWeaponAnimation(weaponImageId: number): void {
     this._weaponImageId = weaponImageId
   }
 
-  action(index: number) {
+  action(index: number): Game_Action {
     return this._actions[index]
   }
 
-  setAction(index: number, action: Game_Action) {
+  setAction(index: number, action: Game_Action): void {
     this._actions[index] = action
   }
 
-  numActions() {
+  numActions(): number {
     return this._actions.length
   }
 
-  clearActions() {
+  clearActions(): void {
     this._actions = []
   }
 
-  result() {
+  result(): Game_ActionResult {
     return this._result
   }
 
-  clearResult() {
+  clearResult(): void {
     this._result.clear()
   }
 
-  clearTpbChargeTime() {
+  clearTpbChargeTime(): void {
     this._tpbState = 'charging'
     this._tpbChargeTime = 0
   }
 
-  applyTpbPenalty() {
+  applyTpbPenalty(): void {
     this._tpbState = 'charging'
     this._tpbChargeTime -= 1
   }
 
-  initTpbChargeTime(advantageous?: boolean) {
+  initTpbChargeTime(advantageous?: boolean): void {
     const speed = this.tpbRelativeSpeed()
     this._tpbState = 'charging'
     this._tpbChargeTime = advantageous ? 1 : speed * Math.random() * 0.5
@@ -190,32 +203,32 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  tpbChargeTime() {
+  tpbChargeTime(): number {
     return this._tpbChargeTime
   }
 
-  startTpbCasting() {
+  startTpbCasting(): void {
     this._tpbState = 'casting'
     this._tpbCastTime = 0
   }
 
-  startTpbAction() {
+  startTpbAction(): void {
     this._tpbState = 'acting'
   }
 
-  isTpbCharged() {
+  isTpbCharged(): boolean {
     return this._tpbState === 'charged'
   }
 
-  isTpbReady() {
+  isTpbReady(): boolean {
     return this._tpbState === 'ready'
   }
 
-  isTpbTimeout() {
+  isTpbTimeout(): boolean {
     return this._tpbIdleTime >= 1
   }
 
-  updateTpb() {
+  updateTpb(): void {
     if (this.canMove()) {
       this.updateTpbChargeTime()
       this.updateTpbCastTime()
@@ -226,7 +239,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  updateTpbChargeTime() {
+  updateTpbChargeTime(): void {
     if (this._tpbState === 'charging') {
       this._tpbChargeTime += this.tpbAcceleration()
       if (this._tpbChargeTime >= 1) {
@@ -236,7 +249,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  updateTpbCastTime() {
+  updateTpbCastTime(): void {
     if (this._tpbState === 'casting') {
       this._tpbCastTime += this.tpbAcceleration()
       if (this._tpbCastTime >= this.tpbRequiredCastTime()) {
@@ -246,71 +259,71 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  updateTpbAutoBattle() {
+  updateTpbAutoBattle(): void {
     if (this.isTpbCharged() && !this.isTpbTurnEnd() && this.isAutoBattle()) {
       this.makeTpbActions()
     }
   }
 
-  updateTpbIdleTime() {
+  updateTpbIdleTime(): void {
     if (!this.canMove() || this.isTpbCharged()) {
       this._tpbIdleTime += this.tpbAcceleration()
     }
   }
 
-  tpbAcceleration() {
+  tpbAcceleration(): number {
     const speed = this.tpbRelativeSpeed()
     const referenceTime = $gameParty.tpbReferenceTime()
     return speed / referenceTime
   }
 
-  tpbRelativeSpeed() {
+  tpbRelativeSpeed(): number {
     return this.tpbSpeed() / $gameParty.tpbBaseSpeed()
   }
 
-  tpbSpeed() {
+  tpbSpeed(): number {
     return Math.sqrt(this.agi) + 1
   }
 
-  tpbBaseSpeed() {
+  tpbBaseSpeed(): number {
     const baseAgility = this.paramBasePlus(6)
     return Math.sqrt(baseAgility) + 1
   }
 
-  tpbRequiredCastTime() {
+  tpbRequiredCastTime(): number {
     const actions = this._actions.filter(action => action.isValid())
     const items = actions.map(action => action.item())
     const delay = items.reduce((r, item) => r + Math.max(0, -item.speed), 0)
     return Math.sqrt(delay) / this.tpbSpeed()
   }
 
-  onTpbCharged() {
+  onTpbCharged(): void {
     if (!this.shouldDelayTpbCharge()) {
       this.finishTpbCharge()
     }
   }
 
-  shouldDelayTpbCharge() {
+  shouldDelayTpbCharge(): boolean {
     return !BattleManager.isActiveTpb() && $gameParty.canInput()
   }
 
-  finishTpbCharge() {
+  finishTpbCharge(): void {
     this._tpbState = 'charged'
     this._tpbTurnEnd = true
     this._tpbIdleTime = 0
   }
 
-  isTpbTurnEnd() {
+  isTpbTurnEnd(): boolean {
     return this._tpbTurnEnd
   }
 
-  initTpbTurn() {
+  initTpbTurn(): void {
     this._tpbTurnEnd = false
     this._tpbTurnCount = 0
     this._tpbIdleTime = 0
   }
 
-  startTpbTurn() {
+  startTpbTurn(): void {
     this._tpbTurnEnd = false
     this._tpbTurnCount++
     this._tpbIdleTime = 0
@@ -319,7 +332,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  makeTpbActions() {
+  makeTpbActions(): void {
     this.makeActions()
     if (this.canInput()) {
       this.setActionState('undecided')
@@ -330,13 +343,13 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  onTpbTimeout() {
+  onTpbTimeout(): void {
     this.onAllActionsEnd()
     this._tpbTurnEnd = true
     this._tpbIdleTime = 0
   }
 
-  turnCount() {
+  turnCount(): number {
     if (BattleManager.isTpb()) {
       return this._tpbTurnCount
     }
@@ -345,14 +358,14 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  canInput() {
+  canInput(): boolean {
     if (BattleManager.isTpb() && !this.isTpbCharged()) {
       return false
     }
     return super.canInput()
   }
 
-  refresh() {
+  refresh(): void {
     super.refresh()
     if (this.hp === 0) {
       this.addState(this.deathStateId())
@@ -362,7 +375,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  addState(stateId: number) {
+  addState(stateId: number): void {
     if (this.isStateAddable(stateId)) {
       if (!this.isStateAffected(stateId)) {
         this.addNewState(stateId)
@@ -373,20 +386,20 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  isStateAddable(stateId) {
+  isStateAddable(stateId: number): boolean {
     return (
       this.isAlive()
-      && $dataStates[stateId]
+      && !!$dataStates[stateId]
       && !this.isStateResist(stateId)
       && !this.isStateRestrict(stateId)
     )
   }
 
-  isStateRestrict(stateId) {
-    return $dataStates[stateId].removeByRestriction && this.isRestricted()
+  isStateRestrict(stateId: number): boolean {
+    return !!$dataStates[stateId]?.removeByRestriction && this.isRestricted()
   }
 
-  onRestrict() {
+  onRestrict(): void {
     super.onRestrict()
     this.clearTpbChargeTime()
     this.clearActions()
@@ -397,7 +410,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  removeState(stateId) {
+  removeState(stateId: number): void {
     if (this.isStateAffected(stateId)) {
       if (stateId === this.deathStateId()) {
         this.revive()
@@ -408,7 +421,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  escape() {
+  escape(): void {
     if ($gameParty.inBattle()) {
       this.hide()
     }
@@ -417,7 +430,7 @@ class Game_Battler extends Game_BattlerBase {
     SoundManager.playEscape()
   }
 
-  addBuff(paramId, turns) {
+  addBuff(paramId: number, turns: number): void {
     if (this.isAlive()) {
       this.increaseBuff(paramId)
       if (this.isBuffAffected(paramId)) {
@@ -428,7 +441,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  addDebuff(paramId, turns) {
+  addDebuff(paramId: number, turns: number): void {
     if (this.isAlive()) {
       this.decreaseBuff(paramId)
       if (this.isDebuffAffected(paramId)) {
@@ -439,7 +452,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  removeBuff(paramId) {
+  removeBuff(paramId: number): void {
     if (this.isAlive() && this.isBuffOrDebuffAffected(paramId)) {
       this.eraseBuff(paramId)
       this._result.pushRemovedBuff(paramId)
@@ -447,7 +460,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  removeBattleStates() {
+  removeBattleStates(): void {
     for (const state of this.states()) {
       if (state.removeAtBattleEnd) {
         this.removeState(state.id)
@@ -455,13 +468,13 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  removeAllBuffs() {
+  removeAllBuffs(): void {
     for (let i = 0; i < this.buffLength(); i++) {
       this.removeBuff(i)
     }
   }
 
-  removeStatesAuto(timing) {
+  removeStatesAuto(timing: number): void {
     for (const state of this.states()) {
       if (this.isStateExpired(state.id) && state.autoRemovalTiming === timing) {
         this.removeState(state.id)
@@ -469,7 +482,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  removeBuffsAuto() {
+  removeBuffsAuto(): void {
     for (let i = 0; i < this.buffLength(); i++) {
       if (this.isBuffExpired(i)) {
         this.removeBuff(i)
@@ -477,7 +490,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  removeStatesByDamage() {
+  removeStatesByDamage(): void {
     for (const state of this.states()) {
       if (state.removeByDamage && Math.randomInt(100) < state.chanceByDamage) {
         this.removeState(state.id)
@@ -485,12 +498,12 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  makeActionTimes() {
+  makeActionTimes(): number {
     const actionPlusSet = this.actionPlusSet()
     return actionPlusSet.reduce((r, p) => (Math.random() < p ? r + 1 : r), 1)
   }
 
-  makeActions() {
+  makeActions(): void {
     this.clearActions()
     if (this.canMove()) {
       const actionTimes = this.makeActionTimes()
@@ -501,28 +514,28 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  speed() {
+  speed(): number {
     return this._speed
   }
 
-  makeSpeed() {
+  makeSpeed(): void {
     this._speed
       = Math.min(...this._actions.map(action => action.speed())) || 0
   }
 
-  currentAction() {
+  currentAction(): Game_Action {
     return this._actions[0]
   }
 
-  removeCurrentAction() {
+  removeCurrentAction(): void {
     this._actions.shift()
   }
 
-  setLastTarget(target) {
+  setLastTarget(target: Game_Enemy): void {
     this._lastTargetIndex = target ? target.index() : 0
   }
 
-  forceAction(skillId, targetIndex) {
+  forceAction(skillId: number, targetIndex: number): void {
     this.clearActions()
     const action = new Game_Action(this, true)
     action.setSkill(skillId)
@@ -540,7 +553,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  useItem(item) {
+  useItem(item: MZ.GeneralItem): void {
     if (DataManager.isSkill(item)) {
       this.paySkillCost(item)
     }
@@ -549,44 +562,44 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  consumeItem(item) {
+  consumeItem(item: MZ.EquipOrItem): void {
     $gameParty.consumeItem(item)
   }
 
-  gainHp(value) {
+  gainHp(value: number): void {
     this._result.hpDamage = -value
     this._result.hpAffected = true
     this.setHp(this.hp + value)
   }
 
-  gainMp(value) {
+  gainMp(value: number): void {
     this._result.mpDamage = -value
     this.setMp(this.mp + value)
   }
 
-  gainTp(value) {
+  gainTp(value: number): void {
     this._result.tpDamage = -value
     this.setTp(this.tp + value)
   }
 
-  gainSilentTp(value) {
+  gainSilentTp(value: number): void {
     this.setTp(this.tp + value)
   }
 
-  initTp() {
+  initTp(): void {
     this.setTp(Math.randomInt(25))
   }
 
-  clearTp() {
+  clearTp(): void {
     this.setTp(0)
   }
 
-  chargeTpByDamage(damageRate) {
+  chargeTpByDamage(damageRate: number): void {
     const value = Math.floor(50 * damageRate * this.tcr)
     this.gainSilentTp(value)
   }
 
-  regenerateHp() {
+  regenerateHp(): void {
     const minRecover = -this.maxSlipDamage()
     const value = Math.max(Math.floor(this.mhp * this.hrg), minRecover)
     if (value !== 0) {
@@ -594,23 +607,23 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  maxSlipDamage() {
+  maxSlipDamage(): number {
     return $dataSystem.optSlipDeath ? this.hp : Math.max(this.hp - 1, 0)
   }
 
-  regenerateMp() {
+  regenerateMp(): void {
     const value = Math.floor(this.mmp * this.mrg)
     if (value !== 0) {
       this.gainMp(value)
     }
   }
 
-  regenerateTp() {
+  regenerateTp(): void {
     const value = Math.floor(100 * this.trg)
     this.gainSilentTp(value)
   }
 
-  regenerateAll() {
+  regenerateAll(): void {
     if (this.isAlive()) {
       this.regenerateHp()
       this.regenerateMp()
@@ -618,7 +631,7 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  onBattleStart(advantageous?: boolean) {
+  onBattleStart(advantageous?: boolean): void {
     this.setActionState('undecided')
     this.clearMotion()
     this.initTpbChargeTime(advantageous)
@@ -628,13 +641,13 @@ class Game_Battler extends Game_BattlerBase {
     }
   }
 
-  onAllActionsEnd() {
+  onAllActionsEnd(): void {
     this.clearResult()
     this.removeStatesAuto(1)
     this.removeBuffsAuto()
   }
 
-  onTurnEnd() {
+  onTurnEnd(): void {
     this.clearResult()
     this.regenerateAll()
     this.updateStateTurns()
@@ -642,7 +655,7 @@ class Game_Battler extends Game_BattlerBase {
     this.removeStatesAuto(2)
   }
 
-  onBattleEnd() {
+  onBattleEnd(): void {
     this.clearResult()
     this.removeBattleStates()
     this.removeAllBuffs()
@@ -653,95 +666,104 @@ class Game_Battler extends Game_BattlerBase {
     this.appear()
   }
 
-  onDamage(value) {
+  onDamage(value: number): void {
     this.removeStatesByDamage()
     this.chargeTpByDamage(value / this.mhp)
   }
 
-  setActionState(actionState) {
+  setActionState(actionState: Game_Battler.ActionState): void {
     this._actionState = actionState
     this.requestMotionRefresh()
   }
 
-  isUndecided() {
+  isUndecided(): boolean {
     return this._actionState === 'undecided'
   }
 
-  isInputting() {
+  isInputting(): boolean {
     return this._actionState === 'inputting'
   }
 
-  isWaiting() {
+  isWaiting(): boolean {
     return this._actionState === 'waiting'
   }
 
-  isActing() {
+  isActing(): boolean {
     return this._actionState === 'acting'
   }
 
-  isChanting() {
+  isChanting(): boolean {
     if (this.isWaiting()) {
       return this._actions.some(action => action.isMagicSkill())
     }
     return false
   }
 
-  isGuardWaiting() {
+  isGuardWaiting(): boolean {
     if (this.isWaiting()) {
       return this._actions.some(action => action.isGuard())
     }
     return false
   }
 
-  performActionStart(action) {
+  performActionStart(action: Game_Action): void {
     if (!action.isGuard()) {
       this.setActionState('acting')
     }
   }
 
-  performAction(_action?: unknown) {
+  performAction(_action?: unknown): void {
     //
   }
 
-  performActionEnd() {
+  performActionEnd(): void {
     //
   }
 
-  performDamage() {
+  performDamage(): void {
     //
   }
 
-  performMiss() {
+  performMiss(): void {
     SoundManager.playMiss()
   }
 
-  performRecovery() {
+  performRecovery(): void {
     SoundManager.playRecovery()
   }
 
-  performEvasion() {
+  performEvasion(): void {
     SoundManager.playEvasion()
   }
 
-  performMagicEvasion() {
+  performMagicEvasion(): void {
     SoundManager.playMagicEvasion()
   }
 
-  performCounter() {
+  performCounter(): void {
     SoundManager.playEvasion()
   }
 
-  performReflection() {
+  performReflection(): void {
     SoundManager.playReflection()
   }
 
-  performSubstitute(/* target */) {
+  performSubstitute(_target: Game_Battler): void {
     //
   }
 
-  performCollapse() {
+  performCollapse(): void {
     //
   }
 }
 
-export { Game_Battler }
+export namespace Game_Battler {
+  export type ActionState = 'undecided' | 'inputting' | 'waiting' | 'acting' | ''
+
+  export type TbpState = 'acting' | 'casting' | 'charging' | 'ready' | 'charged' | ''
+
+  export type EffectType = 'whiten' | 'blink' | 'collapse' | 'bossCollapse' | 'instantCollapse'
+
+  export type MotionType = 'guard' | 'spell' | 'skill' | 'item' | 'thrust' | 'swing' | 'missile' | 'damage' | 'evade' | 'victory' | 'escape'
+
+}

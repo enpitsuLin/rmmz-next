@@ -1,5 +1,6 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_Actor } from './Game_Actor'
+import type { Game_Battler } from './Game_Battler'
 import type { Game_Enemy } from './Game_Enemy'
 import type { Game_Unit } from './Game_Unit'
 import { DataManager } from '../managers/DataManager'
@@ -8,11 +9,8 @@ import { Game_Item } from './Game_Item'
 /**
  * The game object class for a battle action.
  */
-class Game_Action<
-  Item extends MZ.UsableItem = MZ.UsableItem,
-  ReflectionTarget extends Game_Actor | Game_Enemy = Game_Actor | Game_Enemy,
-> {
-  _reflectionTarget?: ReflectionTarget
+class Game_Action<Item extends MZ.UsableItem = MZ.UsableItem> {
+  _reflectionTarget?: Game_Battler
 
   _subjectActorId!: number
   _subjectEnemyIndex!: number
@@ -20,7 +18,7 @@ class Game_Action<
   _item!: Game_Item<Item>
   _targetIndex!: number
 
-  constructor(subject: Game_Actor | Game_Enemy, forcing?: boolean) {
+  constructor(subject: Game_Battler, forcing?: boolean) {
     this._subjectActorId = 0
     this._subjectEnemyIndex = -1
     this._forcing = forcing || false
@@ -28,30 +26,30 @@ class Game_Action<
     this.clear()
   }
 
-  static EFFECT_RECOVER_HP = 11
-  static EFFECT_RECOVER_MP = 12
-  static EFFECT_GAIN_TP = 13
-  static EFFECT_ADD_STATE = 21
-  static EFFECT_REMOVE_STATE = 22
-  static EFFECT_ADD_BUFF = 31
-  static EFFECT_ADD_DEBUFF = 32
-  static EFFECT_REMOVE_BUFF = 33
-  static EFFECT_REMOVE_DEBUFF = 34
-  static EFFECT_SPECIAL = 41
-  static EFFECT_GROW = 42
-  static EFFECT_LEARN_SKILL = 43
-  static EFFECT_COMMON_EVENT = 44
-  static SPECIAL_EFFECT_ESCAPE = 0
-  static HITTYPE_CERTAIN = 0
-  static HITTYPE_PHYSICAL = 1
-  static HITTYPE_MAGICAL = 2
+  static EFFECT_RECOVER_HP = 11 as const
+  static EFFECT_RECOVER_MP = 12 as const
+  static EFFECT_GAIN_TP = 13 as const
+  static EFFECT_ADD_STATE = 21 as const
+  static EFFECT_REMOVE_STATE = 22 as const
+  static EFFECT_ADD_BUFF = 31 as const
+  static EFFECT_ADD_DEBUFF = 32 as const
+  static EFFECT_REMOVE_BUFF = 33 as const
+  static EFFECT_REMOVE_DEBUFF = 34 as const
+  static EFFECT_SPECIAL = 41 as const
+  static EFFECT_GROW = 42 as const
+  static EFFECT_LEARN_SKILL = 43 as const
+  static EFFECT_COMMON_EVENT = 44 as const
+  static SPECIAL_EFFECT_ESCAPE = 0 as const
+  static HITTYPE_CERTAIN = 0 as const
+  static HITTYPE_PHYSICAL = 1 as const
+  static HITTYPE_MAGICAL = 2 as const
 
-  clear() {
+  clear(): void {
     this._item = new Game_Item<Item>()
     this._targetIndex = -1
   }
 
-  setSubject(subject: Game_Actor | Game_Enemy) {
+  setSubject(subject: Game_Battler): void {
     if (subject.isActor()) {
       this._subjectActorId = subject.actorId()
       this._subjectEnemyIndex = -1
@@ -65,24 +63,24 @@ class Game_Action<
     }
   }
 
-  subject() {
+  subject(): Game_Battler {
     if (this._subjectActorId > 0) {
-      return $gameActors.actor(this._subjectActorId)
+      return $gameActors.actor(this._subjectActorId)!
     }
     else {
-      return $gameTroop.members()[this._subjectEnemyIndex]
+      return $gameTroop.members()[this._subjectEnemyIndex]!
     }
   }
 
-  friendsUnit() {
+  friendsUnit(): Game_Unit {
     return this.subject().friendsUnit()
   }
 
-  opponentsUnit() {
+  opponentsUnit(): Game_Unit {
     return this.subject().opponentsUnit()
   }
 
-  setEnemyAction(action: MZ.Action) {
+  setEnemyAction(action: MZ.Action | null | undefined): void {
     if (action) {
       this.setSkill(action.skillId)
     }
@@ -91,31 +89,31 @@ class Game_Action<
     }
   }
 
-  setAttack() {
+  setAttack(): void {
     this.setSkill(this.subject().attackSkillId())
   }
 
-  setGuard() {
+  setGuard(): void {
     this.setSkill(this.subject().guardSkillId())
   }
 
-  setSkill(skillId: number) {
-    this._item.setObject($dataSkills[skillId])
+  setSkill(skillId: number): void {
+    this._item.setObject($dataSkills[skillId]!)
   }
 
-  setItem(itemId: number) {
-    this._item.setObject($dataItems[itemId])
+  setItem(itemId: number): void {
+    this._item.setObject($dataItems[itemId]!)
   }
 
-  setItemObject(object: MZ.Item) {
+  setItemObject(object: MZ.Item): void {
     this._item.setObject(object)
   }
 
-  setTarget(targetIndex: number) {
+  setTarget(targetIndex: number): void {
     this._targetIndex = targetIndex
   }
 
-  item() {
+  item(): MZ.UsableItem {
     return this._item.object() as MZ.UsableItem
   }
 
@@ -127,7 +125,7 @@ class Game_Action<
     return this._item.isItem()
   }
 
-  numRepeats() {
+  numRepeats(): number {
     let repeats = this.item().repeats
     if (this.isAttack()) {
       repeats += this.subject().attackTimesAdd()
@@ -135,117 +133,116 @@ class Game_Action<
     return Math.floor(repeats)
   }
 
-  checkItemScope(list: number[]) {
+  checkItemScope(list: number[]): boolean {
     return list.includes(this.item().scope)
   }
 
-  isForOpponent() {
+  isForOpponent(): boolean {
     return this.checkItemScope([1, 2, 3, 4, 5, 6, 14])
   }
 
-  isForFriend() {
+  isForFriend(): boolean {
     return this.checkItemScope([7, 8, 9, 10, 11, 12, 13, 14])
   }
 
-  isForEveryone() {
+  isForEveryone(): boolean {
     return this.checkItemScope([14])
   }
 
-  isForAliveFriend() {
+  isForAliveFriend(): boolean {
     return this.checkItemScope([7, 8, 11, 14])
   }
 
-  isForDeadFriend() {
+  isForDeadFriend(): boolean {
     return this.checkItemScope([9, 10])
   }
 
-  isForUser() {
+  isForUser(): boolean {
     return this.checkItemScope([11])
   }
 
-  isForOne() {
+  isForOne(): boolean {
     return this.checkItemScope([1, 3, 7, 9, 11, 12])
   }
 
-  isForRandom() {
+  isForRandom(): boolean {
     return this.checkItemScope([3, 4, 5, 6])
   }
 
-  isForAll() {
+  isForAll(): boolean {
     return this.checkItemScope([2, 8, 10, 13, 14])
   }
 
-  needsSelection() {
+  needsSelection(): boolean {
     return this.checkItemScope([1, 7, 9, 12])
   }
 
-  numTargets() {
+  numTargets(): number {
     return this.isForRandom() ? this.item().scope - 2 : 0
   }
 
-  checkDamageType(list: number[]) {
+  checkDamageType(list: number[]): boolean {
     return list.includes(this.item().damage.type)
   }
 
-  isHpEffect() {
+  isHpEffect(): boolean {
     return this.checkDamageType([1, 3, 5])
   }
 
-  isMpEffect() {
+  isMpEffect(): boolean {
     return this.checkDamageType([2, 4, 6])
   }
 
-  isDamage() {
+  isDamage(): boolean {
     return this.checkDamageType([1, 2])
   }
 
-  isRecover() {
+  isRecover(): boolean {
     return this.checkDamageType([3, 4])
   }
 
-  isDrain() {
+  isDrain(): boolean {
     return this.checkDamageType([5, 6])
   }
 
-  isHpRecover() {
+  isHpRecover(): boolean {
     return this.checkDamageType([3])
   }
 
-  isMpRecover() {
+  isMpRecover(): boolean {
     return this.checkDamageType([4])
   }
 
-  isCertainHit() {
+  isCertainHit(): boolean {
     return this.item().hitType === Game_Action.HITTYPE_CERTAIN
   }
 
-  isPhysical() {
+  isPhysical(): boolean {
     return this.item().hitType === Game_Action.HITTYPE_PHYSICAL
   }
 
-  isMagical() {
+  isMagical(): boolean {
     return this.item().hitType === Game_Action.HITTYPE_MAGICAL
   }
 
-  isAttack() {
+  isAttack(): boolean {
     return this.item() === $dataSkills[this.subject().attackSkillId()]
   }
 
-  isGuard() {
+  isGuard(): boolean {
     return this.item() === $dataSkills[this.subject().guardSkillId()]
   }
 
-  isMagicSkill() {
+  isMagicSkill(): boolean {
     if (this.isSkill()) {
-      // @ts-expect-error to fix
-      return $dataSystem.magicSkills.includes(this.item().stypeId)
+      return $dataSystem.magicSkills.includes((this.item() as MZ.Skill).stypeId)
     }
     else {
       return false
     }
   }
 
-  decideRandomTarget() {
+  decideRandomTarget(): void {
     let target
     if (this.isForDeadFriend()) {
       target = this.friendsUnit().randomDeadTarget()
@@ -264,21 +261,21 @@ class Game_Action<
     }
   }
 
-  setConfusion() {
+  setConfusion(): void {
     this.setAttack()
   }
 
-  prepare() {
+  prepare(): void {
     if (this.subject().isConfused() && !this._forcing) {
       this.setConfusion()
     }
   }
 
-  isValid() {
-    return (this._forcing && this.item()) || this.subject().canUse(this.item())
+  isValid(): boolean {
+    return (this._forcing && !!this.item()) || this.subject().canUse(this.item())
   }
 
-  speed() {
+  speed(): number {
     const agi = this.subject().agi
     let speed = agi + Math.randomInt(Math.floor(5 + agi / 4))
     if (this.item()) {
@@ -290,10 +287,10 @@ class Game_Action<
     return speed
   }
 
-  makeTargets() {
-    const targets = []
+  makeTargets(): Game_Battler[] {
+    const targets: Game_Battler[] = []
     if (!this._forcing && this.subject().isConfused()) {
-      targets.push(this.confusionTarget())
+      targets.push(this.confusionTarget()!)
     }
     else if (this.isForEveryone()) {
       targets.push(...this.targetsForEveryone())
@@ -307,7 +304,7 @@ class Game_Action<
     return this.repeatTargets(targets)
   }
 
-  repeatTargets(targets: Game_Actor[] | Game_Enemy[]) {
+  repeatTargets(targets: Game_Battler[]): Game_Battler[] {
     const repeatedTargets = []
     const repeats = this.numRepeats()
     for (const target of targets) {
@@ -320,7 +317,7 @@ class Game_Action<
     return repeatedTargets
   }
 
-  confusionTarget() {
+  confusionTarget(): Game_Battler {
     switch (this.subject().confusionLevel()) {
       case 1:
         return this.opponentsUnit().randomTarget()
@@ -334,13 +331,13 @@ class Game_Action<
     }
   }
 
-  targetsForEveryone() {
+  targetsForEveryone(): Game_Battler[] {
     const opponentMembers = this.opponentsUnit().aliveMembers()
     const friendMembers = this.friendsUnit().aliveMembers()
     return opponentMembers.concat(friendMembers)
   }
 
-  targetsForOpponents() {
+  targetsForOpponents(): Game_Battler[] {
     const unit = this.opponentsUnit()
     if (this.isForRandom()) {
       return this.randomTargets(unit)
@@ -350,7 +347,7 @@ class Game_Action<
     }
   }
 
-  targetsForFriends() {
+  targetsForFriends(): Game_Battler[] {
     const unit = this.friendsUnit()
     if (this.isForUser()) {
       return [this.subject()]
@@ -366,15 +363,15 @@ class Game_Action<
     }
   }
 
-  randomTargets(unit: Game_Unit) {
-    const targets = []
+  randomTargets(unit: Game_Unit): Game_Battler[] {
+    const targets: Game_Battler[] = []
     for (let i = 0; i < this.numTargets(); i++) {
       targets.push(unit.randomTarget())
     }
     return targets
   }
 
-  targetsForDead(unit: Game_Unit) {
+  targetsForDead(unit: Game_Unit): Game_Battler[] {
     if (this.isForOne()) {
       return [unit.smoothDeadTarget(this._targetIndex)]
     }
@@ -383,7 +380,7 @@ class Game_Action<
     }
   }
 
-  targetsForAlive(unit: Game_Unit) {
+  targetsForAlive(unit: Game_Unit): Game_Battler[] {
     if (this.isForOne()) {
       if (this._targetIndex < 0) {
         return [unit.randomTarget()]
@@ -397,7 +394,7 @@ class Game_Action<
     }
   }
 
-  targetsForDeadAndAlive(unit: Game_Unit) {
+  targetsForDeadAndAlive(unit: Game_Unit): Game_Battler[] {
     if (this.isForOne()) {
       return [unit.members()[this._targetIndex]]
     }
@@ -406,17 +403,14 @@ class Game_Action<
     }
   }
 
-  evaluate() {
+  evaluate(): number {
     let value = 0
     for (const target of this.itemTargetCandidates()) {
       const targetValue = this.evaluateWithTarget(target)
       if (this.isForAll()) {
-        // @ts-expect-error to fix
         value += targetValue
-        // @ts-expect-error to fix
       }
       else if (targetValue > value) {
-        // @ts-expect-error to fix
         value = targetValue
         this._targetIndex = target.index()
       }
@@ -428,7 +422,7 @@ class Game_Action<
     return value
   }
 
-  itemTargetCandidates() {
+  itemTargetCandidates(): Game_Battler[] {
     if (!this.isValid()) {
       return []
     }
@@ -446,7 +440,7 @@ class Game_Action<
     }
   }
 
-  evaluateWithTarget(target: Game_Actor | Game_Enemy) {
+  evaluateWithTarget(target: Game_Battler): number {
     if (this.isHpEffect()) {
       const value = this.makeDamageValue(target, false)
       if (this.isForOpponent()) {
@@ -457,9 +451,10 @@ class Game_Action<
         return recovery / target.mhp
       }
     }
+    return 0
   }
 
-  testApply(target: Game_Actor | Game_Enemy) {
+  testApply(target: Game_Battler): boolean {
     return (
       this.testLifeAndDeath(target)
       && ($gameParty.inBattle()
@@ -469,7 +464,7 @@ class Game_Action<
     )
   }
 
-  testLifeAndDeath(target: Game_Actor | Game_Enemy) {
+  testLifeAndDeath(target: Game_Battler): boolean {
     if (this.isForOpponent() || this.isForAliveFriend()) {
       return target.isAlive()
     }
@@ -481,13 +476,13 @@ class Game_Action<
     }
   }
 
-  hasItemAnyValidEffects(target: Game_Actor | Game_Enemy) {
+  hasItemAnyValidEffects(target: Game_Battler): boolean {
     return this.item().effects.some(effect =>
       this.testItemEffect(target, effect),
     )
   }
 
-  testItemEffect(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  testItemEffect(target: Game_Battler, effect: MZ.Effect): boolean {
     switch (effect.code) {
       case Game_Action.EFFECT_RECOVER_HP:
         return target.hp < target.mhp || effect.value1 < 0 || effect.value2 < 0
@@ -512,7 +507,7 @@ class Game_Action<
     }
   }
 
-  itemCnt(target: Game_Actor | Game_Enemy) {
+  itemCnt(target: Game_Actor | Game_Enemy): number {
     if (this.isPhysical() && target.canMove()) {
       return target.cnt
     }
@@ -521,7 +516,7 @@ class Game_Action<
     }
   }
 
-  itemMrf(target: Game_Actor | Game_Enemy) {
+  itemMrf(target: Game_Actor | Game_Enemy): number {
     if (this.isMagical()) {
       return target.mrf
     }
@@ -530,7 +525,7 @@ class Game_Action<
     }
   }
 
-  itemHit(_target?: Game_Actor | Game_Enemy) {
+  itemHit(_target?: Game_Actor | Game_Enemy): number {
     const successRate = this.item().successRate
     if (this.isPhysical()) {
       return successRate * 0.01 * this.subject().hit
@@ -540,7 +535,7 @@ class Game_Action<
     }
   }
 
-  itemEva(target: Game_Actor | Game_Enemy) {
+  itemEva(target: Game_Actor | Game_Enemy): number {
     if (this.isPhysical()) {
       return target.eva
     }
@@ -552,13 +547,13 @@ class Game_Action<
     }
   }
 
-  itemCri(target: Game_Actor | Game_Enemy) {
+  itemCri(target: Game_Actor | Game_Enemy): number {
     return this.item().damage.critical
       ? this.subject().cri * (1 - target.cev)
       : 0
   }
 
-  apply(target: Game_Actor | Game_Enemy) {
+  apply(target: Game_Actor | Game_Enemy): void {
     const result = target.result()
     this.subject().clearResult()
     result.clear()
@@ -581,7 +576,7 @@ class Game_Action<
     this.updateLastTarget(target)
   }
 
-  makeDamageValue(target: Game_Actor | Game_Enemy, critical: boolean) {
+  makeDamageValue(target: Game_Battler, critical: boolean): number {
     const item = this.item()
     const baseValue = this.evalDamageFormula(target)
     let value = baseValue * this.calcElementRate(target)
@@ -603,22 +598,24 @@ class Game_Action<
     return value
   }
 
-  evalDamageFormula(target: Game_Actor | Game_Enemy) {
+  evalDamageFormula(target: Game_Battler): number {
     try {
       const item = this.item()
       const a = this.subject()
       const b = target
       const v = $gameVariables._data
+      void [a, b, v] // in scope for eval'd damage formula
       const sign = [3, 4].includes(item.damage.type) ? -1 : 1
       const value = Math.max(eval(item.damage.formula), 0) * sign
-      return isNaN(value) ? 0 : value
+      return Number.isNaN(value) ? 0 : value
     }
     catch (e) {
+      console.error(e)
       return 0
     }
   }
 
-  calcElementRate(target: Game_Actor | Game_Enemy) {
+  calcElementRate(target: Game_Battler): number {
     if (this.item().damage.elementId < 0) {
       return this.elementsMaxRate(target, this.subject().attackElements())
     }
@@ -627,7 +624,7 @@ class Game_Action<
     }
   }
 
-  elementsMaxRate(target: Game_Actor | Game_Enemy, elements: number[]) {
+  elementsMaxRate(target: Game_Battler, elements: number[]): number {
     if (elements.length > 0) {
       const rates = elements.map(elementId => target.elementRate(elementId))
       return Math.max(...rates)
@@ -637,21 +634,21 @@ class Game_Action<
     }
   }
 
-  applyCritical(damage: number) {
+  applyCritical(damage: number): number {
     return damage * 3
   }
 
-  applyVariance(damage: number, variance: number) {
+  applyVariance(damage: number, variance: number): number {
     const amp = Math.floor(Math.max((Math.abs(damage) * variance) / 100, 0))
     const v = Math.randomInt(amp + 1) + Math.randomInt(amp + 1) - amp
     return damage >= 0 ? damage + v : damage - v
   }
 
-  applyGuard(damage: number, target: Game_Actor | Game_Enemy) {
+  applyGuard(damage: number, target: Game_Battler): number {
     return damage / (damage > 0 && target.isGuard() ? 2 * target.grd : 1)
   }
 
-  executeDamage(target: Game_Actor | Game_Enemy, value: number) {
+  executeDamage(target: Game_Battler, value: number): void {
     const result = target.result()
     if (value === 0) {
       result.critical = false
@@ -664,7 +661,7 @@ class Game_Action<
     }
   }
 
-  executeHpDamage(target: Game_Actor | Game_Enemy, value: number) {
+  executeHpDamage(target: Game_Battler, value: number): void {
     if (this.isDrain()) {
       value = Math.min(target.hp, value)
     }
@@ -676,7 +673,7 @@ class Game_Action<
     this.gainDrainedHp(value)
   }
 
-  executeMpDamage(target: Game_Actor | Game_Enemy, value: number) {
+  executeMpDamage(target: Game_Battler, value: number): void {
     if (!this.isMpRecover()) {
       value = Math.min(target.mp, value)
     }
@@ -687,7 +684,7 @@ class Game_Action<
     this.gainDrainedMp(value)
   }
 
-  gainDrainedHp(value: number) {
+  gainDrainedHp(value: number): void {
     if (this.isDrain()) {
       let gainTarget = this.subject()
       if (this._reflectionTarget) {
@@ -697,7 +694,7 @@ class Game_Action<
     }
   }
 
-  gainDrainedMp(value: number) {
+  gainDrainedMp(value: number): void {
     if (this.isDrain()) {
       let gainTarget = this.subject()
       if (this._reflectionTarget) {
@@ -707,7 +704,7 @@ class Game_Action<
     }
   }
 
-  applyItemEffect(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  applyItemEffect(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     switch (effect.code) {
       case Game_Action.EFFECT_RECOVER_HP:
         this.itemEffectRecoverHp(target, effect)
@@ -751,7 +748,7 @@ class Game_Action<
     }
   }
 
-  itemEffectRecoverHp(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectRecoverHp(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     let value = (target.mhp * effect.value1 + effect.value2) * target.rec
     if (this.isItem()) {
       value *= this.subject().pha
@@ -763,7 +760,7 @@ class Game_Action<
     }
   }
 
-  itemEffectRecoverMp(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectRecoverMp(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     let value = (target.mmp * effect.value1 + effect.value2) * target.rec
     if (this.isItem()) {
       value *= this.subject().pha
@@ -775,7 +772,7 @@ class Game_Action<
     }
   }
 
-  itemEffectGainTp(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectGainTp(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     const value = Math.floor(effect.value1)
     if (value !== 0) {
       target.gainTp(value)
@@ -783,7 +780,7 @@ class Game_Action<
     }
   }
 
-  itemEffectAddState(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectAddState(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     if (effect.dataId === 0) {
       this.itemEffectAddAttackState(target, effect)
     }
@@ -792,7 +789,7 @@ class Game_Action<
     }
   }
 
-  itemEffectAddAttackState(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectAddAttackState(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     for (const stateId of this.subject().attackStates()) {
       let chance = effect.value1
       chance *= target.stateRate(stateId)
@@ -805,7 +802,7 @@ class Game_Action<
     }
   }
 
-  itemEffectAddNormalState(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectAddNormalState(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     let chance = effect.value1
     if (!this.isCertainHit()) {
       chance *= target.stateRate(effect.dataId)
@@ -817,7 +814,7 @@ class Game_Action<
     }
   }
 
-  itemEffectRemoveState(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectRemoveState(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     const chance = effect.value1
     if (Math.random() < chance) {
       target.removeState(effect.dataId)
@@ -825,12 +822,12 @@ class Game_Action<
     }
   }
 
-  itemEffectAddBuff(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectAddBuff(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     target.addBuff(effect.dataId, effect.value1)
     this.makeSuccess(target)
   }
 
-  itemEffectAddDebuff(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectAddDebuff(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     const chance = target.debuffRate(effect.dataId) * this.lukEffectRate(target)
     if (Math.random() < chance) {
       target.addDebuff(effect.dataId, effect.value1)
@@ -838,57 +835,57 @@ class Game_Action<
     }
   }
 
-  itemEffectRemoveBuff(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectRemoveBuff(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     if (target.isBuffAffected(effect.dataId)) {
       target.removeBuff(effect.dataId)
       this.makeSuccess(target)
     }
   }
 
-  itemEffectRemoveDebuff(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectRemoveDebuff(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     if (target.isDebuffAffected(effect.dataId)) {
       target.removeBuff(effect.dataId)
       this.makeSuccess(target)
     }
   }
 
-  itemEffectSpecial(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectSpecial(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     if (effect.dataId === Game_Action.SPECIAL_EFFECT_ESCAPE) {
       target.escape()
       this.makeSuccess(target)
     }
   }
 
-  itemEffectGrow(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectGrow(target: Game_Actor | Game_Enemy, effect: MZ.Effect): void {
     target.addParam(effect.dataId, Math.floor(effect.value1))
     this.makeSuccess(target)
   }
 
-  itemEffectLearnSkill(target: Game_Actor | Game_Enemy, effect: MZ.Effect) {
+  itemEffectLearnSkill(target: Game_Battler, effect: MZ.Effect): void {
     if (target.isActor()) {
       target.learnSkill(effect.dataId)
       this.makeSuccess(target)
     }
   }
 
-  itemEffectCommonEvent(_target?: Game_Actor | Game_Enemy, _effect?: MZ.Effect) {
+  itemEffectCommonEvent(_target: Game_Battler, _effect: MZ.Effect): void {
     //
   }
 
-  makeSuccess(target: Game_Actor | Game_Enemy) {
+  makeSuccess(target: Game_Battler): void {
     target.result().success = true
   }
 
-  applyItemUserEffect(_target?: Game_Actor | Game_Enemy) {
+  applyItemUserEffect(_target?: Game_Battler): void {
     const value = Math.floor(this.item().tpGain * this.subject().tcr)
     this.subject().gainSilentTp(value)
   }
 
-  lukEffectRate(target: Game_Actor | Game_Enemy) {
+  lukEffectRate(target: Game_Battler): number {
     return Math.max(1.0 + (this.subject().luk - target.luk) * 0.001, 0.0)
   }
 
-  applyGlobal() {
+  applyGlobal(): void {
     for (const effect of this.item().effects) {
       if (effect.code === Game_Action.EFFECT_COMMON_EVENT) {
         $gameTemp.reserveCommonEvent(effect.dataId)
@@ -898,7 +895,7 @@ class Game_Action<
     this.updateLastSubject()
   }
 
-  updateLastUsed() {
+  updateLastUsed(): void {
     const item = this.item()
     if (DataManager.isSkill(item)) {
       $gameTemp.setLastUsedSkillId(item.id)
@@ -908,7 +905,7 @@ class Game_Action<
     }
   }
 
-  updateLastSubject() {
+  updateLastSubject(): void {
     const subject = this.subject()
     if (subject.isActor()) {
       $gameTemp.setLastSubjectActorId(subject.actorId())
@@ -918,7 +915,7 @@ class Game_Action<
     }
   }
 
-  updateLastTarget(target: Game_Actor | Game_Enemy) {
+  updateLastTarget(target: Game_Battler): void {
     if (target.isActor()) {
       $gameTemp.setLastTargetActorId(target.actorId())
     }

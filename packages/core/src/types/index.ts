@@ -1,9 +1,9 @@
 export type RGBA = [r: number, g: number, b: number, a: number]
 
-export type EffectType = 'whiten' | 'blink' | 'collapse' | 'bosscollapse' | 'instantcollapse'
-
-export type MotionType = 'guard' | 'spell' | 'skill' | 'item' | 'thrust' | 'swing' | 'missile' | 'damage' | 'evade' | 'victory' | 'escape'
-
-export type VehicleType = 'boat' | 'ship' | 'airship' | 'walk'
+export type VehicleType = 'boat' | 'ship' | 'airship' | 'walk' | ''
 
 export type BattlePhase = '' | 'start' | 'input' | 'turn' | 'action' | 'turnEnd' | 'battleEnd' | 'aborting'
+
+export type PickMethodProperties<T> = {
+  [M in keyof T as T[M] extends (...args: any[]) => any ? M : never]: T[M]
+}

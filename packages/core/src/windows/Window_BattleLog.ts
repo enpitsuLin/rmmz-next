@@ -1,3 +1,4 @@
+import type { PickMethodProperties } from '../types'
 import { Input, Rectangle, TouchInput } from '../core'
 import { DataManager, SoundManager, TextManager } from '../managers'
 import { Window_Base } from './Window_Base'
@@ -9,6 +10,8 @@ import { Window_Base } from './Window_Base'
  * handled as a window for convenience.
  */
 export class Window_BattleLog extends Window_Base {
+  _methods: { name: keyof Window_BattleLog, params: any[] }[]
+
   constructor(rect) {
     super(rect)
     this.opacity = 0
@@ -84,7 +87,7 @@ export class Window_BattleLog extends Window_Base {
 
   callNextMethod() {
     if (this._methods.length > 0) {
-      const method = this._methods.shift()
+      const method = this._methods.shift()!
       if (method.name && this[method.name]) {
         this[method.name].apply(this, method.params)
       }
@@ -102,7 +105,11 @@ export class Window_BattleLog extends Window_Base {
     )
   }
 
-  push(methodName, ...methodArgs) {
+  push<MethodName extends keyof Omit<PickMethodProperties<Window_BattleLog>, 'push'>>(
+    method: MethodName,
+    ...methodArgs: Parameters<PickMethodProperties<Window_BattleLog>[MethodName]>
+  ): void
+  push(methodName: keyof Window_BattleLog, ...methodArgs: any[]): void {
     this._methods.push({ name: methodName, params: methodArgs })
   }
 
@@ -285,11 +292,11 @@ export class Window_BattleLog extends Window_Base {
     this.drawTextEx(this._lines[index], rect.x, rect.y, rect.width)
   }
 
-  startTurn() {
+  startTurn(): void {
     this.push('wait')
   }
 
-  startAction(subject, action, targets) {
+  startAction(subject, action, targets): void {
     const item = action.item()
     this.push('performActionStart', subject, action)
     this.push('waitForMovement')
@@ -298,7 +305,7 @@ export class Window_BattleLog extends Window_Base {
     this.displayAction(subject, item)
   }
 
-  endAction(subject) {
+  endAction(subject): void {
     this.push('waitForNewLine')
     this.push('clear')
     this.push('performActionEnd', subject)

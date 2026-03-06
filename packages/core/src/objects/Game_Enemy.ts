@@ -1,9 +1,14 @@
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Game_Action } from './Game_Action'
+import type { Game_Party } from './Game_Party'
+import type { Game_Troop } from './Game_Troop'
+import { SoundManager } from '../managers'
 import { Game_Battler } from './Game_Battler'
 
 /**
  * The game object class for an enemy.
  */
-class Game_Enemy extends Game_Battler {
+class Game_Enemy extends Game_Battler<MZ.Enemy> {
   _enemyId!: number
   _letter!: string
   _plural!: boolean
@@ -15,7 +20,7 @@ class Game_Enemy extends Game_Battler {
     this.setup(enemyId, x, y)
   }
 
-  initMembers() {
+  initMembers(): void {
     super.initMembers()
     this._enemyId = 0
     this._letter = ''
@@ -24,7 +29,7 @@ class Game_Enemy extends Game_Battler {
     this._screenY = 0
   }
 
-  setup(enemyId: number, x: number, y: number) {
+  setup(enemyId: number, x: number, y: number): void {
     this._enemyId = enemyId
     this._screenX = x
     this._screenY = y
@@ -35,63 +40,63 @@ class Game_Enemy extends Game_Battler {
     return true
   }
 
-  friendsUnit() {
+  friendsUnit(): Game_Troop {
     return $gameTroop
   }
 
-  opponentsUnit() {
+  opponentsUnit(): Game_Party {
     return $gameParty
   }
 
-  index() {
+  index(): number {
     return $gameTroop.members().indexOf(this)
   }
 
-  isBattleMember() {
+  isBattleMember(): boolean {
     return this.index() >= 0
   }
 
-  enemyId() {
+  enemyId(): number {
     return this._enemyId
   }
 
-  enemy() {
-    return $dataEnemies[this._enemyId]
+  enemy(): MZ.Enemy {
+    return $dataEnemies[this._enemyId] as MZ.Enemy
   }
 
-  traitObjects() {
+  traitObjects(): MZ.Enemy[] {
     return super.traitObjects().concat(this.enemy())
   }
 
-  paramBase(paramId: number) {
+  paramBase(paramId: number): number {
     return this.enemy().params[paramId]
   }
 
-  exp() {
+  exp(): number {
     return this.enemy().exp
   }
 
-  gold() {
+  gold(): number {
     return this.enemy().gold
   }
 
-  makeDropItems() {
+  makeDropItems(): MZ.EquipOrItem[] {
     const rate = this.dropItemRate()
     return this.enemy().dropItems.reduce((r, di) => {
       if (di.kind > 0 && Math.random() * di.denominator < rate) {
-        return r.concat(this.itemObject(di.kind, di.dataId))
+        return r.concat(this.itemObject(di.kind, di.dataId)!)
       }
       else {
         return r
       }
-    }, [])
+    }, [] as MZ.EquipOrItem[])
   }
 
-  dropItemRate() {
+  dropItemRate(): number {
     return $gameParty.hasDropItemDouble() ? 2 : 1
   }
 
-  itemObject(kind, dataId) {
+  itemObject(kind: number, dataId: number): MZ.EquipOrItem | null {
     if (kind === 1) {
       return $dataItems[dataId]
     }
@@ -106,66 +111,66 @@ class Game_Enemy extends Game_Battler {
     }
   }
 
-  isSpriteVisible() {
+  isSpriteVisible(): boolean {
     return true
   }
 
-  screenX() {
+  screenX(): number {
     return this._screenX
   }
 
-  screenY() {
+  screenY(): number {
     return this._screenY
   }
 
-  battlerName() {
+  battlerName(): string {
     return this.enemy().battlerName
   }
 
-  battlerHue() {
+  battlerHue(): number {
     return this.enemy().battlerHue
   }
 
-  originalName() {
+  originalName(): string {
     return this.enemy().name
   }
 
-  name() {
+  name(): string {
     return this.originalName() + (this._plural ? this._letter : '')
   }
 
-  isLetterEmpty() {
+  isLetterEmpty(): boolean {
     return this._letter === ''
   }
 
-  setLetter(letter) {
+  setLetter(letter: string): void {
     this._letter = letter
   }
 
-  setPlural(plural) {
+  setPlural(plural: boolean): void {
     this._plural = plural
   }
 
-  performActionStart(action) {
+  performActionStart(action: Game_Action): void {
     super.performActionStart(action)
     this.requestEffect('whiten')
   }
 
-  performAction(action) {
+  performAction(action: Game_Action): void {
     super.performAction(action)
   }
 
-  performActionEnd() {
+  performActionEnd(): void {
     super.performActionEnd()
   }
 
-  performDamage() {
+  performDamage(): void {
     super.performDamage()
     SoundManager.playEnemyDamage()
     this.requestEffect('blink')
   }
 
-  performCollapse() {
+  performCollapse(): void {
     super.performCollapse()
     switch (this.collapseType()) {
       case 0:
@@ -182,7 +187,7 @@ class Game_Enemy extends Game_Battler {
     }
   }
 
-  transform(enemyId) {
+  transform(enemyId: number): void {
     const name = this.originalName()
     this._enemyId = enemyId
     if (this.originalName() !== name) {
@@ -195,7 +200,7 @@ class Game_Enemy extends Game_Battler {
     }
   }
 
-  meetsCondition(action) {
+  meetsCondition(action: MZ.Action): boolean {
     const param1 = action.conditionParam1
     const param2 = action.conditionParam2
     switch (action.conditionType) {
@@ -216,7 +221,7 @@ class Game_Enemy extends Game_Battler {
     }
   }
 
-  meetsTurnCondition(param1, param2) {
+  meetsTurnCondition(param1: number, param2: number): boolean {
     const n = this.turnCount()
     if (param2 === 0) {
       return n === param1
@@ -226,33 +231,33 @@ class Game_Enemy extends Game_Battler {
     }
   }
 
-  meetsHpCondition(param1, param2) {
+  meetsHpCondition(param1: number, param2: number): boolean {
     return this.hpRate() >= param1 && this.hpRate() <= param2
   }
 
-  meetsMpCondition(param1, param2) {
+  meetsMpCondition(param1: number, param2: number): boolean {
     return this.mpRate() >= param1 && this.mpRate() <= param2
   }
 
-  meetsStateCondition(param) {
+  meetsStateCondition(param: number): boolean {
     return this.isStateAffected(param)
   }
 
-  meetsPartyLevelCondition(param) {
+  meetsPartyLevelCondition(param: number): boolean {
     return $gameParty.highestLevel() >= param
   }
 
-  meetsSwitchCondition(param) {
+  meetsSwitchCondition(param: number): boolean {
     return $gameSwitches.value(param)
   }
 
-  isActionValid(action) {
+  isActionValid(action: MZ.Action): boolean {
     return (
-      this.meetsCondition(action) && this.canUse($dataSkills[action.skillId])
+      this.meetsCondition(action) && this.canUse($dataSkills[action.skillId]!)
     )
   }
 
-  selectAction(actionList, ratingZero) {
+  selectAction(actionList: MZ.Action[], ratingZero: number): null | MZ.Action | undefined {
     const sum = actionList.reduce((r, a) => r + a.rating - ratingZero, 0)
     if (sum > 0) {
       let value = Math.randomInt(sum)
@@ -268,7 +273,7 @@ class Game_Enemy extends Game_Battler {
     }
   }
 
-  selectAllActions(actionList) {
+  selectAllActions(actionList: MZ.Action[]): void {
     const ratingMax = Math.max(...actionList.map(a => a.rating))
     const ratingZero = ratingMax - 3
     actionList = actionList.filter(a => a.rating > ratingZero)
@@ -277,7 +282,7 @@ class Game_Enemy extends Game_Battler {
     }
   }
 
-  makeActions() {
+  makeActions(): void {
     super.makeActions()
     if (this.numActions() > 0) {
       const actionList = this.enemy().actions.filter(a =>

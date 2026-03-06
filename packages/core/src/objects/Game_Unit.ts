@@ -56,7 +56,7 @@ class Game_Unit<Member extends Game_Battler = Game_Battler> {
         target = member
       }
     }
-    return target
+    return target!
   }
 
   randomDeadTarget() {

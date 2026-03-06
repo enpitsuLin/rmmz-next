@@ -3,32 +3,19 @@ import type { Game_Battler } from './Game_Battler'
 import type { Game_CharacterBase } from './Game_CharacterBase'
 import { Utils } from '../core'
 
-interface AnimationRequest {
-  targets: Game_CharacterBase[]
-  animationId: number
-  mirror: boolean
-}
-
-interface BalloonRequest {
-  target: Game_CharacterBase
-  balloonId: number
-}
-
-type TouchState = '' | 'select' | 'click'
-
 /**
  * The game object class for temporary data that is not included in save data.
  */
-class Game_Temp {
+export class Game_Temp {
   _isPlaytest!: boolean
   _destinationX!: number | null
   _destinationY!: number | null
   _touchTarget!: Game_Battler | null
-  _touchState!: TouchState
+  _touchState!: Game_Temp.TouchState
   _needsBattleRefresh!: boolean
   _commonEventQueue!: number[]
-  _animationQueue!: AnimationRequest[]
-  _balloonQueue!: BalloonRequest[]
+  _animationQueue!: Game_Temp.AnimationRequest[]
+  _balloonQueue!: Game_Temp.BalloonRequest[]
   _lastActionData!: number[]
 
   constructor() {
@@ -70,7 +57,7 @@ class Game_Temp {
     return this._destinationY
   }
 
-  setTouchState(target: Game_Battler | null, state: TouchState): void {
+  setTouchState(target: Game_Battler | null, state: Game_Temp.TouchState): void {
     this._touchTarget = target
     this._touchState = state
   }
@@ -84,7 +71,7 @@ class Game_Temp {
     return this._touchTarget
   }
 
-  touchState(): TouchState {
+  touchState(): Game_Temp.TouchState {
     return this._touchState
   }
 
@@ -129,7 +116,7 @@ class Game_Temp {
     mirror = false,
   ): void {
     if ($dataAnimations[animationId]) {
-      const request: AnimationRequest = {
+      const request: Game_Temp.AnimationRequest = {
         targets,
         animationId,
         mirror,
@@ -143,19 +130,19 @@ class Game_Temp {
     }
   }
 
-  retrieveAnimation(): AnimationRequest | undefined {
+  retrieveAnimation(): Game_Temp.AnimationRequest | undefined {
     return this._animationQueue.shift()
   }
 
   requestBalloon(target: Game_CharacterBase, balloonId: number): void {
-    const request: BalloonRequest = { target, balloonId }
+    const request: Game_Temp.BalloonRequest = { target, balloonId }
     this._balloonQueue.push(request)
     if (target.startBalloon) {
       target.startBalloon()
     }
   }
 
-  retrieveBalloon(): BalloonRequest | undefined {
+  retrieveBalloon(): Game_Temp.BalloonRequest | undefined {
     return this._balloonQueue.shift()
   }
 
@@ -192,4 +179,17 @@ class Game_Temp {
   }
 }
 
-export { Game_Temp }
+export namespace Game_Temp {
+  export interface AnimationRequest {
+    targets: Game_CharacterBase[]
+    animationId: number
+    mirror: boolean
+  }
+
+  export interface BalloonRequest {
+    target: Game_CharacterBase
+    balloonId: number
+  }
+
+  export type TouchState = '' | 'select' | 'click'
+}

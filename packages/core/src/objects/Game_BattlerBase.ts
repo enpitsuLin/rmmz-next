@@ -8,7 +8,7 @@ import { DataManager } from '../managers/DataManager'
  *
  * It mainly contains parameters calculation.
  */
-class Game_BattlerBase {
+class Game_BattlerBase<T extends MZ.TraitObject> {
   _hp!: number
   _mp!: number
   _tp!: number
@@ -23,39 +23,39 @@ class Game_BattlerBase {
     this.initMembers()
   }
 
-  static TRAIT_ELEMENT_RATE = 11
-  static TRAIT_DEBUFF_RATE = 12
-  static TRAIT_STATE_RATE = 13
-  static TRAIT_STATE_RESIST = 14
-  static TRAIT_PARAM = 21
-  static TRAIT_XPARAM = 22
-  static TRAIT_SPARAM = 23
-  static TRAIT_ATTACK_ELEMENT = 31
-  static TRAIT_ATTACK_STATE = 32
-  static TRAIT_ATTACK_SPEED = 33
-  static TRAIT_ATTACK_TIMES = 34
-  static TRAIT_ATTACK_SKILL = 35
-  static TRAIT_STYPE_ADD = 41
-  static TRAIT_STYPE_SEAL = 42
-  static TRAIT_SKILL_ADD = 43
-  static TRAIT_SKILL_SEAL = 44
-  static TRAIT_EQUIP_WTYPE = 51
-  static TRAIT_EQUIP_ATYPE = 52
-  static TRAIT_EQUIP_LOCK = 53
-  static TRAIT_EQUIP_SEAL = 54
-  static TRAIT_SLOT_TYPE = 55
-  static TRAIT_ACTION_PLUS = 61
-  static TRAIT_SPECIAL_FLAG = 62
-  static TRAIT_COLLAPSE_TYPE = 63
-  static TRAIT_PARTY_ABILITY = 64
-  static FLAG_ID_AUTO_BATTLE = 0
-  static FLAG_ID_GUARD = 1
-  static FLAG_ID_SUBSTITUTE = 2
-  static FLAG_ID_PRESERVE_TP = 3
-  static ICON_BUFF_START = 32
-  static ICON_DEBUFF_START = 48
+  static TRAIT_ELEMENT_RATE = 11 as const
+  static TRAIT_DEBUFF_RATE = 12 as const
+  static TRAIT_STATE_RATE = 13 as const
+  static TRAIT_STATE_RESIST = 14 as const
+  static TRAIT_PARAM = 21 as const
+  static TRAIT_XPARAM = 22 as const
+  static TRAIT_SPARAM = 23 as const
+  static TRAIT_ATTACK_ELEMENT = 31 as const
+  static TRAIT_ATTACK_STATE = 32 as const
+  static TRAIT_ATTACK_SPEED = 33 as const
+  static TRAIT_ATTACK_TIMES = 34 as const
+  static TRAIT_ATTACK_SKILL = 35 as const
+  static TRAIT_STYPE_ADD = 41 as const
+  static TRAIT_STYPE_SEAL = 42 as const
+  static TRAIT_SKILL_ADD = 43 as const
+  static TRAIT_SKILL_SEAL = 44 as const
+  static TRAIT_EQUIP_WTYPE = 51 as const
+  static TRAIT_EQUIP_ATYPE = 52 as const
+  static TRAIT_EQUIP_LOCK = 53 as const
+  static TRAIT_EQUIP_SEAL = 54 as const
+  static TRAIT_SLOT_TYPE = 55 as const
+  static TRAIT_ACTION_PLUS = 61 as const
+  static TRAIT_SPECIAL_FLAG = 62 as const
+  static TRAIT_COLLAPSE_TYPE = 63 as const
+  static TRAIT_PARTY_ABILITY = 64 as const
+  static FLAG_ID_AUTO_BATTLE = 0 as const
+  static FLAG_ID_GUARD = 1 as const
+  static FLAG_ID_SUBSTITUTE = 2 as const
+  static FLAG_ID_PRESERVE_TP = 3 as const
+  static ICON_BUFF_START = 32 as const
+  static ICON_DEBUFF_START = 48 as const
 
-  initMembers() {
+  initMembers(): void {
     this._hp = 1
     this._mp = 0
     this._tp = 0
@@ -70,197 +70,195 @@ class Game_BattlerBase {
     this.clearBuffs()
   }
 
-  clearParamPlus() {
+  clearParamPlus(): void {
     this._paramPlus = [0, 0, 0, 0, 0, 0, 0, 0]
   }
 
-  clearStates() {
+  clearStates(): void {
     this._states = []
     this._stateTurns = {}
   }
 
-  eraseState(stateId: number) {
+  eraseState(stateId: number): void {
     this._states.remove(stateId)
     delete this._stateTurns[stateId]
   }
 
-  isStateAffected(stateId: number) {
+  isStateAffected(stateId: number): boolean {
     return this._states.includes(stateId)
   }
 
-  isDeathStateAffected() {
+  isDeathStateAffected(): boolean {
     return this.isStateAffected(this.deathStateId())
   }
 
-  deathStateId() {
+  deathStateId(): number {
     return 1
   }
 
-  get hp() {
+  get hp(): number {
     return this._hp
   }
 
-  get mp() {
+  get mp(): number {
     return this._mp
   }
 
-  get tp() {
+  get tp(): number {
     return this._tp
   }
 
   // Maximum Hit Points
-  get mhp() {
+  get mhp(): number {
     return this.param(0)
   }
 
   // Maximum Magic Points
-  get mmp() {
+  get mmp(): number {
     return this.param(1)
   }
 
   // ATtacK power
-  get atk() {
+  get atk(): number {
     return this.param(2)
   }
 
   // DEFense power
-  get def() {
+  get def(): number {
     return this.param(3)
   }
 
   // Magic ATtack power
-  get mat() {
+  get mat(): number {
     return this.param(4)
   }
 
   // Magic DeFense power
-  get mdf() {
+  get mdf(): number {
     return this.param(5)
   }
 
   // AGIlity
-  get agi() {
+  get agi(): number {
     return this.param(6)
   }
 
   // LUcK
-  get luk() {
+  get luk(): number {
     return this.param(7)
   }
 
   // HIT rate
-  get hit() {
+  get hit(): number {
     return this.xparam(0)
   }
 
   // EVAsion rate
-  get eva() {
+  get eva(): number {
     return this.xparam(1)
   }
 
   // CRItical rate
-  get cri() {
+  get cri(): number {
     return this.xparam(2)
   }
 
   // Critical EVasion rate
-  get cev() {
+  get cev(): number {
     return this.xparam(3)
   }
 
   // Magic EVasion rate
-  get mev() {
+  get mev(): number {
     return this.xparam(4)
   }
 
   // Magic ReFlection rate
-  get mrf() {
+  get mrf(): number {
     return this.xparam(5)
   }
 
   // CouNTer attack rate
-  get cnt() {
+  get cnt(): number {
     return this.xparam(6)
   }
 
   // Hp ReGeneration rate
-  get hrg() {
+  get hrg(): number {
     return this.xparam(7)
   }
 
   // Mp ReGeneration rate
-  get mrg() {
+  get mrg(): number {
     return this.xparam(8)
   }
 
   // Tp ReGeneration rate
-  get trg() {
+  get trg(): number {
     return this.xparam(9)
   }
 
   // TarGet Rate
-  get tgr() {
+  get tgr(): number {
     return this.sparam(0)
   }
 
   // GuaRD effect rate
-  get grd() {
+  get grd(): number {
     return this.sparam(1)
   }
 
   // RECovery effect rate
-  get rec() {
+  get rec(): number {
     return this.sparam(2)
   }
 
   // PHArmacology
-  get pha() {
+  get pha(): number {
     return this.sparam(3)
   }
 
   // Mp Cost Rate
-  get mcr() {
+  get mcr(): number {
     return this.sparam(4)
   }
 
   // Tp Charge Rate
-  get tcr() {
+  get tcr(): number {
     return this.sparam(5)
   }
 
   // Physical Damage Rate
-  get pdr() {
+  get pdr(): number {
     return this.sparam(6)
   }
 
   // Magic Damage Rate
-  get mdr() {
+  get mdr(): number {
     return this.sparam(7)
   }
 
   // Floor Damage Rate
-  get fdr() {
+  get fdr(): number {
     return this.sparam(8)
   }
 
   // EXperience Rate
-  get exr() {
+  get exr(): number {
     return this.sparam(9)
   }
 
-  resetStateCounts(stateId: number) {
-    const state = $dataStates[stateId]
-    // @ts-expect-error to fix
+  resetStateCounts(stateId: number): void {
+    const state = $dataStates[stateId]!
     const variance = 1 + Math.max(state.maxTurns - state.minTurns, 0)
-    // @ts-expect-error to fix
     this._stateTurns[stateId] = state.minTurns + Math.randomInt(variance)
   }
 
-  isStateExpired(stateId: number) {
+  isStateExpired(stateId: number): boolean {
     return this._stateTurns[stateId] === 0
   }
 
-  updateStateTurns() {
+  updateStateTurns(): void {
     for (const stateId of this._states) {
       if (this._stateTurns[stateId] > 0) {
         this._stateTurns[stateId]--
@@ -268,67 +266,67 @@ class Game_BattlerBase {
     }
   }
 
-  clearBuffs() {
+  clearBuffs(): void {
     this._buffs = [0, 0, 0, 0, 0, 0, 0, 0]
     this._buffTurns = [0, 0, 0, 0, 0, 0, 0, 0]
   }
 
-  eraseBuff(paramId: number) {
+  eraseBuff(paramId: number): void {
     this._buffs[paramId] = 0
     this._buffTurns[paramId] = 0
   }
 
-  buffLength() {
+  buffLength(): number {
     return this._buffs.length
   }
 
-  buff(paramId: number) {
+  buff(paramId: number): number {
     return this._buffs[paramId]
   }
 
-  isBuffAffected(paramId: number) {
+  isBuffAffected(paramId: number): boolean {
     return this._buffs[paramId] > 0
   }
 
-  isDebuffAffected(paramId: number) {
+  isDebuffAffected(paramId: number): boolean {
     return this._buffs[paramId] < 0
   }
 
-  isBuffOrDebuffAffected(paramId: number) {
+  isBuffOrDebuffAffected(paramId: number): boolean {
     return this._buffs[paramId] !== 0
   }
 
-  isMaxBuffAffected(paramId: number) {
+  isMaxBuffAffected(paramId: number): boolean {
     return this._buffs[paramId] === 2
   }
 
-  isMaxDebuffAffected(paramId: number) {
+  isMaxDebuffAffected(paramId: number): boolean {
     return this._buffs[paramId] === -2
   }
 
-  increaseBuff(paramId: number) {
+  increaseBuff(paramId: number): void {
     if (!this.isMaxBuffAffected(paramId)) {
       this._buffs[paramId]++
     }
   }
 
-  decreaseBuff(paramId: number) {
+  decreaseBuff(paramId: number): void {
     if (!this.isMaxDebuffAffected(paramId)) {
       this._buffs[paramId]--
     }
   }
 
-  overwriteBuffTurns(paramId: number, turns: number) {
+  overwriteBuffTurns(paramId: number, turns: number): void {
     if (this._buffTurns[paramId] < turns) {
       this._buffTurns[paramId] = turns
     }
   }
 
-  isBuffExpired(paramId: number) {
+  isBuffExpired(paramId: number): boolean {
     return this._buffTurns[paramId] === 0
   }
 
-  updateBuffTurns() {
+  updateBuffTurns(): void {
     for (let i = 0; i < this._buffTurns.length; i++) {
       if (this._buffTurns[i] > 0) {
         this._buffTurns[i]--
@@ -336,30 +334,29 @@ class Game_BattlerBase {
     }
   }
 
-  die() {
+  die(): void {
     this._hp = 0
     this.clearStates()
     this.clearBuffs()
   }
 
-  revive() {
+  revive(): void {
     if (this._hp === 0) {
       this._hp = 1
     }
   }
 
-  states() {
-    return this._states.map(id => $dataStates[id])
+  states(): MZ.State[] {
+    return this._states!.map(id => $dataStates[id]!)
   }
 
-  stateIcons() {
+  stateIcons(): number[] {
     return this.states()
-      // @ts-expect-error to fix
-      .map(state => state.iconIndex)
-      .filter(iconIndex => iconIndex > 0)
+      .map(state => state?.iconIndex)
+      .filter((iconIndex): iconIndex is number => !!iconIndex && iconIndex > 0)
   }
 
-  buffIcons() {
+  buffIcons(): number[] {
     const icons = []
     for (let i = 0; i < this._buffs.length; i++) {
       if (this._buffs[i] !== 0) {
@@ -369,7 +366,7 @@ class Game_BattlerBase {
     return icons
   }
 
-  buffIconIndex(buffLevel: number, paramId: number) {
+  buffIconIndex(buffLevel: number, paramId: number): number {
     if (buffLevel > 0) {
       return Game_BattlerBase.ICON_BUFF_START + (buffLevel - 1) * 8 + paramId
     }
@@ -383,59 +380,58 @@ class Game_BattlerBase {
     }
   }
 
-  allIcons() {
+  allIcons(): number[] {
     return this.stateIcons().concat(this.buffIcons())
   }
 
-  traitObjects() {
+  traitObjects(): T[] {
     // Returns an array of the all objects having traits. States only here.
-    return this.states()
+    return this.states() as unknown as T[]
   }
 
-  allTraits() {
-    // @ts-expect-error to fix
-    return this.traitObjects().reduce((r, obj) => r.concat(obj.traits), [] as MZ.Trait[])
+  allTraits(): MZ.Trait[] {
+    return this.traitObjects().reduce((r, obj) => r.concat(obj?.traits), [] as MZ.Trait[])
   }
 
-  traits(code: number) {
-    return this.allTraits().filter(trait => trait.code === code)
+  traits(code: number): MZ.Trait[] {
+    return this.allTraits().filter((trait): trait is MZ.Trait => !!trait && trait.code === code)
   }
 
-  traitsWithId(code: number, id: number) {
+  traitsWithId(code: number, id: number): MZ.Trait[] {
     return this.allTraits().filter(
-      trait => trait.code === code && trait.dataId === id,
+      (trait): trait is MZ.Trait => !!trait && trait.code === code && trait.dataId === id,
     )
   }
 
-  traitsPi(code: number, id: number) {
-    return this.traitsWithId(code, id).reduce((r, trait) => r * trait.value, 1)
+  traitsPi(code: number, id: number): number {
+    return this.traitsWithId(code, id).reduce((r, trait) => r * trait!.value, 1)
   }
 
-  traitsSum(code: number, id: number) {
-    return this.traitsWithId(code, id).reduce((r, trait) => r + trait.value, 0)
+  traitsSum(code: number, id: number): number {
+    return this.traitsWithId(code, id).reduce((r, trait) => r + trait!.value, 0)
   }
 
-  traitsSumAll(code: number) {
-    return this.traits(code).reduce((r, trait) => r + trait.value, 0)
+  traitsSumAll(code: number): number {
+    return this.traits(code).reduce((r, trait) => r + trait!.value, 0)
   }
 
-  traitsSet(code: number) {
-    return this.traits(code).reduce((r, trait) => r.concat(trait.dataId), [] as number[])
+  traitsSet(code: number): number[] {
+    return this.traits(code).reduce((r, trait) => r.concat(trait!.dataId), [] as number[])
   }
 
-  paramBase(_paramId: number) {
+  paramBase(_paramId: number): number {
     return 0
   }
 
-  paramPlus(paramId: number) {
+  paramPlus(paramId: number): number {
     return this._paramPlus[paramId]
   }
 
-  paramBasePlus(paramId: number) {
+  paramBasePlus(paramId: number): number {
     return Math.max(0, this.paramBase(paramId) + this.paramPlus(paramId))
   }
 
-  paramMin(paramId: number) {
+  paramMin(paramId: number): number {
     if (paramId === 0) {
       return 1 // MHP
     }
@@ -444,19 +440,19 @@ class Game_BattlerBase {
     }
   }
 
-  paramMax(_paramId: number) {
+  paramMax(_paramId: number): number {
     return Infinity
   }
 
-  paramRate(paramId: number) {
+  paramRate(paramId: number): number {
     return this.traitsPi(Game_BattlerBase.TRAIT_PARAM, paramId)
   }
 
-  paramBuffRate(paramId: number) {
+  paramBuffRate(paramId: number): number {
     return this._buffs[paramId] * 0.25 + 1.0
   }
 
-  param(paramId: number) {
+  param(paramId: number): number {
     const value
       = this.paramBasePlus(paramId)
         * this.paramRate(paramId)
@@ -466,166 +462,166 @@ class Game_BattlerBase {
     return Math.round(value.clamp(minValue, maxValue))
   }
 
-  xparam(xparamId: number) {
+  xparam(xparamId: number): number {
     return this.traitsSum(Game_BattlerBase.TRAIT_XPARAM, xparamId)
   }
 
-  sparam(sparamId: number) {
+  sparam(sparamId: number): number {
     return this.traitsPi(Game_BattlerBase.TRAIT_SPARAM, sparamId)
   }
 
-  elementRate(elementId: number) {
+  elementRate(elementId: number): number {
     return this.traitsPi(Game_BattlerBase.TRAIT_ELEMENT_RATE, elementId)
   }
 
-  debuffRate(paramId: number) {
+  debuffRate(paramId: number): number {
     return this.traitsPi(Game_BattlerBase.TRAIT_DEBUFF_RATE, paramId)
   }
 
-  stateRate(stateId: number) {
+  stateRate(stateId: number): number {
     return this.traitsPi(Game_BattlerBase.TRAIT_STATE_RATE, stateId)
   }
 
-  stateResistSet() {
+  stateResistSet(): number[] {
     return this.traitsSet(Game_BattlerBase.TRAIT_STATE_RESIST)
   }
 
-  isStateResist(stateId: number) {
+  isStateResist(stateId: number): boolean {
     return this.stateResistSet().includes(stateId)
   }
 
-  attackElements() {
+  attackElements(): number[] {
     return this.traitsSet(Game_BattlerBase.TRAIT_ATTACK_ELEMENT)
   }
 
-  attackStates() {
+  attackStates(): number[] {
     return this.traitsSet(Game_BattlerBase.TRAIT_ATTACK_STATE)
   }
 
-  attackStatesRate(stateId: number) {
+  attackStatesRate(stateId: number): number {
     return this.traitsSum(Game_BattlerBase.TRAIT_ATTACK_STATE, stateId)
   }
 
-  attackSpeed() {
+  attackSpeed(): number {
     return this.traitsSumAll(Game_BattlerBase.TRAIT_ATTACK_SPEED)
   }
 
-  attackTimesAdd() {
+  attackTimesAdd(): number {
     return Math.max(this.traitsSumAll(Game_BattlerBase.TRAIT_ATTACK_TIMES), 0)
   }
 
-  attackSkillId() {
+  attackSkillId(): number {
     const set = this.traitsSet(Game_BattlerBase.TRAIT_ATTACK_SKILL)
     return set.length > 0 ? Math.max(...set) : 1
   }
 
-  addedSkillTypes() {
+  addedSkillTypes(): number[] {
     return this.traitsSet(Game_BattlerBase.TRAIT_STYPE_ADD)
   }
 
-  isSkillTypeSealed(stypeId: number) {
+  isSkillTypeSealed(stypeId: number): boolean {
     return this.traitsSet(Game_BattlerBase.TRAIT_STYPE_SEAL).includes(stypeId)
   }
 
-  addedSkills() {
+  addedSkills(): number[] {
     return this.traitsSet(Game_BattlerBase.TRAIT_SKILL_ADD)
   }
 
-  isSkillSealed(skillId: number) {
+  isSkillSealed(skillId: number): boolean {
     return this.traitsSet(Game_BattlerBase.TRAIT_SKILL_SEAL).includes(skillId)
   }
 
-  isEquipWtypeOk(wtypeId: number) {
+  isEquipWtypeOk(wtypeId: number): boolean {
     return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_WTYPE).includes(wtypeId)
   }
 
-  isEquipAtypeOk(atypeId: number) {
+  isEquipAtypeOk(atypeId: number): boolean {
     return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_ATYPE).includes(atypeId)
   }
 
-  isEquipTypeLocked(etypeId: number) {
+  isEquipTypeLocked(etypeId: number): boolean {
     return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_LOCK).includes(etypeId)
   }
 
-  isEquipTypeSealed(etypeId: number) {
+  isEquipTypeSealed(etypeId: number): boolean {
     return this.traitsSet(Game_BattlerBase.TRAIT_EQUIP_SEAL).includes(etypeId)
   }
 
-  slotType() {
+  slotType(): number {
     const set = this.traitsSet(Game_BattlerBase.TRAIT_SLOT_TYPE)
     return set.length > 0 ? Math.max(...set) : 0
   }
 
-  isDualWield() {
+  isDualWield(): boolean {
     return this.slotType() === 1
   }
 
-  actionPlusSet() {
+  actionPlusSet(): number[] {
     return this.traits(Game_BattlerBase.TRAIT_ACTION_PLUS).map(
       trait => trait.value,
     )
   }
 
-  specialFlag(flagId: number) {
+  specialFlag(flagId: number): boolean {
     return this.traits(Game_BattlerBase.TRAIT_SPECIAL_FLAG).some(
       trait => trait.dataId === flagId,
     )
   }
 
-  collapseType() {
+  collapseType(): number {
     const set = this.traitsSet(Game_BattlerBase.TRAIT_COLLAPSE_TYPE)
     return set.length > 0 ? Math.max(...set) : 0
   }
 
-  partyAbility(abilityId: number) {
+  partyAbility(abilityId: number): boolean {
     return this.traits(Game_BattlerBase.TRAIT_PARTY_ABILITY).some(
       trait => trait.dataId === abilityId,
     )
   }
 
-  isAutoBattle() {
+  isAutoBattle(): boolean {
     return this.specialFlag(Game_BattlerBase.FLAG_ID_AUTO_BATTLE)
   }
 
-  isGuard() {
+  isGuard(): boolean {
     return this.specialFlag(Game_BattlerBase.FLAG_ID_GUARD) && this.canMove()
   }
 
-  isSubstitute() {
+  isSubstitute(): boolean {
     return (
       this.specialFlag(Game_BattlerBase.FLAG_ID_SUBSTITUTE) && this.canMove()
     )
   }
 
-  isPreserveTp() {
+  isPreserveTp(): boolean {
     return this.specialFlag(Game_BattlerBase.FLAG_ID_PRESERVE_TP)
   }
 
-  addParam(paramId: number, value: number) {
+  addParam(paramId: number, value: number): void {
     this._paramPlus[paramId] += value
     this.refresh()
   }
 
-  setHp(hp: number) {
+  setHp(hp: number): void {
     this._hp = hp
     this.refresh()
   }
 
-  setMp(mp: number) {
+  setMp(mp: number): void {
     this._mp = mp
     this.refresh()
   }
 
-  setTp(tp: number) {
+  setTp(tp: number): void {
     this._tp = tp
     this.refresh()
   }
 
-  maxTp() {
+  maxTp(): number {
     return 100
   }
 
-  refresh() {
+  refresh(): void {
     for (const stateId of this.stateResistSet()) {
       this.eraseState(stateId)
     }
@@ -634,73 +630,72 @@ class Game_BattlerBase {
     this._tp = this._tp.clamp(0, this.maxTp())
   }
 
-  recoverAll() {
+  recoverAll(): void {
     this.clearStates()
     this._hp = this.mhp
     this._mp = this.mmp
   }
 
-  hpRate() {
+  hpRate(): number {
     return this.hp / this.mhp
   }
 
-  mpRate() {
+  mpRate(): number {
     return this.mmp > 0 ? this.mp / this.mmp : 0
   }
 
-  tpRate() {
+  tpRate(): number {
     return this.tp / this.maxTp()
   }
 
-  hide() {
+  hide(): void {
     this._hidden = true
   }
 
-  appear() {
+  appear(): void {
     this._hidden = false
   }
 
-  isHidden() {
+  isHidden(): boolean {
     return this._hidden
   }
 
-  isAppeared() {
+  isAppeared(): boolean {
     return !this.isHidden()
   }
 
-  isDead() {
+  isDead(): boolean {
     return this.isAppeared() && this.isDeathStateAffected()
   }
 
-  isAlive() {
+  isAlive(): boolean {
     return this.isAppeared() && !this.isDeathStateAffected()
   }
 
-  isDying() {
+  isDying(): boolean {
     return this.isAlive() && this._hp < this.mhp / 4
   }
 
-  isRestricted() {
+  isRestricted(): boolean {
     return this.isAppeared() && this.restriction() > 0
   }
 
-  canInput() {
-    // prettier-ignore
+  canInput(): boolean {
     return this.isAppeared() && this.isActor()
       && !this.isRestricted() && !this.isAutoBattle()
   }
 
-  canMove() {
+  canMove(): boolean {
     return this.isAppeared() && this.restriction() < 4
   }
 
-  isConfused() {
+  isConfused(): boolean {
     return (
       this.isAppeared() && this.restriction() >= 1 && this.restriction() <= 3
     )
   }
 
-  confusionLevel() {
+  confusionLevel(): number {
     return this.isConfused() ? this.restriction() : 0
   }
 
@@ -712,12 +707,10 @@ class Game_BattlerBase {
     return false
   }
 
-  sortStates() {
+  sortStates(): void {
     this._states.sort((a, b) => {
-      // @ts-expect-error to fix
-      const p1 = $dataStates[a].priority
-      // @ts-expect-error to fix
-      const p2 = $dataStates[b].priority
+      const p1 = $dataStates[a]!.priority
+      const p2 = $dataStates[b]!.priority
       if (p1 !== p2) {
         return p2 - p1
       }
@@ -725,13 +718,12 @@ class Game_BattlerBase {
     })
   }
 
-  restriction() {
-    // @ts-expect-error to fix
-    const restrictions = this.states().map(state => state.restriction)
+  restriction(): number {
+    const restrictions = this.states().map(state => state?.restriction)
     return Math.max(0, ...restrictions)
   }
 
-  addNewState(stateId: number) {
+  addNewState(stateId: number): void {
     if (stateId === this.deathStateId()) {
       this.die()
     }
@@ -743,25 +735,22 @@ class Game_BattlerBase {
     }
   }
 
-  onRestrict() {
+  onRestrict(): void {
     //
   }
 
-  mostImportantStateText() {
+  mostImportantStateText(): string {
     for (const state of this.states()) {
-      // @ts-expect-error to fix
       if (state.message3) {
-        // @ts-expect-error to fix
         return state.message3
       }
     }
     return ''
   }
 
-  stateMotionIndex() {
+  stateMotionIndex(): number {
     const states = this.states()
     if (states.length > 0) {
-      // @ts-expect-error to fix
       return states[0].motion
     }
     else {
@@ -769,10 +758,9 @@ class Game_BattlerBase {
     }
   }
 
-  stateOverlayIndex() {
+  stateOverlayIndex(): number {
     const states = this.states()
     if (states.length > 0) {
-      // @ts-expect-error to fix
       return states[0].overlay
     }
     else {
@@ -780,30 +768,30 @@ class Game_BattlerBase {
     }
   }
 
-  isSkillWtypeOk(_skill: MZ.Skill) {
+  isSkillWtypeOk(_skill: MZ.Skill): boolean {
     return true
   }
 
-  skillMpCost(skill: MZ.Skill) {
+  skillMpCost(skill: MZ.Skill): number {
     return Math.floor(skill.mpCost * this.mcr)
   }
 
-  skillTpCost(skill: MZ.Skill) {
+  skillTpCost(skill: MZ.Skill): number {
     return skill.tpCost
   }
 
-  canPaySkillCost(skill: MZ.Skill) {
+  canPaySkillCost(skill: MZ.Skill): boolean {
     return (
       this._tp >= this.skillTpCost(skill) && this._mp >= this.skillMpCost(skill)
     )
   }
 
-  paySkillCost(skill: MZ.Skill) {
+  paySkillCost(skill: MZ.Skill): void {
     this._mp -= this.skillMpCost(skill)
     this._tp -= this.skillTpCost(skill)
   }
 
-  isOccasionOk(item: MZ.Item | MZ.Skill) {
+  isOccasionOk(item: MZ.Item | MZ.Skill): boolean {
     if ($gameParty.inBattle()) {
       return item.occasion === 0 || item.occasion === 1
     }
@@ -812,11 +800,11 @@ class Game_BattlerBase {
     }
   }
 
-  meetsUsableItemConditions(item: MZ.Item | MZ.Skill) {
+  meetsUsableItemConditions(item: MZ.Item | MZ.Skill): boolean {
     return this.canMove() && this.isOccasionOk(item)
   }
 
-  meetsSkillConditions(skill: MZ.Skill) {
+  meetsSkillConditions(skill: MZ.Skill): boolean {
     return (
       this.meetsUsableItemConditions(skill)
       && this.isSkillWtypeOk(skill)
@@ -826,11 +814,11 @@ class Game_BattlerBase {
     )
   }
 
-  meetsItemConditions(item: MZ.Item) {
+  meetsItemConditions(item: MZ.Item): boolean {
     return this.meetsUsableItemConditions(item) && $gameParty.hasItem(item)
   }
 
-  canUse(item: MZ.Item | MZ.Skill) {
+  canUse(item: MZ.Item | MZ.Skill): boolean {
     if (!item) {
       return false
     }
@@ -845,7 +833,7 @@ class Game_BattlerBase {
     }
   }
 
-  canEquip(item: MZ.Weapon | MZ.Armor) {
+  canEquip(item: MZ.Weapon | MZ.Armor): boolean {
     if (!item) {
       return false
     }
@@ -860,30 +848,28 @@ class Game_BattlerBase {
     }
   }
 
-  canEquipWeapon(item: MZ.Weapon) {
+  canEquipWeapon(item: MZ.Weapon): boolean {
     return (
       this.isEquipWtypeOk(item.wtypeId) && !this.isEquipTypeSealed(item.etypeId)
     )
   }
 
-  canEquipArmor(item: MZ.Armor) {
+  canEquipArmor(item: MZ.Armor): boolean {
     return (
       this.isEquipAtypeOk(item.atypeId) && !this.isEquipTypeSealed(item.etypeId)
     )
   }
 
-  guardSkillId() {
+  guardSkillId(): number {
     return 2
   }
 
-  canAttack() {
-    // @ts-expect-error to fix
-    return this.canUse($dataSkills[this.attackSkillId()])
+  canAttack(): boolean {
+    return this.canUse($dataSkills[this.attackSkillId()]!)
   }
 
-  canGuard() {
-    // @ts-expect-error to fix
-    return this.canUse($dataSkills[this.guardSkillId()])
+  canGuard(): boolean {
+    return this.canUse($dataSkills[this.guardSkillId()]!)
   }
 }
 

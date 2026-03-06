@@ -1,11 +1,18 @@
+import type { MZ } from '@rmmz-lib/database-types'
 import type { VehicleType } from '../types'
+import { AudioManager } from '../managers'
 import { Game_Character } from './Game_Character'
 
 /**
  * The game object class for a vehicle.
  */
-class Game_Vehicle extends Game_Character {
-  _type!: VehicleType | ''
+export class Game_Vehicle extends Game_Character {
+  _type?: VehicleType
+  _mapId?: number
+
+  _altitude?: number
+  _driving?: boolean
+  _bgm?: MZ.AudioInfo | null
 
   constructor(type: VehicleType) {
     super()
@@ -17,7 +24,7 @@ class Game_Vehicle extends Game_Character {
     }
   }
 
-  initMembers() {
+  initMembers(): void {
     super.initMembers()
     this._type = ''
     this._mapId = 0
@@ -26,23 +33,23 @@ class Game_Vehicle extends Game_Character {
     this._bgm = null
   }
 
-  isBoat() {
+  isBoat(): boolean {
     return this._type === 'boat'
   }
 
-  isShip() {
+  isShip(): boolean {
     return this._type === 'ship'
   }
 
-  isAirship() {
+  isAirship(): boolean {
     return this._type === 'airship'
   }
 
-  resetDirection() {
+  resetDirection(): void {
     this.setDirection(4)
   }
 
-  initMoveSpeed() {
+  initMoveSpeed(): void {
     if (this.isBoat()) {
       this.setMoveSpeed(4)
     }
@@ -54,7 +61,7 @@ class Game_Vehicle extends Game_Character {
     }
   }
 
-  vehicle() {
+  vehicle(): MZ.System.Boat | MZ.System.Ship | MZ.System.Airship | null {
     if (this.isBoat()) {
       return $dataSystem.boat
     }
@@ -69,14 +76,14 @@ class Game_Vehicle extends Game_Character {
     }
   }
 
-  loadSystemSettings() {
-    const vehicle = this.vehicle()
+  loadSystemSettings(): void {
+    const vehicle = this.vehicle()!
     this._mapId = vehicle.startMapId
     this.setPosition(vehicle.startX, vehicle.startY)
     this.setImage(vehicle.characterName, vehicle.characterIndex)
   }
 
-  refresh() {
+  refresh(): void {
     if (this._driving) {
       this._mapId = $gameMap.mapId()
       this.syncWithPlayer()
@@ -90,18 +97,18 @@ class Game_Vehicle extends Game_Character {
     else {
       this.setPriorityType(1)
     }
-    this.setWalkAnime(this._driving)
-    this.setStepAnime(this._driving)
+    this.setWalkAnime(this._driving!)
+    this.setStepAnime(this._driving!)
     this.setTransparent(this._mapId !== $gameMap.mapId())
   }
 
-  setLocation(mapId, x, y) {
+  setLocation(mapId: number, x: number, y: number): void {
     this._mapId = mapId
     this.setPosition(x, y)
     this.refresh()
   }
 
-  pos(x, y) {
+  pos(x: number, y: number): boolean {
     if (this._mapId === $gameMap.mapId()) {
       return super.pos(x, y)
     }
@@ -110,7 +117,7 @@ class Game_Vehicle extends Game_Character {
     }
   }
 
-  isMapPassable(x, y, d) {
+  isMapPassable(x: number, y: number, d: number): boolean {
     const x2 = $gameMap.roundXWithDirection(x, d)
     const y2 = $gameMap.roundYWithDirection(y, d)
     if (this.isBoat()) {
@@ -127,7 +134,7 @@ class Game_Vehicle extends Game_Character {
     }
   }
 
-  getOn() {
+  getOn(): void {
     this._driving = true
     this.setWalkAnime(true)
     this.setStepAnime(true)
@@ -135,7 +142,7 @@ class Game_Vehicle extends Game_Character {
     this.playBgm()
   }
 
-  getOff() {
+  getOff(): void {
     this._driving = false
     this.setWalkAnime(false)
     this.setStepAnime(false)
@@ -143,36 +150,36 @@ class Game_Vehicle extends Game_Character {
     $gameSystem.replayWalkingBgm()
   }
 
-  setBgm(bgm) {
+  setBgm(bgm: MZ.AudioInfo): void {
     this._bgm = bgm
   }
 
-  playBgm() {
-    AudioManager.playBgm(this._bgm || this.vehicle().bgm)
+  playBgm(): void {
+    AudioManager.playBgm(this._bgm || this.vehicle()?.bgm)
   }
 
-  syncWithPlayer() {
+  syncWithPlayer(): void {
     this.copyPosition($gamePlayer)
     this.refreshBushDepth()
   }
 
-  screenY() {
-    return super.screenY() - this._altitude
+  screenY(): number {
+    return super.screenY() - this._altitude!
   }
 
-  shadowX() {
+  shadowX(): number {
     return this.screenX()
   }
 
-  shadowY() {
-    return this.screenY() + this._altitude
+  shadowY(): number {
+    return this.screenY() + this._altitude!
   }
 
-  shadowOpacity() {
-    return (255 * this._altitude) / this.maxAltitude()
+  shadowOpacity(): number {
+    return (255 * this._altitude!) / this.maxAltitude()
   }
 
-  canMove() {
+  canMove(): boolean {
     if (this.isAirship()) {
       return this.isHighest()
     }
@@ -181,45 +188,45 @@ class Game_Vehicle extends Game_Character {
     }
   }
 
-  update() {
+  update(): void {
     super.update()
     if (this.isAirship()) {
       this.updateAirship()
     }
   }
 
-  updateAirship() {
+  updateAirship(): void {
     this.updateAirshipAltitude()
     this.setStepAnime(this.isHighest())
     this.setPriorityType(this.isLowest() ? 0 : 2)
   }
 
-  updateAirshipAltitude() {
+  updateAirshipAltitude(): void {
     if (this._driving && !this.isHighest()) {
-      this._altitude++
+      this._altitude!++
     }
     if (!this._driving && !this.isLowest()) {
-      this._altitude--
+      this._altitude!--
     }
   }
 
-  maxAltitude() {
+  maxAltitude(): number {
     return 48
   }
 
-  isLowest() {
-    return this._altitude <= 0
+  isLowest(): boolean {
+    return this._altitude! <= 0
   }
 
-  isHighest() {
-    return this._altitude >= this.maxAltitude()
+  isHighest(): boolean {
+    return this._altitude! >= this.maxAltitude()
   }
 
-  isTakeoffOk() {
+  isTakeoffOk(): boolean {
     return $gamePlayer.areFollowersGathered()
   }
 
-  isLandOk(x, y, d) {
+  isLandOk(x: number, y: number, d: number): boolean {
     if (this.isAirship()) {
       if (!$gameMap.isAirshipLandOk(x, y)) {
         return false
@@ -244,5 +251,3 @@ class Game_Vehicle extends Game_Character {
     return true
   }
 }
-
-export { Game_Vehicle }

@@ -61,7 +61,7 @@ export class AudioManager {
     this._seVolume = value
   }
 
-  static playBgm(bgm: AudioManager.AudioWithPos | null, pos?: number): void {
+  static playBgm(bgm?: AudioManager.AudioWithPos | null, pos?: number): void {
     if (this.isCurrentBgm(bgm)) {
       this.updateBgmParameters(bgm)
     }
@@ -90,7 +90,7 @@ export class AudioManager {
     }
   }
 
-  static isCurrentBgm(bgm: AudioManager.AudioWithPos | null): boolean {
+  static isCurrentBgm(bgm?: AudioManager.AudioWithPos | null): boolean {
     return (
       !!this._currentBgm
       && !!this._bgmBuffer
@@ -98,11 +98,12 @@ export class AudioManager {
     )
   }
 
-  static updateBgmParameters(bgm: AudioManager.AudioWithPos | null): void {
+  static updateBgmParameters(bgm?: AudioManager.AudioWithPos | null): void {
     this.updateBufferParameters(this._bgmBuffer, this._bgmVolume, bgm)
   }
 
-  static updateCurrentBgm(bgm: AudioManager.AudioWithPos | null, pos?: number): void {
+  static updateCurrentBgm(bgm?: AudioManager.AudioWithPos | null, pos?: number): void {
+    // TODO: fix this
     this._currentBgm = {
       name: bgm!.name,
       volume: bgm!.volume,
@@ -357,7 +358,11 @@ export class AudioManager {
     return buffer
   }
 
-  static updateBufferParameters(buffer: WebAudio | null, configVolume: number, audio: MZ.AudioInfo | null): void {
+  static updateBufferParameters(
+    buffer: WebAudio | null,
+    configVolume: number,
+    audio?: MZ.AudioInfo | null,
+  ): void {
     if (buffer && audio) {
       buffer.volume = (configVolume * (audio.volume || 0)) / 10000
       buffer.pitch = (audio.pitch || 0) / 100
