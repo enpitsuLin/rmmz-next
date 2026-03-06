@@ -3,7 +3,7 @@ import { Game_CharacterBase } from './Game_CharacterBase'
 /**
  * The superclass of Game_Player, Game_Follower, GameVehicle, and Game_Event.
  */
-class Game_Character extends Game_CharacterBase {
+export class Game_Character extends Game_CharacterBase {
   static ROUTE_END = 0
   static ROUTE_MOVE_DOWN = 1
   static ROUTE_MOVE_LEFT = 2
@@ -576,5 +576,3 @@ class Game_Character extends Game_CharacterBase {
     return 12
   }
 }
-
-export { Game_Character }

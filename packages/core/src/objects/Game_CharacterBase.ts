@@ -15,9 +15,9 @@ class Game_CharacterBase {
   _moveFrequency!: number
   _opacity!: number
   _blendMode!: number
-  _direction!: number
+  _direction!: Game_CharacterBase.CharacterDirection
   _pattern!: number
-  _priorityType!: number
+  _priorityType!: Game_CharacterBase.CharacterPriorityType
   _tileId!: number
   _characterName!: string
   _characterIndex!: number
@@ -42,7 +42,7 @@ class Game_CharacterBase {
     this.initMembers()
   }
 
-  initMembers() {
+  initMembers(): void {
     this._x = 0
     this._y = 0
     this._realX = 0
@@ -75,72 +75,72 @@ class Game_CharacterBase {
     this._movementSuccess = true
   }
 
-  get x() {
+  get x(): number {
     return this._x
   }
 
-  get y() {
+  get y(): number {
     return this._y
   }
 
-  pos(x: number, y: number) {
+  pos(x: number, y: number): boolean {
     return this._x === x && this._y === y
   }
 
-  posNt(x: number, y: number) {
+  posNt(x: number, y: number): boolean {
     // No through
     return this.pos(x, y) && !this.isThrough()
   }
 
-  moveSpeed() {
+  moveSpeed(): number {
     return this._moveSpeed
   }
 
-  setMoveSpeed(moveSpeed: number) {
+  setMoveSpeed(moveSpeed: number): void {
     this._moveSpeed = moveSpeed
   }
 
-  moveFrequency() {
+  moveFrequency(): number {
     return this._moveFrequency
   }
 
-  setMoveFrequency(moveFrequency: number) {
+  setMoveFrequency(moveFrequency: number): void {
     this._moveFrequency = moveFrequency
   }
 
-  opacity() {
+  opacity(): number {
     return this._opacity
   }
 
-  setOpacity(opacity: number) {
+  setOpacity(opacity: number): void {
     this._opacity = opacity
   }
 
-  blendMode() {
+  blendMode(): number {
     return this._blendMode
   }
 
-  setBlendMode(blendMode: number) {
+  setBlendMode(blendMode: number): void {
     this._blendMode = blendMode
   }
 
-  isNormalPriority() {
+  isNormalPriority(): boolean {
     return this._priorityType === 1
   }
 
-  setPriorityType(priorityType: number) {
+  setPriorityType(priorityType: Game_CharacterBase.CharacterPriorityType): void {
     this._priorityType = priorityType
   }
 
-  isMoving() {
+  isMoving(): boolean {
     return this._realX !== this._x || this._realY !== this._y
   }
 
-  isJumping() {
+  isJumping(): boolean {
     return this._jumpCount > 0
   }
 
-  jumpHeight() {
+  jumpHeight(): number {
     return (
       (this._jumpPeak * this._jumpPeak
         - Math.abs(this._jumpCount - this._jumpPeak) ** 2)
@@ -148,46 +148,46 @@ class Game_CharacterBase {
     )
   }
 
-  isStopping() {
+  isStopping(): boolean {
     return !this.isMoving() && !this.isJumping()
   }
 
-  checkStop(threshold: number) {
+  checkStop(threshold: number): boolean {
     return this._stopCount > threshold
   }
 
-  resetStopCount() {
+  resetStopCount(): void {
     this._stopCount = 0
   }
 
-  realMoveSpeed() {
+  realMoveSpeed(): number {
     return this._moveSpeed + (this.isDashing() ? 1 : 0)
   }
 
-  distancePerFrame() {
+  distancePerFrame(): number {
     return 2 ** this.realMoveSpeed() / 256
   }
 
-  isDashing() {
+  isDashing(): boolean {
     return false
   }
 
-  isDebugThrough() {
+  isDebugThrough(): boolean {
     return false
   }
 
-  straighten() {
+  straighten(): void {
     if (this.hasWalkAnime() || this.hasStepAnime()) {
       this._pattern = 1
     }
     this._animationCount = 0
   }
 
-  reverseDir(d: number) {
-    return 10 - d
+  reverseDir(d: Game_CharacterBase.CharacterDirection): Game_CharacterBase.CharacterDirection {
+    return (10 - d) as Game_CharacterBase.CharacterDirection
   }
 
-  canPass(x: number, y: number, d: number) {
+  canPass(x: number, y: number, d: number): boolean {
     const x2 = $gameMap.roundXWithDirection(x, d)
     const y2 = $gameMap.roundYWithDirection(y, d)
     if (!$gameMap.isValid(x2, y2)) {
@@ -205,7 +205,7 @@ class Game_CharacterBase {
     return true
   }
 
-  canPassDiagonally(x: number, y: number, horz: number, vert: number) {
+  canPassDiagonally(x: number, y: number, horz: number, vert: number): boolean {
     const x2 = $gameMap.roundXWithDirection(x, horz)
     const y2 = $gameMap.roundYWithDirection(y, vert)
     if (this.canPass(x, y, vert) && this.canPass(x, y2, horz)) {
@@ -217,34 +217,34 @@ class Game_CharacterBase {
     return false
   }
 
-  isMapPassable(x: number, y: number, d: number) {
+  isMapPassable(x: number, y: number, d: number): boolean {
     const x2 = $gameMap.roundXWithDirection(x, d)
     const y2 = $gameMap.roundYWithDirection(y, d)
-    const d2 = this.reverseDir(d)
+    const d2 = this.reverseDir(d as Game_CharacterBase.CharacterDirection)
     return $gameMap.isPassable(x, y, d) && $gameMap.isPassable(x2, y2, d2)
   }
 
-  isCollidedWithCharacters(x: number, y: number) {
+  isCollidedWithCharacters(x: number, y: number): boolean {
     return this.isCollidedWithEvents(x, y) || this.isCollidedWithVehicles(x, y)
   }
 
-  isCollidedWithEvents(x: number, y: number) {
+  isCollidedWithEvents(x: number, y: number): boolean {
     const events = $gameMap.eventsXyNt(x, y)
     return events.some(event => event.isNormalPriority())
   }
 
-  isCollidedWithVehicles(x: number, y: number) {
+  isCollidedWithVehicles(x: number, y: number): boolean {
     return $gameMap.boat().posNt(x, y) || $gameMap.ship().posNt(x, y)
   }
 
-  setPosition(x: number, y: number) {
+  setPosition(x: number, y: number): void {
     this._x = Math.round(x)
     this._y = Math.round(y)
     this._realX = x
     this._realY = y
   }
 
-  copyPosition(character: Game_CharacterBase) {
+  copyPosition(character: Game_CharacterBase): void {
     this._x = character._x
     this._y = character._y
     this._realX = character._realX
@@ -252,60 +252,60 @@ class Game_CharacterBase {
     this._direction = character._direction
   }
 
-  locate(x: number, y: number) {
+  locate(x: number, y: number): void {
     this.setPosition(x, y)
     this.straighten()
     this.refreshBushDepth()
   }
 
-  direction() {
+  direction(): Game_CharacterBase.CharacterDirection {
     return this._direction
   }
 
-  setDirection(d: number) {
+  setDirection(d: number): void {
     if (!this.isDirectionFixed() && d) {
-      this._direction = d
+      this._direction = d as Game_CharacterBase.CharacterDirection
     }
     this.resetStopCount()
   }
 
-  isTile() {
+  isTile(): boolean {
     return this._tileId > 0 && this._priorityType === 0
   }
 
-  isObjectCharacter() {
+  isObjectCharacter(): boolean {
     return this._isObjectCharacter
   }
 
-  shiftY() {
+  shiftY(): number {
     return this.isObjectCharacter() ? 0 : 6
   }
 
-  scrolledX() {
+  scrolledX(): number {
     return $gameMap.adjustX(this._realX)
   }
 
-  scrolledY() {
+  scrolledY(): number {
     return $gameMap.adjustY(this._realY)
   }
 
-  screenX() {
+  screenX(): number {
     const tw = $gameMap.tileWidth()
     return Math.floor(this.scrolledX() * tw + tw / 2)
   }
 
-  screenY() {
+  screenY(): number {
     const th = $gameMap.tileHeight()
     return Math.floor(
       this.scrolledY() * th + th - this.shiftY() - this.jumpHeight(),
     )
   }
 
-  screenZ() {
+  screenZ(): number {
     return this._priorityType * 2 + 1
   }
 
-  isNearTheScreen() {
+  isNearTheScreen(): boolean {
     const gw = Graphics.width
     const gh = Graphics.height
     const tw = $gameMap.tileWidth()
@@ -315,7 +315,7 @@ class Game_CharacterBase {
     return px >= -gw && px <= gw && py >= -gh && py <= gh
   }
 
-  update() {
+  update(): void {
     if (this.isStopping()) {
       this.updateStop()
     }
@@ -328,11 +328,11 @@ class Game_CharacterBase {
     this.updateAnimation()
   }
 
-  updateStop() {
+  updateStop(): void {
     this._stopCount++
   }
 
-  updateJump() {
+  updateJump(): void {
     this._jumpCount--
     this._realX
       = (this._realX * this._jumpCount + this._x) / (this._jumpCount + 1.0)
@@ -345,7 +345,7 @@ class Game_CharacterBase {
     }
   }
 
-  updateMove() {
+  updateMove(): void {
     if (this._x < this._realX) {
       this._realX = Math.max(this._realX - this.distancePerFrame(), this._x)
     }
@@ -363,7 +363,7 @@ class Game_CharacterBase {
     }
   }
 
-  updateAnimation() {
+  updateAnimation(): void {
     this.updateAnimationCount()
     if (this._animationCount >= this.animationWait()) {
       this.updatePattern()
@@ -371,11 +371,11 @@ class Game_CharacterBase {
     }
   }
 
-  animationWait() {
+  animationWait(): number {
     return (9 - this.realMoveSpeed()) * 3
   }
 
-  updateAnimationCount() {
+  updateAnimationCount(): void {
     if (this.isMoving() && this.hasWalkAnime()) {
       this._animationCount += 1.5
     }
@@ -384,7 +384,7 @@ class Game_CharacterBase {
     }
   }
 
-  updatePattern() {
+  updatePattern(): void {
     if (!this.hasStepAnime() && this._stopCount > 0) {
       this.resetPattern()
     }
@@ -393,27 +393,27 @@ class Game_CharacterBase {
     }
   }
 
-  maxPattern() {
+  maxPattern(): number {
     return 4
   }
 
-  pattern() {
+  pattern(): number {
     return this._pattern < 3 ? this._pattern : 1
   }
 
-  setPattern(pattern: number) {
+  setPattern(pattern: number): void {
     this._pattern = pattern
   }
 
-  isOriginalPattern() {
+  isOriginalPattern(): boolean {
     return this.pattern() === 1
   }
 
-  resetPattern() {
+  resetPattern(): void {
     this.setPattern(1)
   }
 
-  refreshBushDepth() {
+  refreshBushDepth(): void {
     if (
       this.isNormalPriority()
       && !this.isObjectCharacter()
@@ -429,23 +429,23 @@ class Game_CharacterBase {
     }
   }
 
-  isOnLadder() {
+  isOnLadder(): boolean {
     return $gameMap.isLadder(this._x, this._y)
   }
 
-  isOnBush() {
+  isOnBush(): boolean {
     return $gameMap.isBush(this._x, this._y)
   }
 
-  terrainTag() {
+  terrainTag(): number {
     return $gameMap.terrainTag(this._x, this._y)
   }
 
-  regionId() {
+  regionId(): number {
     return $gameMap.regionId(this._x, this._y)
   }
 
-  increaseSteps() {
+  increaseSteps(): void {
     if (this.isOnLadder()) {
       this.setDirection(8)
     }
@@ -453,33 +453,33 @@ class Game_CharacterBase {
     this.refreshBushDepth()
   }
 
-  tileId() {
+  tileId(): number {
     return this._tileId
   }
 
-  characterName() {
+  characterName(): string {
     return this._characterName
   }
 
-  characterIndex() {
+  characterIndex(): number {
     return this._characterIndex
   }
 
-  setImage(characterName: string, characterIndex: number) {
+  setImage(characterName: string, characterIndex: number): void {
     this._tileId = 0
     this._characterName = characterName
     this._characterIndex = characterIndex
     this._isObjectCharacter = ImageManager.isObjectCharacter(characterName)
   }
 
-  setTileImage(tileId: number) {
+  setTileImage(tileId: number): void {
     this._tileId = tileId
     this._characterName = ''
     this._characterIndex = 0
     this._isObjectCharacter = true
   }
 
-  checkEventTriggerTouchFront(d: number) {
+  checkEventTriggerTouchFront(d: number): void {
     const x2 = $gameMap.roundXWithDirection(this._x, d)
     const y2 = $gameMap.roundYWithDirection(this._y, d)
     this.checkEventTriggerTouch(x2, y2)
@@ -489,22 +489,22 @@ class Game_CharacterBase {
     throw new TypeError('Method not implemented in Game_CharacterBase.')
   }
 
-  isMovementSucceeded() {
+  isMovementSucceeded(): boolean {
     return this._movementSuccess
   }
 
-  setMovementSuccess(success: boolean) {
+  setMovementSuccess(success: boolean): void {
     this._movementSuccess = success
   }
 
-  moveStraight(d: number) {
+  moveStraight(d: number): void {
     this.setMovementSuccess(this.canPass(this._x, this._y, d))
     if (this.isMovementSucceeded()) {
       this.setDirection(d)
       this._x = $gameMap.roundXWithDirection(this._x, d)
       this._y = $gameMap.roundYWithDirection(this._y, d)
-      this._realX = $gameMap.xWithDirection(this._x, this.reverseDir(d))
-      this._realY = $gameMap.yWithDirection(this._y, this.reverseDir(d))
+      this._realX = $gameMap.xWithDirection(this._x, this.reverseDir(d as Game_CharacterBase.CharacterDirection))
+      this._realY = $gameMap.yWithDirection(this._y, this.reverseDir(d as Game_CharacterBase.CharacterDirection))
       this.increaseSteps()
     }
     else {
@@ -513,26 +513,26 @@ class Game_CharacterBase {
     }
   }
 
-  moveDiagonally(horz: number, vert: number) {
+  moveDiagonally(horz: number, vert: number): void {
     this.setMovementSuccess(
       this.canPassDiagonally(this._x, this._y, horz, vert),
     )
     if (this.isMovementSucceeded()) {
       this._x = $gameMap.roundXWithDirection(this._x, horz)
       this._y = $gameMap.roundYWithDirection(this._y, vert)
-      this._realX = $gameMap.xWithDirection(this._x, this.reverseDir(horz))
-      this._realY = $gameMap.yWithDirection(this._y, this.reverseDir(vert))
+      this._realX = $gameMap.xWithDirection(this._x, this.reverseDir(horz as Game_CharacterBase.CharacterDirection))
+      this._realY = $gameMap.yWithDirection(this._y, this.reverseDir(vert as Game_CharacterBase.CharacterDirection))
       this.increaseSteps()
     }
-    if (this._direction === this.reverseDir(horz)) {
+    if (this._direction === this.reverseDir(horz as Game_CharacterBase.CharacterDirection)) {
       this.setDirection(horz)
     }
-    if (this._direction === this.reverseDir(vert)) {
+    if (this._direction === this.reverseDir(vert as Game_CharacterBase.CharacterDirection)) {
       this.setDirection(vert)
     }
   }
 
-  jump(xPlus: number, yPlus: number) {
+  jump(xPlus: number, yPlus: number): void {
     if (Math.abs(xPlus) > Math.abs(yPlus)) {
       if (xPlus !== 0) {
         this.setDirection(xPlus < 0 ? 4 : 6)
@@ -552,73 +552,80 @@ class Game_CharacterBase {
     this.straighten()
   }
 
-  hasWalkAnime() {
+  hasWalkAnime(): boolean {
     return this._walkAnime
   }
 
-  setWalkAnime(walkAnime: boolean) {
+  setWalkAnime(walkAnime: boolean): void {
     this._walkAnime = walkAnime
   }
 
-  hasStepAnime() {
+  hasStepAnime(): boolean {
     return this._stepAnime
   }
 
-  setStepAnime(stepAnime: boolean) {
+  setStepAnime(stepAnime: boolean): void {
     this._stepAnime = stepAnime
   }
 
-  isDirectionFixed() {
+  isDirectionFixed(): boolean {
     return this._directionFix
   }
 
-  setDirectionFix(directionFix: boolean) {
+  setDirectionFix(directionFix: boolean): void {
     this._directionFix = directionFix
   }
 
-  isThrough() {
+  isThrough(): boolean {
     return this._through
   }
 
-  setThrough(through: boolean) {
+  setThrough(through: boolean): void {
     this._through = through
   }
 
-  isTransparent() {
+  isTransparent(): boolean {
     return this._transparent
   }
 
-  bushDepth() {
+  bushDepth(): number {
     return this._bushDepth
   }
 
-  setTransparent(transparent: boolean) {
+  setTransparent(transparent: boolean): void {
     this._transparent = transparent
   }
 
-  startAnimation() {
+  startAnimation(): void {
     this._animationPlaying = true
   }
 
-  startBalloon() {
+  startBalloon(): void {
     this._balloonPlaying = true
   }
 
-  isAnimationPlaying() {
+  isAnimationPlaying(): boolean {
     return this._animationPlaying
   }
 
-  isBalloonPlaying() {
+  isBalloonPlaying(): boolean {
     return this._balloonPlaying
   }
 
-  endAnimation() {
+  endAnimation(): void {
     this._animationPlaying = false
   }
 
-  endBalloon() {
+  endBalloon(): void {
     this._balloonPlaying = false
   }
+}
+
+namespace Game_CharacterBase {
+  /** Cardinal directions in RPG Maker (2=Down, 4=Left, 6=Right, 8=Up) */
+  export type CharacterDirection = 2 | 4 | 6 | 8
+  /** Event/character priority layer (0=Below, 1=Normal, 2=Above) */
+  export type CharacterPriorityType = 0 | 1 | 2
 }
 
 export { Game_CharacterBase }
