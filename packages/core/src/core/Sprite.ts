@@ -12,6 +12,10 @@ import { Rectangle } from './Rectangle'
  * @param {Bitmap} bitmap - The image for the sprite.
  */
 export class Sprite extends PIXI.Sprite {
+  dy?: number
+  ry?: number
+  z?: number
+
   isPlaying(): boolean {
     throw new Error('Method not implemented.')
   }

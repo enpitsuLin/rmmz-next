@@ -1,7 +1,7 @@
 import type { Sprite } from '../core'
 import type { Game_Battler } from '../objects'
-import type { Sprite_Damage } from './Sprite_Damage'
 import { Sprite_Clickable } from './Sprite_Clickable'
+import { Sprite_Damage } from './Sprite_Damage'
 
 /**
  * Sprite_Battler
@@ -9,9 +9,19 @@ import { Sprite_Clickable } from './Sprite_Clickable'
  * The superclass of Sprite_Actor and Sprite_Enemy.
  */
 export class Sprite_Battler extends Sprite_Clickable {
-  _battler!: Game_Battler
+  _battler?: Game_Battler | null
 
-  constructor(battler: Game_Battler | null) {
+  _damages!: Sprite_Damage[]
+  _homeX!: number
+  _homeY!: number
+  _offsetX!: number
+  _offsetY!: number
+  _targetOffsetX!: number
+  _targetOffsetY!: number
+  _movementDuration!: number
+  _selectionEffectCount!: number
+
+  constructor(battler?: Game_Battler | null) {
     super()
     this.initMembers()
     this.setBattler(battler)
@@ -32,7 +42,7 @@ export class Sprite_Battler extends Sprite_Clickable {
     this._selectionEffectCount = 0
   }
 
-  setBattler(battler: Game_Battler | null): void {
+  setBattler(battler?: Game_Battler | null): void {
     this._battler = battler
   }
 
@@ -71,7 +81,7 @@ export class Sprite_Battler extends Sprite_Clickable {
   }
 
   updateMain(): void {
-    if (this._battler.isSpriteVisible()) {
+    if (this._battler?.isSpriteVisible()) {
       this.updateBitmap()
       this.updateFrame()
     }
@@ -118,7 +128,7 @@ export class Sprite_Battler extends Sprite_Clickable {
 
   updateSelectionEffect(): void {
     const target = this.mainSprite()
-    if (this._battler.isSelected()) {
+    if (this._battler?.isSelected()) {
       this._selectionEffectCount++
       if (this._selectionEffectCount % 30 < 15) {
         target.setBlendColor([255, 255, 255, 64])
@@ -134,7 +144,7 @@ export class Sprite_Battler extends Sprite_Clickable {
   }
 
   setupDamagePopup(): void {
-    if (this._battler.isDamagePopupRequested()) {
+    if (this._battler?.isDamagePopupRequested()) {
       if (this._battler.isSpriteVisible()) {
         this.createDamageSprite()
       }
@@ -154,7 +164,7 @@ export class Sprite_Battler extends Sprite_Clickable {
       sprite.x = this.x + this.damageOffsetX()
       sprite.y = this.y + this.damageOffsetY()
     }
-    sprite.setup(this._battler)
+    sprite.setup(this._battler!)
     this._damages.push(sprite)
     this.parent.addChild(sprite)
   }
@@ -202,14 +212,14 @@ export class Sprite_Battler extends Sprite_Clickable {
   }
 
   onMouseEnter(): void {
-    $gameTemp.setTouchState(this._battler, 'select')
+    $gameTemp.setTouchState(this._battler!, 'select')
   }
 
   onPress(): void {
-    $gameTemp.setTouchState(this._battler, 'select')
+    $gameTemp.setTouchState(this._battler!, 'select')
   }
 
   onClick(): void {
-    $gameTemp.setTouchState(this._battler, 'click')
+    $gameTemp.setTouchState(this._battler!, 'click')
   }
 }

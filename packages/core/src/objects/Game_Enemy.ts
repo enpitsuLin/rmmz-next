@@ -8,7 +8,7 @@ import { Game_Battler } from './Game_Battler'
 /**
  * The game object class for an enemy.
  */
-class Game_Enemy extends Game_Battler<MZ.Enemy> {
+export class Game_Enemy extends Game_Battler<MZ.Enemy> {
   _enemyId!: number
   _letter!: string
   _plural!: boolean
@@ -296,4 +296,6 @@ class Game_Enemy extends Game_Battler<MZ.Enemy> {
   }
 }
 
-export { Game_Enemy }
+export namespace Game_Enemy {
+  export type EffectType = Game_Battler.EffectType | 'appear' | 'disappear'
+}

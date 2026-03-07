@@ -1,3 +1,4 @@
+import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_Actor } from '../objects'
 import { Graphics, Rectangle } from '../core'
 import { SoundManager } from '../managers/SoundManager'
@@ -16,6 +17,10 @@ export class Scene_Skill extends Scene_ItemBase {
 
   constructor() {
     super()
+  }
+
+  override item(): MZ.Skill | null {
+    return super.item() as MZ.Skill
   }
 
   create(): void {

@@ -1,4 +1,5 @@
 import type { MZ } from '@rmmz-lib/database-types'
+import type { Sprite_Balloon } from '../sprites'
 import type { Game_Battler } from './Game_Battler'
 import type { Game_Character } from './Game_Character'
 import { Utils } from '../core'
@@ -15,7 +16,7 @@ export class Game_Temp {
   _needsBattleRefresh!: boolean
   _commonEventQueue!: number[]
   _animationQueue!: Game_Temp.AnimationRequest[]
-  _balloonQueue!: Game_Temp.BalloonRequest[]
+  _balloonQueue!: Sprite_Balloon.BalloonRequest[]
   _lastActionData!: number[]
 
   constructor() {
@@ -134,14 +135,14 @@ export class Game_Temp {
   }
 
   requestBalloon(target: Game_Character, balloonId: number): void {
-    const request: Game_Temp.BalloonRequest = { target, balloonId }
+    const request: Sprite_Balloon.BalloonRequest = { target, balloonId }
     this._balloonQueue.push(request)
     if (target.startBalloon) {
       target.startBalloon()
     }
   }
 
-  retrieveBalloon(): Game_Temp.BalloonRequest | undefined {
+  retrieveBalloon(): Sprite_Balloon.BalloonRequest | undefined {
     return this._balloonQueue.shift()
   }
 
@@ -183,11 +184,6 @@ export namespace Game_Temp {
     targets: (Game_Battler | Game_Character)[]
     animationId: number
     mirror: boolean
-  }
-
-  export interface BalloonRequest {
-    target: Game_Character
-    balloonId: number
   }
 
   export type TouchState = '' | 'select' | 'click'

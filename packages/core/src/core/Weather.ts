@@ -19,7 +19,7 @@ export class Weather extends PIXI.Container<Sprite | ScreenSprite> {
   /**
    * The type of the weather in ["none", "rain", "storm", "snow"].
    */
-  type: 'none' | 'rain' | 'storm' | 'snow'
+  type: Weather.WeatherType
   /**
    * The power of the weather in the range (0, 9).
    *
@@ -68,7 +68,6 @@ export class Weather extends PIXI.Container<Sprite | ScreenSprite> {
   /**
    * Updates the weather for each frame.
    */
-  // @ts-expect-error ignore this
   update(): void {
     this._updateDimmer()
     this._updateAllSprites()
@@ -165,4 +164,8 @@ export class Weather extends PIXI.Container<Sprite | ScreenSprite> {
     sprite.ay = Math.randomInt(Graphics.height + 200) - 200 + this.origin.y
     sprite.opacity = 160 + Math.randomInt(60)
   }
+}
+
+export namespace Weather {
+  export type WeatherType = 'none' | 'rain' | 'storm' | 'snow'
 }

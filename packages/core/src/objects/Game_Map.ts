@@ -805,7 +805,7 @@ class Game_Map {
     return false
   }
 
-  setupTestEvent() {
+  setupTestEvent(): boolean {
     if (window.$testEvent) {
       this._interpreter.setup($testEvent, 0)
       $testEvent = null

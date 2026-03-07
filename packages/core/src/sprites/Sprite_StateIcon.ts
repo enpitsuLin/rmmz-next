@@ -1,5 +1,6 @@
 import type { Game_Battler } from '../objects'
 import { Sprite } from '../core'
+import { ImageManager } from '../managers'
 
 /**
  * Sprite_StateIcon
@@ -7,6 +8,11 @@ import { Sprite } from '../core'
  * The sprite for displaying state icons.
  */
 export class Sprite_StateIcon extends Sprite {
+  _battler!: null | Game_Battler
+  _iconIndex!: number
+  _animationCount!: number
+  _animationIndex!: number
+
   constructor() {
     super()
     this.initMembers()
@@ -51,7 +57,7 @@ export class Sprite_StateIcon extends Sprite {
   updateIcon(): void {
     const icons = []
     if (this.shouldDisplay()) {
-      icons.push(...this._battler.allIcons())
+      icons.push(...this._battler!.allIcons())
     }
     if (icons.length > 0) {
       this._animationIndex++
@@ -68,7 +74,7 @@ export class Sprite_StateIcon extends Sprite {
 
   shouldDisplay(): boolean {
     const battler = this._battler
-    return battler && (battler.isActor() || battler.isAlive())
+    return !!battler && (battler.isActor() || battler.isAlive())
   }
 
   updateFrame(): void {

@@ -11,6 +11,8 @@ import { Rectangle } from './Rectangle'
  * @param {Bitmap} bitmap - The image for the tiling sprite.
  */
 export class TilingSprite extends PIXI.TilingSprite {
+  override children!: PIXI.Sprite[]
+
   _bitmap?: Bitmap
   _frame: Rectangle
 
@@ -80,7 +82,7 @@ export class TilingSprite extends PIXI.TilingSprite {
   /**
    * Updates the tiling sprite for each frame.
    */
-  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
+
   update(): void {
     for (const child of this.children) {
       if (child.update) {

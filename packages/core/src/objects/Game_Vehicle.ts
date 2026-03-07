@@ -1,5 +1,6 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { VehicleType } from '../types'
+import type { Game_CharacterBase } from './Game_CharacterBase'
 import { AudioManager } from '../managers'
 import { Game_Character } from './Game_Character'
 
@@ -226,7 +227,7 @@ export class Game_Vehicle extends Game_Character {
     return $gamePlayer.areFollowersGathered()
   }
 
-  isLandOk(x: number, y: number, d: number): boolean {
+  isLandOk(x: number, y: number, d: Game_CharacterBase.CharacterDirection): boolean {
     if (this.isAirship()) {
       if (!$gameMap.isAirshipLandOk(x, y)) {
         return false

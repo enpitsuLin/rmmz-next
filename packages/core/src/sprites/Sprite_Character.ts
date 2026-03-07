@@ -9,6 +9,17 @@ import { ImageManager } from '../managers'
  * The sprite for displaying a character.
  */
 export class Sprite_Character extends Sprite {
+  _character: null
+  _balloonDuration: number
+  _tilesetId: number
+  _upperBody: null
+  _lowerBody: null
+  _tileId: number
+  _characterName: any
+  _characterIndex: any
+  _isBigCharacter: boolean
+  _bushDepth: number
+  z: any
   constructor(character: Game_CharacterBase) {
     super()
     this.initMembers()

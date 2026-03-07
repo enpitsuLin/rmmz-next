@@ -1,3 +1,5 @@
+import type { Game_Picture } from '../objects'
+import { ImageManager } from '../managers'
 import { Sprite_Clickable } from './Sprite_Clickable'
 
 /**
@@ -6,6 +8,8 @@ import { Sprite_Clickable } from './Sprite_Clickable'
  * The sprite for displaying a picture.
  */
 export class Sprite_Picture extends Sprite_Clickable {
+  _pictureId: number
+  _pictureName: string
   constructor(pictureId: number) {
     super()
     this._pictureId = pictureId
@@ -73,7 +77,7 @@ export class Sprite_Picture extends Sprite_Clickable {
   updateTone(): void {
     const picture = this.picture()
     if (picture.tone()) {
-      this.setColorTone(picture.tone())
+      this.setColorTone(picture.tone()!)
     }
     else {
       this.setColorTone([0, 0, 0, 0])

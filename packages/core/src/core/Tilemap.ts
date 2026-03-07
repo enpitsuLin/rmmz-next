@@ -11,20 +11,22 @@ import { TilemapLayer } from './TilemapLayer'
  * @extends PIXI.Container
  */
 export class Tilemap extends PIXI.Container {
-  protected _width: number
-  protected _height: number
-  protected _margin: number
-  protected _mapWidth: number
-  protected _mapHeight: number
-  protected _mapData: number[] | null
-  protected _bitmaps: Bitmap[]
-  protected _lowerLayer!: Tilemap.CombinedLayer
-  protected _upperLayer!: Tilemap.CombinedLayer
-  protected _needsRepaint!: boolean
-  protected _needsBitmapsUpdate: boolean = false
-  protected _lastAnimationFrame?: number
-  protected _lastStartX?: number
-  protected _lastStartY?: number
+  override children!: PIXI.Sprite[]
+
+  _width: number
+  _height: number
+  _margin: number
+  _mapWidth: number
+  _mapHeight: number
+  _mapData: number[] | null
+  _bitmaps: Bitmap[]
+  _lowerLayer!: Tilemap.CombinedLayer
+  _upperLayer!: Tilemap.CombinedLayer
+  _needsRepaint!: boolean
+  _needsBitmapsUpdate: boolean = false
+  _lastAnimationFrame?: number
+  _lastStartX?: number
+  _lastStartY?: number
 
   /**
    * The width of each tile.
@@ -152,7 +154,7 @@ export class Tilemap extends PIXI.Container {
   /**
    * Updates the tilemap for each frame.
    */
-  // @ts-expect-error DisplayObject from "@pixi/display" use Omit cause ts(2425), ignore that
+
   update(): void {
     this.animationCount++
     this.animationFrame = Math.floor(this.animationCount / 30)

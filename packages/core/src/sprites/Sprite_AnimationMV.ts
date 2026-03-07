@@ -7,6 +7,23 @@ import { Sprite } from '../core'
  * The sprite for displaying an old format animation.
  */
 export class Sprite_AnimationMV extends Sprite {
+  _targets: never[]
+  _animation: null
+  _mirror: boolean
+  _delay: number
+  _rate: number
+  _duration: number
+  _flashColor: number[]
+  _flashDuration: number
+  _screenFlashDuration: number
+  _hidingDuration: number
+  _hue1: number
+  _hue2: number
+  _bitmap1: null
+  _bitmap2: null
+  _cellSprites: never[]
+  _screenFlashSprite: null
+  z: number
   constructor() {
     super()
     this.initMembers()

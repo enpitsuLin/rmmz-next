@@ -96,7 +96,7 @@ export class ColorManager {
     return this._windowskin.getPixel(120, 120)
   }
 
-  static hpColor(actor: Game_BattlerBase | null): string {
+  static hpColor(actor?: Game_BattlerBase | null): string {
     if (!actor) {
       return this.normalColor()
     }
@@ -111,11 +111,11 @@ export class ColorManager {
     }
   }
 
-  static mpColor(_actor?: Game_BattlerBase): string {
+  static mpColor(_actor?: Game_BattlerBase | null): string {
     return this.normalColor()
   }
 
-  static tpColor(_actor?: Game_BattlerBase): string {
+  static tpColor(_actor?: Game_BattlerBase | null): string {
     return this.normalColor()
   }
 

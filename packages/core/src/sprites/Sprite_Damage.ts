@@ -1,5 +1,6 @@
 import type * as PIXI from 'pixi.js'
 import type { Game_Battler } from '../objects'
+import type { RGBA } from '../types'
 import { Bitmap, Sprite } from '../core'
 import { ColorManager } from '../managers'
 
@@ -9,6 +10,12 @@ import { ColorManager } from '../managers'
  * The sprite for displaying a popup damage.
  */
 export class Sprite_Damage extends Sprite {
+  override children!: Sprite[]
+
+  _duration: number
+  _flashColor: RGBA
+  _flashDuration: number
+  _colorType: number
   constructor() {
     super()
     this._duration = 90
@@ -74,7 +81,7 @@ export class Sprite_Damage extends Sprite {
     const h = this.fontSize()
     const w = Math.floor(h * 3.0)
     const sprite = this.createChildSprite(w, h)
-    sprite.bitmap.drawText('Miss', 0, 0, w, h, 'center')
+    sprite.bitmap?.drawText('Miss', 0, 0, w, h, 'center')
     sprite.dy = 0
   }
 
@@ -84,7 +91,7 @@ export class Sprite_Damage extends Sprite {
     const w = Math.floor(h * 0.75)
     for (let i = 0; i < string.length; i++) {
       const sprite = this.createChildSprite(w, h)
-      sprite.bitmap.drawText(string[i], 0, 0, w, h, 'center')
+      sprite.bitmap?.drawText(string[i], 0, 0, w, h, 'center')
       sprite.x = (i - (string.length - 1) / 2) * w
       sprite.dy = -i
     }

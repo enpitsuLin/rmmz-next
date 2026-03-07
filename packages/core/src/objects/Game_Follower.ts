@@ -1,3 +1,4 @@
+import type { Game_Actor } from '.'
 import { Game_Character } from './Game_Character'
 
 /**
@@ -6,32 +7,34 @@ import { Game_Character } from './Game_Character'
  * A follower is an allied character, other than the front character, displayed in the party.
  */
 class Game_Follower extends Game_Character {
-  constructor(memberIndex) {
+  _memberIndex: number
+
+  constructor(memberIndex: number) {
     super()
     this._memberIndex = memberIndex
     this.setTransparent($dataSystem.optTransparent)
     this.setThrough(true)
   }
 
-  refresh() {
+  refresh(): void {
     const characterName = this.isVisible() ? this.actor().characterName() : ''
     const characterIndex = this.isVisible() ? this.actor().characterIndex() : 0
     this.setImage(characterName, characterIndex)
   }
 
-  actor() {
+  actor(): Game_Actor {
     return $gameParty.battleMembers()[this._memberIndex]
   }
 
-  isVisible() {
+  isVisible(): boolean {
     return this.actor() && $gamePlayer.followers().isVisible()
   }
 
-  isGathered() {
+  isGathered(): boolean {
     return !this.isMoving() && this.pos($gamePlayer.x, $gamePlayer.y)
   }
 
-  update() {
+  update(): void {
     super.update()
     this.setMoveSpeed($gamePlayer.realMoveSpeed())
     this.setOpacity($gamePlayer.opacity())
@@ -42,7 +45,7 @@ class Game_Follower extends Game_Character {
     this.setTransparent($gamePlayer.isTransparent())
   }
 
-  chaseCharacter(character) {
+  chaseCharacter(character: Game_Character): void {
     const sx = this.deltaXFrom(character.x)
     const sy = this.deltaYFrom(character.y)
     if (sx !== 0 && sy !== 0) {

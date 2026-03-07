@@ -43,6 +43,8 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
 
   abstract name(): string
 
+  abstract isSpriteVisible(): boolean
+
   initMembers(): void {
     super.initMembers()
     this._actions = []

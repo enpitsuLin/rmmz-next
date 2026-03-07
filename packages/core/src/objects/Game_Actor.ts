@@ -894,7 +894,7 @@ export class Game_Actor extends Game_Battler {
     return this._lastMenuSkill.object()
   }
 
-  setLastMenuSkill(skill: MZ.Skill): void {
+  setLastMenuSkill(skill: MZ.Skill | null): void {
     this._lastMenuSkill.setObject(skill)
   }
 

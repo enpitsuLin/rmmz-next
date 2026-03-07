@@ -1,3 +1,4 @@
+import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_Character } from '../objects'
 import type { PIXI } from '../pixi'
 import { Graphics, Sprite, Tilemap, TilingSprite, Weather } from '../core'
@@ -18,6 +19,11 @@ export class Spriteset_Map extends Spriteset_Base<Game_Character> {
   _parallax!: TilingSprite
   _tilemap!: Tilemap
   _effectsContainer!: Tilemap
+  _tileset!: MZ.Tileset | null
+  _shadowSprite!: Sprite
+  _destinationSprite!: Sprite_Destination
+  _weather!: Weather
+  _parallaxName!: string
 
   constructor() {
     super()
@@ -164,7 +170,7 @@ export class Spriteset_Map extends Spriteset_Base<Game_Character> {
   }
 
   updateWeather(): void {
-    this._weather.type = $gameScreen.weatherType()
+    this._weather.type = $gameScreen.weatherType() as Weather.WeatherType
     this._weather.power = $gameScreen.weatherPower()
     this._weather.origin.x = $gameMap.displayX() * $gameMap.tileWidth()
     this._weather.origin.y = $gameMap.displayY() * $gameMap.tileHeight()
@@ -191,7 +197,7 @@ export class Spriteset_Map extends Spriteset_Base<Game_Character> {
     }
   }
 
-  createBalloon(request): void {
+  createBalloon(request: Sprite_Balloon.BalloonRequest): void {
     const targetSprite = this.findTargetSprite(request.target)
     if (targetSprite) {
       const sprite = new Sprite_Balloon()
@@ -205,7 +211,7 @@ export class Spriteset_Map extends Spriteset_Base<Game_Character> {
   removeBalloon(sprite: Sprite_Balloon): void {
     this._balloonSprites.remove(sprite)
     this._effectsContainer.removeChild(sprite)
-    if (sprite.targetObject.endBalloon) {
+    if (sprite.targetObject?.endBalloon) {
       sprite.targetObject.endBalloon()
     }
     sprite.destroy()

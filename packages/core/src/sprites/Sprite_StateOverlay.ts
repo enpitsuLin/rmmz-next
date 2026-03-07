@@ -1,5 +1,6 @@
 import type { Game_Battler } from '../objects'
 import { Sprite } from '../core'
+import { ImageManager } from '../managers'
 
 /**
  * Sprite_StateOverlay
@@ -7,6 +8,11 @@ import { Sprite } from '../core'
  * The sprite for displaying an overlay image for a state.
  */
 export class Sprite_StateOverlay extends Sprite {
+  _battler!: Game_Battler | null
+  _overlayIndex!: number
+  _animationCount!: number
+  _pattern!: number
+
   constructor() {
     super()
     this.initMembers()

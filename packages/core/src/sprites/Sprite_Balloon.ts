@@ -1,4 +1,6 @@
+import type { Game_Character } from '../objects'
 import { Sprite } from '../core'
+import { ImageManager } from '../managers'
 
 /**
  * Sprite_Balloon
@@ -6,6 +8,11 @@ import { Sprite } from '../core'
  * The sprite for displaying a balloon icon.
  */
 export class Sprite_Balloon extends Sprite {
+  targetObject!: Game_Character | null
+  _target!: Sprite | null
+  _balloonId!: number
+  _duration!: number
+
   constructor() {
     super()
     this.initMembers()
@@ -44,8 +51,8 @@ export class Sprite_Balloon extends Sprite {
   }
 
   updatePosition(): void {
-    this.x = this._target.x
-    this.y = this._target.y - this._target.height
+    this.x = this._target!.x
+    this.y = this._target!.y - this._target!.height
   }
 
   updateFrame(): void {
@@ -71,5 +78,12 @@ export class Sprite_Balloon extends Sprite {
 
   isPlaying(): boolean {
     return this._duration > 0
+  }
+}
+
+export namespace Sprite_Balloon {
+  export interface BalloonRequest {
+    target: Game_Character
+    balloonId: number
   }
 }

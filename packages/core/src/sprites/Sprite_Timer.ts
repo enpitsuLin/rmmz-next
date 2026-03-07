@@ -8,6 +8,7 @@ import { ColorManager } from '../managers'
  * The sprite for displaying the timer.
  */
 export class Sprite_Timer extends Sprite {
+  _seconds: number
   constructor() {
     super()
     this._seconds = 0
@@ -16,7 +17,7 @@ export class Sprite_Timer extends Sprite {
   }
 
   destroy(options?: PIXI.IDestroyOptions): void {
-    this.bitmap.destroy()
+    this.bitmap?.destroy()
     super.destroy(options)
   }
 
@@ -51,10 +52,10 @@ export class Sprite_Timer extends Sprite {
 
   redraw(): void {
     const text = this.timerText()
-    const width = this.bitmap.width
-    const height = this.bitmap.height
-    this.bitmap.clear()
-    this.bitmap.drawText(text, 0, 0, width, height, 'center')
+    const width = this.bitmap!.width
+    const height = this.bitmap!.height
+    this.bitmap!.clear()
+    this.bitmap!.drawText(text, 0, 0, width, height, 'center')
   }
 
   timerText(): string {
@@ -64,7 +65,7 @@ export class Sprite_Timer extends Sprite {
   }
 
   updatePosition(): void {
-    this.x = (Graphics.width - this.bitmap.width) / 2
+    this.x = (Graphics.width - this.bitmap!.width) / 2
     this.y = 0
   }
 

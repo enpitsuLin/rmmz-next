@@ -1,6 +1,9 @@
-import type { Sprite } from '../core'
 import type { Game_Actor } from '../objects'
+import { Sprite } from '../core'
+import { BattleManager, ImageManager } from '../managers'
 import { Sprite_Battler } from './Sprite_Battler'
+import { Sprite_StateOverlay } from './Sprite_StateOverlay'
+import { Sprite_Weapon } from './Sprite_Weapon'
 
 /**
  * Sprite_Actor
@@ -8,7 +11,7 @@ import { Sprite_Battler } from './Sprite_Battler'
  * The sprite for displaying an actor.
  */
 export class Sprite_Actor extends Sprite_Battler {
-  static MOTIONS = {
+  static readonly MOTIONS = {
     walk: { index: 0, loop: true },
     wait: { index: 1, loop: true },
     chant: { index: 2, loop: true },
@@ -27,9 +30,19 @@ export class Sprite_Actor extends Sprite_Battler {
     abnormal: { index: 15, loop: true },
     sleep: { index: 16, loop: true },
     dead: { index: 17, loop: true },
-  }
+  } satisfies Record<Sprite_Actor.MotionName, Sprite_Actor.Motion>
 
-  constructor(battler: Game_Actor | null) {
+  _battlerName!: string
+  _motion!: Sprite_Actor.Motion | null
+  _motionCount!: number
+  _pattern!: number
+  _mainSprite!: Sprite
+  _shadowSprite!: Sprite
+  _weaponSprite!: Sprite_Weapon
+  _stateSprite!: Sprite_StateOverlay
+  _actor!: Game_Actor
+
+  constructor(battler?: Game_Actor) {
     super(battler)
     this.moveToStartPosition()
   }
@@ -76,7 +89,7 @@ export class Sprite_Actor extends Sprite_Battler {
     this.addChild(this._stateSprite)
   }
 
-  setBattler(battler: Game_Actor | null): void {
+  setBattler(battler: Game_Actor): void {
     super.setBattler(battler)
     if (battler !== this._actor) {
       this._actor = battler

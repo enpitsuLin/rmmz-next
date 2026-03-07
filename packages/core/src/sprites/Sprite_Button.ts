@@ -8,6 +8,10 @@ import { Sprite_Clickable } from './Sprite_Clickable'
  * The sprite for displaying a button.
  */
 export class Sprite_Button extends Sprite_Clickable {
+  _buttonType: string
+  _clickHandler: null | (() => void)
+  _coldFrame: null | Rectangle
+  _hotFrame: null | Rectangle
   constructor(buttonType: Sprite_Button.ButtonType) {
     super()
     this._buttonType = buttonType
@@ -52,7 +56,7 @@ export class Sprite_Button extends Sprite_Clickable {
       up2: { x: 7, w: 1 },
       ok: { x: 8, w: 2 },
       menu: { x: 10, w: 1 },
-    }
+    } as Record<string, { x: number, w: number }>
     return buttonTable[this._buttonType]
   }
 
@@ -65,7 +69,7 @@ export class Sprite_Button extends Sprite_Clickable {
   }
 
   checkBitmap(): void {
-    if (this.bitmap.isReady() && this.bitmap.width < this.blockWidth() * 11) {
+    if (this.bitmap?.isReady() && this.bitmap.width < this.blockWidth() * 11) {
       // Probably MV image is used
       throw new Error('ButtonSet image is too small')
     }

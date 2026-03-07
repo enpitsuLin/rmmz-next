@@ -1,5 +1,6 @@
 import type * as PIXI from 'pixi.js'
 import type { Game_Battler } from '../objects'
+import type { RGBA } from '../types'
 import { Bitmap, Sprite } from '../core'
 import { ColorManager, TextManager } from '../managers'
 
@@ -9,6 +10,15 @@ import { ColorManager, TextManager } from '../managers'
  * The sprite for displaying a status gauge.
  */
 export class Sprite_Gauge extends Sprite {
+  _battler!: null | Game_Battler
+  _statusType!: string
+  _value!: number
+  _maxValue!: number
+  _targetValue!: number
+  _targetMaxValue!: number
+  _duration!: number
+  _flashingCount!: number
+
   constructor() {
     super()
     this.initMembers()
@@ -27,7 +37,7 @@ export class Sprite_Gauge extends Sprite {
   }
 
   destroy(options?: PIXI.IDestroyOptions): void {
-    this.bitmap.destroy()
+    this.bitmap?.destroy()
     super.destroy(options)
   }
 
@@ -135,7 +145,7 @@ export class Sprite_Gauge extends Sprite {
   updateFlashing(): void {
     if (this._statusType === 'time') {
       this._flashingCount++
-      if (this._battler.isInputting()) {
+      if (this._battler?.isInputting()) {
         if (this._flashingCount % 30 < 15) {
           this.setBlendColor(this.flashingColor1())
         }
@@ -149,11 +159,11 @@ export class Sprite_Gauge extends Sprite {
     }
   }
 
-  flashingColor1(): number[] {
+  flashingColor1(): RGBA {
     return [255, 255, 255, 64]
   }
 
-  flashingColor2(): number[] {
+  flashingColor2(): RGBA {
     return [0, 0, 255, 48]
   }
 
@@ -282,7 +292,7 @@ export class Sprite_Gauge extends Sprite {
   }
 
   redraw(): void {
-    this.bitmap.clear()
+    this.bitmap?.clear()
     const currentValue = this.currentValue()
     if (!Number.isNaN(currentValue)) {
       this.drawGauge()
@@ -310,8 +320,8 @@ export class Sprite_Gauge extends Sprite {
     const color0 = this.gaugeBackColor()
     const color1 = this.gaugeColor1()
     const color2 = this.gaugeColor2()
-    this.bitmap.fillRect(x, y, width, height, color0)
-    this.bitmap.gradientFillRect(x + 1, y + 1, fillW, fillH, color1, color2)
+    this.bitmap!.fillRect(x, y, width, height, color0)
+    this.bitmap!.gradientFillRect(x + 1, y + 1, fillW, fillH, color1, color2)
   }
 
   gaugeRate(): number {
@@ -332,23 +342,23 @@ export class Sprite_Gauge extends Sprite {
     const width = this.bitmapWidth()
     const height = this.textHeight()
     this.setupLabelFont()
-    this.bitmap.paintOpacity = this.labelOpacity()
-    this.bitmap.drawText(label, x, y, width, height, 'left')
-    this.bitmap.paintOpacity = 255
+    this.bitmap!.paintOpacity = this.labelOpacity()
+    this.bitmap!.drawText(label, x, y, width, height, 'left')
+    this.bitmap!.paintOpacity = 255
   }
 
   setupLabelFont(): void {
-    this.bitmap.fontFace = this.labelFontFace()
-    this.bitmap.fontSize = this.labelFontSize()
-    this.bitmap.textColor = this.labelColor()
-    this.bitmap.outlineColor = this.labelOutlineColor()
-    this.bitmap.outlineWidth = this.labelOutlineWidth()
+    this.bitmap!.fontFace = this.labelFontFace()
+    this.bitmap!.fontSize = this.labelFontSize()
+    this.bitmap!.textColor = this.labelColor()
+    this.bitmap!.outlineColor = this.labelOutlineColor()
+    this.bitmap!.outlineWidth = this.labelOutlineWidth()
   }
 
   measureLabelWidth(): number {
     this.setupLabelFont()
     const labels = [TextManager.hpA, TextManager.mpA, TextManager.tpA]
-    const widths = labels.map(str => this.bitmap.measureTextWidth(str))
+    const widths = labels.map(str => this.bitmap!.measureTextWidth(str))
     return Math.ceil(Math.max(...widths))
   }
 
@@ -361,15 +371,15 @@ export class Sprite_Gauge extends Sprite {
     const width = this.bitmapWidth()
     const height = this.textHeight()
     this.setupValueFont()
-    this.bitmap.drawText(currentValue, 0, 0, width, height, 'right')
+    this.bitmap!.drawText(currentValue.toString(), 0, 0, width, height, 'right')
   }
 
   setupValueFont(): void {
-    this.bitmap.fontFace = this.valueFontFace()
-    this.bitmap.fontSize = this.valueFontSize()
-    this.bitmap.textColor = this.valueColor()
-    this.bitmap.outlineColor = this.valueOutlineColor()
-    this.bitmap.outlineWidth = this.valueOutlineWidth()
+    this.bitmap!.fontFace = this.valueFontFace()
+    this.bitmap!.fontSize = this.valueFontSize()
+    this.bitmap!.textColor = this.valueColor()
+    this.bitmap!.outlineColor = this.valueOutlineColor()
+    this.bitmap!.outlineWidth = this.valueOutlineWidth()
   }
 }
 

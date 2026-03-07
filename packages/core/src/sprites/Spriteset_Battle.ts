@@ -1,4 +1,4 @@
-import type { Game_Battler, Game_BattlerBase } from '../objects'
+import type { Game_Battler } from '../objects'
 import type { Sprite_Battler } from './Sprite_Battler'
 import { Graphics, Sprite } from '../core'
 import { ImageManager, SceneManager } from '../managers'
@@ -18,6 +18,12 @@ export class Spriteset_Battle extends Spriteset_Base<Game_Battler> {
 
   _battleField!: Sprite
   _effectsContainer!: Sprite
+  _backgroundFilter!: PIXI.BlurFilter
+  _backgroundSprite!: Sprite
+  _back1Sprite!: Sprite_Battleback
+  _back2Sprite!: Sprite_Battleback
+  _enemySprites!: Sprite_Enemy[]
+  _actorSprites!: Sprite_Actor[]
 
   constructor() {
     super()
@@ -124,7 +130,7 @@ export class Spriteset_Battle extends Spriteset_Base<Game_Battler> {
   updateActors(): void {
     const members = $gameParty.battleMembers()
     for (let i = 0; i < this._actorSprites.length; i++) {
-      this._actorSprites[i].setBattler(members[i])
+      this._actorSprites[i].setBattler(members[i]!)
     }
   }
 
@@ -133,7 +139,7 @@ export class Spriteset_Battle extends Spriteset_Base<Game_Battler> {
   }
 
   battlerSprites(): Sprite_Battler[] {
-    return this._enemySprites.concat(this._actorSprites)
+    return (this._enemySprites as Sprite_Battler[]).concat(this._actorSprites)
   }
 
   isEffecting(): boolean {

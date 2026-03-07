@@ -6,6 +6,8 @@ import { Point, Rectangle, Sprite, TouchInput } from '../core'
  * The sprite class with click handling functions.
  */
 export class Sprite_Clickable extends Sprite {
+  _pressed: boolean
+  _hovered: boolean
   constructor() {
     super()
     this._pressed = false

@@ -9,6 +9,10 @@ import { ColorManager } from '../managers'
  * The sprite for displaying a status gauge.
  */
 export class Sprite_Name extends Sprite {
+  _battler!: null | Game_Battler
+  _name!: string
+  _textColor!: string
+
   constructor() {
     super()
     this.initMembers()
@@ -22,7 +26,7 @@ export class Sprite_Name extends Sprite {
   }
 
   destroy(options: PIXI.IDestroyOptions = { children: true, texture: true }): void {
-    this.bitmap.destroy()
+    this.bitmap?.destroy()
     super.destroy(options)
   }
 
@@ -89,15 +93,15 @@ export class Sprite_Name extends Sprite {
     const width = this.bitmapWidth()
     const height = this.bitmapHeight()
     this.setupFont()
-    this.bitmap.clear()
-    this.bitmap.drawText(name, 0, 0, width, height, 'left')
+    this.bitmap!.clear()
+    this.bitmap!.drawText(name, 0, 0, width, height, 'left')
   }
 
   setupFont(): void {
-    this.bitmap.fontFace = this.fontFace()
-    this.bitmap.fontSize = this.fontSize()
-    this.bitmap.textColor = this.textColor()
-    this.bitmap.outlineColor = this.outlineColor()
-    this.bitmap.outlineWidth = this.outlineWidth()
+    this.bitmap!.fontFace = this.fontFace()
+    this.bitmap!.fontSize = this.fontSize()
+    this.bitmap!.textColor = this.textColor()
+    this.bitmap!.outlineColor = this.outlineColor()
+    this.bitmap!.outlineWidth = this.outlineWidth()
   }
 }

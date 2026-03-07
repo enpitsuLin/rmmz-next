@@ -7,6 +7,7 @@ import { Bitmap, Sprite } from '../core'
  * The sprite for displaying the destination place of the touch input.
  */
 export class Sprite_Destination extends Sprite {
+  _frameCount: number
   constructor() {
     super()
     this.createBitmap()
@@ -46,8 +47,8 @@ export class Sprite_Destination extends Sprite {
   updatePosition(): void {
     const tileWidth = $gameMap.tileWidth()
     const tileHeight = $gameMap.tileHeight()
-    const x = $gameTemp.destinationX()
-    const y = $gameTemp.destinationY()
+    const x = $gameTemp.destinationX()!
+    const y = $gameTemp.destinationY()!
     this.x = ($gameMap.adjustX(x) + 0.5) * tileWidth
     this.y = ($gameMap.adjustY(y) + 0.5) * tileHeight
   }

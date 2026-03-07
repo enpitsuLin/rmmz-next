@@ -1,4 +1,5 @@
 import { Sprite } from '../core'
+import { ImageManager } from '../managers'
 
 /**
  * Sprite_Weapon
@@ -6,6 +7,10 @@ import { Sprite } from '../core'
  * The sprite for displaying a weapon image for attacking.
  */
 export class Sprite_Weapon extends Sprite {
+  _weaponImageId!: number
+  _animationCount!: number
+  _pattern!: number
+
   constructor() {
     super()
     this.initMembers()

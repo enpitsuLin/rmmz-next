@@ -1,5 +1,8 @@
-import type { Game_Battler, Game_Enemy } from '../objects'
+import type { Sprite } from '../core'
+import type { Game_Enemy } from '../objects'
+import { ImageManager, SoundManager } from '../managers'
 import { Sprite_Battler } from './Sprite_Battler'
+import { Sprite_StateIcon } from './Sprite_StateIcon'
 
 /**
  * Sprite_Enemy
@@ -7,6 +10,17 @@ import { Sprite_Battler } from './Sprite_Battler'
  * The sprite for displaying an enemy.
  */
 export class Sprite_Enemy extends Sprite_Battler {
+  _enemy!: null | Game_Enemy
+  _appeared!: boolean
+  _battlerName!: null | string
+  _battlerHue!: number
+  _effectType!: null | Game_Enemy.EffectType
+  _effectDuration!: number
+  _shake!: number
+  _stateIconSprite!: any
+
+  override children!: Sprite[]
+
   constructor(battler: Game_Enemy) {
     super(battler)
   }
@@ -45,8 +59,8 @@ export class Sprite_Enemy extends Sprite_Battler {
 
   updateBitmap(): void {
     super.updateBitmap()
-    const name = this._enemy.battlerName()
-    const hue = this._enemy.battlerHue()
+    const name = this._enemy!.battlerName()
+    const hue = this._enemy!.battlerHue()
     if (this._battlerName !== name || this._battlerHue !== hue) {
       this._battlerName = name
       this._battlerHue = hue
@@ -77,10 +91,10 @@ export class Sprite_Enemy extends Sprite_Battler {
   updateFrame(): void {
     super.updateFrame()
     if (this._effectType === 'bossCollapse') {
-      this.setFrame(0, 0, this.bitmap.width, this._effectDuration)
+      this.setFrame(0, 0, this.bitmap!.width, this._effectDuration)
     }
     else {
-      this.setFrame(0, 0, this.bitmap.width, this.bitmap.height)
+      this.setFrame(0, 0, this.bitmap!.width, this.bitmap!.height)
     }
   }
 
@@ -90,33 +104,33 @@ export class Sprite_Enemy extends Sprite_Battler {
   }
 
   updateStateSprite(): void {
-    this._stateIconSprite.y = -Math.round((this.bitmap.height + 40) * 0.9)
+    this._stateIconSprite.y = -Math.round((this.bitmap!.height + 40) * 0.9)
     if (this._stateIconSprite.y < 20 - this.y) {
       this._stateIconSprite.y = 20 - this.y
     }
   }
 
   initVisibility(): void {
-    this._appeared = this._enemy.isAlive()
+    this._appeared = this._enemy!.isAlive()
     if (!this._appeared) {
       this.opacity = 0
     }
   }
 
   setupEffect(): void {
-    if (this._appeared && this._enemy.isEffectRequested()) {
+    if (this._appeared && this._enemy?.isEffectRequested()) {
       this.startEffect(this._enemy.effectType())
       this._enemy.clearEffect()
     }
-    if (!this._appeared && this._enemy.isAlive()) {
+    if (!this._appeared && this._enemy?.isAlive()) {
       this.startEffect('appear')
     }
-    else if (this._appeared && this._enemy.isHidden()) {
+    else if (this._appeared && this._enemy?.isHidden()) {
       this.startEffect('disappear')
     }
   }
 
-  startEffect(effectType: Sprite_Enemy.EffectType): void {
+  startEffect(effectType: Game_Enemy.EffectType): void {
     this._effectType = effectType
     switch (this._effectType) {
       case 'appear':
@@ -168,7 +182,7 @@ export class Sprite_Enemy extends Sprite_Battler {
   }
 
   startBossCollapse(): void {
-    this._effectDuration = this.bitmap.height
+    this._effectDuration = this.bitmap!.height
     this._appeared = false
   }
 
@@ -265,8 +279,4 @@ export class Sprite_Enemy extends Sprite_Battler {
   damageOffsetY(): number {
     return super.damageOffsetY() - 8
   }
-}
-
-export namespace Sprite_Enemy {
-  export type EffectType = Game_Battler.EffectType | 'appear' | 'disappear'
 }
