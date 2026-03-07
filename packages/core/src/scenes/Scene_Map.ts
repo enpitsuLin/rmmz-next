@@ -1,3 +1,4 @@
+import type { RGBA } from '../types'
 import { Graphics, Input, Rectangle, TouchInput } from '../core'
 import { AudioManager } from '../managers/AudioManager'
 import { BattleManager } from '../managers/BattleManager'
@@ -23,6 +24,18 @@ import { Scene_Title } from './Scene_Title'
  /* The scene class of the map screen.
  */
 export class Scene_Map extends Scene_Message {
+  _waitCount: number
+  _encounterEffectDuration: number
+  _mapLoaded: boolean
+  _touchCount: number
+  _menuEnabled: boolean
+  _transfer!: boolean
+  _lastMapWasNull!: boolean
+  menuCalling!: boolean
+  _mapNameWindow!: Window_MapName
+  _spriteset: any
+  _menuButton: any
+
   constructor() {
     super()
     this._waitCount = 0
@@ -32,7 +45,7 @@ export class Scene_Map extends Scene_Message {
     this._menuEnabled = false
   }
 
-  create() {
+  create(): void {
     super.create()
     this._transfer = $gamePlayer.isTransferring()
     this._lastMapWasNull = !$dataMap
@@ -45,7 +58,7 @@ export class Scene_Map extends Scene_Message {
     }
   }
 
-  isReady() {
+  isReady(): boolean {
     if (!this._mapLoaded && DataManager.isMapLoaded()) {
       this.onMapLoaded()
       this._mapLoaded = true
@@ -53,19 +66,19 @@ export class Scene_Map extends Scene_Message {
     return this._mapLoaded && super.isReady()
   }
 
-  onMapLoaded() {
+  onMapLoaded(): void {
     if (this._transfer) {
       $gamePlayer.performTransfer()
     }
     this.createDisplayObjects()
   }
 
-  onTransfer() {
+  onTransfer(): void {
     ImageManager.clear()
     EffectManager.clear()
   }
 
-  start() {
+  start(): void {
     super.start()
     SceneManager.clearStack()
     if (this._transfer) {
@@ -78,7 +91,7 @@ export class Scene_Map extends Scene_Message {
     this.menuCalling = false
   }
 
-  onTransferEnd() {
+  onTransferEnd(): void {
     this._mapNameWindow.open()
     $gameMap.autoplay()
     if (this.shouldAutosave()) {
@@ -86,11 +99,11 @@ export class Scene_Map extends Scene_Message {
     }
   }
 
-  shouldAutosave() {
+  shouldAutosave(): boolean {
     return !this._lastMapWasNull
   }
 
-  update() {
+  update(): void {
     super.update()
     this.updateDestination()
     this.updateMenuButton()
@@ -105,7 +118,7 @@ export class Scene_Map extends Scene_Message {
     this.updateWaitCount()
   }
 
-  updateMainMultiply() {
+  updateMainMultiply(): void {
     if (this.isFastForward()) {
       this.cancelMessageWait()
       this.updateMain()
@@ -113,18 +126,18 @@ export class Scene_Map extends Scene_Message {
     this.updateMain()
   }
 
-  updateMain() {
+  updateMain(): void {
     $gameMap.update(this.isActive())
     $gamePlayer.update(this.isPlayerActive())
     $gameTimer.update(this.isActive())
     $gameScreen.update()
   }
 
-  isPlayerActive() {
+  isPlayerActive(): boolean {
     return this.isActive() && !this.isFading()
   }
 
-  isFastForward() {
+  isFastForward(): boolean {
     return (
       $gameMap.isEventRunning()
       && !SceneManager.isSceneChanging()
@@ -132,7 +145,7 @@ export class Scene_Map extends Scene_Message {
     )
   }
 
-  stop() {
+  stop(): void {
     super.stop()
     $gamePlayer.straighten()
     this._mapNameWindow.close()
@@ -147,7 +160,7 @@ export class Scene_Map extends Scene_Message {
     }
   }
 
-  isBusy() {
+  isBusy(): boolean {
     return (
       this.isMessageWindowClosing()
       || this._waitCount > 0
@@ -156,7 +169,7 @@ export class Scene_Map extends Scene_Message {
     )
   }
 
-  terminate() {
+  terminate(): void {
     super.terminate()
     if (!SceneManager.isNextScene(Scene_Battle)) {
       this._spriteset.update()
@@ -167,21 +180,21 @@ export class Scene_Map extends Scene_Message {
     $gameScreen.clearZoom()
   }
 
-  needsFadeIn() {
+  needsFadeIn(): boolean {
     return (
       SceneManager.isPreviousScene(Scene_Battle)
       || SceneManager.isPreviousScene(Scene_Load)
     )
   }
 
-  needsSlowFadeOut() {
+  needsSlowFadeOut(): boolean {
     return (
       SceneManager.isNextScene(Scene_Title)
       || SceneManager.isNextScene(Scene_Gameover)
     )
   }
 
-  updateWaitCount() {
+  updateWaitCount(): boolean {
     if (this._waitCount > 0) {
       this._waitCount--
       return true
@@ -189,7 +202,7 @@ export class Scene_Map extends Scene_Message {
     return false
   }
 
-  updateDestination() {
+  updateDestination(): void {
     if (this.isMapTouchOk()) {
       this.processMapTouch()
     }
@@ -199,7 +212,7 @@ export class Scene_Map extends Scene_Message {
     }
   }
 
-  updateMenuButton() {
+  updateMenuButton(): void {
     if (this._menuButton) {
       const menuEnabled = this.isMenuEnabled()
       if (menuEnabled === this._menuEnabled) {
@@ -211,28 +224,28 @@ export class Scene_Map extends Scene_Message {
     }
   }
 
-  hideMenuButton() {
+  hideMenuButton(): void {
     if (this._menuButton) {
       this._menuButton.visible = false
       this._menuEnabled = false
     }
   }
 
-  updateMapNameWindow() {
+  updateMapNameWindow(): void {
     if ($gameMessage.isBusy()) {
       this._mapNameWindow.close()
     }
   }
 
-  isMenuEnabled() {
+  isMenuEnabled(): boolean {
     return $gameSystem.isMenuEnabled() && !$gameMap.isEventRunning()
   }
 
-  isMapTouchOk() {
+  isMapTouchOk(): boolean {
     return this.isActive() && $gamePlayer.canMove()
   }
 
-  processMapTouch() {
+  processMapTouch(): void {
     if (TouchInput.isTriggered() || this._touchCount > 0) {
       if (TouchInput.isPressed() && !this.isAnyButtonPressed()) {
         if (this._touchCount === 0 || this._touchCount >= 15) {
@@ -246,21 +259,21 @@ export class Scene_Map extends Scene_Message {
     }
   }
 
-  isAnyButtonPressed() {
+  isAnyButtonPressed(): boolean {
     return this._menuButton && this._menuButton.isPressed()
   }
 
-  onMapTouch() {
+  onMapTouch(): void {
     const x = $gameMap.canvasToMapX(TouchInput.x)
     const y = $gameMap.canvasToMapY(TouchInput.y)
     $gameTemp.setDestination(x, y)
   }
 
-  isSceneChangeOk() {
+  isSceneChangeOk(): boolean {
     return this.isActive() && !$gameMessage.isBusy()
   }
 
-  updateScene() {
+  updateScene(): void {
     this.checkGameover()
     if (!SceneManager.isSceneChanging()) {
       this.updateTransferPlayer()
@@ -276,31 +289,31 @@ export class Scene_Map extends Scene_Message {
     }
   }
 
-  createDisplayObjects() {
+  createDisplayObjects(): void {
     this.createSpriteset()
     this.createWindowLayer()
     this.createAllWindows()
     this.createButtons()
   }
 
-  createSpriteset() {
+  createSpriteset(): void {
     this._spriteset = new Spriteset_Map()
     this.addChild(this._spriteset)
     this._spriteset.update()
   }
 
-  createAllWindows() {
+  createAllWindows(): void {
     this.createMapNameWindow()
     super.createAllWindows()
   }
 
-  createMapNameWindow() {
+  createMapNameWindow(): void {
     const rect = this.mapNameWindowRect()
     this._mapNameWindow = new Window_MapName(rect)
     this.addWindow(this._mapNameWindow)
   }
 
-  mapNameWindowRect() {
+  mapNameWindowRect(): Rectangle {
     const wx = 0
     const wy = 0
     const ww = 360
@@ -308,13 +321,13 @@ export class Scene_Map extends Scene_Message {
     return new Rectangle(wx, wy, ww, wh)
   }
 
-  createButtons() {
+  createButtons(): void {
     if (ConfigManager.touchUI) {
       this.createMenuButton()
     }
   }
 
-  createMenuButton() {
+  createMenuButton(): void {
     this._menuButton = new Sprite_Button('menu')
     this._menuButton.x = Graphics.boxWidth - this._menuButton.width - 4
     this._menuButton.y = this.buttonY()
@@ -322,19 +335,19 @@ export class Scene_Map extends Scene_Message {
     this.addWindow(this._menuButton)
   }
 
-  updateTransferPlayer() {
+  updateTransferPlayer(): void {
     if ($gamePlayer.isTransferring()) {
       SceneManager.goto(Scene_Map)
     }
   }
 
-  updateEncounter() {
+  updateEncounter(): void {
     if ($gamePlayer.executeEncounter()) {
       SceneManager.push(Scene_Battle)
     }
   }
 
-  updateCallMenu() {
+  updateCallMenu(): void {
     if (this.isMenuEnabled()) {
       if (this.isMenuCalled()) {
         this.menuCalling = true
@@ -348,11 +361,11 @@ export class Scene_Map extends Scene_Message {
     }
   }
 
-  isMenuCalled() {
+  isMenuCalled(): boolean {
     return Input.isTriggered('menu') || TouchInput.isCancelled()
   }
 
-  callMenu() {
+  callMenu(): void {
     SoundManager.playOk()
     SceneManager.push(Scene_Menu)
     Window_MenuCommand.initCommandPosition()
@@ -361,17 +374,17 @@ export class Scene_Map extends Scene_Message {
     this._waitCount = 2
   }
 
-  updateCallDebug() {
+  updateCallDebug(): void {
     if (this.isDebugCalled()) {
       SceneManager.push(Scene_Debug)
     }
   }
 
-  isDebugCalled() {
+  isDebugCalled(): boolean {
     return Input.isTriggered('debug') && $gameTemp.isPlaytest()
   }
 
-  fadeInForTransfer() {
+  fadeInForTransfer(): void {
     const fadeType = $gamePlayer.fadeType()
     switch (fadeType) {
       case 0:
@@ -381,7 +394,7 @@ export class Scene_Map extends Scene_Message {
     }
   }
 
-  fadeOutForTransfer() {
+  fadeOutForTransfer(): void {
     const fadeType = $gamePlayer.fadeType()
     switch (fadeType) {
       case 0:
@@ -391,7 +404,7 @@ export class Scene_Map extends Scene_Message {
     }
   }
 
-  launchBattle() {
+  launchBattle(): void {
     BattleManager.saveBgmAndBgs()
     this.stopAudioOnBattleStart()
     SoundManager.playBattleStart()
@@ -399,7 +412,7 @@ export class Scene_Map extends Scene_Message {
     this._mapNameWindow.hide()
   }
 
-  stopAudioOnBattleStart() {
+  stopAudioOnBattleStart(): void {
     if (!AudioManager.isCurrentBgm($gameSystem.battleBgm())) {
       AudioManager.stopBgm()
     }
@@ -408,12 +421,12 @@ export class Scene_Map extends Scene_Message {
     AudioManager.stopSe()
   }
 
-  startEncounterEffect() {
+  startEncounterEffect(): void {
     this._spriteset.hideCharacters()
     this._encounterEffectDuration = this.encounterEffectSpeed()
   }
 
-  updateEncounterEffect() {
+  updateEncounterEffect(): void {
     if (this._encounterEffectDuration > 0) {
       this._encounterEffectDuration--
       const speed = this.encounterEffectSpeed()
@@ -438,18 +451,18 @@ export class Scene_Map extends Scene_Message {
     }
   }
 
-  snapForBattleBackground() {
+  snapForBattleBackground(): void {
     this._windowLayer.visible = false
     SceneManager.snapForBackground()
     this._windowLayer.visible = true
   }
 
-  startFlashForEncounter(duration) {
-    const color = [255, 255, 255, 255]
+  startFlashForEncounter(duration: number): void {
+    const color: RGBA = [255, 255, 255, 255]
     $gameScreen.startFlash(color, duration)
   }
 
-  encounterEffectSpeed() {
+  encounterEffectSpeed(): number {
     return 60
   }
 }
