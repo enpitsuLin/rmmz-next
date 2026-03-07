@@ -61,13 +61,18 @@ export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
 `
         }
         else {
-          // 开发环境：使用 API 端点
+          // 开发环境：使用 API 端点，需要完整的开发服务器 URL 以支持 nw.js 等非浏览器环境
+          const protocol = config.server.https ? 'https' : 'http'
+          const host = typeof config.server.host === 'string' ? config.server.host : 'localhost'
+          const port = config.server.port ?? 5173
+          const serverOrigin = config.server.origin ?? `${protocol}://${host}:${port}`
+
           return `
 export function fileurl(filePath) {
   if (typeof filePath !== 'string') {
     throw new TypeError('filePath must be a string');
   }
-  return '${apiPath}?path=' + encodeURIComponent(filePath);
+  return '${serverOrigin}${apiPath}?path=' + encodeURIComponent(filePath);
 }
 
 export const projectRoot = ${JSON.stringify(resolvedProjectRoot)};
