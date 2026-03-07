@@ -3,6 +3,7 @@ import {
   Bitmap,
   DataManager,
   FontManager,
+  GlobalMananger,
   Graphics,
   ImageManager,
   PluginManager,
@@ -37,11 +38,11 @@ PluginManager.loadScript = function (filename: string): void {
   document.body.appendChild(script)
 }
 
-DataManager.loadDataFile = function (name: string, src: string): void {
+DataManager.loadDataFile = function (name: GlobalMananger.GlobalStateName, src: string): void {
   const t = new XMLHttpRequest()
   const n = fileurl(`data/${src}`)
-  // @ts-expect-error to fix
-  window[name] = null
+  // @ts-expect-error to fix this
+  GlobalMananger[name] = null
   t.open('GET', n)
   t.overrideMimeType('application/json')
   t.onload = () => this.onXhrLoad(t, name, src, n)
@@ -91,6 +92,7 @@ class Main {
   }
 
   run(): void {
+    GlobalMananger.init()
     this.showLoadingSpinner()
     this.testXhr()
     this.hookNwjsClose()

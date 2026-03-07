@@ -1,14 +1,12 @@
 import type { MZ } from '@rmmz-lib/database-types'
-import type { Game_Actor } from '../objects/Game_Actor'
-import type { Game_Battler } from '../objects/Game_Battler'
-import type { Game_Enemy } from '../objects/Game_Enemy'
-import type { Game_Unit } from '../objects/Game_Unit'
+import type { Game_Actor, Game_Battler, Game_Enemy, Game_Unit } from '../objects'
 import type { Spriteset_Battle } from '../sprites/Spriteset_Battle'
 import type { BattlePhase } from '../types'
 import type { Window_BattleLog } from '../windows/Window_BattleLog'
 import { Game_Action } from '../objects/Game_Action'
 import { Scene_Gameover } from '../scenes/Scene_Gameover'
 import { AudioManager } from './AudioManager'
+import { GlobalMananger } from './GlobalManager'
 import { SceneManager } from './SceneManager'
 import { SoundManager } from './SoundManager'
 import { TextManager } from './TextManager'
@@ -56,8 +54,8 @@ export class BattleManager {
     this.initMembers()
     this._canEscape = canEscape
     this._canLose = canLose
-    $gameTroop.setup(troopId)
-    $gameScreen.onBattleStart()
+    GlobalMananger.$gameTroop.setup(troopId)
+    GlobalMananger.$gameScreen.onBattleStart()
     this.makeEscapeRatio()
   }
 
@@ -87,11 +85,11 @@ export class BattleManager {
   }
 
   static isTpb(): boolean {
-    return $dataSystem.battleSystem >= 1
+    return GlobalMananger.$dataSystem.battleSystem >= 1
   }
 
   static isActiveTpb(): boolean {
-    return $dataSystem.battleSystem === 1
+    return GlobalMananger.$dataSystem.battleSystem === 1
   }
 
   static isBattleTest(): boolean {
@@ -120,11 +118,11 @@ export class BattleManager {
   }
 
   static ratePreemptive(): number {
-    return $gameParty.ratePreemptive($gameTroop.agility())
+    return GlobalMananger.$gameParty.ratePreemptive(GlobalMananger.$gameTroop.agility())
   }
 
   static rateSurprise(): number {
-    return $gameParty.rateSurprise($gameTroop.agility())
+    return GlobalMananger.$gameParty.rateSurprise(GlobalMananger.$gameTroop.agility())
   }
 
   static saveBgmAndBgs(): void {
@@ -133,16 +131,16 @@ export class BattleManager {
   }
 
   static playBattleBgm(): void {
-    AudioManager.playBgm($gameSystem.battleBgm())
+    AudioManager.playBgm(GlobalMananger.$gameSystem.battleBgm())
     AudioManager.stopBgs()
   }
 
   static playVictoryMe(): void {
-    AudioManager.playMe($gameSystem.victoryMe())
+    AudioManager.playMe(GlobalMananger.$gameSystem.victoryMe())
   }
 
   static playDefeatMe(): void {
-    AudioManager.playMe($gameSystem.defeatMe())
+    AudioManager.playMe(GlobalMananger.$gameSystem.defeatMe())
   }
 
   static replayBgmAndBgs(): void {
@@ -158,7 +156,7 @@ export class BattleManager {
   }
 
   static makeEscapeRatio(): void {
-    this._escapeRatio = (0.5 * $gameParty.agility()) / $gameTroop.agility()
+    this._escapeRatio = (0.5 * GlobalMananger.$gameParty.agility()) / GlobalMananger.$gameTroop.agility()
   }
 
   static update(timeActive: boolean): void {
@@ -207,13 +205,13 @@ export class BattleManager {
   }
 
   static updateEventMain(): boolean {
-    $gameTroop.updateInterpreter()
-    $gameParty.requestMotionRefresh()
-    if ($gameTroop.isEventRunning() || this.checkBattleEnd()) {
+    GlobalMananger.$gameTroop.updateInterpreter()
+    GlobalMananger.$gameParty.requestMotionRefresh()
+    if (GlobalMananger.$gameTroop.isEventRunning() || this.checkBattleEnd()) {
       return true
     }
-    $gameTroop.setupBattleEvent()
-    if ($gameTroop.isEventRunning() || SceneManager.isSceneChanging()) {
+    GlobalMananger.$gameTroop.setupBattleEvent()
+    if (GlobalMananger.$gameTroop.isEventRunning() || SceneManager.isSceneChanging()) {
       return true
     }
     return false
@@ -221,7 +219,7 @@ export class BattleManager {
 
   static isBusy(): boolean {
     return (
-      $gameMessage.isBusy()
+      GlobalMananger.$gameMessage.isBusy()
       || this._spriteset!.isBusy()
       || this._logWindow!.isBusy()
     )
@@ -257,7 +255,7 @@ export class BattleManager {
   }
 
   static isPartyTpbInputtable(): boolean {
-    return $gameParty.canInput() && this.isTpbMainPhase()
+    return GlobalMananger.$gameParty.canInput() && this.isTpbMainPhase()
   }
 
   static needsActorInputCancel(): boolean {
@@ -306,31 +304,31 @@ export class BattleManager {
 
   static startBattle(): void {
     this._phase = 'start'
-    $gameSystem.onBattleStart()
-    $gameParty.onBattleStart(this._preemptive)
-    $gameTroop.onBattleStart(this._surprise)
+    GlobalMananger.$gameSystem.onBattleStart()
+    GlobalMananger.$gameParty.onBattleStart(this._preemptive)
+    GlobalMananger.$gameTroop.onBattleStart(this._surprise)
     this.displayStartMessages()
   }
 
   static displayStartMessages(): void {
-    for (const name of $gameTroop.enemyNames()) {
-      $gameMessage.add(TextManager.emerge.format(name))
+    for (const name of GlobalMananger.$gameTroop.enemyNames()) {
+      GlobalMananger.$gameMessage.add(TextManager.emerge.format(name))
     }
     if (this._preemptive) {
-      $gameMessage.add(TextManager.preemptive.format($gameParty.name()))
+      GlobalMananger.$gameMessage.add(TextManager.preemptive.format(GlobalMananger.$gameParty.name()))
     }
     else if (this._surprise) {
-      $gameMessage.add(TextManager.surprise.format($gameParty.name()))
+      GlobalMananger.$gameMessage.add(TextManager.surprise.format(GlobalMananger.$gameParty.name()))
     }
   }
 
   static startInput(): void {
     this._phase = 'input'
     this._inputting = true
-    $gameParty.makeActions()
-    $gameTroop.makeActions()
+    GlobalMananger.$gameParty.makeActions()
+    GlobalMananger.$gameTroop.makeActions()
     this._currentActor = null
-    if (this._surprise || !$gameParty.canInput()) {
+    if (this._surprise || !GlobalMananger.$gameParty.canInput()) {
       this.startTurn()
     }
   }
@@ -375,7 +373,7 @@ export class BattleManager {
     if (this.isTpb()) {
       this.changeCurrentActor(true)
       if (!this._currentActor) {
-        this._inputting = $gameParty.canInput()
+        this._inputting = GlobalMananger.$gameParty.canInput()
       }
     }
     else {
@@ -384,7 +382,7 @@ export class BattleManager {
   }
 
   static changeCurrentActor(forward: boolean): void {
-    const members = $gameParty.battleMembers()
+    const members = GlobalMananger.$gameParty.battleMembers()
     let actor = this._currentActor as Game_Actor | null
     while (true) {
       const currentIndex = members.indexOf(actor!)
@@ -429,8 +427,8 @@ export class BattleManager {
 
   static startTurn(): void {
     this._phase = 'turn'
-    $gameTroop.increaseTurn()
-    $gameParty.requestMotionRefresh()
+    GlobalMananger.$gameTroop.increaseTurn()
+    GlobalMananger.$gameParty.requestMotionRefresh()
     if (!this.isTpb()) {
       this.makeActionOrders()
       this._logWindow!.startTurn()
@@ -439,7 +437,7 @@ export class BattleManager {
   }
 
   static updateTurn(timeActive: boolean): void {
-    $gameParty.requestMotionRefresh()
+    GlobalMananger.$gameParty.requestMotionRefresh()
     if (this.isTpb() && timeActive) {
       this.updateTpb()
     }
@@ -455,8 +453,8 @@ export class BattleManager {
   }
 
   static updateTpb(): void {
-    $gameParty.updateTpb()
-    $gameTroop.updateTpb()
+    GlobalMananger.$gameParty.updateTpb()
+    GlobalMananger.$gameTroop.updateTpb()
     this.updateAllTpbBattlers()
     this.checkTpbTurnEnd()
   }
@@ -484,7 +482,7 @@ export class BattleManager {
   }
 
   static checkTpbTurnEnd(): void {
-    if ($gameTroop.isTpbTurnEnd()) {
+    if (GlobalMananger.$gameTroop.isTpbTurnEnd()) {
       this.endTurn()
     }
   }
@@ -556,16 +554,16 @@ export class BattleManager {
   }
 
   static allBattleMembers(): Game_Battler[] {
-    return ($gameParty.battleMembers() as Game_Battler[]).concat($gameTroop.members())
+    return (GlobalMananger.$gameParty.battleMembers() as Game_Battler[]).concat(GlobalMananger.$gameTroop.members())
   }
 
   static makeActionOrders(): void {
     const battlers: Game_Battler[] = []
     if (!this._surprise) {
-      battlers.push(...$gameParty.battleMembers())
+      battlers.push(...GlobalMananger.$gameParty.battleMembers())
     }
     if (!this._preemptive) {
-      battlers.push(...$gameTroop.members())
+      battlers.push(...GlobalMananger.$gameTroop.members())
     }
     for (const battler of battlers) {
       battler.makeSpeed()
@@ -660,8 +658,8 @@ export class BattleManager {
   static isActionForced(): boolean {
     return (
       !!this._actionForcedBattler
-      && !$gameParty.isAllDead()
-      && !$gameTroop.isAllDead()
+      && !GlobalMananger.$gameParty.isAllDead()
+      && !GlobalMananger.$gameTroop.isAllDead()
     )
   }
 
@@ -690,15 +688,15 @@ export class BattleManager {
 
   static checkBattleEnd(): boolean {
     if (this._phase) {
-      if ($gameParty.isEscaped()) {
+      if (GlobalMananger.$gameParty.isEscaped()) {
         this.processPartyEscape()
         return true
       }
-      else if ($gameParty.isAllDead()) {
+      else if (GlobalMananger.$gameParty.isAllDead()) {
         this.processDefeat()
         return true
       }
-      else if ($gameTroop.isAllDead()) {
+      else if (GlobalMananger.$gameTroop.isAllDead()) {
         this.processVictory()
         return true
       }
@@ -715,8 +713,8 @@ export class BattleManager {
   }
 
   static processVictory(): void {
-    $gameParty.removeBattleStates()
-    $gameParty.performVictory()
+    GlobalMananger.$gameParty.removeBattleStates()
+    GlobalMananger.$gameParty.performVictory()
     this.playVictoryMe()
     this.replayBgmAndBgs()
     this.makeRewards()
@@ -727,7 +725,7 @@ export class BattleManager {
   }
 
   static processEscape(): boolean {
-    $gameParty.performEscape()
+    GlobalMananger.$gameParty.performEscape()
     SoundManager.playEscape()
     const success = this._preemptive || Math.random() < this._escapeRatio
     if (success) {
@@ -746,7 +744,7 @@ export class BattleManager {
   }
 
   static onEscapeFailure(): void {
-    $gameParty.onEscapeFailure()
+    GlobalMananger.$gameParty.onEscapeFailure()
     this.displayEscapeFailureMessage()
     this._escapeRatio += 0.1
     if (!this.isTpb()) {
@@ -760,7 +758,7 @@ export class BattleManager {
   }
 
   static processAbort(): void {
-    $gameParty.removeBattleStates()
+    GlobalMananger.$gameParty.removeBattleStates()
     this._logWindow!.clear()
     this.replayBgmAndBgs()
     this.endBattle(1)
@@ -786,12 +784,12 @@ export class BattleManager {
       this._eventCallback(result)
     }
     if (result === 0) {
-      $gameSystem.onBattleWin()
+      GlobalMananger.$gameSystem.onBattleWin()
     }
     else if (this._escaped) {
-      $gameSystem.onBattleEscape()
+      GlobalMananger.$gameSystem.onBattleEscape()
     }
-    $gameTemp.clearCommonEventReservation()
+    GlobalMananger.$gameTemp.clearCommonEventReservation()
   }
 
   static updateBattleEnd(): void {
@@ -799,9 +797,9 @@ export class BattleManager {
       AudioManager.stopBgm()
       SceneManager.exit()
     }
-    else if (!this._escaped && $gameParty.isAllDead()) {
+    else if (!this._escaped && GlobalMananger.$gameParty.isAllDead()) {
       if (this._canLose) {
-        $gameParty.reviveBattleMembers()
+        GlobalMananger.$gameParty.reviveBattleMembers()
         SceneManager.pop()
       }
       else {
@@ -816,27 +814,27 @@ export class BattleManager {
 
   static makeRewards(): void {
     this._rewards = {
-      gold: $gameTroop.goldTotal(),
-      exp: $gameTroop.expTotal(),
-      items: $gameTroop.makeDropItems(),
+      gold: GlobalMananger.$gameTroop.goldTotal(),
+      exp: GlobalMananger.$gameTroop.expTotal(),
+      items: GlobalMananger.$gameTroop.makeDropItems(),
     }
   }
 
   static displayVictoryMessage(): void {
-    $gameMessage.add(TextManager.victory.format($gameParty.name()))
+    GlobalMananger.$gameMessage.add(TextManager.victory.format(GlobalMananger.$gameParty.name()))
   }
 
   static displayDefeatMessage(): void {
-    $gameMessage.add(TextManager.defeat.format($gameParty.name()))
+    GlobalMananger.$gameMessage.add(TextManager.defeat.format(GlobalMananger.$gameParty.name()))
   }
 
   static displayEscapeSuccessMessage(): void {
-    $gameMessage.add(TextManager.escapeStart.format($gameParty.name()))
+    GlobalMananger.$gameMessage.add(TextManager.escapeStart.format(GlobalMananger.$gameParty.name()))
   }
 
   static displayEscapeFailureMessage(): void {
-    $gameMessage.add(TextManager.escapeStart.format($gameParty.name()))
-    $gameMessage.add(`\\.${TextManager.escapeFailure}`)
+    GlobalMananger.$gameMessage.add(TextManager.escapeStart.format(GlobalMananger.$gameParty.name()))
+    GlobalMananger.$gameMessage.add(`\\.${TextManager.escapeFailure}`)
   }
 
   static displayRewards(): void {
@@ -849,23 +847,23 @@ export class BattleManager {
     const exp = this._rewards.exp
     if (exp > 0) {
       const text = TextManager.obtainExp.format(exp, TextManager.exp)
-      $gameMessage.add(`\\.${text}`)
+      GlobalMananger.$gameMessage.add(`\\.${text}`)
     }
   }
 
   static displayGold(): void {
     const gold = this._rewards.gold
     if (gold > 0) {
-      $gameMessage.add(`\\.${TextManager.obtainGold.format(gold)}`)
+      GlobalMananger.$gameMessage.add(`\\.${TextManager.obtainGold.format(gold)}`)
     }
   }
 
   static displayDropItems(): void {
     const items = this._rewards.items
     if (items.length > 0) {
-      $gameMessage.newPage()
+      GlobalMananger.$gameMessage.newPage()
       for (const item of items) {
-        $gameMessage.add(TextManager.obtainItem.format(item.name))
+        GlobalMananger.$gameMessage.add(TextManager.obtainItem.format(item.name))
       }
     }
   }
@@ -878,19 +876,19 @@ export class BattleManager {
 
   static gainExp(): void {
     const exp = this._rewards.exp
-    for (const actor of $gameParty.allMembers()) {
+    for (const actor of GlobalMananger.$gameParty.allMembers()) {
       actor.gainExp(exp)
     }
   }
 
   static gainGold(): void {
-    $gameParty.gainGold(this._rewards.gold)
+    GlobalMananger.$gameParty.gainGold(this._rewards.gold)
   }
 
   static gainDropItems(): void {
     const items = this._rewards.items
     for (const item of items) {
-      $gameParty.gainItem(item as MZ.EquipOrItem, 1)
+      GlobalMananger.$gameParty.gainItem(item as MZ.EquipOrItem, 1)
     }
   }
 }

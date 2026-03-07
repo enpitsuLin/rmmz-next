@@ -1,3 +1,5 @@
+import { GlobalMananger } from '../managers/GlobalManager'
+
 /**
  * Checks whether a value is a traversable JSON record (plain object or array).
  */
@@ -75,7 +77,7 @@ export class JsonEx {
     if (isTraversable(value)) {
       const tag = value['@']
       if (typeof tag === 'string') {
-        const ctor = (window as unknown as Record<string, JsonEx.ConstructorRef | undefined>)[tag]
+        const ctor = GlobalMananger.get(tag)
         if (ctor) {
           Object.setPrototypeOf(value, ctor.prototype)
         }

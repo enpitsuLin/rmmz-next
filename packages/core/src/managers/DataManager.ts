@@ -2,14 +2,10 @@ import type { MZ } from '@rmmz-lib/database-types'
 import { Graphics, Utils } from '../core'
 import { Game_Actors, Game_Map, Game_Message, Game_Party, Game_Player, Game_Screen, Game_SelfSwitches, Game_Switches, Game_System, Game_Temp, Game_Timer, Game_Troop, Game_Variables } from '../objects'
 import { BattleManager } from './BattleManager'
+import { GlobalMananger } from './GlobalManager'
 import { ImageManager } from './ImageManager'
 import { SceneManager } from './SceneManager'
 import { StorageManager } from './StorageManager'
-
-interface DatabaseFileEntry {
-  name: string
-  src: string
-}
 
 /**
  * The static class that manages the database and game objects.
@@ -19,12 +15,13 @@ export class DataManager {
     throw new Error('This is a static class')
   }
 
-  static _setWindowData(name: string, value: unknown): void {
-    ;(window as unknown as Record<string, unknown>)[name] = value
+  static _setWindowData(name: GlobalMananger.GlobalStateName, value: unknown): void {
+    GlobalMananger[name] = value as any
+    // ;(window as unknown as Record<string, unknown>)[name] = value
   }
 
-  static _getWindowData(name: string): unknown {
-    return (window as unknown as Record<string, unknown>)[name]
+  static _getWindowData(name: GlobalMananger.GlobalStateName): unknown {
+    return GlobalMananger[name]
   }
 
   static _restoreInstance<T>(instance: T, data: Record<string, any>): T {
@@ -39,13 +36,8 @@ export class DataManager {
           inst[key] = value.map((item) => {
             if (item == null)
               return null
-            const ctorName
-              = item['@']
-                || (item.constructor !== Object
-                  ? item.constructor.name
-                  : inst[key]?.constructor.name || 'Object')
             const ctor = item['@']
-              ? eval(ctorName)
+              ? GlobalMananger.get(item['@']) ?? Object
               : item.constructor !== Object
                 ? item.constructor
                 : inst[key]?.constructor || Object
@@ -55,11 +47,8 @@ export class DataManager {
           })
         }
         else if (typeof value === 'object') {
-          const ctorName
-            = value['@']
-              || (value.constructor !== Object ? value.constructor.name : 'Object')
           const ctor = value['@']
-            ? eval(ctorName)
+            ? GlobalMananger.get(value['@']) ?? Object
             : value.constructor !== Object
               ? value.constructor
               : inst[key]?.constructor || Object
@@ -75,7 +64,7 @@ export class DataManager {
 
   static _globalInfo: DataManager.SavefileInfo[] | null
   static _errors: DataManager.ErrorInfo[] = []
-  static _databaseFiles: DatabaseFileEntry[] = [
+  static _databaseFiles: DataManager.DatabaseFileEntry[] = [
     { name: '$dataActors', src: 'Actors.json' },
     { name: '$dataClasses', src: 'Classes.json' },
     { name: '$dataSkills', src: 'Skills.json' },
@@ -133,7 +122,7 @@ export class DataManager {
     }
   }
 
-  static loadDataFile(name: string, src: string): void {
+  static loadDataFile(name: GlobalMananger.GlobalStateName, src: string): void {
     const t = new XMLHttpRequest()
     const n = `data/${src}`
     this._setWindowData(name, null)
@@ -144,7 +133,7 @@ export class DataManager {
     t.send()
   }
 
-  static onXhrLoad(t: XMLHttpRequest, name: string, src: string, url: string): void {
+  static onXhrLoad(t: XMLHttpRequest, name: GlobalMananger.GlobalStateName, src: string, url: string): void {
     if (t.status < 400) {
       const data = JSON.parse(t.responseText) as unknown
       this._setWindowData(name, data)
@@ -155,7 +144,7 @@ export class DataManager {
     }
   }
 
-  static onXhrError(name: string, src: string, url: string): void {
+  static onXhrError(name: GlobalMananger.GlobalStateName, src: string, url: string): void {
     const n = { name, src, url }
     this._errors.push(n)
   }
@@ -180,17 +169,17 @@ export class DataManager {
   }
 
   static makeEmptyMap(): void {
-    $dataMap = {} as MZ.Map
-    $dataMap.data = []
-    $dataMap.events = []
-    $dataMap.width = 100
-    $dataMap.height = 100
-    $dataMap.scrollType = 3
+    GlobalMananger.$dataMap = {} as MZ.Map
+    GlobalMananger.$dataMap.data = []
+    GlobalMananger.$dataMap.events = []
+    GlobalMananger.$dataMap.width = 100
+    GlobalMananger.$dataMap.height = 100
+    GlobalMananger.$dataMap.scrollType = 3
   }
 
   static isMapLoaded(): boolean {
     this.checkError()
-    return !!$dataMap
+    return !!GlobalMananger.$dataMap
   }
 
   static onLoad(data: unknown): void {
@@ -261,49 +250,49 @@ export class DataManager {
   }
 
   static isSkill(a?: MZ.GeneralItem | null): a is MZ.Skill {
-    return !!a && $dataSkills.includes(a as MZ.Skill)
+    return !!a && GlobalMananger.$dataSkills.includes(a as MZ.Skill)
   }
 
   static isItem(a?: MZ.GeneralItem | null): a is MZ.Item {
-    return !!a && $dataItems.includes(a as MZ.Item)
+    return !!a && GlobalMananger.$dataItems.includes(a as MZ.Item)
   }
 
   static isWeapon(a?: MZ.GeneralItem | null): a is MZ.Weapon {
-    return !!a && $dataWeapons.includes(a as MZ.Weapon)
+    return !!a && GlobalMananger.$dataWeapons.includes(a as MZ.Weapon)
   }
 
   static isArmor(a?: MZ.GeneralItem | null): a is MZ.Armor {
-    return !!a && $dataArmors.includes(a as MZ.Armor)
+    return !!a && GlobalMananger.$dataArmors.includes(a as MZ.Armor)
   }
 
   static createGameObjects(): void {
-    $gameTemp = new Game_Temp()
-    $gameSystem = new Game_System()
-    $gameScreen = new Game_Screen()
-    $gameTimer = new Game_Timer()
-    $gameMessage = new Game_Message()
-    $gameSwitches = new Game_Switches()
-    $gameVariables = new Game_Variables()
-    $gameSelfSwitches = new Game_SelfSwitches()
-    $gameActors = new Game_Actors()
-    $gameParty = new Game_Party()
-    $gameTroop = new Game_Troop()
-    $gameMap = new Game_Map()
-    $gamePlayer = new Game_Player()
+    GlobalMananger.$gameTemp = new Game_Temp()
+    GlobalMananger.$gameSystem = new Game_System()
+    GlobalMananger.$gameScreen = new Game_Screen()
+    GlobalMananger.$gameTimer = new Game_Timer()
+    GlobalMananger.$gameMessage = new Game_Message()
+    GlobalMananger.$gameSwitches = new Game_Switches()
+    GlobalMananger.$gameVariables = new Game_Variables()
+    GlobalMananger.$gameSelfSwitches = new Game_SelfSwitches()
+    GlobalMananger.$gameActors = new Game_Actors()
+    GlobalMananger.$gameParty = new Game_Party()
+    GlobalMananger.$gameTroop = new Game_Troop()
+    GlobalMananger.$gameMap = new Game_Map()
+    GlobalMananger.$gamePlayer = new Game_Player()
   }
 
   static setupNewGame(): void {
     this.createGameObjects()
     this.selectSavefileForNewGame()
-    $gameParty.setupStartingMembers()
-    $gamePlayer.setupForNewGame()
+    GlobalMananger.$gameParty.setupStartingMembers()
+    GlobalMananger.$gamePlayer.setupForNewGame()
     Graphics.frameCount = 0
   }
 
   static setupBattleTest(): void {
     this.createGameObjects()
-    $gameParty.setupBattleTest()
-    BattleManager.setup($dataSystem.testTroopId, true, false)
+    GlobalMananger.$gameParty.setupBattleTest()
+    BattleManager.setup(GlobalMananger.$dataSystem.testTroopId, true, false)
     BattleManager.setBattleTest(true)
     BattleManager.playBattleBgm()
   }
@@ -311,9 +300,9 @@ export class DataManager {
   static setupEventTest(): void {
     this.createGameObjects()
     this.selectSavefileForNewGame()
-    $gameParty.setupStartingMembers()
-    $gamePlayer.reserveTransfer(-1, 8, 6, 0, 0)
-    $gamePlayer.setTransparent(false)
+    GlobalMananger.$gameParty.setupStartingMembers()
+    GlobalMananger.$gamePlayer.reserveTransfer(-1, 8, 6, 0, 0)
+    GlobalMananger.$gamePlayer.setTransparent(false)
   }
 
   static isAnySavefileExists(): boolean {
@@ -414,46 +403,49 @@ export class DataManager {
   static selectSavefileForNewGame(): void {
     const a = this.emptySavefileId()
     const e = this.earliestSavefileId()
-    a > 0 ? $gameSystem.setSavefileId(a) : $gameSystem.setSavefileId(e)
+    if (a > 0)
+      GlobalMananger.$gameSystem.setSavefileId(a)
+    else
+      GlobalMananger.$gameSystem.setSavefileId(e)
   }
 
   static makeSavefileInfo(): DataManager.SavefileInfo {
     const a = {} as DataManager.SavefileInfo
-    a.title = $dataSystem.gameTitle
-    a.characters = $gameParty.charactersForSavefile()
-    a.faces = $gameParty.facesForSavefile()
-    a.playtime = $gameSystem.playtimeText()
+    a.title = GlobalMananger.$dataSystem.gameTitle
+    a.characters = GlobalMananger.$gameParty.charactersForSavefile()
+    a.faces = GlobalMananger.$gameParty.facesForSavefile()
+    a.playtime = GlobalMananger.$gameSystem.playtimeText()
     a.timestamp = Date.now()
     return a
   }
 
   static makeSaveContents(): DataManager.SaveContents {
     const a = {} as DataManager.SaveContents
-    a.system = $gameSystem
-    a.screen = $gameScreen
-    a.timer = $gameTimer
-    a.switches = $gameSwitches
-    a.variables = $gameVariables
-    a.selfSwitches = $gameSelfSwitches
-    a.actors = $gameActors
-    a.party = $gameParty
-    a.map = $gameMap
-    a.player = $gamePlayer
+    a.system = GlobalMananger.$gameSystem
+    a.screen = GlobalMananger.$gameScreen
+    a.timer = GlobalMananger.$gameTimer
+    a.switches = GlobalMananger.$gameSwitches
+    a.variables = GlobalMananger.$gameVariables
+    a.selfSwitches = GlobalMananger.$gameSelfSwitches
+    a.actors = GlobalMananger.$gameActors
+    a.party = GlobalMananger.$gameParty
+    a.map = GlobalMananger.$gameMap
+    a.player = GlobalMananger.$gamePlayer
     return a
   }
 
   static extractSaveContents(a: DataManager.SaveContents): void {
     try {
-      $gameSystem = DataManager._restoreInstance(new Game_System(), a.system as unknown as Record<string, any>)
-      $gameScreen = DataManager._restoreInstance(new Game_Screen(), a.screen as unknown as Record<string, any>)
-      $gameTimer = DataManager._restoreInstance(new Game_Timer(), a.timer as unknown as Record<string, any>)
-      $gameSwitches = DataManager._restoreInstance(new Game_Switches(), a.switches as unknown as Record<string, any>)
-      $gameVariables = DataManager._restoreInstance(new Game_Variables(), a.variables as unknown as Record<string, any>)
-      $gameSelfSwitches = DataManager._restoreInstance(new Game_SelfSwitches(), a.selfSwitches as unknown as Record<string, any>)
-      $gameActors = DataManager._restoreInstance(new Game_Actors(), a.actors as unknown as Record<string, any>)
-      $gameParty = DataManager._restoreInstance(new Game_Party(), a.party as unknown as Record<string, any>)
-      $gameMap = DataManager._restoreInstance(new Game_Map(), a.map as unknown as Record<string, any>)
-      $gamePlayer = DataManager._restoreInstance(new Game_Player(), a.player as unknown as Record<string, any>)
+      GlobalMananger.$gameSystem = DataManager._restoreInstance(new Game_System(), a.system as unknown as Record<string, any>)
+      GlobalMananger.$gameScreen = DataManager._restoreInstance(new Game_Screen(), a.screen as unknown as Record<string, any>)
+      GlobalMananger.$gameTimer = DataManager._restoreInstance(new Game_Timer(), a.timer as unknown as Record<string, any>)
+      GlobalMananger.$gameSwitches = DataManager._restoreInstance(new Game_Switches(), a.switches as unknown as Record<string, any>)
+      GlobalMananger.$gameVariables = DataManager._restoreInstance(new Game_Variables(), a.variables as unknown as Record<string, any>)
+      GlobalMananger.$gameSelfSwitches = DataManager._restoreInstance(new Game_SelfSwitches(), a.selfSwitches as unknown as Record<string, any>)
+      GlobalMananger.$gameActors = DataManager._restoreInstance(new Game_Actors(), a.actors as unknown as Record<string, any>)
+      GlobalMananger.$gameParty = DataManager._restoreInstance(new Game_Party(), a.party as unknown as Record<string, any>)
+      GlobalMananger.$gameMap = DataManager._restoreInstance(new Game_Map(), a.map as unknown as Record<string, any>)
+      GlobalMananger.$gamePlayer = DataManager._restoreInstance(new Game_Player(), a.player as unknown as Record<string, any>)
     }
     catch (e) {
       SceneManager.catchException(e)
@@ -462,15 +454,19 @@ export class DataManager {
   }
 
   static correctDataErrors(): void {
-    $gameParty.removeInvalidMembers()
+    GlobalMananger.$gameParty.removeInvalidMembers()
   }
 }
 
 export namespace DataManager {
+  export interface DatabaseFileEntry {
+    name: GlobalMananger.GlobalStateName
+    src: string
+  }
   export type DatabaseFile<T> = [null, ...T[]]
 
   export interface ErrorInfo {
-    name: string
+    name: GlobalMananger.GlobalStateName
     src: string
     url: string
   }
