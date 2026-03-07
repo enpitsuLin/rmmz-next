@@ -1,7 +1,7 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
 import type { Game_Actor } from '../objects/Game_Actor'
-import { GlobalMananger, ConfigManager, TextManager } from '../managers'
+import { ConfigManager, GlobalMananger, TextManager } from '../managers'
 import { Window_Command } from './Window_Command'
 
 /**

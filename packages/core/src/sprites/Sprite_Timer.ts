@@ -1,6 +1,6 @@
 import type * as PIXI from 'pixi.js'
 import { Bitmap, Graphics, Sprite } from '../core'
-import { GlobalMananger, ColorManager } from '../managers'
+import { ColorManager, GlobalMananger } from '../managers'
 
 /**
  * Sprite_Timer

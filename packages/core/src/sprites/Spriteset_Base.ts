@@ -3,11 +3,11 @@ import type { Tilemap } from '../core'
 import type { Game_Battler, Game_Character, Game_Temp } from '../objects'
 import type { PIXI } from '../pixi'
 import { ColorFilter, Graphics, Rectangle, ScreenSprite, Sprite } from '../core'
+import { GlobalMananger } from '../managers'
 import { Sprite_Animation } from './Sprite_Animation'
 import { Sprite_AnimationMV } from './Sprite_AnimationMV'
 import { Sprite_Picture } from './Sprite_Picture'
 import { Sprite_Timer } from './Sprite_Timer'
-import { GlobalMananger } from '../managers'
 
 /**
  * Spriteset_Base

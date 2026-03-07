@@ -1,7 +1,7 @@
 import type { Rectangle } from '../core'
 import type { Game_Enemy } from '../objects/Game_Enemy'
-import { Window_Selectable } from './Window_Selectable'
 import { GlobalMananger } from '../managers'
+import { Window_Selectable } from './Window_Selectable'
 
 /**
  * Window_BattleEnemy

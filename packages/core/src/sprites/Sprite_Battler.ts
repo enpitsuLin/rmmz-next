@@ -1,8 +1,8 @@
 import type { Sprite } from '../core'
 import type { Game_Battler } from '../objects'
+import { GlobalMananger } from '../managers'
 import { Sprite_Clickable } from './Sprite_Clickable'
 import { Sprite_Damage } from './Sprite_Damage'
-import { GlobalMananger } from '../managers'
 
 /**
  * Sprite_Battler

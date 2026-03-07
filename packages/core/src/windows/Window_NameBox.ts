@@ -1,7 +1,7 @@
 import type { Window_Message } from './Window_Message'
 import { Graphics, Rectangle } from '../core'
-import { Window_Base } from './Window_Base'
 import { GlobalMananger } from '../managers'
+import { Window_Base } from './Window_Base'
 
 /**
  * Window_NameBox

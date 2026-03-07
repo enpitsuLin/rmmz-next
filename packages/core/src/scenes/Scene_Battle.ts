@@ -1,4 +1,5 @@
 import { Graphics, Rectangle } from '../core'
+import { GlobalMananger } from '../managers'
 import { AudioManager } from '../managers/AudioManager'
 import { BattleManager } from '../managers/BattleManager'
 import { ConfigManager } from '../managers/ConfigManager'
@@ -10,7 +11,6 @@ import { Scene_Gameover } from './Scene_Gameover'
 import { Scene_Map } from './Scene_Map'
 import { Scene_Message } from './Scene_Message'
 import { Scene_Title } from './Scene_Title'
-import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Battle

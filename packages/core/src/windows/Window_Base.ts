@@ -2,7 +2,7 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type * as PIXI from 'pixi.js'
 import { Bitmap, Rectangle, Sprite, Utils, Window } from '../core'
-import { GlobalMananger, ColorManager, ImageManager, SoundManager, TextManager } from '../managers'
+import { ColorManager, GlobalMananger, ImageManager, SoundManager, TextManager } from '../managers'
 
 /**
  * Window_Base

@@ -2,7 +2,7 @@ import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
 import type { Window_Message } from './Window_Message'
 import { Graphics } from '../core'
-import { GlobalMananger, ConfigManager, DataManager } from '../managers'
+import { ConfigManager, DataManager, GlobalMananger } from '../managers'
 import { Sprite_Button } from '../sprites'
 import { Window_ItemList } from './Window_ItemList'
 

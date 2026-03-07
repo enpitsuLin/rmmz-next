@@ -2,8 +2,8 @@ import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
 import type { Game_Actor } from '../objects/Game_Actor'
 import type { Window_SkillList } from './Window_SkillList'
-import { Window_Command } from './Window_Command'
 import { GlobalMananger } from '../managers'
+import { Window_Command } from './Window_Command'
 
 /**
  * Window_SkillType

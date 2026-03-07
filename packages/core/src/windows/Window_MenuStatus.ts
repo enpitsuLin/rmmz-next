@@ -1,6 +1,6 @@
 import type { Rectangle } from '../core'
 import type { Game_Actor } from '../objects/Game_Actor'
-import { GlobalMananger, ColorManager, ImageManager } from '../managers'
+import { ColorManager, GlobalMananger, ImageManager } from '../managers'
 import { Window_StatusBase } from './Window_StatusBase'
 
 /**

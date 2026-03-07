@@ -1,7 +1,7 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
-import { Window_ItemList } from './Window_ItemList'
 import { GlobalMananger } from '../managers'
+import { Window_ItemList } from './Window_ItemList'
 
 /**
  * Window_BattleItem

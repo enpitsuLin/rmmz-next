@@ -1,6 +1,6 @@
 import type { Bitmap } from '../core'
 import { Graphics, TilingSprite } from '../core'
-import { GlobalMananger, BattleManager, ImageManager } from '../managers'
+import { BattleManager, GlobalMananger, ImageManager } from '../managers'
 
 /**
  * Sprite_Battleback

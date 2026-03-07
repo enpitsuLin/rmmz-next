@@ -1,6 +1,6 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
-import { GlobalMananger, DataManager } from '../managers'
+import { DataManager, GlobalMananger } from '../managers'
 import { Window_Selectable } from './Window_Selectable'
 
 /**

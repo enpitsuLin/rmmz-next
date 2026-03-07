@@ -1,5 +1,5 @@
-import { Game_Follower } from './Game_Follower'
 import { GlobalMananger } from '../managers'
+import { Game_Follower } from './Game_Follower'
 
 /**
  * The wrapper class for a follower array.

@@ -1,10 +1,10 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_Actor } from './Game_Actor'
+import { GlobalMananger } from '../managers'
 import { DataManager } from '../managers/DataManager'
 import { TextManager } from '../managers/TextManager'
 import { Game_Item } from './Game_Item'
 import { Game_Unit } from './Game_Unit'
-import { GlobalMananger } from '../managers'
 
 /**
  * The game object class for the party.

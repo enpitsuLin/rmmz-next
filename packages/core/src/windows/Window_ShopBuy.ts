@@ -1,8 +1,8 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
 import type { Window_ShopStatus } from './Window_ShopStatus'
-import { Window_Selectable } from './Window_Selectable'
 import { GlobalMananger } from '../managers'
+import { Window_Selectable } from './Window_Selectable'
 
 /**
  * Window_ShopBuy

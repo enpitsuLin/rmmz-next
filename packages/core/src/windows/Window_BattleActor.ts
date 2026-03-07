@@ -1,6 +1,6 @@
 import type { Rectangle } from '../core'
-import { Window_BattleStatus } from './Window_BattleStatus'
 import { GlobalMananger } from '../managers'
+import { Window_BattleStatus } from './Window_BattleStatus'
 
 /**
  * Window_BattleActor

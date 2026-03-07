@@ -1,8 +1,8 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { RGBA } from '../types'
 import { Graphics } from '../core'
-import { AudioManager } from '../managers/AudioManager'
 import { GlobalMananger } from '../managers'
+import { AudioManager } from '../managers/AudioManager'
 
 /**
  * The game object class for the system data.

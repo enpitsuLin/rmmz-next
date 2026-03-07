@@ -1,5 +1,5 @@
 import { Input, Sprite, TouchInput } from '../core'
-import { GlobalMananger, AudioManager, ImageManager, SceneManager } from '../managers'
+import { AudioManager, GlobalMananger, ImageManager, SceneManager } from '../managers'
 import { Scene_Base } from './Scene_Base'
 import { Scene_Title } from './Scene_Title'
 

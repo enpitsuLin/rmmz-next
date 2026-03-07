@@ -1,4 +1,5 @@
 import { Graphics, Rectangle } from '../core'
+import { GlobalMananger } from '../managers'
 import { SceneManager } from '../managers/SceneManager'
 import { Window_Gold, Window_MenuCommand, Window_MenuStatus } from '../windows'
 import { Scene_Equip } from './Scene_Equip'
@@ -9,7 +10,6 @@ import { Scene_Options } from './Scene_Options'
 import { Scene_Save } from './Scene_Save'
 import { Scene_Skill } from './Scene_Skill'
 import { Scene_Status } from './Scene_Status'
-import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Menu

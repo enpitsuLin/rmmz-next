@@ -1,13 +1,13 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { VehicleType } from '../types'
 import { Graphics } from '../core'
+import { GlobalMananger } from '../managers'
 import { AudioManager } from '../managers/AudioManager'
 import { ImageManager } from '../managers/ImageManager'
 import { Game_CommonEvent } from './Game_CommonEvent'
 import { Game_Event } from './Game_Event'
 import { Game_Interpreter } from './Game_Interpreter'
 import { Game_Vehicle } from './Game_Vehicle'
-import { GlobalMananger } from '../managers'
 
 /**
  * The game object class for a map.

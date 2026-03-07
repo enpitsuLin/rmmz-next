@@ -1,8 +1,8 @@
+import { GlobalMananger } from '../managers'
 import { DataManager } from '../managers/DataManager'
 import { SoundManager } from '../managers/SoundManager'
 import { TextManager } from '../managers/TextManager'
 import { Scene_File } from './Scene_File'
-import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Save

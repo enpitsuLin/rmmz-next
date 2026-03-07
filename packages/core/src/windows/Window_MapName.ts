@@ -1,5 +1,5 @@
 import type { Rectangle } from '../core'
-import { GlobalMananger, ColorManager } from '../managers'
+import { ColorManager, GlobalMananger } from '../managers'
 import { Window_Base } from './Window_Base'
 
 /**

@@ -1,9 +1,9 @@
 import type { Game_Actor } from '../objects'
 import { Graphics, Rectangle } from '../core'
+import { GlobalMananger } from '../managers'
 import { SoundManager } from '../managers/SoundManager'
 import { Window_ItemCategory, Window_ItemList } from '../windows'
 import { Scene_ItemBase } from './Scene_ItemBase'
-import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Item

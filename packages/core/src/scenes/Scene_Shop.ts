@@ -1,10 +1,10 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import { Graphics, Rectangle } from '../core'
+import { GlobalMananger } from '../managers'
 import { DataManager } from '../managers/DataManager'
 import { SoundManager } from '../managers/SoundManager'
 import { Window_Base, Window_Gold, Window_ItemCategory, Window_ShopBuy, Window_ShopCommand, Window_ShopNumber, Window_ShopSell, Window_ShopStatus } from '../windows'
 import { Scene_MenuBase } from './Scene_MenuBase'
-import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Shop

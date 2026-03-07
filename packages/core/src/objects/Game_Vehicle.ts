@@ -1,7 +1,7 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { VehicleType } from '../types'
 import type { Game_CharacterBase } from './Game_CharacterBase'
-import { GlobalMananger, AudioManager } from '../managers'
+import { AudioManager, GlobalMananger } from '../managers'
 import { Game_Character } from './Game_Character'
 
 /**

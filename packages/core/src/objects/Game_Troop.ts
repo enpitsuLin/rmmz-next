@@ -1,5 +1,5 @@
 import type { MZ } from '@rmmz-lib/database-types'
-import { GlobalMananger, BattleManager } from '../managers'
+import { BattleManager, GlobalMananger } from '../managers'
 import { Game_Enemy } from './Game_Enemy'
 import { Game_Interpreter } from './Game_Interpreter'
 import { Game_Unit } from './Game_Unit'

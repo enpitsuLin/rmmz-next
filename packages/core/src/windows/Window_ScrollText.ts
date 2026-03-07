@@ -1,6 +1,6 @@
 import { Input, Rectangle, TouchInput } from '../core'
-import { Window_Base } from './Window_Base'
 import { GlobalMananger } from '../managers'
+import { Window_Base } from './Window_Base'
 
 /**
  * Window_ScrollText

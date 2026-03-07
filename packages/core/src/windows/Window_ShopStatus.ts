@@ -2,11 +2,11 @@ import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
 import type { Game_Actor } from '../objects/Game_Actor'
 import { Input, TouchInput } from '../core'
+import { GlobalMananger } from '../managers'
 import { ColorManager } from '../managers/ColorManager'
 import { DataManager } from '../managers/DataManager'
 import { TextManager } from '../managers/TextManager'
 import { Window_StatusBase } from './Window_StatusBase'
-import { GlobalMananger } from '../managers'
 
 /**
  * Window_ShopStatus

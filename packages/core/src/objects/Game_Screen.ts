@@ -1,6 +1,6 @@
 import type { RGBA } from '../types'
-import { Game_Picture } from './Game_Picture'
 import { GlobalMananger } from '../managers'
+import { Game_Picture } from './Game_Picture'
 
 /**
  * The game object class for screen effect data, such as changes in color tone and flashes.

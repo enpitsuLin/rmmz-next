@@ -1,5 +1,5 @@
 import type { Rectangle } from '../core'
-import { GlobalMananger, DataManager, TextManager } from '../managers'
+import { DataManager, GlobalMananger, TextManager } from '../managers'
 import { Window_Command } from './Window_Command'
 
 /**

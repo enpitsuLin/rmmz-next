@@ -2,7 +2,7 @@ import type * as PIXI from 'pixi.js'
 import type { Game_Battler } from '../objects'
 import type { RGBA } from '../types'
 import { Bitmap, Sprite } from '../core'
-import { GlobalMananger, ColorManager, TextManager } from '../managers'
+import { ColorManager, GlobalMananger, TextManager } from '../managers'
 
 /**
  * Sprite_Gauge

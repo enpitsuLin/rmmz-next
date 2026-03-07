@@ -3,11 +3,11 @@ import type { VehicleType } from '../types'
 import type { Game_CharacterBase } from './Game_CharacterBase'
 import type { Game_Vehicle } from './Game_Vehicle'
 import { Input, TouchInput } from '../core'
+import { GlobalMananger } from '../managers'
 import { BattleManager } from '../managers/BattleManager'
 import { ConfigManager } from '../managers/ConfigManager'
 import { Game_Character } from './Game_Character'
 import { Game_Followers } from './Game_Followers'
-import { GlobalMananger } from '../managers'
 
 /**
  * The game object class for the player.

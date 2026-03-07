@@ -5,7 +5,7 @@ import type { Game_Battler } from '../objects/Game_Battler'
 import type { Spriteset_Battle } from '../sprites/Spriteset_Battle'
 import type { PickMethodProperties } from '../types'
 import { Input, Rectangle, TouchInput } from '../core'
-import { GlobalMananger, DataManager, SoundManager, TextManager } from '../managers'
+import { DataManager, GlobalMananger, SoundManager, TextManager } from '../managers'
 import { Window_Base } from './Window_Base'
 
 /**

@@ -1,7 +1,7 @@
 import type { Rectangle } from '../core'
 import { Input } from '../core'
-import { Window_Selectable } from './Window_Selectable'
 import { GlobalMananger } from '../managers'
+import { Window_Selectable } from './Window_Selectable'
 
 /**
  * The window for displaying switches and variables on the debug screen.

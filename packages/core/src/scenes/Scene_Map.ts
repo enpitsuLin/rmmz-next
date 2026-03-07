@@ -1,5 +1,6 @@
 import type { RGBA } from '../types'
 import { Graphics, Input, Rectangle, TouchInput } from '../core'
+import { GlobalMananger } from '../managers'
 import { AudioManager } from '../managers/AudioManager'
 import { BattleManager } from '../managers/BattleManager'
 import { ConfigManager } from '../managers/ConfigManager'
@@ -17,7 +18,6 @@ import { Scene_Load } from './Scene_Load'
 import { Scene_Menu } from './Scene_Menu'
 import { Scene_Message } from './Scene_Message'
 import { Scene_Title } from './Scene_Title'
-import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Map

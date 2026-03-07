@@ -1,8 +1,8 @@
 import type { Rectangle } from '../core'
 import type { Window_DebugEdit } from './Window_DebugEdit'
 import { Input } from '../core'
-import { Window_Selectable } from './Window_Selectable'
 import { GlobalMananger } from '../managers'
+import { Window_Selectable } from './Window_Selectable'
 
 /**
  * Window_DebugRange

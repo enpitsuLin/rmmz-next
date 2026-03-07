@@ -1,9 +1,9 @@
 import type { Window_Message } from './Window_Message'
 import { Graphics, Rectangle } from '../core'
+import { GlobalMananger } from '../managers'
 import { ConfigManager } from '../managers/ConfigManager'
 import { Sprite_Button } from '../sprites'
 import { Window_Command } from './Window_Command'
-import { GlobalMananger } from '../managers'
 
 /**
  * Window_ChoiceList

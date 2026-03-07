@@ -1,12 +1,12 @@
 import type { Rectangle, Sprite } from '../core'
 import type { Game_Actor } from '../objects/Game_Actor'
+import { GlobalMananger } from '../managers'
 import { BattleManager } from '../managers/BattleManager'
 import { ColorManager } from '../managers/ColorManager'
 import { ImageManager } from '../managers/ImageManager'
 import { TextManager } from '../managers/TextManager'
 import { Sprite_Gauge, Sprite_Name, Sprite_StateIcon } from '../sprites'
 import { Window_Selectable } from './Window_Selectable'
-import { GlobalMananger } from '../managers'
 
 /**
  * Window_StatusBase
