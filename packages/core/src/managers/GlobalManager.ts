@@ -125,5 +125,4 @@ export namespace GlobalMananger {
       | '$gameMap'
       | '$gamePlayer'
       | '$testEvent'
-      | '$plugins'
 }

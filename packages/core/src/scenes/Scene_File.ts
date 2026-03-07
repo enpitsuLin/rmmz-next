@@ -1,8 +1,8 @@
 import { Graphics, Rectangle } from '../core'
+import { GlobalMananger } from '../managers'
 import { DataManager } from '../managers/DataManager'
 import { Window_Help, Window_SavefileList } from '../windows'
 import { Scene_MenuBase } from './Scene_MenuBase'
-import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_File

@@ -2,7 +2,7 @@ import type * as PIXI from 'pixi.js'
 import type { Game_Battler } from '../objects'
 import type { RGBA } from '../types'
 import { Bitmap, Sprite } from '../core'
-import { GlobalMananger, ColorManager } from '../managers'
+import { ColorManager, GlobalMananger } from '../managers'
 
 /**
  * Sprite_Damage
@@ -10,7 +10,7 @@ import { GlobalMananger, ColorManager } from '../managers'
  * The sprite for displaying a popup damage.
  */
 export class Sprite_Damage extends Sprite {
-  override children!: Sprite[]
+  override children!: Sprite_Damage[]
 
   _duration: number
   _flashColor: RGBA
@@ -130,14 +130,14 @@ export class Sprite_Damage extends Sprite {
     this.updateOpacity()
   }
 
-  updateChild(sprite: Sprite): void {
-    sprite.dy += 0.5
-    sprite.ry += sprite.dy
-    if (sprite.ry >= 0) {
+  updateChild(sprite: Sprite_Damage): void {
+    sprite.dy! += 0.5
+    sprite.ry! += sprite.dy!
+    if (sprite.ry! >= 0) {
       sprite.ry = 0
-      sprite.dy *= -0.6
+      sprite.dy! *= -0.6
     }
-    sprite.y = Math.round(sprite.ry)
+    sprite.y = Math.round(sprite.ry!)
     sprite.setBlendColor(this._flashColor)
   }
 

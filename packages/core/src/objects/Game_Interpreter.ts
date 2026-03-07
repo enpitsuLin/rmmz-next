@@ -1,9 +1,12 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { RGBA, VehicleType } from '../types'
 import type { Window_ShopBuy } from '../windows'
+import type { Game_Actor } from './Game_Actor'
 import type { Game_Battler } from './Game_Battler'
 import type { Game_Character } from './Game_Character'
+import type { Game_Enemy } from './Game_Enemy'
 import { Graphics, Input, Point, Utils, Video } from '../core'
+import { GlobalMananger } from '../managers'
 import { AudioManager } from '../managers/AudioManager'
 import { BattleManager } from '../managers/BattleManager'
 import { ImageManager } from '../managers/ImageManager'
@@ -12,7 +15,6 @@ import { SceneManager } from '../managers/SceneManager'
 import { Scene_Battle, Scene_Menu, Scene_Name, Scene_Save, Scene_Shop, Scene_Title } from '../scenes'
 import { Scene_Gameover } from '../scenes/Scene_Gameover'
 import { Window_MenuCommand } from '../windows'
-import { GlobalMananger } from '../managers'
 
 /**
  * The interpreter for running event commands.
@@ -166,15 +168,15 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
         break
       case 'route':
         character = this.character(this._characterId)
-        waiting = character && character.isMoveRouteForcing()
+        waiting = !!character && character.isMoveRouteForcing()
         break
       case 'animation':
         character = this.character(this._characterId)
-        waiting = character && character.isAnimationPlaying()
+        waiting = !!character && character.isAnimationPlaying()
         break
       case 'balloon':
         character = this.character(this._characterId)
-        waiting = character && character.isBalloonPlaying()
+        waiting = !!character && character.isBalloonPlaying()
         break
       case 'gather':
         waiting = GlobalMananger.$gamePlayer.areFollowersGathering()
@@ -264,7 +266,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     }
   }
 
-  iterateActorId(param: number, callback: (actor: Game_Battler) => void): void {
+  iterateActorId(param: number, callback: (actor: Game_Actor) => void): void {
     if (param === 0) {
       GlobalMananger.$gameParty.members().forEach(callback)
     }
@@ -276,7 +278,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     }
   }
 
-  iterateActorEx(param1: number, param2: number, callback: (actor: Game_Battler) => void): void {
+  iterateActorEx(param1: 0 | 1, param2: number, callback: (actor: Game_Actor) => void): void {
     if (param1 === 0) {
       this.iterateActorId(param2, callback)
     }
@@ -285,7 +287,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     }
   }
 
-  iterateActorIndex(param: number, callback: (actor: Game_Battler) => void): void {
+  iterateActorIndex(param: number, callback: (actor: Game_Actor) => void): void {
     if (param < 0) {
       GlobalMananger.$gameParty.members().forEach(callback)
     }
@@ -297,7 +299,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     }
   }
 
-  iterateEnemyIndex(param: number, callback: (enemy: Game_Battler) => void): void {
+  iterateEnemyIndex(param: number, callback: (enemy: Game_Enemy) => void): void {
     if (param < 0) {
       GlobalMananger.$gameTroop.members().forEach(callback)
     }
@@ -335,7 +337,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     }
   }
 
-  operateValue(operation: number, operandType: number, operand: number): number {
+  operateValue(operation: 0 | 1, operandType: 0 | 1, operand: number): number {
     const value = operandType === 0 ? operand : GlobalMananger.$gameVariables.value(operand)
     return operation === 0 ? value : -value
   }
@@ -913,25 +915,25 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     return true
   }
 
-  command125(params: [number, number, number]): boolean {
+  command125(params: [operation: 0 | 1, operandType: 0 | 1, operand: number]): boolean {
     const value = this.operateValue(params[0], params[1], params[2])
     GlobalMananger.$gameParty.gainGold(value)
     return true
   }
 
-  command126(params: [number, number, number, number]): boolean {
+  command126(params: [itemId: number, operation: 0 | 1, operandType: 0 | 1, operand: number]): boolean {
     const value = this.operateValue(params[1], params[2], params[3])
     GlobalMananger.$gameParty.gainItem(GlobalMananger.$dataItems[params[0]]!, value)
     return true
   }
 
-  command127(params: [number, number, number, number, boolean]): boolean {
+  command127(params: [weaponId: number, operation: 0 | 1, operandType: 0 | 1, operand: number, boolean]): boolean {
     const value = this.operateValue(params[1], params[2], params[3])
     GlobalMananger.$gameParty.gainItem(GlobalMananger.$dataWeapons[params[0]]!, value, params[4])
     return true
   }
 
-  command128(params: [number, number, number, number, boolean]): boolean {
+  command128(params: [armorId: number, operation: 0 | 1, operandType: 0 | 1, operand: number, boolean]): boolean {
     const value = this.operateValue(params[1], params[2], params[3])
     GlobalMananger.$gameParty.gainItem(GlobalMananger.$dataArmors[params[0]]!, value, params[4])
     return true
@@ -1549,7 +1551,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change HP
-  command311(params: [number, number, number, number, number, boolean]): boolean {
+  command311(params: [0 | 1, characterId: number, operation: 0 | 1, operationType: 0 | 1, operand: number, show: boolean]): boolean {
     const value = this.operateValue(params[2], params[3], params[4])
     this.iterateActorEx(params[0], params[1], (actor) => {
       this.changeHp(actor, value, params[5])
@@ -1558,7 +1560,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change MP
-  command312(params: [number, number, number, number, number, boolean]): boolean {
+  command312(params: [0 | 1, characterId: number, operation: 0 | 1, operationType: 0 | 1, operand: number, show: boolean]): boolean {
     const value = this.operateValue(params[2], params[3], params[4])
     this.iterateActorEx(params[0], params[1], (actor) => {
       actor.gainMp(value)
@@ -1567,7 +1569,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change TP
-  command326(params: [number, number, number, number, number, boolean]): boolean {
+  command326(params: [0 | 1, characterId: number, operation: 0 | 1, operationType: 0 | 1, operand: number, show: boolean]): boolean {
     const value = this.operateValue(params[2], params[3], params[4])
     this.iterateActorEx(params[0], params[1], (actor) => {
       actor.gainTp(value)
@@ -1576,7 +1578,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change State
-  command313(params): boolean {
+  command313(params: [0 | 1, characterId: number, 0 | 1, stateId: number]): boolean {
     this.iterateActorEx(params[0], params[1], (actor) => {
       const alreadyDead = actor.isDead()
       if (params[2] === 0) {
@@ -1594,7 +1596,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Recover All
-  command314(params): boolean {
+  command314(params: [0 | 1, characterId: number]): boolean {
     this.iterateActorEx(params[0], params[1], (actor) => {
       actor.recoverAll()
     })
@@ -1602,7 +1604,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change EXP
-  command315(params): boolean {
+  command315(params: [0 | 1, characterId: number, operation: 0 | 1, operationType: 0 | 1, operand: number, show: boolean]): boolean {
     const value = this.operateValue(params[2], params[3], params[4])
     this.iterateActorEx(params[0], params[1], (actor) => {
       actor.changeExp(actor.currentExp() + value, params[5])
@@ -1611,7 +1613,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Level
-  command316(params): boolean {
+  command316(params: [0 | 1, characterId: number, operation: 0 | 1, operationType: 0 | 1, operand: number, show: boolean]): boolean {
     const value = this.operateValue(params[2], params[3], params[4])
     this.iterateActorEx(params[0], params[1], (actor) => {
       actor.changeLevel(actor.level + value, params[5])
@@ -1620,7 +1622,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Parameter
-  command317(params): boolean {
+  command317(params: [0 | 1, characterId: number, paramId: number, operation: 0 | 1, operationType: 0 | 1, operand: number]): boolean {
     const value = this.operateValue(params[3], params[4], params[5])
     this.iterateActorEx(params[0], params[1], (actor) => {
       actor.addParam(params[2], value)
@@ -1629,7 +1631,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Skill
-  command318(params): boolean {
+  command318(params: [0 | 1, characterId: number, 0 | 1, skillId: number]): boolean {
     this.iterateActorEx(params[0], params[1], (actor) => {
       if (params[2] === 0) {
         actor.learnSkill(params[3])
@@ -1642,7 +1644,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Equipment
-  command319(params): boolean {
+  command319(params: [actorId: number, etypeId: number, itemId: number]): boolean {
     const actor = GlobalMananger.$gameActors.actor(params[0])
     if (actor) {
       actor.changeEquipById(params[1], params[2])
@@ -1651,7 +1653,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Name
-  command320(params): boolean {
+  command320(params: [actorId: number, name: string]): boolean {
     const actor = GlobalMananger.$gameActors.actor(params[0])
     if (actor) {
       actor.setName(params[1])
@@ -1660,7 +1662,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Class
-  command321(params): boolean {
+  command321(params: [actorId: number, classId: number, keepExp: boolean]): boolean {
     const actor = GlobalMananger.$gameActors.actor(params[0])
     if (actor && GlobalMananger.$dataClasses[params[1]]) {
       actor.changeClass(params[1], params[2])
@@ -1669,7 +1671,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Actor Images
-  command322(params): boolean {
+  command322(params: [actorId: number, characterName: string, characterIndex: number, faceName: string, faceIndex: number, battlerName: string]): boolean {
     const actor = GlobalMananger.$gameActors.actor(params[0])
     if (actor) {
       actor.setCharacterImage(params[1], params[2])
@@ -1681,7 +1683,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Vehicle Image
-  command323(params): boolean {
+  command323(params: [vehicleType: VehicleType, characterName: string, characterIndex: number]): boolean {
     const vehicle = GlobalMananger.$gameMap.vehicle(params[0])
     if (vehicle) {
       vehicle.setImage(params[1], params[2])
@@ -1690,7 +1692,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Nickname
-  command324(params): boolean {
+  command324(params: [actorId: number, nickName: string]): boolean {
     const actor = GlobalMananger.$gameActors.actor(params[0])
     if (actor) {
       actor.setNickname(params[1])
@@ -1699,7 +1701,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Profile
-  command325(params): boolean {
+  command325(params: [actorId: number, profile: string]): boolean {
     const actor = GlobalMananger.$gameActors.actor(params[0])
     if (actor) {
       actor.setProfile(params[1])
@@ -1708,7 +1710,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Enemy HP
-  command331(params): boolean {
+  command331(params: [enemyId: number, operation: 0 | 1, operandType: 0 | 1, operand: number, allowDeath: boolean]): boolean {
     const value = this.operateValue(params[1], params[2], params[3])
     this.iterateEnemyIndex(params[0], (enemy) => {
       this.changeHp(enemy, value, params[4])
@@ -1717,7 +1719,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Enemy MP
-  command332(params): boolean {
+  command332(params: [enemyId: number, operation: 0 | 1, operandType: 0 | 1, operand: number]): boolean {
     const value = this.operateValue(params[1], params[2], params[3])
     this.iterateEnemyIndex(params[0], (enemy) => {
       enemy.gainMp(value)
@@ -1726,7 +1728,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change Enemy TP
-  command342(params): boolean {
+  command342(params: [enemyId: number, operation: 0 | 1, operandType: 0 | 1, operand: number]): boolean {
     const value = this.operateValue(params[1], params[2], params[3])
     this.iterateEnemyIndex(params[0], (enemy) => {
       enemy.gainTp(value)
@@ -1734,8 +1736,12 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     return true
   }
 
-  // Change Enemy State
-  command333(params): boolean {
+  /**
+   * Change Enemy State
+   *
+   * @param params addOrRemove 0 for add, 1 for remove
+   */
+  command333(params: [enemyId: number, addOrRemove: 0 | 1, stateId: number]): boolean {
     this.iterateEnemyIndex(params[0], (enemy) => {
       const alreadyDead = enemy.isDead()
       if (params[1] === 0) {
@@ -1753,7 +1759,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Enemy Recover All
-  command334(params): boolean {
+  command334(params: [enemyId: number]): boolean {
     this.iterateEnemyIndex(params[0], (enemy) => {
       enemy.recoverAll()
     })
@@ -1761,7 +1767,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Enemy Appear
-  command335(params): boolean {
+  command335(params: [enemyId: number]): boolean {
     this.iterateEnemyIndex(params[0], (enemy) => {
       enemy.appear()
       GlobalMananger.$gameTroop.makeUniqueNames()
@@ -1770,7 +1776,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Enemy Transform
-  command336(params): boolean {
+  command336(params: [enemy1: number, enemy2: number]): boolean {
     this.iterateEnemyIndex(params[0], (enemy) => {
       enemy.transform(params[1])
       GlobalMananger.$gameTroop.makeUniqueNames()
@@ -1779,12 +1785,12 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Show Battle Animation
-  command337(params): boolean {
+  command337(params: [enemyId: number, animationId: number, toAll: boolean]): boolean {
     let param = params[0]
     if (params[2]) {
       param = -1
     }
-    const targets = []
+    const targets: Game_Battler[] = []
     this.iterateEnemyIndex(param, (enemy) => {
       if (enemy.isAlive()) {
         targets.push(enemy)
@@ -1795,7 +1801,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Force Action
-  command339(params): boolean {
+  command339(params: [0 | 1, from: number, skillId: number, target: number]): boolean {
     this.iterateBattler(params[0], params[1], (battler) => {
       if (!battler.isDeathStateAffected()) {
         battler.forceAction(params[2], params[3])
@@ -1856,9 +1862,10 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
    * Plugin Command MV (deprecated)
    * @deprecated
    */
-  command356(params): boolean {
+  command356(params: any[]): boolean {
     const args = params[0].split(' ')
     const command = args.shift()
+    // @ts-expect-error ignore
     this.pluginCommand(command, args)
     return true
   }
@@ -1871,7 +1878,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Plugin Command
-  command357(params): boolean {
+  command357(params: [pluginName: string, commandName: string, desc: string, params: Record<string, string>]): boolean {
     const pluginName = Utils.extractFileName(params[0])
     PluginManager.callCommand(this, pluginName, params[1], params[3])
     return true

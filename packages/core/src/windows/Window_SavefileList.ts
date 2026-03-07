@@ -18,7 +18,7 @@ export class Window_SavefileList extends Window_Selectable {
     this._autosave = false
   }
 
-  setMode(mode: 'save' | 'load', autosave: boolean): void {
+  setMode(mode: 'save' | 'load' | null, autosave: boolean): void {
     this._mode = mode
     this._autosave = autosave
     this.refresh()

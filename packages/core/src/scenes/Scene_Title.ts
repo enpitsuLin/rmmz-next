@@ -1,4 +1,5 @@
 import { Bitmap, Graphics, Rectangle, Sprite } from '../core'
+import { GlobalMananger } from '../managers'
 import { AudioManager } from '../managers/AudioManager'
 import { DataManager } from '../managers/DataManager'
 import { ImageManager } from '../managers/ImageManager'
@@ -8,7 +9,6 @@ import { Scene_Base } from './Scene_Base'
 import { Scene_Load } from './Scene_Load'
 import { Scene_Map } from './Scene_Map'
 import { Scene_Options } from './Scene_Options'
-import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Title
@@ -56,7 +56,7 @@ export class Scene_Title extends Scene_Base {
     super.terminate()
     SceneManager.snapForBackground()
     if (this._gameTitleSprite) {
-      this._gameTitleSprite.bitmap.destroy()
+      this._gameTitleSprite.bitmap!.destroy()
     }
   }
 
@@ -86,7 +86,7 @@ export class Scene_Title extends Scene_Base {
     const y = Graphics.height / 4
     const maxWidth = Graphics.width - x * 2
     const text = GlobalMananger.$dataSystem.gameTitle
-    const bitmap = this._gameTitleSprite.bitmap
+    const bitmap = this._gameTitleSprite.bitmap!
     bitmap.fontFace = GlobalMananger.$gameSystem.mainFontFace()
     bitmap.outlineColor = 'black'
     bitmap.outlineWidth = 8

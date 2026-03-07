@@ -17,7 +17,7 @@ export class Sprite_Animation extends Sprite {
   _mirror!: boolean
   _delay!: number
   _previous!: Sprite_Animation | null
-  _effect!: effekseer.EffekseerHandle | null
+  _effect!: effekseer.EffekseerEffect | null
   _handle!: effekseer.EffekseerHandle | null
   _playing!: boolean
   _started!: boolean

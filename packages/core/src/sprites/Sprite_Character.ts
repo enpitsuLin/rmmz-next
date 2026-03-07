@@ -9,17 +9,18 @@ import { GlobalMananger, ImageManager } from '../managers'
  * The sprite for displaying a character.
  */
 export class Sprite_Character extends Sprite {
-  _character: null
-  _balloonDuration: number
-  _tilesetId: number
-  _upperBody: null
-  _lowerBody: null
-  _tileId: number
+  _character!: null | Game_CharacterBase
+  _balloonDuration!: number
+  _tilesetId!: number
+  _upperBody!: null | Sprite
+  _lowerBody!: null | Sprite
+  _tileId!: number
   _characterName: any
   _characterIndex: any
-  _isBigCharacter: boolean
-  _bushDepth: number
-  z: any
+  _isBigCharacter!: boolean
+  _bushDepth!: number
+  z!: number
+
   constructor(character: Game_CharacterBase) {
     super()
     this.initMembers()
@@ -55,17 +56,17 @@ export class Sprite_Character extends Sprite {
 
   updateVisibility(): void {
     super.updateVisibility()
-    if (this.isEmptyCharacter() || this._character.isTransparent()) {
+    if (this.isEmptyCharacter() || this._character!.isTransparent()) {
       this.visible = false
     }
   }
 
   isTile(): boolean {
-    return this._character.isTile()
+    return this._character!.isTile()
   }
 
   isObjectCharacter(): boolean {
-    return this._character.isObjectCharacter()
+    return this._character!.isObjectCharacter()
   }
 
   isEmptyCharacter(): boolean {
@@ -81,9 +82,9 @@ export class Sprite_Character extends Sprite {
   updateBitmap(): void {
     if (this.isImageChanged()) {
       this._tilesetId = GlobalMananger.$gameMap.tilesetId()
-      this._tileId = this._character.tileId()
-      this._characterName = this._character.characterName()
-      this._characterIndex = this._character.characterIndex()
+      this._tileId = this._character!.tileId()
+      this._characterName = this._character!.characterName()
+      this._characterIndex = this._character!.characterIndex()
       if (this._tileId > 0) {
         this.setTileBitmap()
       }
@@ -96,9 +97,9 @@ export class Sprite_Character extends Sprite {
   isImageChanged(): boolean {
     return (
       this._tilesetId !== GlobalMananger.$gameMap.tilesetId()
-      || this._tileId !== this._character.tileId()
-      || this._characterName !== this._character.characterName()
-      || this._characterIndex !== this._character.characterIndex()
+      || this._tileId !== this._character!.tileId()
+      || this._characterName !== this._character!.characterName()
+      || this._characterIndex !== this._character!.characterIndex()
     )
   }
 
@@ -137,8 +138,8 @@ export class Sprite_Character extends Sprite {
     this.updateHalfBodySprites()
     if (this._bushDepth > 0) {
       const d = this._bushDepth
-      this._upperBody.setFrame(sx, sy, pw, ph - d)
-      this._lowerBody.setFrame(sx, sy + ph - d, pw, d)
+      this._upperBody!.setFrame(sx, sy, pw, ph - d)
+      this._lowerBody!.setFrame(sx, sy + ph - d, pw, d)
       this.setFrame(sx, sy, 0, ph)
     }
     else {
@@ -151,7 +152,7 @@ export class Sprite_Character extends Sprite {
       return 0
     }
     else {
-      const index = this._character.characterIndex()
+      const index = this._character!.characterIndex()
       return (index % 4) * 3
     }
   }
@@ -161,17 +162,17 @@ export class Sprite_Character extends Sprite {
       return 0
     }
     else {
-      const index = this._character.characterIndex()
+      const index = this._character!.characterIndex()
       return Math.floor(index / 4) * 4
     }
   }
 
   characterPatternX(): number {
-    return this._character.pattern()
+    return this._character!.pattern()
   }
 
   characterPatternY(): number {
-    return (this._character.direction() - 2) / 2
+    return (this._character!.direction() - 2) / 2
   }
 
   patternWidth(): number {
@@ -179,10 +180,10 @@ export class Sprite_Character extends Sprite {
       return GlobalMananger.$gameMap.tileWidth()
     }
     else if (this._isBigCharacter) {
-      return this.bitmap.width / 3
+      return this.bitmap!.width / 3
     }
     else {
-      return this.bitmap.width / 12
+      return this.bitmap!.width / 12
     }
   }
 
@@ -191,31 +192,31 @@ export class Sprite_Character extends Sprite {
       return GlobalMananger.$gameMap.tileHeight()
     }
     else if (this._isBigCharacter) {
-      return this.bitmap.height / 4
+      return this.bitmap!.height / 4
     }
     else {
-      return this.bitmap.height / 8
+      return this.bitmap!.height / 8
     }
   }
 
   updateHalfBodySprites(): void {
     if (this._bushDepth > 0) {
       this.createHalfBodySprites()
-      this._upperBody.bitmap = this.bitmap
-      this._upperBody.visible = true
-      this._upperBody.y = -this._bushDepth
-      this._lowerBody.bitmap = this.bitmap
-      this._lowerBody.visible = true
-      this._upperBody.setBlendColor(this.getBlendColor())
-      this._lowerBody.setBlendColor(this.getBlendColor())
-      this._upperBody.setColorTone(this.getColorTone())
-      this._lowerBody.setColorTone(this.getColorTone())
-      this._upperBody.blendMode = this.blendMode
-      this._lowerBody.blendMode = this.blendMode
+      this._upperBody!.bitmap = this.bitmap
+      this._upperBody!.visible = true
+      this._upperBody!.y = -this._bushDepth
+      this._lowerBody!.bitmap = this.bitmap
+      this._lowerBody!.visible = true
+      this._upperBody!.setBlendColor(this.getBlendColor())
+      this._lowerBody!.setBlendColor(this.getBlendColor())
+      this._upperBody!.setColorTone(this.getColorTone())
+      this._lowerBody!.setColorTone(this.getColorTone())
+      this._upperBody!.blendMode = this.blendMode
+      this._lowerBody!.blendMode = this.blendMode
     }
     else if (this._upperBody) {
       this._upperBody.visible = false
-      this._lowerBody.visible = false
+      this._lowerBody!.visible = false
     }
   }
 
@@ -236,14 +237,14 @@ export class Sprite_Character extends Sprite {
   }
 
   updatePosition(): void {
-    this.x = this._character.screenX()
-    this.y = this._character.screenY()
-    this.z = this._character.screenZ()
+    this.x = this._character!.screenX()
+    this.y = this._character!.screenY()
+    this.z = this._character!.screenZ()
   }
 
   updateOther(): void {
-    this.opacity = this._character.opacity()
-    this.blendMode = this._character.blendMode()
-    this._bushDepth = this._character.bushDepth()
+    this.opacity = this._character!.opacity()
+    this.blendMode = this._character!.blendMode()
+    this._bushDepth = this._character!.bushDepth()
   }
 }
