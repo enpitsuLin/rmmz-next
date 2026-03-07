@@ -8,22 +8,22 @@ class Game_Switches {
     this.clear()
   }
 
-  clear() {
+  clear(): void {
     this._data = []
   }
 
-  value(switchId: number) {
+  value(switchId: number): boolean {
     return !!this._data[switchId]
   }
 
-  setValue(switchId: number, value: boolean) {
+  setValue(switchId: number, value: boolean): void {
     if (switchId > 0 && switchId < $dataSystem.switches.length) {
       this._data[switchId] = value
       this.onChange()
     }
   }
 
-  onChange() {
+  onChange(): void {
     $gameMap.requestRefresh()
   }
 }

@@ -67,7 +67,7 @@ class Game_Map {
     this.createVehicles()
   }
 
-  setup(mapId: number) {
+  setup(mapId: number): void {
     if (!$dataMap) {
       throw new Error('The map data is not available')
     }
@@ -83,11 +83,11 @@ class Game_Map {
     this._needsRefresh = false
   }
 
-  isEventRunning() {
+  isEventRunning(): boolean {
     return this._interpreter.isRunning() || this.isAnyEventStarting()
   }
 
-  tileWidth() {
+  tileWidth(): number {
     if ('tileSize' in $dataSystem) {
       return $dataSystem.tileSize
     }
@@ -96,76 +96,76 @@ class Game_Map {
     }
   }
 
-  tileHeight() {
+  tileHeight(): number {
     return this.tileWidth()
   }
 
-  bushDepth() {
+  bushDepth(): number {
     return this.tileHeight() / 4
   }
 
-  mapId() {
+  mapId(): number {
     return this._mapId
   }
 
-  tilesetId() {
+  tilesetId(): number {
     return this._tilesetId
   }
 
-  displayX() {
+  displayX(): number {
     return this._displayX
   }
 
-  displayY() {
+  displayY(): number {
     return this._displayY
   }
 
-  parallaxName() {
+  parallaxName(): string {
     return this._parallaxName
   }
 
-  battleback1Name() {
+  battleback1Name(): string | null {
     return this._battleback1Name
   }
 
-  battleback2Name() {
+  battleback2Name(): string | null {
     return this._battleback2Name
   }
 
-  requestRefresh() {
+  requestRefresh(): void {
     this._needsRefresh = true
   }
 
-  isNameDisplayEnabled() {
+  isNameDisplayEnabled(): boolean {
     return this._nameDisplay
   }
 
-  disableNameDisplay() {
+  disableNameDisplay(): void {
     this._nameDisplay = false
   }
 
-  enableNameDisplay() {
+  enableNameDisplay(): void {
     this._nameDisplay = true
   }
 
-  createVehicles() {
+  createVehicles(): void {
     this._vehicles = []
     this._vehicles[0] = new Game_Vehicle('boat')
     this._vehicles[1] = new Game_Vehicle('ship')
     this._vehicles[2] = new Game_Vehicle('airship')
   }
 
-  refereshVehicles() {
+  refereshVehicles(): void {
     for (const vehicle of this._vehicles) {
       vehicle.refresh()
     }
   }
 
-  vehicles() {
+  vehicles(): Game_Vehicle[] {
     return this._vehicles
   }
 
-  vehicle(type: VehicleType | number) {
+  vehicle(type: VehicleType | number): Game_Vehicle | null {
     if (type === 0 || type === 'boat') {
       return this.boat()
     }
@@ -180,19 +180,19 @@ class Game_Map {
     }
   }
 
-  boat() {
+  boat(): Game_Vehicle {
     return this._vehicles[0]
   }
 
-  ship() {
+  ship(): Game_Vehicle {
     return this._vehicles[1]
   }
 
-  airship() {
+  airship(): Game_Vehicle {
     return this._vehicles[2]
   }
 
-  setupEvents() {
+  setupEvents(): void {
     this._events = []
     this._commonEvents = []
     for (const event of $dataMap.events.filter(event => !!event)) {
@@ -204,37 +204,37 @@ class Game_Map {
     this.refreshTileEvents()
   }
 
-  events() {
+  events(): Game_Event[] {
     return this._events.filter(event => !!event)
   }
 
-  event(eventId: number) {
+  event(eventId: number): Game_Event {
     return this._events[eventId]
   }
 
-  eraseEvent(eventId: number) {
+  eraseEvent(eventId: number): void {
     this._events[eventId].erase()
   }
 
-  autorunCommonEvents() {
+  autorunCommonEvents(): MZ.CommonEvent[] {
     return $dataCommonEvents.filter(
       (commonEvent): commonEvent is MZ.CommonEvent => !!commonEvent && commonEvent.trigger === 1,
     )
   }
 
-  parallelCommonEvents() {
+  parallelCommonEvents(): MZ.CommonEvent[] {
     return $dataCommonEvents.filter(
       (commonEvent): commonEvent is MZ.CommonEvent => !!commonEvent && commonEvent.trigger === 2,
     )
   }
 
-  setupScroll() {
+  setupScroll(): void {
     this._scrollDirection = 2
     this._scrollRest = 0
     this._scrollSpeed = 4
   }
 
-  setupParallax() {
+  setupParallax(): void {
     this._parallaxName = $dataMap.parallaxName || ''
     this._parallaxZero = ImageManager.isZeroParallax(this._parallaxName)
     this._parallaxLoopX = $dataMap.parallaxLoopX
@@ -245,7 +245,7 @@ class Game_Map {
     this._parallaxY = 0
   }
 
-  setupBattleback() {
+  setupBattleback(): void {
     if ($dataMap.specifyBattleback) {
       this._battleback1Name = $dataMap.battleback1Name
       this._battleback2Name = $dataMap.battleback2Name
@@ -256,7 +256,7 @@ class Game_Map {
     }
   }
 
-  setDisplayPos(x: number, y: number) {
+  setDisplayPos(x: number, y: number): void {
     if (this.isLoopHorizontal()) {
       this._displayX = x.mod(this.width())
       this._parallaxX = x
@@ -277,7 +277,7 @@ class Game_Map {
     }
   }
 
-  parallaxOx() {
+  parallaxOx(): number {
     if (this._parallaxZero) {
       return this._parallaxX * this.tileWidth()
     }
@@ -289,7 +289,7 @@ class Game_Map {
     }
   }
 
-  parallaxOy() {
+  parallaxOy(): number {
     if (this._parallaxZero) {
       return this._parallaxY * this.tileHeight()
     }
@@ -301,64 +301,64 @@ class Game_Map {
     }
   }
 
-  tileset() {
-    return $dataTilesets[this._tilesetId]
+  tileset(): MZ.Tileset {
+    return $dataTilesets[this._tilesetId]!
   }
 
-  tilesetFlags() {
+  tilesetFlags(): number[] {
     const tileset = this.tileset()
     return tileset ? tileset.flags : []
   }
 
-  displayName() {
+  displayName(): string {
     return $dataMap.displayName
   }
 
-  width() {
+  width(): number {
     return $dataMap.width
   }
 
-  height() {
+  height(): number {
     return $dataMap.height
   }
 
-  data() {
+  data(): number[] {
     return $dataMap.data
   }
 
-  isLoopHorizontal() {
+  isLoopHorizontal(): boolean {
     return $dataMap.scrollType === 2 || $dataMap.scrollType === 3
   }
 
-  isLoopVertical() {
+  isLoopVertical(): boolean {
     return $dataMap.scrollType === 1 || $dataMap.scrollType === 3
   }
 
-  isDashDisabled() {
+  isDashDisabled(): boolean {
     return $dataMap.disableDashing
   }
 
-  encounterList() {
+  encounterList(): MZ.Map['encounterList'] {
     return $dataMap.encounterList
   }
 
-  encounterStep() {
+  encounterStep(): number {
     return $dataMap.encounterStep
   }
 
-  isOverworld() {
+  isOverworld(): boolean {
     return this.tileset() && this.tileset()!.mode === 0
   }
 
-  screenTileX() {
+  screenTileX(): number {
     return Math.round((Graphics.width / this.tileWidth()) * 16) / 16
   }
 
-  screenTileY() {
+  screenTileY(): number {
     return Math.round((Graphics.height / this.tileHeight()) * 16) / 16
   }
 
-  adjustX(x: number) {
+  adjustX(x: number): number {
     if (
       this.isLoopHorizontal()
       && x < this._displayX - (this.width() - this.screenTileX()) / 2
@@ -370,7 +370,7 @@ class Game_Map {
     }
   }
 
-  adjustY(y: number) {
+  adjustY(y: number): number {
     if (
       this.isLoopVertical()
       && y < this._displayY - (this.height() - this.screenTileY()) / 2
@@ -382,31 +382,31 @@ class Game_Map {
     }
   }
 
-  roundX(x: number) {
+  roundX(x: number): number {
     return this.isLoopHorizontal() ? x.mod(this.width()) : x
   }
 
-  roundY(y: number) {
+  roundY(y: number): number {
     return this.isLoopVertical() ? y.mod(this.height()) : y
   }
 
-  xWithDirection(x: number, d: number) {
+  xWithDirection(x: number, d: number): number {
     return x + (d === 6 ? 1 : d === 4 ? -1 : 0)
   }
 
-  yWithDirection(y: number, d: number) {
+  yWithDirection(y: number, d: number): number {
     return y + (d === 2 ? 1 : d === 8 ? -1 : 0)
   }
 
-  roundXWithDirection(x: number, d: number) {
+  roundXWithDirection(x: number, d: number): number {
     return this.roundX(x + (d === 6 ? 1 : d === 4 ? -1 : 0))
   }
 
-  roundYWithDirection(y: number, d: number) {
+  roundYWithDirection(y: number, d: number): number {
     return this.roundY(y + (d === 2 ? 1 : d === 8 ? -1 : 0))
   }
 
-  deltaX(x1: number, x2: number) {
+  deltaX(x1: number, x2: number): number {
     let result = x1 - x2
     if (this.isLoopHorizontal() && Math.abs(result) > this.width() / 2) {
       result += result < 0 ? this.width() : -this.width()
@@ -414,7 +414,7 @@ class Game_Map {
     return result
   }
 
-  deltaY(y1: number, y2: number) {
+  deltaY(y1: number, y2: number): number {
     let result = y1 - y2
     if (this.isLoopVertical() && Math.abs(result) > this.height() / 2) {
       result += result < 0 ? this.height() : -this.height()
@@ -422,25 +422,25 @@ class Game_Map {
     return result
   }
 
-  distance(x1: number, y1: number, x2: number, y2: number) {
+  distance(x1: number, y1: number, x2: number, y2: number): number {
     return Math.abs(this.deltaX(x1, x2)) + Math.abs(this.deltaY(y1, y2))
   }
 
-  canvasToMapX(x: number) {
+  canvasToMapX(x: number): number {
     const tileWidth = this.tileWidth()
     const originX = this._displayX * tileWidth
     const mapX = Math.floor((originX + x) / tileWidth)
     return this.roundX(mapX)
   }
 
-  canvasToMapY(y: number) {
+  canvasToMapY(y: number): number {
     const tileHeight = this.tileHeight()
     const originY = this._displayY * tileHeight
     const mapY = Math.floor((originY + y) / tileHeight)
     return this.roundY(mapY)
   }
 
-  autoplay() {
+  autoplay(): void {
     if ($dataMap.autoplayBgm) {
       if ($gamePlayer.isInVehicle()) {
         $gameSystem.saveWalkingBgm2()
@@ -454,13 +454,13 @@ class Game_Map {
     }
   }
 
-  refreshIfNeeded() {
+  refreshIfNeeded(): void {
     if (this._needsRefresh) {
       this.refresh()
     }
   }
 
-  refresh() {
+  refresh(): void {
     for (const event of this.events()) {
       event.refresh()
     }
@@ -471,28 +471,28 @@ class Game_Map {
     this._needsRefresh = false
   }
 
-  refreshTileEvents() {
+  refreshTileEvents(): void {
     this._tileEvents = this.events().filter(event => event.isTile())
   }
 
-  eventsXy(x: number, y: number) {
+  eventsXy(x: number, y: number): Game_Event[] {
     return this.events().filter(event => event.pos(x, y))
   }
 
-  eventsXyNt(x: number, y: number) {
+  eventsXyNt(x: number, y: number): Game_Event[] {
     return this.events().filter(event => event.posNt(x, y))
   }
 
-  tileEventsXy(x: number, y: number) {
+  tileEventsXy(x: number, y: number): Game_Event[] | undefined {
     return this._tileEvents?.filter(event => event.posNt(x, y))
   }
 
-  eventIdXy(x: number, y: number) {
+  eventIdXy(x: number, y: number): number {
     const list = this.eventsXy(x, y)
     return list.length === 0 ? 0 : list[0].eventId()
   }
 
-  scrollDown(distance: number) {
+  scrollDown(distance: number): void {
     if (this.isLoopVertical()) {
       this._displayY += distance
       this._displayY %= $dataMap.height
@@ -510,7 +510,7 @@ class Game_Map {
     }
   }
 
-  scrollLeft(distance: number) {
+  scrollLeft(distance: number): void {
     if (this.isLoopHorizontal()) {
       this._displayX += $dataMap.width - distance
       this._displayX %= $dataMap.width
@@ -525,7 +525,7 @@ class Game_Map {
     }
   }
 
-  scrollRight(distance: number) {
+  scrollRight(distance: number): void {
     if (this.isLoopHorizontal()) {
       this._displayX += distance
       this._displayX %= $dataMap.width
@@ -543,7 +543,7 @@ class Game_Map {
     }
   }
 
-  scrollUp(distance: number) {
+  scrollUp(distance: number): void {
     if (this.isLoopVertical()) {
       this._displayY += $dataMap.height - distance
       this._displayY %= $dataMap.height
@@ -558,11 +558,11 @@ class Game_Map {
     }
   }
 
-  isValid(x: number, y: number) {
+  isValid(x: number, y: number): boolean {
     return x >= 0 && x < this.width() && y >= 0 && y < this.height()
   }
 
-  checkPassage(x: number, y: number, bit: number) {
+  checkPassage(x: number, y: number, bit: number): boolean {
     const flags = this.tilesetFlags()
     const tiles = this.allTiles(x, y)
     for (const tile of tiles) {
@@ -580,13 +580,13 @@ class Game_Map {
     return false
   }
 
-  tileId(x: number, y: number, z: number) {
+  tileId(x: number, y: number, z: number): number {
     const width = $dataMap.width
     const height = $dataMap.height
     return $dataMap.data[(z * height + y) * width + x] || 0
   }
 
-  layeredTiles(x: number, y: number) {
+  layeredTiles(x: number, y: number): number[] {
     const tiles = []
     for (let i = 0; i < 4; i++) {
       tiles.push(this.tileId(x, y, 3 - i))
@@ -594,56 +594,56 @@ class Game_Map {
     return tiles
   }
 
-  allTiles(x: number, y: number) {
+  allTiles(x: number, y: number): number[] {
     const tiles = this.tileEventsXy(x, y)?.map(event => event.tileId()) || []
     return tiles.concat(this.layeredTiles(x, y))
   }
 
-  autotileType(x: number, y: number, z: number) {
+  autotileType(x: number, y: number, z: number): number {
     const tileId = this.tileId(x, y, z)
     return tileId >= 2048 ? Math.floor((tileId - 2048) / 48) : -1
   }
 
-  isPassable(x: number, y: number, d: number) {
+  isPassable(x: number, y: number, d: number): boolean {
     return this.checkPassage(x, y, 1 << ((d / 2 - 1) & 0x0F))
   }
 
-  isBoatPassable(x: number, y: number) {
+  isBoatPassable(x: number, y: number): boolean {
     return this.checkPassage(x, y, 0x0200)
   }
 
-  isShipPassable(x: number, y: number) {
+  isShipPassable(x: number, y: number): boolean {
     return this.checkPassage(x, y, 0x0400)
   }
 
-  isAirshipLandOk(x: number, y: number) {
+  isAirshipLandOk(x: number, y: number): boolean {
     return this.checkPassage(x, y, 0x0800) && this.checkPassage(x, y, 0x0F)
   }
 
-  checkLayeredTilesFlags(x: number, y: number, bit: number) {
+  checkLayeredTilesFlags(x: number, y: number, bit: number): boolean {
     const flags = this.tilesetFlags()
     return this.layeredTiles(x, y).some(
       tileId => (flags[tileId] & bit) !== 0,
     )
   }
 
-  isLadder(x: number, y: number) {
+  isLadder(x: number, y: number): boolean {
     return this.isValid(x, y) && this.checkLayeredTilesFlags(x, y, 0x20)
   }
 
-  isBush(x: number, y: number) {
+  isBush(x: number, y: number): boolean {
     return this.isValid(x, y) && this.checkLayeredTilesFlags(x, y, 0x40)
   }
 
-  isCounter(x: number, y: number) {
+  isCounter(x: number, y: number): boolean {
     return this.isValid(x, y) && this.checkLayeredTilesFlags(x, y, 0x80)
   }
 
-  isDamageFloor(x: number, y: number) {
+  isDamageFloor(x: number, y: number): boolean {
     return this.isValid(x, y) && this.checkLayeredTilesFlags(x, y, 0x100)
   }
 
-  terrainTag(x: number, y: number) {
+  terrainTag(x: number, y: number): number {
     if (this.isValid(x, y)) {
       const flags = this.tilesetFlags()
       const tiles = this.layeredTiles(x, y)
@@ -657,21 +657,21 @@ class Game_Map {
     return 0
   }
 
-  regionId(x: number, y: number) {
+  regionId(x: number, y: number): number {
     return this.isValid(x, y) ? this.tileId(x, y, 5) : 0
   }
 
-  startScroll(direction: number, distance: number, speed: number) {
+  startScroll(direction: number, distance: number, speed: number): void {
     this._scrollDirection = direction
     this._scrollRest = distance
     this._scrollSpeed = speed
   }
 
-  isScrolling() {
+  isScrolling(): boolean {
     return this._scrollRest > 0
   }
 
-  update(sceneActive: boolean) {
+  update(sceneActive: boolean): void {
     this.refreshIfNeeded()
     if (sceneActive) {
       this.updateInterpreter()
@@ -682,7 +682,7 @@ class Game_Map {
     this.updateParallax()
   }
 
-  updateScroll() {
+  updateScroll(): void {
     if (this.isScrolling()) {
       const lastX = this._displayX
       const lastY = this._displayY
@@ -696,11 +696,11 @@ class Game_Map {
     }
   }
 
-  scrollDistance() {
+  scrollDistance(): number {
     return 2 ** this._scrollSpeed / 256
   }
 
-  doScroll(direction: number, distance: number) {
+  doScroll(direction: number, distance: number): void {
     switch (direction) {
       case 2:
         this.scrollDown(distance)
@@ -717,7 +717,7 @@ class Game_Map {
     }
   }
 
-  updateEvents() {
+  updateEvents(): void {
     for (const event of this.events()) {
       event.update()
     }
@@ -726,13 +726,13 @@ class Game_Map {
     }
   }
 
-  updateVehicles() {
+  updateVehicles(): void {
     for (const vehicle of this._vehicles) {
       vehicle.update()
     }
   }
 
-  updateParallax() {
+  updateParallax(): void {
     if (this._parallaxLoopX) {
       this._parallaxX += this._parallaxSx / this.tileWidth() / 2
     }
@@ -741,17 +741,17 @@ class Game_Map {
     }
   }
 
-  changeTileset(tilesetId: number) {
+  changeTileset(tilesetId: number): void {
     this._tilesetId = tilesetId
     this.refresh()
   }
 
-  changeBattleback(battleback1Name: string, battleback2Name: string) {
+  changeBattleback(battleback1Name: string, battleback2Name: string): void {
     this._battleback1Name = battleback1Name
     this._battleback2Name = battleback2Name
   }
 
-  changeParallax(name: string, loopX: boolean, loopY: boolean, sx: number, sy: number) {
+  changeParallax(name: string, loopX: boolean, loopY: boolean, sx: number, sy: number): void {
     this._parallaxName = name
     this._parallaxZero = ImageManager.isZeroParallax(this._parallaxName)
     if (this._parallaxLoopX && !loopX) {
@@ -766,7 +766,7 @@ class Game_Map {
     this._parallaxSy = sy
   }
 
-  updateInterpreter() {
+  updateInterpreter(): void {
     while (true) {
       this._interpreter.update()
       if (this._interpreter.isRunning()) {
@@ -782,13 +782,13 @@ class Game_Map {
     }
   }
 
-  unlockEvent(eventId: number) {
+  unlockEvent(eventId: number): void {
     if (this._events[eventId]) {
       this._events[eventId].unlock()
     }
   }
 
-  setupStartingEvent() {
+  setupStartingEvent(): boolean {
     this.refreshIfNeeded()
     if (this._interpreter.setupReservedCommonEvent()) {
       return true
@@ -807,14 +807,14 @@ class Game_Map {
 
   setupTestEvent(): boolean {
     if (window.$testEvent) {
-      this._interpreter.setup($testEvent, 0)
+      this._interpreter.setup($testEvent!, 0)
       $testEvent = null
       return true
     }
     return false
   }
 
-  setupStartingMapEvent() {
+  setupStartingMapEvent(): boolean {
     for (const event of this.events()) {
       if (event.isStarting()) {
         event.clearStartingFlag()
@@ -825,7 +825,7 @@ class Game_Map {
     return false
   }
 
-  setupAutorunCommonEvent() {
+  setupAutorunCommonEvent(): boolean {
     for (const commonEvent of this.autorunCommonEvents()) {
       if ($gameSwitches.value(commonEvent.switchId)) {
         this._interpreter.setup(commonEvent.list)
@@ -835,7 +835,7 @@ class Game_Map {
     return false
   }
 
-  isAnyEventStarting() {
+  isAnyEventStarting(): boolean {
     return this.events().some(event => event.isStarting())
   }
 }

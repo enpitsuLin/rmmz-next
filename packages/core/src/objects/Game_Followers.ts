@@ -15,44 +15,44 @@ class Game_Followers {
     this.setup()
   }
 
-  setup() {
+  setup(): void {
     this._data = []
     for (let i = 1; i < $gameParty.maxBattleMembers(); i++) {
       this._data.push(new Game_Follower(i))
     }
   }
 
-  isVisible() {
+  isVisible(): boolean {
     return this._visible
   }
 
-  show() {
+  show(): void {
     this._visible = true
   }
 
-  hide() {
+  hide(): void {
     this._visible = false
   }
 
-  data() {
+  data(): Game_Follower[] {
     return this._data.clone()
   }
 
-  reverseData() {
+  reverseData(): Game_Follower[] {
     return this._data.clone().reverse()
   }
 
-  follower(index: number) {
+  follower(index: number): Game_Follower {
     return this._data[index]
   }
 
-  refresh() {
+  refresh(): void {
     for (const follower of this._data) {
       follower.refresh()
     }
   }
 
-  update() {
+  update(): void {
     if (this.areGathering()) {
       if (!this.areMoving()) {
         this.updateMove()
@@ -66,14 +66,14 @@ class Game_Followers {
     }
   }
 
-  updateMove() {
+  updateMove(): void {
     for (let i = this._data.length - 1; i >= 0; i--) {
       const precedingCharacter = i > 0 ? this._data[i - 1] : $gamePlayer
       this._data[i].chaseCharacter(precedingCharacter)
     }
   }
 
-  jumpAll() {
+  jumpAll(): void {
     if ($gamePlayer.isJumping()) {
       for (const follower of this._data) {
         const sx = $gamePlayer.deltaXFrom(follower.x)
@@ -83,34 +83,34 @@ class Game_Followers {
     }
   }
 
-  synchronize(x: number, y: number, d: number) {
+  synchronize(x: number, y: number, d: number): void {
     for (const follower of this._data) {
       follower.locate(x, y)
       follower.setDirection(d)
     }
   }
 
-  gather() {
+  gather(): void {
     this._gathering = true
   }
 
-  areGathering() {
+  areGathering(): boolean {
     return this._gathering
   }
 
-  visibleFollowers() {
+  visibleFollowers(): Game_Follower[] {
     return this._data.filter(follower => follower.isVisible())
   }
 
-  areMoving() {
+  areMoving(): boolean {
     return this.visibleFollowers().some(follower => follower.isMoving())
   }
 
-  areGathered() {
+  areGathered(): boolean {
     return this.visibleFollowers().every(follower => follower.isGathered())
   }
 
-  isSomeoneCollided(x: number, y: number) {
+  isSomeoneCollided(x: number, y: number): boolean {
     return this.visibleFollowers().some(follower => follower.pos(x, y))
   }
 }

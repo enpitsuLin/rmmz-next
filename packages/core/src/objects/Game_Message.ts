@@ -28,7 +28,7 @@ class Game_Message {
     this.clear()
   }
 
-  clear() {
+  clear(): void {
     this._texts = []
     this._choices = []
     this._speakerName = ''
@@ -50,153 +50,153 @@ class Game_Message {
     this._choiceCallback = null
   }
 
-  choices() {
+  choices(): string[] {
     return this._choices
   }
 
-  speakerName() {
+  speakerName(): string {
     return this._speakerName
   }
 
-  faceName() {
+  faceName(): string {
     return this._faceName
   }
 
-  faceIndex() {
+  faceIndex(): number {
     return this._faceIndex
   }
 
-  background() {
+  background(): number {
     return this._background
   }
 
-  positionType() {
+  positionType(): number {
     return this._positionType
   }
 
-  choiceDefaultType() {
+  choiceDefaultType(): number {
     return this._choiceDefaultType
   }
 
-  choiceCancelType() {
+  choiceCancelType(): number {
     return this._choiceCancelType
   }
 
-  choiceBackground() {
+  choiceBackground(): number {
     return this._choiceBackground
   }
 
-  choicePositionType() {
+  choicePositionType(): number {
     return this._choicePositionType
   }
 
-  numInputVariableId() {
+  numInputVariableId(): number {
     return this._numInputVariableId
   }
 
-  numInputMaxDigits() {
+  numInputMaxDigits(): number {
     return this._numInputMaxDigits
   }
 
-  itemChoiceVariableId() {
+  itemChoiceVariableId(): number {
     return this._itemChoiceVariableId
   }
 
-  itemChoiceItypeId() {
+  itemChoiceItypeId(): number {
     return this._itemChoiceItypeId
   }
 
-  scrollMode() {
+  scrollMode(): boolean {
     return this._scrollMode
   }
 
-  scrollSpeed() {
+  scrollSpeed(): number {
     return this._scrollSpeed
   }
 
-  scrollNoFast() {
+  scrollNoFast(): boolean {
     return this._scrollNoFast
   }
 
-  add(text: string) {
+  add(text: string): void {
     this._texts.push(text)
   }
 
-  setSpeakerName(speakerName: string) {
+  setSpeakerName(speakerName: string): void {
     this._speakerName = speakerName || ''
   }
 
-  setFaceImage(faceName: string, faceIndex: number) {
+  setFaceImage(faceName: string, faceIndex: number): void {
     this._faceName = faceName
     this._faceIndex = faceIndex
   }
 
-  setBackground(background: number) {
+  setBackground(background: number): void {
     this._background = background
   }
 
-  setPositionType(positionType: number) {
+  setPositionType(positionType: number): void {
     this._positionType = positionType
   }
 
-  setChoices(choices: string[], defaultType: number, cancelType: number) {
+  setChoices(choices: string[], defaultType: number, cancelType: number): void {
     this._choices = choices
     this._choiceDefaultType = defaultType
     this._choiceCancelType = cancelType
   }
 
-  setChoiceBackground(background: number) {
+  setChoiceBackground(background: number): void {
     this._choiceBackground = background
   }
 
-  setChoicePositionType(positionType: number) {
+  setChoicePositionType(positionType: number): void {
     this._choicePositionType = positionType
   }
 
-  setNumberInput(variableId: number, maxDigits: number) {
+  setNumberInput(variableId: number, maxDigits: number): void {
     this._numInputVariableId = variableId
     this._numInputMaxDigits = maxDigits
   }
 
-  setItemChoice(variableId: number, itemType: number) {
+  setItemChoice(variableId: number, itemType: number): void {
     this._itemChoiceVariableId = variableId
     this._itemChoiceItypeId = itemType
   }
 
-  setScroll(speed: number, noFast: boolean) {
+  setScroll(speed: number, noFast: boolean): void {
     this._scrollMode = true
     this._scrollSpeed = speed
     this._scrollNoFast = noFast
   }
 
-  setChoiceCallback(callback: (n: number) => void) {
+  setChoiceCallback(callback: (n: number) => void): void {
     this._choiceCallback = callback
   }
 
-  onChoice(n: number) {
+  onChoice(n: number): void {
     if (this._choiceCallback) {
       this._choiceCallback(n)
       this._choiceCallback = null
     }
   }
 
-  hasText() {
+  hasText(): boolean {
     return this._texts.length > 0
   }
 
-  isChoice() {
+  isChoice(): boolean {
     return this._choices.length > 0
   }
 
-  isNumberInput() {
+  isNumberInput(): boolean {
     return this._numInputVariableId > 0
   }
 
-  isItemChoice() {
+  isItemChoice(): boolean {
     return this._itemChoiceVariableId > 0
   }
 
-  isBusy() {
+  isBusy(): boolean {
     return (
       this.hasText()
       || this.isChoice()
@@ -205,17 +205,17 @@ class Game_Message {
     )
   }
 
-  newPage() {
+  newPage(): void {
     if (this._texts.length > 0) {
       this._texts[this._texts.length - 1] += '\f'
     }
   }
 
-  allText() {
+  allText(): string {
     return this._texts.join('\n')
   }
 
-  isRTL() {
+  isRTL(): boolean {
     return Utils.containsArabic(this.allText())
   }
 }

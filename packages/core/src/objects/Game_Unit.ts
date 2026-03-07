@@ -11,7 +11,7 @@ class Game_Unit<Member extends Game_Battler = Game_Battler> {
     this._inBattle = false
   }
 
-  inBattle() {
+  inBattle(): boolean {
     return this._inBattle
   }
 
@@ -19,35 +19,35 @@ class Game_Unit<Member extends Game_Battler = Game_Battler> {
     return []
   }
 
-  aliveMembers() {
+  aliveMembers(): Member[] {
     return this.members().filter(member => member.isAlive())
   }
 
-  deadMembers() {
+  deadMembers(): Member[] {
     return this.members().filter(member => member.isDead())
   }
 
-  movableMembers() {
+  movableMembers(): Member[] {
     return this.members().filter(member => member.canMove())
   }
 
-  clearActions() {
+  clearActions(): void {
     for (const member of this.members()) {
       member.clearActions()
     }
   }
 
-  agility() {
+  agility(): number {
     const members = this.members()
     const sum = members.reduce((r, member) => r + member.agi, 0)
     return Math.max(1, sum / Math.max(1, members.length))
   }
 
-  tgrSum() {
+  tgrSum(): number {
     return this.aliveMembers().reduce((r, member) => r + member.tgr, 0)
   }
 
-  randomTarget() {
+  randomTarget(): Member {
     let tgrRand = Math.random() * this.tgrSum()
     let target = null
     for (const member of this.aliveMembers()) {
@@ -59,48 +59,48 @@ class Game_Unit<Member extends Game_Battler = Game_Battler> {
     return target!
   }
 
-  randomDeadTarget() {
+  randomDeadTarget(): Member | null {
     const members = this.deadMembers()
     return members.length ? members[Math.randomInt(members.length)] : null
   }
 
-  smoothTarget(index: number) {
+  smoothTarget(index: number): Member {
     const member = this.members()[Math.max(0, index)]
     return member && member.isAlive() ? member : this.aliveMembers()[0]
   }
 
-  smoothDeadTarget(index: number) {
+  smoothDeadTarget(index: number): Member {
     const member = this.members()[Math.max(0, index)]
     return member && member.isDead() ? member : this.deadMembers()[0]
   }
 
-  clearResults() {
+  clearResults(): void {
     for (const member of this.members()) {
       member.clearResult()
     }
   }
 
-  onBattleStart(advantageous: boolean) {
+  onBattleStart(advantageous: boolean): void {
     for (const member of this.members()) {
       member.onBattleStart(advantageous)
     }
     this._inBattle = true
   }
 
-  onBattleEnd() {
+  onBattleEnd(): void {
     this._inBattle = false
     for (const member of this.members()) {
       member.onBattleEnd()
     }
   }
 
-  makeActions() {
+  makeActions(): void {
     for (const member of this.members()) {
       member.makeActions()
     }
   }
 
-  select(activeMember: Member) {
+  select(activeMember: Member): void {
     for (const member of this.members()) {
       if (member === activeMember) {
         member.select()
@@ -111,11 +111,11 @@ class Game_Unit<Member extends Game_Battler = Game_Battler> {
     }
   }
 
-  isAllDead() {
+  isAllDead(): boolean {
     return this.aliveMembers().length === 0
   }
 
-  substituteBattler(target: Member) {
+  substituteBattler(target: Member): Member | null {
     for (const member of this.members()) {
       if (member.isSubstitute() && member !== target) {
         return member
@@ -124,16 +124,16 @@ class Game_Unit<Member extends Game_Battler = Game_Battler> {
     return null
   }
 
-  tpbBaseSpeed() {
+  tpbBaseSpeed(): number {
     const members = this.members()
     return Math.max(...members.map(member => member.tpbBaseSpeed()))
   }
 
-  tpbReferenceTime() {
+  tpbReferenceTime(): number {
     return BattleManager.isActiveTpb() ? 240 : 60
   }
 
-  updateTpb() {
+  updateTpb(): void {
     for (const member of this.members()) {
       member.updateTpb()
     }

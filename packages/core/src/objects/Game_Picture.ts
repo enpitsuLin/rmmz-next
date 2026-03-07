@@ -35,54 +35,54 @@ class Game_Picture {
     this.initialize()
   }
 
-  initialize() {
+  initialize(): void {
     this.initBasic()
     this.initTarget()
     this.initTone()
     this.initRotation()
   }
 
-  name() {
+  name(): string {
     return this._name
   }
 
-  origin() {
+  origin(): number {
     return this._origin
   }
 
-  x() {
+  x(): number {
     return this._x
   }
 
-  y() {
+  y(): number {
     return this._y
   }
 
-  scaleX() {
+  scaleX(): number {
     return this._scaleX
   }
 
-  scaleY() {
+  scaleY(): number {
     return this._scaleY
   }
 
-  opacity() {
+  opacity(): number {
     return this._opacity
   }
 
-  blendMode() {
+  blendMode(): number {
     return this._blendMode
   }
 
-  tone() {
+  tone(): RGBA | null {
     return this._tone
   }
 
-  angle() {
+  angle(): number {
     return this._angle
   }
 
-  initBasic() {
+  initBasic(): void {
     this._name = ''
     this._origin = 0
     this._x = 0
@@ -93,7 +93,7 @@ class Game_Picture {
     this._blendMode = 0
   }
 
-  initTarget() {
+  initTarget(): void {
     this._targetX = this._x
     this._targetY = this._y
     this._targetScaleX = this._scaleX
@@ -101,17 +101,17 @@ class Game_Picture {
     this._targetOpacity = this._opacity
     this._duration = 0
     this._wholeDuration = 0
-    this._easingType = EasingType.easeIn
+    this._easingType = 0
     this._easingExponent = 0
   }
 
-  initTone() {
+  initTone(): void {
     this._tone = null
     this._toneTarget = null
     this._toneDuration = 0
   }
 
-  initRotation() {
+  initRotation(): void {
     this._angle = 0
     this._rotationSpeed = 0
   }
@@ -125,7 +125,7 @@ class Game_Picture {
     scaleY: number,
     opacity: number,
     blendMode: number,
-  ) {
+  ): void {
     this._name = name
     this._origin = origin
     this._x = x
@@ -148,8 +148,8 @@ class Game_Picture {
     opacity: number,
     blendMode: number,
     duration: number,
-    easingType: EasingType | 0,
-  ) {
+    easingType: number,
+  ): void {
     this._origin = origin
     this._targetX = x
     this._targetY = y
@@ -163,11 +163,11 @@ class Game_Picture {
     this._easingExponent = 2
   }
 
-  rotate(speed: number) {
+  rotate(speed: number): void {
     this._rotationSpeed = speed
   }
 
-  tint(tone: RGBA, duration: number) {
+  tint(tone: RGBA, duration: number): void {
     if (!this._tone) {
       this._tone = [0, 0, 0, 0]
     }
@@ -178,13 +178,13 @@ class Game_Picture {
     }
   }
 
-  update() {
+  update(): void {
     this.updateMove()
     this.updateTone()
     this.updateRotation()
   }
 
-  updateMove() {
+  updateMove(): void {
     if (this._duration > 0) {
       this._x = this.applyEasing(this._x, this._targetX)
       this._y = this.applyEasing(this._y, this._targetY)
@@ -195,7 +195,7 @@ class Game_Picture {
     }
   }
 
-  updateTone() {
+  updateTone(): void {
     if (this._toneDuration > 0) {
       const d = this._toneDuration
       for (let i = 0; i < 4; i++) {
@@ -205,13 +205,13 @@ class Game_Picture {
     }
   }
 
-  updateRotation() {
+  updateRotation(): void {
     if (this._rotationSpeed !== 0) {
       this._angle += this._rotationSpeed / 2
     }
   }
 
-  applyEasing(current: number, target: number) {
+  applyEasing(current: number, target: number): number {
     const d = this._duration
     const wd = this._wholeDuration
     const lt = this.calcEasing((wd - d) / wd)
@@ -220,7 +220,7 @@ class Game_Picture {
     return start + (target - start) * t
   }
 
-  calcEasing(t: number) {
+  calcEasing(t: number): number {
     const exponent = this._easingExponent
     switch (this._easingType) {
       case 1: // Slow start
@@ -234,15 +234,15 @@ class Game_Picture {
     }
   }
 
-  easeIn(t: number, exponent: number) {
+  easeIn(t: number, exponent: number): number {
     return t ** exponent
   }
 
-  easeOut(t: number, exponent: number) {
+  easeOut(t: number, exponent: number): number {
     return 1 - (1 - t) ** exponent
   }
 
-  easeInOut(t: number, exponent: number) {
+  easeInOut(t: number, exponent: number): number {
     if (t < 0.5) {
       return this.easeIn(t * 2, exponent) / 2
     }

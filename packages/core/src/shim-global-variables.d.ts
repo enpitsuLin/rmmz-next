@@ -83,7 +83,7 @@ declare global {
   var $gameMap: Game_Map
   var $gamePlayer: Game_Player
 
-  var $testEvent: MZ.EventCommon.PageCommand[]
+  var $testEvent: MZ.EventCommon.PageCommand[] | null
 
   var $plugins: PluginManager.PluginConfig[]
 }

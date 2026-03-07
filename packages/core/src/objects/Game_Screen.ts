@@ -43,7 +43,7 @@ class Game_Screen {
     this.clearPictures()
   }
 
-  onBattleStart() {
+  onBattleStart(): void {
     this.clearFade()
     this.clearFlash()
     this.clearShake()
@@ -51,48 +51,48 @@ class Game_Screen {
     this.eraseBattlePictures()
   }
 
-  brightness() {
+  brightness(): number {
     return this._brightness
   }
 
-  tone() {
+  tone(): RGBA {
     return this._tone
   }
 
-  flashColor() {
+  flashColor(): RGBA {
     return this._flashColor
   }
 
-  shake() {
+  shake(): number {
     return this._shake
   }
 
-  zoomX() {
+  zoomX(): number {
     return this._zoomX
   }
 
-  zoomY() {
+  zoomY(): number {
     return this._zoomY
   }
 
-  zoomScale() {
+  zoomScale(): number {
     return this._zoomScale
   }
 
-  weatherType() {
+  weatherType(): string {
     return this._weatherType
   }
 
-  weatherPower() {
+  weatherPower(): number {
     return this._weatherPower
   }
 
-  picture(pictureId: number) {
+  picture(pictureId: number): Game_Picture {
     const realPictureId = this.realPictureId(pictureId)
     return this._pictures[realPictureId]
   }
 
-  realPictureId(pictureId: number) {
+  realPictureId(pictureId: number): number {
     if ($gameParty.inBattle()) {
       return pictureId + this.maxPictures()
     }
@@ -101,24 +101,24 @@ class Game_Screen {
     }
   }
 
-  clearFade() {
+  clearFade(): void {
     this._brightness = 255
     this._fadeOutDuration = 0
     this._fadeInDuration = 0
   }
 
-  clearTone() {
+  clearTone(): void {
     this._tone = [0, 0, 0, 0]
     this._toneTarget = [0, 0, 0, 0]
     this._toneDuration = 0
   }
 
-  clearFlash() {
+  clearFlash(): void {
     this._flashColor = [0, 0, 0, 0]
     this._flashDuration = 0
   }
 
-  clearShake() {
+  clearShake(): void {
     this._shakePower = 0
     this._shakeSpeed = 0
     this._shakeDuration = 0
@@ -126,7 +126,7 @@ class Game_Screen {
     this._shake = 0
   }
 
-  clearZoom() {
+  clearZoom(): void {
     this._zoomX = 0
     this._zoomY = 0
     this._zoomScale = 1
@@ -134,22 +134,22 @@ class Game_Screen {
     this._zoomDuration = 0
   }
 
-  clearWeather() {
+  clearWeather(): void {
     this._weatherType = 'none'
     this._weatherPower = 0
     this._weatherPowerTarget = 0
     this._weatherDuration = 0
   }
 
-  clearPictures() {
+  clearPictures(): void {
     this._pictures = []
   }
 
-  eraseBattlePictures() {
+  eraseBattlePictures(): void {
     this._pictures = this._pictures.slice(0, this.maxPictures() + 1)
   }
 
-  maxPictures() {
+  maxPictures(): number {
     if ('picturesUpperLimit' in $dataSystem.advanced) {
       return $dataSystem.advanced.picturesUpperLimit
     }
@@ -158,17 +158,17 @@ class Game_Screen {
     }
   }
 
-  startFadeOut(duration: number) {
+  startFadeOut(duration: number): void {
     this._fadeOutDuration = duration
     this._fadeInDuration = 0
   }
 
-  startFadeIn(duration: number) {
+  startFadeIn(duration: number): void {
     this._fadeInDuration = duration
     this._fadeOutDuration = 0
   }
 
-  startTint(tone: RGBA, duration: number) {
+  startTint(tone: RGBA, duration: number): void {
     this._toneTarget = tone.clone() as RGBA
     this._toneDuration = duration
     if (this._toneDuration === 0) {
@@ -176,31 +176,31 @@ class Game_Screen {
     }
   }
 
-  startFlash(color: RGBA, duration: number) {
+  startFlash(color: RGBA, duration: number): void {
     this._flashColor = color.clone() as RGBA
     this._flashDuration = duration
   }
 
-  startShake(power: number, speed: number, duration: number) {
+  startShake(power: number, speed: number, duration: number): void {
     this._shakePower = power
     this._shakeSpeed = speed
     this._shakeDuration = duration
   }
 
-  startZoom(x: number, y: number, scale: number, duration: number) {
+  startZoom(x: number, y: number, scale: number, duration: number): void {
     this._zoomX = x
     this._zoomY = y
     this._zoomScaleTarget = scale
     this._zoomDuration = duration
   }
 
-  setZoom(x: number, y: number, scale: number) {
+  setZoom(x: number, y: number, scale: number): void {
     this._zoomX = x
     this._zoomY = y
     this._zoomScale = scale
   }
 
-  changeWeather(type: string, power: number, duration: number) {
+  changeWeather(type: string, power: number, duration: number): void {
     if (type !== 'none' || duration === 0) {
       this._weatherType = type
     }
@@ -211,7 +211,7 @@ class Game_Screen {
     }
   }
 
-  update() {
+  update(): void {
     this.updateFadeOut()
     this.updateFadeIn()
     this.updateTone()
@@ -222,7 +222,7 @@ class Game_Screen {
     this.updatePictures()
   }
 
-  updateFadeOut() {
+  updateFadeOut(): void {
     if (this._fadeOutDuration > 0) {
       const d = this._fadeOutDuration
       this._brightness = (this._brightness * (d - 1)) / d
@@ -230,7 +230,7 @@ class Game_Screen {
     }
   }
 
-  updateFadeIn() {
+  updateFadeIn(): void {
     if (this._fadeInDuration > 0) {
       const d = this._fadeInDuration
       this._brightness = (this._brightness * (d - 1) + 255) / d
@@ -238,7 +238,7 @@ class Game_Screen {
     }
   }
 
-  updateTone() {
+  updateTone(): void {
     if (this._toneDuration > 0) {
       const d = this._toneDuration
       for (let i = 0; i < 4; i++) {
@@ -248,7 +248,7 @@ class Game_Screen {
     }
   }
 
-  updateFlash() {
+  updateFlash(): void {
     if (this._flashDuration > 0) {
       const d = this._flashDuration
       this._flashColor[3] *= (d - 1) / d
@@ -256,7 +256,7 @@ class Game_Screen {
     }
   }
 
-  updateShake() {
+  updateShake(): void {
     if (this._shakeDuration > 0 || this._shake !== 0) {
       const delta
         = (this._shakePower * this._shakeSpeed * this._shakeDirection) / 10
@@ -276,7 +276,7 @@ class Game_Screen {
     }
   }
 
-  updateZoom() {
+  updateZoom(): void {
     if (this._zoomDuration > 0) {
       const d = this._zoomDuration
       const t = this._zoomScaleTarget
@@ -285,7 +285,7 @@ class Game_Screen {
     }
   }
 
-  updateWeather() {
+  updateWeather(): void {
     if (this._weatherDuration > 0) {
       const d = this._weatherDuration
       const t = this._weatherPowerTarget
@@ -297,7 +297,7 @@ class Game_Screen {
     }
   }
 
-  updatePictures() {
+  updatePictures(): void {
     for (const picture of this._pictures) {
       if (picture) {
         picture.update()
@@ -305,7 +305,7 @@ class Game_Screen {
     }
   }
 
-  startFlashForDamage() {
+  startFlashForDamage(): void {
     this.startFlash([255, 0, 0, 128], 8)
   }
 
@@ -319,7 +319,7 @@ class Game_Screen {
     scaleY: number,
     opacity: number,
     blendMode: number,
-  ) {
+  ): void {
     const realPictureId = this.realPictureId(pictureId)
     const picture = new Game_Picture()
     picture.show(
@@ -346,7 +346,7 @@ class Game_Screen {
     blendMode: number,
     duration: number,
     easingType: number,
-  ) {
+  ): void {
     const picture = this.picture(pictureId)
     if (picture) {
       picture.move(
@@ -363,21 +363,21 @@ class Game_Screen {
     }
   }
 
-  rotatePicture(pictureId: number, speed: number) {
+  rotatePicture(pictureId: number, speed: number): void {
     const picture = this.picture(pictureId)
     if (picture) {
       picture.rotate(speed)
     }
   }
 
-  tintPicture(pictureId: number, tone: RGBA, duration: number) {
+  tintPicture(pictureId: number, tone: RGBA, duration: number): void {
     const picture = this.picture(pictureId)
     if (picture) {
       picture.tint(tone, duration)
     }
   }
 
-  erasePicture(pictureId: number) {
+  erasePicture(pictureId: number): void {
     const realPictureId = this.realPictureId(pictureId)
     delete this._pictures[realPictureId]
   }
