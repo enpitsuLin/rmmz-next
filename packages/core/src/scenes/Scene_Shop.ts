@@ -11,7 +11,7 @@ import { Scene_MenuBase } from './Scene_MenuBase'
  /* The scene class of the shop screen.
  */
 export class Scene_Shop extends Scene_MenuBase {
-  _goods!: number[][]
+  _goods!: Window_ShopBuy.Good[]
   _purchaseOnly!: boolean
   _item!: MZ.EquipOrItem | null
   _goldWindow!: Window_Gold
@@ -27,7 +27,7 @@ export class Scene_Shop extends Scene_MenuBase {
     super()
   }
 
-  prepare(goods: number[][], purchaseOnly: boolean): void {
+  prepare(goods: Window_ShopBuy.Good[], purchaseOnly: boolean): void {
     this._goods = goods
     this._purchaseOnly = purchaseOnly
     this._item = null

@@ -1,5 +1,6 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { RGBA, VehicleType } from '../types'
+import type { Window_ShopBuy } from '../windows'
 import type { Game_Battler } from './Game_Battler'
 import type { Game_Character } from './Game_Character'
 import { Graphics, Input, Point, Utils, Video } from '../core'
@@ -545,7 +546,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
               result = actor.isClass($dataClasses[n as number])
               break
             case 3:
-              result = actor.hasSkill(n)
+              result = actor.hasSkill(n as number)
               break
             case 4:
               result = actor.hasWeapon($dataWeapons[n as number])
@@ -1107,7 +1108,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     return true
   }
 
-  command205(params: [number, { wait: boolean }, number, number]): boolean {
+  command205(params: [number, MZ.Map.Event.MoveRoute, number, number]): boolean {
     $gameMap.refreshIfNeeded()
     this._characterId = params[0]
     const character = this.character(this._characterId)
@@ -1521,12 +1522,13 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Shop Processing
-  command302(params): boolean {
+  command302(params: [Window_ShopBuy.Good, Window_ShopBuy.Good, Window_ShopBuy.Good, Window_ShopBuy.Good, boolean]): boolean {
     if (!$gameParty.inBattle()) {
       const goods = [params]
       while (this.nextEventCode() === 605) {
         this._index++
-        goods.push(this.currentCommand().parameters)
+        // TODO: to improve this
+        goods.push(this.currentCommand().parameters as any)
       }
       SceneManager.push(Scene_Shop)
       SceneManager.prepareNextScene(goods, params[4])
@@ -1535,7 +1537,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Name Input Processing
-  command303(params): boolean {
+  command303(params: [actorId: number, maxLength: number]): boolean {
     if (!$gameParty.inBattle()) {
       if ($dataActors[params[0]]) {
         SceneManager.push(Scene_Name)
@@ -1546,7 +1548,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change HP
-  command311(params): boolean {
+  command311(params: [number, number, number, number, number, boolean]): boolean {
     const value = this.operateValue(params[2], params[3], params[4])
     this.iterateActorEx(params[0], params[1], (actor) => {
       this.changeHp(actor, value, params[5])
@@ -1555,7 +1557,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change MP
-  command312(params): boolean {
+  command312(params: [number, number, number, number, number, boolean]): boolean {
     const value = this.operateValue(params[2], params[3], params[4])
     this.iterateActorEx(params[0], params[1], (actor) => {
       actor.gainMp(value)
@@ -1564,7 +1566,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   // Change TP
-  command326(params): boolean {
+  command326(params: [number, number, number, number, number, boolean]): boolean {
     const value = this.operateValue(params[2], params[3], params[4])
     this.iterateActorEx(params[0], params[1], (actor) => {
       actor.gainTp(value)

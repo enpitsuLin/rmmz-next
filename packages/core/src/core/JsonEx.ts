@@ -88,7 +88,6 @@ export class JsonEx {
   }
 }
 
-
 export namespace JsonEx {
   /**
    * A JSON-compatible value: primitives, arrays, or plain objects.

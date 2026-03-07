@@ -245,12 +245,12 @@ export class Game_Actor extends Game_Battler {
     return this.equips().filter(item => !!item && DataManager.isArmor(item))
   }
 
-  hasWeapon(weapon: MZ.Weapon): boolean {
-    return this.weapons().includes(weapon)
+  hasWeapon(weapon?: MZ.Weapon | null): boolean {
+    return this.weapons().includes(weapon!)
   }
 
-  hasArmor(armor: MZ.Armor): boolean {
-    return this.armors().includes(armor)
+  hasArmor(armor?: MZ.Armor | null): boolean {
+    return this.armors().includes(armor!)
   }
 
   isEquipChangeOk(slotId: number): boolean {
@@ -426,8 +426,8 @@ export class Game_Actor extends Game_Battler {
     return $dataClasses[this._classId]!
   }
 
-  isClass(gameClass: MZ.Class): boolean {
-    return gameClass && this._classId === gameClass.id
+  isClass(gameClass?: MZ.Class | null): boolean {
+    return !!gameClass && this._classId === gameClass.id
   }
 
   skillTypes(): number[] {

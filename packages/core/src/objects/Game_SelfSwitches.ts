@@ -1,22 +1,22 @@
 /**
  * The game object class for self switches.
  */
-class Game_SelfSwitches {
+export class Game_SelfSwitches {
   _data!: Record<string, true>
 
   constructor() {
     this.clear()
   }
 
-  clear() {
+  clear(): void {
     this._data = {}
   }
 
-  value(key: string) {
+  value(key: string): boolean {
     return !!this._data[key]
   }
 
-  setValue(key: string, value: boolean) {
+  setValue(key: string, value: boolean): void {
     if (value) {
       this._data[key] = true
     }
@@ -26,9 +26,7 @@ class Game_SelfSwitches {
     this.onChange()
   }
 
-  onChange() {
+  onChange(): void {
     $gameMap.requestRefresh()
   }
 }
-
-export { Game_SelfSwitches }

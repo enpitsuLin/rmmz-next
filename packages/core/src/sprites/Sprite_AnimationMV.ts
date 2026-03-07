@@ -1,4 +1,5 @@
 import type { MV } from '@rmmz-lib/database-types'
+import type { PIXI } from '../pixi'
 import { Sprite } from '../core'
 
 /**
@@ -108,7 +109,8 @@ export class Sprite_AnimationMV extends Sprite {
 
   absoluteX(): number {
     let x = 0
-    let object = this
+    // eslint-disable-next-line ts/no-this-alias
+    let object: PIXI.DisplayObject = this
     while (object) {
       x += object.x
       object = object.parent

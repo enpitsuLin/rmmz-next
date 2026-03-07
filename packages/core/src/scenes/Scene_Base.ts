@@ -25,6 +25,8 @@ export class Scene_Base extends Stage {
   _colorFilter!: ColorFilter
   _windowLayer!: WindowLayer
 
+  perpare?(...args: any[]): void
+
   override children!: PIXI.Sprite[]
 
   constructor() {

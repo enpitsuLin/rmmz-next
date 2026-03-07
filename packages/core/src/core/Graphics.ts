@@ -24,7 +24,7 @@ export class Graphics {
   static _loadingSpinner: HTMLDivElement | null = null
   static _stretchEnabled = false
   static _app: PIXI.Application | null = null
-  static _effekseer: ReturnType<typeof effekseer.createContext> = null
+  static _effekseer: null | ReturnType<typeof effekseer.createContext> = null
   static _wasLoading = false
   /**
    * The total frame count of the game screen.

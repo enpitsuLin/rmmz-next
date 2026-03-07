@@ -7,12 +7,9 @@ export class Game_Timer {
   _frames: number
   _working: boolean
 
-  /**
-   * @param { Game_Timer } [gameTimer]
-   */
-  constructor(gameTimer?: Game_Timer) {
-    this._frames = gameTimer?._frames ?? 0
-    this._working = !!gameTimer?._frames
+  constructor() {
+    this._frames = 0
+    this._working = false
   }
 
   update(sceneActive: boolean): void {

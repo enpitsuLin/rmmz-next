@@ -1,12 +1,19 @@
-import type { Game_Enemy } from './Game_Enemy'
+import type { MZ } from '@rmmz-lib/database-types'
+import { BattleManager } from '../managers'
+import { Game_Enemy } from './Game_Enemy'
 import { Game_Interpreter } from './Game_Interpreter'
 import { Game_Unit } from './Game_Unit'
 
 /**
  * The game object class for a troop and the battle-related data.
  */
-class Game_Troop extends Game_Unit<Game_Enemy> {
+export class Game_Troop extends Game_Unit<Game_Enemy> {
   _enemies!: Game_Enemy[]
+  _interpreter: Game_Interpreter
+  _turnCount: any
+  _troopId!: number
+  _eventFlags!: Record<number, boolean>
+  _namesCount!: Record<string, number>
 
   constructor() {
     super()
@@ -72,23 +79,23 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
     'Ｚ',
   ]
 
-  isEventRunning() {
+  isEventRunning(): boolean {
     return this._interpreter.isRunning()
   }
 
-  updateInterpreter() {
+  updateInterpreter(): void {
     this._interpreter.update()
   }
 
-  turnCount() {
+  turnCount(): number {
     return this._turnCount
   }
 
-  members() {
+  members(): Game_Enemy[] {
     return this._enemies
   }
 
-  clear() {
+  clear(): void {
     this._interpreter.clear()
     this._troopId = 0
     this._eventFlags = {}
@@ -97,11 +104,11 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
     this._namesCount = {}
   }
 
-  troop() {
-    return $dataTroops[this._troopId]
+  troop(): MZ.Troop {
+    return $dataTroops[this._troopId]!
   }
 
-  setup(troopId) {
+  setup(troopId: number): void {
     this.clear()
     this._troopId = troopId
     this._enemies = []
@@ -120,7 +127,7 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
     this.makeUniqueNames()
   }
 
-  makeUniqueNames() {
+  makeUniqueNames(): void {
     const table = this.letterTable()
     for (const enemy of this.members()) {
       if (enemy.isAlive() && enemy.isLetterEmpty()) {
@@ -133,7 +140,7 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
     this.updatePluralFlags()
   }
 
-  updatePluralFlags() {
+  updatePluralFlags(): void {
     for (const enemy of this.members()) {
       const name = enemy.originalName()
       if (this._namesCount[name] >= 2) {
@@ -142,14 +149,14 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
     }
   }
 
-  letterTable() {
+  letterTable(): string[] {
     return $gameSystem.isCJK()
       ? Game_Troop.LETTER_TABLE_FULL
       : Game_Troop.LETTER_TABLE_HALF
   }
 
-  enemyNames() {
-    const names = []
+  enemyNames(): string[] {
+    const names: string[] = []
     for (const enemy of this.members()) {
       const name = enemy.originalName()
       if (enemy.isAlive() && !names.includes(name)) {
@@ -159,7 +166,7 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
     return names
   }
 
-  meetsConditions(page) {
+  meetsConditions(page: MZ.Troop.Event.Page): boolean {
     const c = page.conditions
     if (
       !c.turnEnding
@@ -206,7 +213,7 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
     return true
   }
 
-  setupBattleEvent() {
+  setupBattleEvent(): void {
     if (!this._interpreter.isRunning()) {
       if (this._interpreter.setupReservedCommonEvent()) {
         return
@@ -225,7 +232,7 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
     }
   }
 
-  increaseTurn() {
+  increaseTurn(): void {
     const pages = this.troop().pages
     for (let i = 0; i < pages.length; i++) {
       const page = pages[i]
@@ -236,29 +243,27 @@ class Game_Troop extends Game_Unit<Game_Enemy> {
     this._turnCount++
   }
 
-  expTotal() {
+  expTotal(): number {
     return this.deadMembers().reduce((r, enemy) => r + enemy.exp(), 0)
   }
 
-  goldTotal() {
+  goldTotal(): number {
     const members = this.deadMembers()
     return members.reduce((r, enemy) => r + enemy.gold(), 0) * this.goldRate()
   }
 
-  goldRate() {
+  goldRate(): number {
     return $gameParty.hasGoldDouble() ? 2 : 1
   }
 
-  makeDropItems() {
+  makeDropItems(): MZ.EquipOrItem[] {
     const members = this.deadMembers()
-    return members.reduce((r, enemy) => r.concat(enemy.makeDropItems()), [])
+    return members.reduce((r, enemy) => r.concat(enemy.makeDropItems()), [] as MZ.EquipOrItem[])
   }
 
-  isTpbTurnEnd() {
+  isTpbTurnEnd(): boolean {
     const members = this.members()
     const turnMax = Math.max(...members.map(member => member.turnCount()))
     return turnMax > this._turnCount
   }
 }
-
-export { Game_Troop }
