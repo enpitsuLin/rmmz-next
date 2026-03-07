@@ -1,6 +1,9 @@
 import type { MV } from '@rmmz-lib/database-types'
+import type { Bitmap } from '../core'
 import type { PIXI } from '../pixi'
-import { Sprite } from '../core'
+import type { RGBA } from '../types'
+import { ScreenSprite, Sprite } from '../core'
+import { AudioManager, ImageManager } from '../managers'
 
 /**
  * Sprite_AnimationMV
@@ -8,23 +11,25 @@ import { Sprite } from '../core'
  * The sprite for displaying an old format animation.
  */
 export class Sprite_AnimationMV extends Sprite {
-  _targets: never[]
-  _animation: null
-  _mirror: boolean
-  _delay: number
-  _rate: number
-  _duration: number
-  _flashColor: number[]
-  _flashDuration: number
-  _screenFlashDuration: number
-  _hidingDuration: number
-  _hue1: number
-  _hue2: number
-  _bitmap1: null
-  _bitmap2: null
-  _cellSprites: never[]
-  _screenFlashSprite: null
-  z: number
+  _targets!: Sprite[]
+  _animation!: null | MV.Animation
+  _mirror!: boolean
+  _delay!: number
+  _rate!: number
+  _duration!: number
+  _flashColor!: RGBA
+  _flashDuration!: number
+  _screenFlashDuration!: number
+  _hidingDuration!: number
+  _hue1!: number
+  _hue2!: number
+  _bitmap1!: null | Bitmap
+  _bitmap2!: null | Bitmap
+  _cellSprites!: Sprite[]
+  _screenFlashSprite!: null | ScreenSprite
+
+  override z!: number
+
   constructor() {
     super()
     this.initMembers()
@@ -74,7 +79,7 @@ export class Sprite_AnimationMV extends Sprite {
   }
 
   setupDuration(): void {
-    this._duration = this._animation.frames.length * this._rate + 1
+    this._duration = this._animation!.frames.length * this._rate + 1
   }
 
   update(): void {
@@ -120,7 +125,8 @@ export class Sprite_AnimationMV extends Sprite {
 
   absoluteY(): number {
     let y = 0
-    let object = this
+    // eslint-disable-next-line ts/no-this-alias
+    let object: PIXI.DisplayObject = this
     while (object) {
       y += object.y
       object = object.parent
@@ -144,19 +150,19 @@ export class Sprite_AnimationMV extends Sprite {
   }
 
   loadBitmaps(): void {
-    const name1 = this._animation.animation1Name
-    const name2 = this._animation.animation2Name
-    this._hue1 = this._animation.animation1Hue
-    this._hue2 = this._animation.animation2Hue
+    const name1 = this._animation!.animation1Name
+    const name2 = this._animation!.animation2Name
+    this._hue1 = this._animation!.animation1Hue
+    this._hue2 = this._animation!.animation2Hue
     this._bitmap1 = ImageManager.loadAnimation(name1)
     this._bitmap2 = ImageManager.loadAnimation(name2)
   }
 
   isReady(): boolean {
     return (
-      this._bitmap1
+      !!this._bitmap1
       && this._bitmap1.isReady()
-      && this._bitmap2
+      && !!this._bitmap2
       && this._bitmap2.isReady()
     )
   }
@@ -196,7 +202,7 @@ export class Sprite_AnimationMV extends Sprite {
   }
 
   updatePosition(): void {
-    if (this._animation.position === 3) {
+    if (this._animation?.position === 3) {
       this.x = this.parent.width / 2
       this.y = this.parent.height / 2
     }
@@ -210,10 +216,10 @@ export class Sprite_AnimationMV extends Sprite {
         this.x += parent.x
         this.y += parent.y
       }
-      if (this._animation.position === 0) {
+      if (this._animation?.position === 0) {
         this.y -= target.height
       }
-      else if (this._animation.position === 1) {
+      else if (this._animation?.position === 1) {
         this.y -= target.height / 2
       }
     }
@@ -222,8 +228,8 @@ export class Sprite_AnimationMV extends Sprite {
   updateFrame(): void {
     if (this._duration > 0) {
       const frameIndex = this.currentFrameIndex()
-      this.updateAllCellSprites(this._animation.frames[frameIndex])
-      for (const timing of this._animation.timings) {
+      this.updateAllCellSprites(this._animation!.frames[frameIndex])
+      for (const timing of this._animation!.timings) {
         if (timing.frame === frameIndex) {
           this.processTimingData(timing)
         }
@@ -233,7 +239,7 @@ export class Sprite_AnimationMV extends Sprite {
 
   currentFrameIndex(): number {
     return (
-      this._animation.frames.length
+      this._animation!.frames.length
       - Math.floor((this._duration + this._rate - 1) / this._rate)
     )
   }
@@ -285,14 +291,14 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  processTimingData(timing): void {
+  processTimingData(timing: MV.Animation.Timing): void {
     const duration = timing.flashDuration * this._rate
     switch (timing.flashScope) {
       case 1:
-        this.startFlash(timing.flashColor, duration)
+        this.startFlash(timing.flashColor as RGBA, duration)
         break
       case 2:
-        this.startScreenFlash(timing.flashColor, duration)
+        this.startScreenFlash(timing.flashColor as RGBA, duration)
         break
       case 3:
         this.startHiding(duration)
@@ -303,12 +309,12 @@ export class Sprite_AnimationMV extends Sprite {
     }
   }
 
-  startFlash(color: number[], duration: number): void {
-    this._flashColor = color.clone()
+  startFlash(color: RGBA, duration: number): void {
+    this._flashColor = color.clone() as RGBA
     this._flashDuration = duration
   }
 
-  startScreenFlash(color: number[], duration: number): void {
+  startScreenFlash(color: RGBA, duration: number): void {
     this._screenFlashDuration = duration
     if (this._screenFlashSprite) {
       this._screenFlashSprite.setColor(color[0], color[1], color[2])

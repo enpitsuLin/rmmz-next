@@ -239,7 +239,9 @@ export class DataManager {
     if (this._errors.length > 0) {
       // TODO: improve this
       const a = this._errors.shift()!
-      const e = (): void => { this.loadDataFile(a.name, a.src) }
+      const e = (): void => {
+        this.loadDataFile(a.name, a.src)
+      }
       // TODO fix this
       // eslint-disable-next-line no-throw-literal
       throw ['LoadError', a.url, e]

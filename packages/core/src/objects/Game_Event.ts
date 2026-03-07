@@ -1,13 +1,27 @@
+import type { MZ } from '@rmmz-lib/database-types'
+import type { Game_CharacterBase } from './Game_CharacterBase'
 import { Game_Character } from './Game_Character'
+import { Game_Interpreter } from './Game_Interpreter'
 
 /**
  * The game object class for an event. It contains functionality for event page
 switching and running parallel process events.
  */
-class Game_Event extends Game_Character {
-  _trigger!: number
+export class Game_Event extends Game_Character {
+  _trigger!: number | null
+  _mapId!: number
+  _eventId!: number
+  _moveType!: number
+  _starting!: boolean
+  _erased!: boolean
+  _pageIndex!: number
+  _originalPattern!: number
+  _originalDirection!: number
+  _prelockDirection!: number
+  _locked!: boolean
+  _interpreter!: null | Game_Interpreter
 
-  constructor(mapId, eventId) {
+  constructor(mapId: number, eventId: number) {
     super()
     if (mapId && eventId) {
       this._mapId = mapId
@@ -17,7 +31,7 @@ class Game_Event extends Game_Character {
     }
   }
 
-  initMembers() {
+  initMembers(): void {
     super.initMembers()
     this._moveType = 0
     this._trigger = 0
@@ -30,39 +44,39 @@ class Game_Event extends Game_Character {
     this._locked = false
   }
 
-  eventId() {
+  eventId(): number {
     return this._eventId
   }
 
-  event() {
-    return $dataMap.events[this._eventId]
+  event(): MZ.Map.Event {
+    return $dataMap.events[this._eventId]!
   }
 
-  page() {
+  page(): MZ.Map.Event.Page {
     return this.event().pages[this._pageIndex]
   }
 
-  list() {
+  list(): MZ.EventCommon.PageCommand[] {
     return this.page().list
   }
 
-  isCollidedWithCharacters(x, y) {
+  isCollidedWithCharacters(x: number, y: number): boolean {
     return (
       super.isCollidedWithCharacters(x, y)
         || this.isCollidedWithPlayerCharacters(x, y)
     )
   }
 
-  isCollidedWithEvents(x, y) {
+  isCollidedWithEvents(x: number, y: number): boolean {
     const events = $gameMap.eventsXyNt(x, y)
     return events.length > 0
   }
 
-  isCollidedWithPlayerCharacters(x, y) {
+  isCollidedWithPlayerCharacters(x: number, y: number): boolean {
     return this.isNormalPriority() && $gamePlayer.isCollided(x, y)
   }
 
-  lock() {
+  lock(): void {
     if (!this._locked) {
       this._prelockDirection = this.direction()
       this.turnTowardPlayer()
@@ -70,14 +84,14 @@ class Game_Event extends Game_Character {
     }
   }
 
-  unlock() {
+  unlock(): void {
     if (this._locked) {
       this._locked = false
       this.setDirection(this._prelockDirection)
     }
   }
 
-  updateStop() {
+  updateStop(): void {
     if (this._locked) {
       this.resetStopCount()
     }
@@ -87,7 +101,7 @@ class Game_Event extends Game_Character {
     }
   }
 
-  updateSelfMovement() {
+  updateSelfMovement(): void {
     if (
       !this._locked
       && this.isNearTheScreen()
@@ -107,11 +121,11 @@ class Game_Event extends Game_Character {
     }
   }
 
-  stopCountThreshold() {
+  stopCountThreshold(): number {
     return 30 * (5 - this.moveFrequency())
   }
 
-  moveTypeRandom() {
+  moveTypeRandom(): void {
     switch (Math.randomInt(6)) {
       case 0:
       case 1:
@@ -128,7 +142,7 @@ class Game_Event extends Game_Character {
     }
   }
 
-  moveTypeTowardPlayer() {
+  moveTypeTowardPlayer(): void {
     if (this.isNearThePlayer()) {
       switch (Math.randomInt(6)) {
         case 0:
@@ -150,29 +164,29 @@ class Game_Event extends Game_Character {
     }
   }
 
-  isNearThePlayer() {
+  isNearThePlayer(): boolean {
     const sx = Math.abs(this.deltaXFrom($gamePlayer.x))
     const sy = Math.abs(this.deltaYFrom($gamePlayer.y))
     return sx + sy < 20
   }
 
-  moveTypeCustom() {
+  moveTypeCustom(): void {
     this.updateRoutineMove()
   }
 
-  isStarting() {
+  isStarting(): boolean {
     return this._starting
   }
 
-  clearStartingFlag() {
+  clearStartingFlag(): void {
     this._starting = false
   }
 
-  isTriggerIn(triggers: number[]) {
-    return triggers.includes(this._trigger)
+  isTriggerIn(triggers: number[]): boolean {
+    return triggers.includes(this._trigger!)
   }
 
-  start() {
+  start(): void {
     const list = this.list()
     if (list && list.length > 1) {
       this._starting = true
@@ -182,12 +196,12 @@ class Game_Event extends Game_Character {
     }
   }
 
-  erase() {
+  erase(): void {
     this._erased = true
     this.refresh()
   }
 
-  refresh() {
+  refresh(): void {
     const newPageIndex = this._erased ? -1 : this.findProperPageIndex()
     if (this._pageIndex !== newPageIndex) {
       this._pageIndex = newPageIndex
@@ -195,7 +209,7 @@ class Game_Event extends Game_Character {
     }
   }
 
-  findProperPageIndex() {
+  findProperPageIndex(): number {
     const pages = this.event().pages
     for (let i = pages.length - 1; i >= 0; i--) {
       const page = pages[i]
@@ -206,7 +220,7 @@ class Game_Event extends Game_Character {
     return -1
   }
 
-  meetsConditions(page) {
+  meetsConditions(page: MZ.Map.Event.Page): boolean {
     const c = page.conditions
     if (c.switch1Valid && !$gameSwitches.value(c.switch1Id)) {
       return false
@@ -222,6 +236,7 @@ class Game_Event extends Game_Character {
     }
     if (c.selfSwitchValid) {
       const key = [this._mapId, this._eventId, c.selfSwitchCh]
+      // @ts-expect-error to fix this
       if ($gameSelfSwitches.value(key) !== true) {
         return false
       }
@@ -233,7 +248,7 @@ class Game_Event extends Game_Character {
       }
     }
     if (c.actorValid) {
-      const actor = $gameActors.actor(c.actorId)
+      const actor = $gameActors.actor(c.actorId)!
       if (!$gameParty.members().includes(actor)) {
         return false
       }
@@ -241,7 +256,7 @@ class Game_Event extends Game_Character {
     return true
   }
 
-  setupPage() {
+  setupPage(): void {
     if (this._pageIndex >= 0) {
       this.setupPageSettings()
     }
@@ -253,7 +268,7 @@ class Game_Event extends Game_Character {
     this.checkEventTriggerAuto()
   }
 
-  clearPageSettings() {
+  clearPageSettings(): void {
     this.setImage('', 0)
     this._moveType = 0
     this._trigger = null
@@ -261,7 +276,7 @@ class Game_Event extends Game_Character {
     this.setThrough(true)
   }
 
-  setupPageSettings() {
+  setupPageSettings(): void {
     const page = this.page()
     const image = page.image
     if (image.tileId > 0) {
@@ -282,7 +297,7 @@ class Game_Event extends Game_Character {
     }
     this.setMoveSpeed(page.moveSpeed)
     this.setMoveFrequency(page.moveFrequency)
-    this.setPriorityType(page.priorityType)
+    this.setPriorityType(page.priorityType as Game_CharacterBase.CharacterPriorityType)
     this.setWalkAnime(page.walkAnime)
     this.setStepAnime(page.stepAnime)
     this.setDirectionFix(page.directionFix)
@@ -298,15 +313,15 @@ class Game_Event extends Game_Character {
     }
   }
 
-  isOriginalPattern() {
+  isOriginalPattern(): boolean {
     return this.pattern() === this._originalPattern
   }
 
-  resetPattern() {
+  resetPattern(): void {
     this.setPattern(this._originalPattern)
   }
 
-  checkEventTriggerTouch(x, y) {
+  checkEventTriggerTouch(x: number, y: number): void {
     if (!$gameMap.isEventRunning()) {
       if (this._trigger === 2 && $gamePlayer.pos(x, y)) {
         if (!this.isJumping() && this.isNormalPriority()) {
@@ -316,19 +331,19 @@ class Game_Event extends Game_Character {
     }
   }
 
-  checkEventTriggerAuto() {
+  checkEventTriggerAuto(): void {
     if (this._trigger === 3) {
       this.start()
     }
   }
 
-  update() {
+  update(): void {
     super.update()
     this.checkEventTriggerAuto()
     this.updateParallel()
   }
 
-  updateParallel() {
+  updateParallel(): void {
     if (this._interpreter) {
       if (!this._interpreter.isRunning()) {
         this._interpreter.setup(this.list(), this._eventId)
@@ -337,15 +352,13 @@ class Game_Event extends Game_Character {
     }
   }
 
-  locate(x, y) {
+  locate(x: number, y: number): void {
     super.locate(x, y)
     this._prelockDirection = 0
   }
 
-  forceMoveRoute(moveRoute) {
+  forceMoveRoute(moveRoute: MZ.Map.Event.MoveRoute): void {
     super.forceMoveRoute(moveRoute)
     this._prelockDirection = 0
   }
 }
-
-export { Game_Event }
