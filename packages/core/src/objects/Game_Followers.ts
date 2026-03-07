@@ -1,4 +1,5 @@
 import { Game_Follower } from './Game_Follower'
+import { GlobalMananger } from '../managers'
 
 /**
  * The wrapper class for a follower array.
@@ -9,7 +10,7 @@ class Game_Followers {
   _data: Game_Follower[]
 
   constructor() {
-    this._visible = $dataSystem.optFollowers
+    this._visible = GlobalMananger.$dataSystem.optFollowers
     this._gathering = false
     this._data = []
     this.setup()
@@ -17,7 +18,7 @@ class Game_Followers {
 
   setup(): void {
     this._data = []
-    for (let i = 1; i < $gameParty.maxBattleMembers(); i++) {
+    for (let i = 1; i < GlobalMananger.$gameParty.maxBattleMembers(); i++) {
       this._data.push(new Game_Follower(i))
     }
   }
@@ -68,16 +69,16 @@ class Game_Followers {
 
   updateMove(): void {
     for (let i = this._data.length - 1; i >= 0; i--) {
-      const precedingCharacter = i > 0 ? this._data[i - 1] : $gamePlayer
+      const precedingCharacter = i > 0 ? this._data[i - 1] : GlobalMananger.$gamePlayer
       this._data[i].chaseCharacter(precedingCharacter)
     }
   }
 
   jumpAll(): void {
-    if ($gamePlayer.isJumping()) {
+    if (GlobalMananger.$gamePlayer.isJumping()) {
       for (const follower of this._data) {
-        const sx = $gamePlayer.deltaXFrom(follower.x)
-        const sy = $gamePlayer.deltaYFrom(follower.y)
+        const sx = GlobalMananger.$gamePlayer.deltaXFrom(follower.x)
+        const sy = GlobalMananger.$gamePlayer.deltaYFrom(follower.y)
         follower.jump(sx, sy)
       }
     }

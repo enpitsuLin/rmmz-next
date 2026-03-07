@@ -1,6 +1,7 @@
 import type { Window_Message } from './Window_Message'
 import { Graphics, Rectangle } from '../core'
 import { Window_Base } from './Window_Base'
+import { GlobalMananger } from '../managers'
 
 /**
  * Window_NameBox
@@ -46,7 +47,7 @@ export class Window_NameBox extends Window_Base {
     this.width = this.windowWidth()
     this.height = this.windowHeight()
     const messageWindow = this._messageWindow!
-    if ($gameMessage.isRTL()) {
+    if (GlobalMananger.$gameMessage.isRTL()) {
       this.x = messageWindow.x + messageWindow.width - this.width
     }
     else {
@@ -61,7 +62,7 @@ export class Window_NameBox extends Window_Base {
   }
 
   updateBackground(): void {
-    this.setBackgroundType($gameMessage.background())
+    this.setBackgroundType(GlobalMananger.$gameMessage.background())
   }
 
   windowWidth(): number {

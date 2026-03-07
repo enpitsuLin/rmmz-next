@@ -1,5 +1,5 @@
 import type { MZ } from '@rmmz-lib/database-types'
-import { BattleManager } from '../managers'
+import { GlobalMananger, BattleManager } from '../managers'
 import { Game_Enemy } from './Game_Enemy'
 import { Game_Interpreter } from './Game_Interpreter'
 import { Game_Unit } from './Game_Unit'
@@ -105,7 +105,7 @@ export class Game_Troop extends Game_Unit<Game_Enemy> {
   }
 
   troop(): MZ.Troop {
-    return $dataTroops[this._troopId]!
+    return GlobalMananger.$dataTroops[this._troopId]!
   }
 
   setup(troopId: number): void {
@@ -113,7 +113,7 @@ export class Game_Troop extends Game_Unit<Game_Enemy> {
     this._troopId = troopId
     this._enemies = []
     for (const member of this.troop().members) {
-      if ($dataEnemies[member.enemyId]) {
+      if (GlobalMananger.$dataEnemies[member.enemyId]) {
         const enemyId = member.enemyId
         const x = member.x
         const y = member.y
@@ -150,7 +150,7 @@ export class Game_Troop extends Game_Unit<Game_Enemy> {
   }
 
   letterTable(): string[] {
-    return $gameSystem.isCJK()
+    return GlobalMananger.$gameSystem.isCJK()
       ? Game_Troop.LETTER_TABLE_FULL
       : Game_Troop.LETTER_TABLE_HALF
   }
@@ -194,19 +194,19 @@ export class Game_Troop extends Game_Unit<Game_Enemy> {
       }
     }
     if (c.enemyValid) {
-      const enemy = $gameTroop.members()[c.enemyIndex]
+      const enemy = GlobalMananger.$gameTroop.members()[c.enemyIndex]
       if (!enemy || enemy.hpRate() * 100 > c.enemyHp) {
         return false
       }
     }
     if (c.actorValid) {
-      const actor = $gameActors.actor(c.actorId)
+      const actor = GlobalMananger.$gameActors.actor(c.actorId)
       if (!actor || actor.hpRate() * 100 > c.actorHp) {
         return false
       }
     }
     if (c.switchValid) {
-      if (!$gameSwitches.value(c.switchId)) {
+      if (!GlobalMananger.$gameSwitches.value(c.switchId)) {
         return false
       }
     }
@@ -253,7 +253,7 @@ export class Game_Troop extends Game_Unit<Game_Enemy> {
   }
 
   goldRate(): number {
-    return $gameParty.hasGoldDouble() ? 2 : 1
+    return GlobalMananger.$gameParty.hasGoldDouble() ? 2 : 1
   }
 
   makeDropItems(): MZ.EquipOrItem[] {

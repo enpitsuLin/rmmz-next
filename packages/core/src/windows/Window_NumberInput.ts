@@ -1,6 +1,6 @@
 import type { Window_Message } from './Window_Message'
 import { Graphics, Input, Rectangle } from '../core'
-import { ConfigManager } from '../managers'
+import { GlobalMananger, ConfigManager } from '../managers'
 import { Sprite_Button } from '../sprites'
 import { Window_Selectable } from './Window_Selectable'
 
@@ -33,8 +33,8 @@ export class Window_NumberInput extends Window_Selectable {
   }
 
   start(): void {
-    this._maxDigits = $gameMessage.numInputMaxDigits()
-    this._number = $gameVariables.value($gameMessage.numInputVariableId())
+    this._maxDigits = GlobalMananger.$gameMessage.numInputMaxDigits()
+    this._number = GlobalMananger.$gameVariables.value(GlobalMananger.$gameMessage.numInputVariableId())
     this._number = this._number.clamp(0, 10 ** this._maxDigits - 1)
     this.updatePlacement()
     this.placeButtons()
@@ -185,7 +185,7 @@ export class Window_NumberInput extends Window_Selectable {
 
   processOk(): void {
     this.playOkSound()
-    $gameVariables.setValue($gameMessage.numInputVariableId(), this._number)
+    GlobalMananger.$gameVariables.setValue(GlobalMananger.$gameMessage.numInputVariableId(), this._number)
     this._messageWindow!.terminateMessage()
     this.updateInputData()
     this.deactivate()

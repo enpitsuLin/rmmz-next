@@ -2,6 +2,7 @@ import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
 import type { Window_ShopStatus } from './Window_ShopStatus'
 import { Window_Selectable } from './Window_Selectable'
+import { GlobalMananger } from '../managers'
 
 /**
  * Window_ShopBuy
@@ -53,7 +54,7 @@ export class Window_ShopBuy extends Window_Selectable {
   }
 
   isEnabled(item: MZ.EquipOrItem | null): boolean {
-    return !!(item && this.price(item) <= this._money && !$gameParty.hasMaxItems(item))
+    return !!(item && this.price(item) <= this._money && !GlobalMananger.$gameParty.hasMaxItems(item))
   }
 
   refresh(): void {
@@ -76,11 +77,11 @@ export class Window_ShopBuy extends Window_Selectable {
   goodsToItem(goods: Window_ShopBuy.Good): MZ.EquipOrItem | null {
     switch (goods[0]) {
       case 0:
-        return $dataItems[goods[1]!] ?? null
+        return GlobalMananger.$dataItems[goods[1]!] ?? null
       case 1:
-        return $dataWeapons[goods[1]!] ?? null
+        return GlobalMananger.$dataWeapons[goods[1]!] ?? null
       case 2:
-        return $dataArmors[goods[1]!] ?? null
+        return GlobalMananger.$dataArmors[goods[1]!] ?? null
       default:
         return null
     }

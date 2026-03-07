@@ -2,6 +2,7 @@ import type { Sprite } from '../core'
 import type { Game_Battler } from '../objects'
 import { Sprite_Clickable } from './Sprite_Clickable'
 import { Sprite_Damage } from './Sprite_Damage'
+import { GlobalMananger } from '../managers'
 
 /**
  * Sprite_Battler
@@ -212,14 +213,14 @@ export class Sprite_Battler extends Sprite_Clickable {
   }
 
   onMouseEnter(): void {
-    $gameTemp.setTouchState(this._battler!, 'select')
+    GlobalMananger.$gameTemp.setTouchState(this._battler!, 'select')
   }
 
   onPress(): void {
-    $gameTemp.setTouchState(this._battler!, 'select')
+    GlobalMananger.$gameTemp.setTouchState(this._battler!, 'select')
   }
 
   onClick(): void {
-    $gameTemp.setTouchState(this._battler!, 'click')
+    GlobalMananger.$gameTemp.setTouchState(this._battler!, 'click')
   }
 }

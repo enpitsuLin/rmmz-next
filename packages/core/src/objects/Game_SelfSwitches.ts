@@ -1,3 +1,4 @@
+import { GlobalMananger } from '../managers'
 /**
  * The game object class for self switches.
  */
@@ -27,6 +28,6 @@ export class Game_SelfSwitches {
   }
 
   onChange(): void {
-    $gameMap.requestRefresh()
+    GlobalMananger.$gameMap.requestRefresh()
   }
 }

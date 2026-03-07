@@ -1,6 +1,7 @@
 import type { Rectangle } from '../core'
 import { Input } from '../core'
 import { Window_Selectable } from './Window_Selectable'
+import { GlobalMananger } from '../managers'
 
 /**
  * The window for displaying switches and variables on the debug screen.
@@ -37,11 +38,11 @@ export class Window_DebugEdit extends Window_Selectable {
   }
 
   itemName(dataId: number): string {
-    return this._mode === 'switch' ? $dataSystem.switches[dataId] : $dataSystem.variables[dataId]
+    return this._mode === 'switch' ? GlobalMananger.$dataSystem.switches[dataId] : GlobalMananger.$dataSystem.variables[dataId]
   }
 
   itemStatus(dataId: number): string {
-    return this._mode === 'switch' ? ($gameSwitches.value(dataId) ? '[ON]' : '[OFF]') : String($gameVariables.value(dataId))
+    return this._mode === 'switch' ? (GlobalMananger.$gameSwitches.value(dataId) ? '[ON]' : '[OFF]') : String(GlobalMananger.$gameVariables.value(dataId))
   }
 
   setMode(mode: 'switch' | 'variable'): void {
@@ -78,18 +79,18 @@ export class Window_DebugEdit extends Window_Selectable {
     if (Input.isRepeated('ok')) {
       const switchId = this.currentId()
       this.playCursorSound()
-      $gameSwitches.setValue(switchId, !$gameSwitches.value(switchId))
+      GlobalMananger.$gameSwitches.setValue(switchId, !GlobalMananger.$gameSwitches.value(switchId))
       this.redrawCurrentItem()
     }
   }
 
   updateVariable(): void {
     const variableId = this.currentId()
-    const value = $gameVariables.value(variableId)
+    const value = GlobalMananger.$gameVariables.value(variableId)
     if (typeof value === 'number') {
       const newValue = value + this.deltaForVariable()
       if (value !== newValue) {
-        $gameVariables.setValue(variableId, newValue)
+        GlobalMananger.$gameVariables.setValue(variableId, newValue)
         this.playCursorSound()
         this.redrawCurrentItem()
       }

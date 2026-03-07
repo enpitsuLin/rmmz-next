@@ -2,6 +2,7 @@ import type { Rectangle } from '../core'
 import type { Window_DebugEdit } from './Window_DebugEdit'
 import { Input } from '../core'
 import { Window_Selectable } from './Window_Selectable'
+import { GlobalMananger } from '../managers'
 
 /**
  * Window_DebugRange
@@ -19,8 +20,8 @@ export class Window_DebugRange extends Window_Selectable {
   constructor(rect: Rectangle.Shape) {
     super(rect)
     this._editWindow = null
-    this._maxSwitches = Math.ceil(($dataSystem.switches.length - 1) / 10)
-    this._maxVariables = Math.ceil(($dataSystem.variables.length - 1) / 10)
+    this._maxSwitches = Math.ceil((GlobalMananger.$dataSystem.switches.length - 1) / 10)
+    this._maxVariables = Math.ceil((GlobalMananger.$dataSystem.variables.length - 1) / 10)
     this.refresh()
     this.setTopRow(Window_DebugRange.lastTopRow)
     this.select(Window_DebugRange.lastIndex)

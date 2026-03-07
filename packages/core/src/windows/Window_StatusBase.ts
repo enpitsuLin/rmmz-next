@@ -6,6 +6,7 @@ import { ImageManager } from '../managers/ImageManager'
 import { TextManager } from '../managers/TextManager'
 import { Sprite_Gauge, Sprite_Name, Sprite_StateIcon } from '../sprites'
 import { Window_Selectable } from './Window_Selectable'
+import { GlobalMananger } from '../managers'
 
 /**
  * Window_StatusBase
@@ -22,7 +23,7 @@ export class Window_StatusBase extends Window_Selectable {
   }
 
   loadFaceImages(): void {
-    for (const actor of $gameParty.members()) {
+    for (const actor of GlobalMananger.$gameParty.members()) {
       ImageManager.loadFace(actor.faceName())
     }
   }
@@ -87,7 +88,7 @@ export class Window_StatusBase extends Window_Selectable {
   placeBasicGauges(actor: Game_Actor, x: number, y: number): void {
     this.placeGauge(actor, 'hp', x, y)
     this.placeGauge(actor, 'mp', x, y + this.gaugeLineHeight())
-    if ($dataSystem.optDisplayTp) {
+    if (GlobalMananger.$dataSystem.optDisplayTp) {
       this.placeGauge(actor, 'tp', x, y + this.gaugeLineHeight() * 2)
     }
   }
@@ -153,7 +154,7 @@ export class Window_StatusBase extends Window_Selectable {
 
   actorSlotName(actor: Game_Actor, index: number): string {
     const slots = actor.equipSlots()
-    return $dataSystem.equipTypes[slots[index]]
+    return GlobalMananger.$dataSystem.equipTypes[slots[index]]
   }
 }
 

@@ -4,6 +4,7 @@ import { SoundManager } from '../managers/SoundManager'
 import { TextManager } from '../managers/TextManager'
 import { Scene_File } from './Scene_File'
 import { Scene_Map } from './Scene_Map'
+import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Load
@@ -21,7 +22,7 @@ export class Scene_Load extends Scene_File {
   terminate(): void {
     super.terminate()
     if (this._loadSuccess) {
-      $gameSystem.onAfterLoad()
+      GlobalMananger.$gameSystem.onAfterLoad()
     }
   }
 
@@ -68,13 +69,13 @@ export class Scene_Load extends Scene_File {
   }
 
   reloadMapIfUpdated(): void {
-    if ($gameSystem.versionId() !== $dataSystem.versionId) {
-      const mapId = $gameMap.mapId()
-      const x = $gamePlayer.x
-      const y = $gamePlayer.y
-      const d = $gamePlayer.direction()
-      $gamePlayer.reserveTransfer(mapId, x, y, d, 0)
-      $gamePlayer.requestMapReload()
+    if (GlobalMananger.$gameSystem.versionId() !== GlobalMananger.$dataSystem.versionId) {
+      const mapId = GlobalMananger.$gameMap.mapId()
+      const x = GlobalMananger.$gamePlayer.x
+      const y = GlobalMananger.$gamePlayer.y
+      const d = GlobalMananger.$gamePlayer.direction()
+      GlobalMananger.$gamePlayer.reserveTransfer(mapId, x, y, d, 0)
+      GlobalMananger.$gamePlayer.requestMapReload()
     }
   }
 }

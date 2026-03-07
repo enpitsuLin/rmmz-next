@@ -5,7 +5,7 @@ import type { Game_Battler } from '../objects/Game_Battler'
 import type { Spriteset_Battle } from '../sprites/Spriteset_Battle'
 import type { PickMethodProperties } from '../types'
 import { Input, Rectangle, TouchInput } from '../core'
-import { DataManager, SoundManager, TextManager } from '../managers'
+import { GlobalMananger, DataManager, SoundManager, TextManager } from '../managers'
 import { Window_Base } from './Window_Base'
 
 /**
@@ -251,9 +251,9 @@ export class Window_BattleLog extends Window_Base {
   }
 
   showNormalAnimation(targets: Game_Battler[], animationId: number, mirror?: boolean): void {
-    const animation = $dataAnimations[animationId]
+    const animation = GlobalMananger.$dataAnimations[animationId]
     if (animation) {
-      $gameTemp.requestAnimation(targets as any, animationId, mirror)
+      GlobalMananger.$gameTemp.requestAnimation(targets as any, animationId, mirror)
     }
   }
 

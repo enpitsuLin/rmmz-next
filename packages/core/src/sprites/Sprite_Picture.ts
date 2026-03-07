@@ -1,5 +1,5 @@
 import type { Game_Picture } from '../objects'
-import { ImageManager } from '../managers'
+import { GlobalMananger, ImageManager } from '../managers'
 import { Sprite_Clickable } from './Sprite_Clickable'
 
 /**
@@ -18,7 +18,7 @@ export class Sprite_Picture extends Sprite_Clickable {
   }
 
   picture(): Game_Picture {
-    return $gameScreen.picture(this._pictureId)
+    return GlobalMananger.$gameScreen.picture(this._pictureId)
   }
 
   update(): void {

@@ -2,6 +2,7 @@ import { DataManager } from '../managers/DataManager'
 import { SoundManager } from '../managers/SoundManager'
 import { TextManager } from '../managers/TextManager'
 import { Scene_File } from './Scene_File'
+import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Save
@@ -22,7 +23,7 @@ export class Scene_Save extends Scene_File {
   }
 
   firstSavefileId(): number {
-    return $gameSystem.savefileId()
+    return GlobalMananger.$gameSystem.savefileId()
   }
 
   onSavefileOk(): void {
@@ -37,8 +38,8 @@ export class Scene_Save extends Scene_File {
   }
 
   executeSave(savefileId: number): void {
-    $gameSystem.setSavefileId(savefileId)
-    $gameSystem.onBeforeSave()
+    GlobalMananger.$gameSystem.setSavefileId(savefileId)
+    GlobalMananger.$gameSystem.onBeforeSave()
     DataManager.saveGame(savefileId)
       .then(() => this.onSaveSuccess())
       .catch(() => this.onSaveFailure())

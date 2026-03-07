@@ -1,5 +1,5 @@
 import type { Rectangle } from '../core'
-import { DataManager, TextManager } from '../managers'
+import { GlobalMananger, DataManager, TextManager } from '../managers'
 import { Window_Command } from './Window_Command'
 
 /**
@@ -79,17 +79,17 @@ export class Window_MenuCommand extends Window_Command {
     const table = ['item', 'skill', 'equip', 'status', 'formation', 'save']
     const index = table.indexOf(name)
     if (index >= 0) {
-      return $dataSystem.menuCommands[index]
+      return GlobalMananger.$dataSystem.menuCommands[index]
     }
     return true
   }
 
   areMainCommandsEnabled(): boolean {
-    return $gameParty.exists()
+    return GlobalMananger.$gameParty.exists()
   }
 
   isFormationEnabled(): boolean {
-    return $gameParty.size() >= 2 && $gameSystem.isFormationEnabled()
+    return GlobalMananger.$gameParty.size() >= 2 && GlobalMananger.$gameSystem.isFormationEnabled()
   }
 
   isOptionsEnabled(): boolean {
@@ -97,7 +97,7 @@ export class Window_MenuCommand extends Window_Command {
   }
 
   isSaveEnabled(): boolean {
-    return !DataManager.isEventTest() && $gameSystem.isSaveEnabled()
+    return !DataManager.isEventTest() && GlobalMananger.$gameSystem.isSaveEnabled()
   }
 
   isGameEndEnabled(): boolean {

@@ -1,6 +1,6 @@
 import type { Bitmap } from '../core'
 import { Graphics, TilingSprite } from '../core'
-import { BattleManager, ImageManager } from '../managers'
+import { GlobalMananger, BattleManager, ImageManager } from '../managers'
 
 /**
  * Sprite_Battleback
@@ -22,7 +22,7 @@ export class Sprite_Battleback extends TilingSprite {
     this.width = Math.floor((1000 * Graphics.width) / 816)
     this.height = Math.floor((740 * Graphics.height) / 624)
     this.x = (Graphics.width - this.width) / 2
-    if ($gameSystem.isSideView()) {
+    if (GlobalMananger.$gameSystem.isSideView()) {
       this.y = Graphics.height - this.height
     }
     else {
@@ -45,12 +45,12 @@ export class Sprite_Battleback extends TilingSprite {
 
   battleback1Name(): string | null {
     if (BattleManager.isBattleTest()) {
-      return $dataSystem.battleback1Name
+      return GlobalMananger.$dataSystem.battleback1Name
     }
-    else if ($gameMap.battleback1Name() !== null) {
-      return $gameMap.battleback1Name()
+    else if (GlobalMananger.$gameMap.battleback1Name() !== null) {
+      return GlobalMananger.$gameMap.battleback1Name()
     }
-    else if ($gameMap.isOverworld()) {
+    else if (GlobalMananger.$gameMap.isOverworld()) {
       return this.overworldBattleback1Name()
     }
     else {
@@ -60,12 +60,12 @@ export class Sprite_Battleback extends TilingSprite {
 
   battleback2Name(): string | null {
     if (BattleManager.isBattleTest()) {
-      return $dataSystem.battleback2Name
+      return GlobalMananger.$dataSystem.battleback2Name
     }
-    else if ($gameMap.battleback2Name() !== null) {
-      return $gameMap.battleback2Name()
+    else if (GlobalMananger.$gameMap.battleback2Name() !== null) {
+      return GlobalMananger.$gameMap.battleback2Name()
     }
-    else if ($gameMap.isOverworld()) {
+    else if (GlobalMananger.$gameMap.isOverworld()) {
       return this.overworldBattleback2Name()
     }
     else {
@@ -74,7 +74,7 @@ export class Sprite_Battleback extends TilingSprite {
   }
 
   overworldBattleback1Name(): string {
-    if ($gamePlayer.isInVehicle()) {
+    if (GlobalMananger.$gamePlayer.isInVehicle()) {
       return this.shipBattleback1Name()
     }
     else {
@@ -83,7 +83,7 @@ export class Sprite_Battleback extends TilingSprite {
   }
 
   overworldBattleback2Name(): string {
-    if ($gamePlayer.isInVehicle()) {
+    if (GlobalMananger.$gamePlayer.isInVehicle()) {
       return this.shipBattleback2Name()
     }
     else {
@@ -185,6 +185,6 @@ export class Sprite_Battleback extends TilingSprite {
   }
 
   autotileType(z: number): number {
-    return $gameMap.autotileType($gamePlayer.x, $gamePlayer.y, z)
+    return GlobalMananger.$gameMap.autotileType(GlobalMananger.$gamePlayer.x, GlobalMananger.$gamePlayer.y, z)
   }
 }

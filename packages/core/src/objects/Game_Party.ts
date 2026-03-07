@@ -4,6 +4,7 @@ import { DataManager } from '../managers/DataManager'
 import { TextManager } from '../managers/TextManager'
 import { Game_Item } from './Game_Item'
 import { Game_Unit } from './Game_Unit'
+import { GlobalMananger } from '../managers'
 
 /**
  * The game object class for the party.
@@ -62,7 +63,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   allMembers(): Game_Actor[] {
-    return this._actors.map(id => $gameActors.actor(id)).filter((a): a is Game_Actor => a !== null)
+    return this._actors.map(id => GlobalMananger.$gameActors.actor(id)).filter((a): a is Game_Actor => a !== null)
   }
 
   battleMembers(): Game_Actor[] {
@@ -87,7 +88,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
 
   removeInvalidMembers(): void {
     for (const actorId of this._actors) {
-      if (!$dataActors[actorId]) {
+      if (!GlobalMananger.$dataActors[actorId]) {
         this._actors.splice(this._actors.indexOf(actorId), 1)
       }
     }
@@ -102,15 +103,15 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   items(): MZ.Item[] {
-    return Object.keys(this._items).map(id => $dataItems[Number(id)]).filter(x => !!x)
+    return Object.keys(this._items).map(id => GlobalMananger.$dataItems[Number(id)]).filter(x => !!x)
   }
 
   weapons(): MZ.Weapon[] {
-    return Object.keys(this._weapons).map(id => $dataWeapons[Number(id)]).filter(x => !!x)
+    return Object.keys(this._weapons).map(id => GlobalMananger.$dataWeapons[Number(id)]).filter(x => !!x)
   }
 
   armors(): MZ.Armor[] {
-    return Object.keys(this._armors).map(id => $dataArmors[Number(id)]).filter(x => !!x)
+    return Object.keys(this._armors).map(id => GlobalMananger.$dataArmors[Number(id)]).filter(x => !!x)
   }
 
   equipItems(): MZ.Equip[] {
@@ -141,8 +142,8 @@ class Game_Party extends Game_Unit<Game_Actor> {
 
   setupStartingMembers(): void {
     this._actors = []
-    for (const actorId of $dataSystem.partyMembers) {
-      if ($gameActors.actor(actorId)) {
+    for (const actorId of GlobalMananger.$dataSystem.partyMembers) {
+      if (GlobalMananger.$gameActors.actor(actorId)) {
         this._actors.push(actorId)
       }
     }
@@ -167,8 +168,8 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   setupBattleTestMembers(): void {
-    for (const battler of $dataSystem.testBattlers) {
-      const actor = $gameActors.actor(battler.actorId)
+    for (const battler of GlobalMananger.$dataSystem.testBattlers) {
+      const actor = GlobalMananger.$gameActors.actor(battler.actorId)
       if (actor) {
         actor.changeLevel(battler.level, false)
         actor.initEquips(battler.equips)
@@ -179,7 +180,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   setupBattleTestItems(): void {
-    for (const item of $dataItems) {
+    for (const item of GlobalMananger.$dataItems) {
       if (item && item.name.length > 0) {
         this.gainItem(item, this.maxItems(item))
       }
@@ -193,11 +194,11 @@ class Game_Party extends Game_Unit<Game_Actor> {
   addActor(actorId: number): void {
     if (!this._actors.includes(actorId)) {
       this._actors.push(actorId)
-      $gamePlayer.refresh()
-      $gameMap.requestRefresh()
-      $gameTemp.requestBattleRefresh()
+      GlobalMananger.$gamePlayer.refresh()
+      GlobalMananger.$gameMap.requestRefresh()
+      GlobalMananger.$gameTemp.requestBattleRefresh()
       if (this.inBattle()) {
-        const actor = $gameActors.actor(actorId)
+        const actor = GlobalMananger.$gameActors.actor(actorId)
         // TODO improve this
         if (this.battleMembers().includes(actor!)) {
           // TODO improve this
@@ -209,12 +210,12 @@ class Game_Party extends Game_Unit<Game_Actor> {
 
   removeActor(actorId: number): void {
     if (this._actors.includes(actorId)) {
-      const actor = $gameActors.actor(actorId)
+      const actor = GlobalMananger.$gameActors.actor(actorId)
       const wasBattleMember = actor !== null && this.battleMembers().includes(actor)
       this._actors.splice(this._actors.indexOf(actorId), 1)
-      $gamePlayer.refresh()
-      $gameMap.requestRefresh()
-      $gameTemp.requestBattleRefresh()
+      GlobalMananger.$gamePlayer.refresh()
+      GlobalMananger.$gameMap.requestRefresh()
+      GlobalMananger.$gameTemp.requestBattleRefresh()
       if (this.inBattle() && wasBattleMember && actor) {
         actor.onBattleEnd()
       }
@@ -290,7 +291,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
       if (includeEquip && newNumber < 0) {
         this.discardMembersEquip(item as MZ.Equip, -newNumber)
       }
-      $gameMap.requestRefresh()
+      GlobalMananger.$gameMap.requestRefresh()
     }
   }
 
@@ -346,7 +347,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   menuActor(): Game_Actor {
-    let actor = $gameActors.actor(this._menuActorId)
+    let actor = GlobalMananger.$gameActors.actor(this._menuActorId)
     if (!actor || !this.members().includes(actor)) {
       actor = this.members()[0]
     }
@@ -380,7 +381,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   targetActor(): Game_Actor {
-    let actor = $gameActors.actor(this._targetActorId)
+    let actor = GlobalMananger.$gameActors.actor(this._targetActorId)
     if (!actor || !this.members().includes(actor)) {
       actor = this.members()[0]
     }
@@ -403,7 +404,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
     const temp = this._actors[index1]
     this._actors[index1] = this._actors[index2]
     this._actors[index2] = temp
-    $gamePlayer.refresh()
+    GlobalMananger.$gamePlayer.refresh()
   }
 
   charactersForSavefile(): [string, number][] {

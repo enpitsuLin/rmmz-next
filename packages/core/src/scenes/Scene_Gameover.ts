@@ -1,5 +1,5 @@
 import { Input, Sprite, TouchInput } from '../core'
-import { AudioManager, ImageManager, SceneManager } from '../managers'
+import { GlobalMananger, AudioManager, ImageManager, SceneManager } from '../managers'
 import { Scene_Base } from './Scene_Base'
 import { Scene_Title } from './Scene_Title'
 
@@ -41,7 +41,7 @@ export class Scene_Gameover extends Scene_Base {
   playGameoverMusic(): void {
     AudioManager.stopBgm()
     AudioManager.stopBgs()
-    AudioManager.playMe($dataSystem.gameoverMe)
+    AudioManager.playMe(GlobalMananger.$dataSystem.gameoverMe)
   }
 
   createBackground(): void {

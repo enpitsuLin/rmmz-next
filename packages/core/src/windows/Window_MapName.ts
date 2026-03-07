@@ -1,5 +1,5 @@
 import type { Rectangle } from '../core'
-import { ColorManager } from '../managers'
+import { GlobalMananger, ColorManager } from '../managers'
 import { Window_Base } from './Window_Base'
 
 /**
@@ -20,7 +20,7 @@ export class Window_MapName extends Window_Base {
 
   update(): void {
     super.update()
-    if (this._showCount > 0 && $gameMap.isNameDisplayEnabled()) {
+    if (this._showCount > 0 && GlobalMananger.$gameMap.isNameDisplayEnabled()) {
       this.updateFadeIn()
       this._showCount--
     }
@@ -48,10 +48,10 @@ export class Window_MapName extends Window_Base {
 
   refresh(): void {
     this.contents.clear()
-    if ($gameMap.displayName()) {
+    if (GlobalMananger.$gameMap.displayName()) {
       const width = this.innerWidth
       this.drawBackground(0, 0, width, this.lineHeight())
-      this.drawText($gameMap.displayName(), 0, 0, width, 'center')
+      this.drawText(GlobalMananger.$gameMap.displayName(), 0, 0, width, 'center')
     }
   }
 

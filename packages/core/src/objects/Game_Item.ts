@@ -1,5 +1,6 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import { DataManager } from '../managers/DataManager'
+import { GlobalMananger } from '../managers'
 
 /**
  * The game object class for handling skills, items, weapons, and armor.
@@ -61,16 +62,16 @@ export class Game_Item<Item extends Game_Item.ItemType = Game_Item.ItemType> {
           : null
   object(): MZ.GeneralItem | null {
     if (this.isSkill()) {
-      return $dataSkills[this._itemId]
+      return GlobalMananger.$dataSkills[this._itemId]
     }
     else if (this.isItem()) {
-      return $dataItems[this._itemId]
+      return GlobalMananger.$dataItems[this._itemId]
     }
     else if (this.isWeapon()) {
-      return $dataWeapons[this._itemId]
+      return GlobalMananger.$dataWeapons[this._itemId]
     }
     else if (this.isArmor()) {
-      return $dataArmors[this._itemId]
+      return GlobalMananger.$dataArmors[this._itemId]
     }
     else {
       return null

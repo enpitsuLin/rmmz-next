@@ -2,7 +2,7 @@ import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_Action } from './Game_Action'
 import type { Game_Party } from './Game_Party'
 import type { Game_Troop } from './Game_Troop'
-import { SoundManager } from '../managers'
+import { GlobalMananger, SoundManager } from '../managers'
 import { Game_Battler } from './Game_Battler'
 
 /**
@@ -41,15 +41,15 @@ export class Game_Enemy extends Game_Battler<MZ.Enemy> {
   }
 
   friendsUnit(): Game_Troop {
-    return $gameTroop
+    return GlobalMananger.$gameTroop
   }
 
   opponentsUnit(): Game_Party {
-    return $gameParty
+    return GlobalMananger.$gameParty
   }
 
   index(): number {
-    return $gameTroop.members().indexOf(this)
+    return GlobalMananger.$gameTroop.members().indexOf(this)
   }
 
   isBattleMember(): boolean {
@@ -61,7 +61,7 @@ export class Game_Enemy extends Game_Battler<MZ.Enemy> {
   }
 
   enemy(): MZ.Enemy {
-    return $dataEnemies[this._enemyId] as MZ.Enemy
+    return GlobalMananger.$dataEnemies[this._enemyId] as MZ.Enemy
   }
 
   traitObjects(): MZ.Enemy[] {
@@ -93,18 +93,18 @@ export class Game_Enemy extends Game_Battler<MZ.Enemy> {
   }
 
   dropItemRate(): number {
-    return $gameParty.hasDropItemDouble() ? 2 : 1
+    return GlobalMananger.$gameParty.hasDropItemDouble() ? 2 : 1
   }
 
   itemObject(kind: number, dataId: number): MZ.EquipOrItem | null {
     if (kind === 1) {
-      return $dataItems[dataId]
+      return GlobalMananger.$dataItems[dataId]
     }
     else if (kind === 2) {
-      return $dataWeapons[dataId]
+      return GlobalMananger.$dataWeapons[dataId]
     }
     else if (kind === 3) {
-      return $dataArmors[dataId]
+      return GlobalMananger.$dataArmors[dataId]
     }
     else {
       return null
@@ -244,16 +244,16 @@ export class Game_Enemy extends Game_Battler<MZ.Enemy> {
   }
 
   meetsPartyLevelCondition(param: number): boolean {
-    return $gameParty.highestLevel() >= param
+    return GlobalMananger.$gameParty.highestLevel() >= param
   }
 
   meetsSwitchCondition(param: number): boolean {
-    return $gameSwitches.value(param)
+    return GlobalMananger.$gameSwitches.value(param)
   }
 
   isActionValid(action: MZ.Action): boolean {
     return (
-      this.meetsCondition(action) && this.canUse($dataSkills[action.skillId]!)
+      this.meetsCondition(action) && this.canUse(GlobalMananger.$dataSkills[action.skillId]!)
     )
   }
 

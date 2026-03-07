@@ -1,6 +1,6 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
-import { DataManager } from '../managers'
+import { GlobalMananger, DataManager } from '../managers'
 import { Game_Action } from '../objects'
 import { Window_MenuStatus } from './Window_MenuStatus'
 
@@ -17,17 +17,17 @@ export class Window_MenuActor extends Window_MenuStatus {
 
   processOk(): void {
     if (!this.cursorAll()) {
-      $gameParty.setTargetActor($gameParty.members()[this.index()])
+      GlobalMananger.$gameParty.setTargetActor(GlobalMananger.$gameParty.members()[this.index()])
     }
     this.callOkHandler()
   }
 
   selectLast(): void {
-    this.forceSelect($gameParty.targetActor().index() || 0)
+    this.forceSelect(GlobalMananger.$gameParty.targetActor().index() || 0)
   }
 
   selectForItem(item: MZ.GeneralItem | null): void {
-    const actor = $gameParty.menuActor()
+    const actor = GlobalMananger.$gameParty.menuActor()
     const action = new Game_Action(actor)
     action.setItemObject(item)
     this.setCursorFixed(false)

@@ -3,6 +3,7 @@ import type { Sprite_Balloon } from '../sprites'
 import type { Game_Battler } from './Game_Battler'
 import type { Game_Character } from './Game_Character'
 import { Utils } from '../core'
+import { GlobalMananger } from '../managers'
 
 /**
  * The game object class for temporary data that is not included in save data.
@@ -77,7 +78,7 @@ export class Game_Temp {
   }
 
   requestBattleRefresh(): void {
-    if ($gameParty.inBattle()) {
+    if (GlobalMananger.$gameParty.inBattle()) {
       this._needsBattleRefresh = true
     }
   }
@@ -97,7 +98,7 @@ export class Game_Temp {
   retrieveCommonEvent(): MZ.CommonEvent | undefined {
     const id = this._commonEventQueue.shift()
     if (id != null) {
-      return $dataCommonEvents[id] ?? undefined
+      return GlobalMananger.$dataCommonEvents[id] ?? undefined
     }
     return undefined
   }
@@ -115,7 +116,7 @@ export class Game_Temp {
     animationId: number,
     mirror = false,
   ): void {
-    if ($dataAnimations[animationId]) {
+    if (GlobalMananger.$dataAnimations[animationId]) {
       const request: Game_Temp.AnimationRequest = {
         targets,
         animationId,

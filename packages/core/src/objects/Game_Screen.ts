@@ -1,5 +1,6 @@
 import type { RGBA } from '../types'
 import { Game_Picture } from './Game_Picture'
+import { GlobalMananger } from '../managers'
 
 /**
  * The game object class for screen effect data, such as changes in color tone and flashes.
@@ -93,7 +94,7 @@ class Game_Screen {
   }
 
   realPictureId(pictureId: number): number {
-    if ($gameParty.inBattle()) {
+    if (GlobalMananger.$gameParty.inBattle()) {
       return pictureId + this.maxPictures()
     }
     else {
@@ -150,8 +151,8 @@ class Game_Screen {
   }
 
   maxPictures(): number {
-    if ('picturesUpperLimit' in $dataSystem.advanced) {
-      return $dataSystem.advanced.picturesUpperLimit
+    if ('picturesUpperLimit' in GlobalMananger.$dataSystem.advanced) {
+      return GlobalMananger.$dataSystem.advanced.picturesUpperLimit
     }
     else {
       return 100

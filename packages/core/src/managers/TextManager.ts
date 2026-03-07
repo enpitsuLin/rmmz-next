@@ -1,3 +1,4 @@
+import { GlobalMananger } from './GlobalManager'
 // -----------------------------------------------------------------------------
 // TextManager
 //
@@ -8,19 +9,19 @@ export class TextManager {
   }
 
   static basic(basicId: number): string {
-    return $dataSystem.terms.basic[basicId] || ''
+    return GlobalMananger.$dataSystem.terms.basic[basicId] || ''
   }
 
   static param(paramId: number): string {
-    return $dataSystem.terms.params[paramId] || ''
+    return GlobalMananger.$dataSystem.terms.params[paramId] || ''
   }
 
   static command(commandId: number): string {
-    return $dataSystem.terms.commands[commandId] || ''
+    return GlobalMananger.$dataSystem.terms.commands[commandId] || ''
   }
 
   static message(messageId: string): string {
-    return (($dataSystem.terms.messages) as unknown as Record<string, string>)[messageId] || ''
+    return ((GlobalMananger.$dataSystem.terms.messages) as unknown as Record<string, string>)[messageId] || ''
   }
 
   static getter(method: string, param: number | string): PropertyDescriptor {
@@ -33,7 +34,7 @@ export class TextManager {
   }
 
   static get currencyUnit(): string {
-    return $dataSystem.currencyUnit
+    return GlobalMananger.$dataSystem.currencyUnit
   }
 
   static get level(): string {

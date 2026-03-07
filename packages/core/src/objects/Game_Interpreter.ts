@@ -12,6 +12,7 @@ import { SceneManager } from '../managers/SceneManager'
 import { Scene_Battle, Scene_Menu, Scene_Name, Scene_Save, Scene_Shop, Scene_Title } from '../scenes'
 import { Scene_Gameover } from '../scenes/Scene_Gameover'
 import { Window_MenuCommand } from '../windows'
+import { GlobalMananger } from '../managers'
 
 /**
  * The interpreter for running event commands.
@@ -63,7 +64,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   setup(list: MZ.EventCommon.PageCommand[], eventId?: number): void {
     this.clear()
-    this._mapId = $gameMap.mapId()
+    this._mapId = GlobalMananger.$gameMap.mapId()
     this._eventId = eventId || 0
     this._list = list
     this.loadImages()
@@ -90,12 +91,12 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   isOnCurrentMap(): boolean {
-    return this._mapId === $gameMap.mapId()
+    return this._mapId === GlobalMananger.$gameMap.mapId()
   }
 
   setupReservedCommonEvent(): boolean {
-    if ($gameTemp.isCommonEventReserved()) {
-      const commonEvent = $gameTemp.retrieveCommonEvent()
+    if (GlobalMananger.$gameTemp.isCommonEventReserved()) {
+      const commonEvent = GlobalMananger.$gameTemp.retrieveCommonEvent()
       if (commonEvent) {
         this.setup(commonEvent.list)
         return true
@@ -155,13 +156,13 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     let waiting: boolean = false
     switch (this._waitMode) {
       case 'message':
-        waiting = $gameMessage.isBusy()
+        waiting = GlobalMananger.$gameMessage.isBusy()
         break
       case 'transfer':
-        waiting = $gamePlayer.isTransferring()
+        waiting = GlobalMananger.$gamePlayer.isTransferring()
         break
       case 'scroll':
-        waiting = $gameMap.isScrolling()
+        waiting = GlobalMananger.$gameMap.isScrolling()
         break
       case 'route':
         character = this.character(this._characterId)
@@ -176,7 +177,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
         waiting = character && character.isBalloonPlaying()
         break
       case 'gather':
-        waiting = $gamePlayer.areFollowersGathering()
+        waiting = GlobalMananger.$gamePlayer.areFollowersGathering()
         break
       case 'action':
         waiting = BattleManager.isActionForced()
@@ -265,10 +266,10 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   iterateActorId(param: number, callback: (actor: Game_Battler) => void): void {
     if (param === 0) {
-      $gameParty.members().forEach(callback)
+      GlobalMananger.$gameParty.members().forEach(callback)
     }
     else {
-      const actor = $gameActors.actor(param)
+      const actor = GlobalMananger.$gameActors.actor(param)
       if (actor) {
         callback(actor)
       }
@@ -280,16 +281,16 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
       this.iterateActorId(param2, callback)
     }
     else {
-      this.iterateActorId($gameVariables.value(param2), callback)
+      this.iterateActorId(GlobalMananger.$gameVariables.value(param2), callback)
     }
   }
 
   iterateActorIndex(param: number, callback: (actor: Game_Battler) => void): void {
     if (param < 0) {
-      $gameParty.members().forEach(callback)
+      GlobalMananger.$gameParty.members().forEach(callback)
     }
     else {
-      const actor = $gameParty.members()[param]
+      const actor = GlobalMananger.$gameParty.members()[param]
       if (actor) {
         callback(actor)
       }
@@ -298,10 +299,10 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   iterateEnemyIndex(param: number, callback: (enemy: Game_Battler) => void): void {
     if (param < 0) {
-      $gameTroop.members().forEach(callback)
+      GlobalMananger.$gameTroop.members().forEach(callback)
     }
     else {
-      const enemy = $gameTroop.members()[param]
+      const enemy = GlobalMananger.$gameTroop.members()[param]
       if (enemy) {
         callback(enemy)
       }
@@ -309,7 +310,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   iterateBattler(param1: number, param2: number, callback: (battler: Game_Battler) => void): void {
-    if ($gameParty.inBattle()) {
+    if (GlobalMananger.$gameParty.inBattle()) {
       if (param1 === 0) {
         this.iterateEnemyIndex(param2, callback)
       }
@@ -320,14 +321,14 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   character(param: number): Game_Character | null {
-    if ($gameParty.inBattle()) {
+    if (GlobalMananger.$gameParty.inBattle()) {
       return null
     }
     else if (param < 0) {
-      return $gamePlayer
+      return GlobalMananger.$gamePlayer
     }
     else if (this.isOnCurrentMap()) {
-      return $gameMap.event(param > 0 ? param : this._eventId)
+      return GlobalMananger.$gameMap.event(param > 0 ? param : this._eventId)
     }
     else {
       return null
@@ -335,7 +336,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   operateValue(operation: number, operandType: number, operand: number): number {
-    const value = operandType === 0 ? operand : $gameVariables.value(operand)
+    const value = operandType === 0 ? operand : GlobalMananger.$gameVariables.value(operand)
     return operation === 0 ? value : -value
   }
 
@@ -353,17 +354,17 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Show Text
   command101(params: [string, number, number, number, string]): boolean {
-    if ($gameMessage.isBusy()) {
+    if (GlobalMananger.$gameMessage.isBusy()) {
       return false
     }
-    $gameMessage.setFaceImage(params[0], params[1])
-    $gameMessage.setBackground(params[2])
-    $gameMessage.setPositionType(params[3])
-    $gameMessage.setSpeakerName(params[4])
+    GlobalMananger.$gameMessage.setFaceImage(params[0], params[1])
+    GlobalMananger.$gameMessage.setBackground(params[2])
+    GlobalMananger.$gameMessage.setPositionType(params[3])
+    GlobalMananger.$gameMessage.setSpeakerName(params[4])
     while (this.nextEventCode() === 401) {
       // Text data
       this._index++
-      $gameMessage.add(this.currentCommand().parameters[0])
+      GlobalMananger.$gameMessage.add(this.currentCommand().parameters[0])
     }
     switch (this.nextEventCode()) {
       case 102: // Show Choices
@@ -385,7 +386,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Show Choices
   command102(params: [string[], number, number, number, number]): boolean {
-    if ($gameMessage.isBusy()) {
+    if (GlobalMananger.$gameMessage.isBusy()) {
       return false
     }
     this.setupChoices(params)
@@ -399,10 +400,10 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     const defaultType = params.length > 2 ? params[2] : 0
     const positionType = params.length > 3 ? params[3] : 2
     const background = params.length > 4 ? params[4] : 0
-    $gameMessage.setChoices(choices, defaultType, cancelType)
-    $gameMessage.setChoiceBackground(background)
-    $gameMessage.setChoicePositionType(positionType)
-    $gameMessage.setChoiceCallback((n) => {
+    GlobalMananger.$gameMessage.setChoices(choices, defaultType, cancelType)
+    GlobalMananger.$gameMessage.setChoiceBackground(background)
+    GlobalMananger.$gameMessage.setChoicePositionType(positionType)
+    GlobalMananger.$gameMessage.setChoiceCallback((n) => {
       this._branch[this._indent] = n
     })
   }
@@ -424,7 +425,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   command103(params: [number, number]): boolean {
-    if ($gameMessage.isBusy()) {
+    if (GlobalMananger.$gameMessage.isBusy()) {
       return false
     }
     this.setupNumInput(params)
@@ -433,11 +434,11 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   setupNumInput(params: [number, number]): void {
-    $gameMessage.setNumberInput(params[0], params[1])
+    GlobalMananger.$gameMessage.setNumberInput(params[0], params[1])
   }
 
   command104(params: [number, number | undefined]): boolean {
-    if ($gameMessage.isBusy()) {
+    if (GlobalMananger.$gameMessage.isBusy()) {
       return false
     }
     this.setupItemChoice(params)
@@ -446,17 +447,17 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   setupItemChoice(params: [number, number | undefined]): void {
-    $gameMessage.setItemChoice(params[0], params[1] || 2)
+    GlobalMananger.$gameMessage.setItemChoice(params[0], params[1] || 2)
   }
 
   command105(params: [number, boolean]): boolean {
-    if ($gameMessage.isBusy()) {
+    if (GlobalMananger.$gameMessage.isBusy()) {
       return false
     }
-    $gameMessage.setScroll(params[0], params[1])
+    GlobalMananger.$gameMessage.setScroll(params[0], params[1])
     while (this.nextEventCode() === 405) {
       this._index++
-      $gameMessage.add(this.currentCommand().parameters[0])
+      GlobalMananger.$gameMessage.add(this.currentCommand().parameters[0])
     }
     this.setWaitMode('message')
     return true
@@ -482,15 +483,15 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     let actor, enemy, character
     switch (params[0]) {
       case 0: // Switch
-        result = $gameSwitches.value(params[1]) === (params[2] === 0)
+        result = GlobalMananger.$gameSwitches.value(params[1]) === (params[2] === 0)
         break
       case 1: // Variable
-        value1 = $gameVariables.value(params[1])
+        value1 = GlobalMananger.$gameVariables.value(params[1])
         if (params[2] === 0) {
           value2 = params[3]
         }
         else {
-          value2 = $gameVariables.value(params[3])
+          value2 = GlobalMananger.$gameVariables.value(params[3])
         }
         switch (params[4]) {
           case 0:
@@ -517,12 +518,12 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
         if (this._eventId > 0) {
           const key = [this._mapId, this._eventId, params[1]]
           // @ts-expect-error fix this
-          result = $gameSelfSwitches.value(key) === (params[2] === 0)
+          result = GlobalMananger.$gameSelfSwitches.value(key) === (params[2] === 0)
         }
         break
       case 3: // Timer
-        if ($gameTimer.isWorking()) {
-          const sec = $gameTimer.frames() / 60
+        if (GlobalMananger.$gameTimer.isWorking()) {
+          const sec = GlobalMananger.$gameTimer.frames() / 60
           if (params[2] === 0) {
             result = sec >= params[1]
           }
@@ -532,27 +533,27 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
         }
         break
       case 4: // Actor
-        actor = $gameActors.actor(params[1])
+        actor = GlobalMananger.$gameActors.actor(params[1])
         if (actor) {
           const n = params[3]
           switch (params[2]) {
             case 0:
-              result = $gameParty.members().includes(actor)
+              result = GlobalMananger.$gameParty.members().includes(actor)
               break
             case 1:
               result = actor.name() === n
               break
             case 2:
-              result = actor.isClass($dataClasses[n as number])
+              result = actor.isClass(GlobalMananger.$dataClasses[n as number])
               break
             case 3:
               result = actor.hasSkill(n as number)
               break
             case 4:
-              result = actor.hasWeapon($dataWeapons[n as number])
+              result = actor.hasWeapon(GlobalMananger.$dataWeapons[n as number])
               break
             case 5:
-              result = actor.hasArmor($dataArmors[n as number])
+              result = actor.hasArmor(GlobalMananger.$dataArmors[n as number])
               break
             case 6:
               result = actor.isStateAffected(n as number)
@@ -561,7 +562,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
         }
         break
       case 5: // Enemy
-        enemy = $gameTroop.members()[params[1]]
+        enemy = GlobalMananger.$gameTroop.members()[params[1]]
         if (enemy) {
           switch (params[2]) {
             case 0:
@@ -582,24 +583,24 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
       case 7: // Gold
         switch (params[2]) {
           case 0:
-            result = $gameParty.gold() >= params[1]
+            result = GlobalMananger.$gameParty.gold() >= params[1]
             break
           case 1:
-            result = $gameParty.gold() <= params[1]
+            result = GlobalMananger.$gameParty.gold() <= params[1]
             break
           case 2:
-            result = $gameParty.gold() < params[1]
+            result = GlobalMananger.$gameParty.gold() < params[1]
             break
         }
         break
       case 8: // Item
-        result = $gameParty.hasItem($dataItems[params[1]])
+        result = GlobalMananger.$gameParty.hasItem(GlobalMananger.$dataItems[params[1]])
         break
       case 9: // Weapon
-        result = $gameParty.hasItem($dataWeapons[params[1]], params[2])
+        result = GlobalMananger.$gameParty.hasItem(GlobalMananger.$dataWeapons[params[1]], params[2])
         break
       case 10: // Armor
-        result = $gameParty.hasItem($dataArmors[params[1]], params[2])
+        result = GlobalMananger.$gameParty.hasItem(GlobalMananger.$dataArmors[params[1]], params[2])
         break
       case 11: // Button
         switch (params[2] || 0) {
@@ -618,7 +619,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
         result = !!eval(params[1])
         break
       case 13: // Vehicle
-        result = $gamePlayer.vehicle() === $gameMap.vehicle(params[1])
+        result = GlobalMananger.$gamePlayer.vehicle() === GlobalMananger.$gameMap.vehicle(params[1])
         break
     }
     this._branch[this._indent] = result
@@ -672,7 +673,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   command117(params: [number]): boolean {
-    const commonEvent = $dataCommonEvents[params[0]]
+    const commonEvent = GlobalMananger.$dataCommonEvents[params[0]]
     if (commonEvent) {
       const eventId = this.isOnCurrentMap() ? this._eventId : 0
       this.setupChild(commonEvent.list, eventId)
@@ -718,7 +719,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   command121(params: [number, number, number]): boolean {
     for (let i = params[0]; i <= params[1]; i++) {
-      $gameSwitches.setValue(i, params[2] === 0)
+      GlobalMananger.$gameSwitches.setValue(i, params[2] === 0)
     }
     return true
   }
@@ -735,7 +736,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
         value = params[4]
         break
       case 1: // Variable
-        value = $gameVariables.value(params[4])
+        value = GlobalMananger.$gameVariables.value(params[4])
         break
       case 2: // Random
         value = params[4]
@@ -766,13 +767,13 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     let actor, enemy, character
     switch (type) {
       case 0: // Item
-        return $gameParty.numItems($dataItems[param1])
+        return GlobalMananger.$gameParty.numItems(GlobalMananger.$dataItems[param1])
       case 1: // Weapon
-        return $gameParty.numItems($dataWeapons[param1])
+        return GlobalMananger.$gameParty.numItems(GlobalMananger.$dataWeapons[param1])
       case 2: // Armor
-        return $gameParty.numItems($dataArmors[param1])
+        return GlobalMananger.$gameParty.numItems(GlobalMananger.$dataArmors[param1])
       case 3: // Actor
-        actor = $gameActors.actor(param1)
+        actor = GlobalMananger.$gameActors.actor(param1)
         if (actor) {
           switch (param2) {
             case 0: // Level
@@ -794,7 +795,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
         }
         break
       case 4: // Enemy
-        enemy = $gameTroop.members()[param1]
+        enemy = GlobalMananger.$gameTroop.members()[param1]
         if (enemy) {
           switch (param2) {
             case 0: // HP
@@ -829,32 +830,32 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
         }
         break
       case 6: // Party
-        actor = $gameParty.members()[param1]
+        actor = GlobalMananger.$gameParty.members()[param1]
         return actor ? actor.actorId() : 0
       case 8: // Last
-        return $gameTemp.lastActionData(param1)
+        return GlobalMananger.$gameTemp.lastActionData(param1)
       case 7: // Other
         switch (param1) {
           case 0: // Map ID
-            return $gameMap.mapId()
+            return GlobalMananger.$gameMap.mapId()
           case 1: // Party Members
-            return $gameParty.size()
+            return GlobalMananger.$gameParty.size()
           case 2: // Gold
-            return $gameParty.gold()
+            return GlobalMananger.$gameParty.gold()
           case 3: // Steps
-            return $gameParty.steps()
+            return GlobalMananger.$gameParty.steps()
           case 4: // Play Time
-            return $gameSystem.playtime()
+            return GlobalMananger.$gameSystem.playtime()
           case 5: // Timer
-            return $gameTimer.seconds()
+            return GlobalMananger.$gameTimer.seconds()
           case 6: // Save Count
-            return $gameSystem.saveCount()
+            return GlobalMananger.$gameSystem.saveCount()
           case 7: // Battle Count
-            return $gameSystem.battleCount()
+            return GlobalMananger.$gameSystem.battleCount()
           case 8: // Win Count
-            return $gameSystem.winCount()
+            return GlobalMananger.$gameSystem.winCount()
           case 9: // Escape Count
-            return $gameSystem.escapeCount()
+            return GlobalMananger.$gameSystem.escapeCount()
         }
         break
     }
@@ -863,31 +864,31 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   operateVariable(variableId: number, operationType: number, value: number): void {
     try {
-      const oldValue = $gameVariables.value(variableId)
+      const oldValue = GlobalMananger.$gameVariables.value(variableId)
       switch (operationType) {
         case 0: // Set
-          $gameVariables.setValue(variableId, value)
+          GlobalMananger.$gameVariables.setValue(variableId, value)
           break
         case 1: // Add
-          $gameVariables.setValue(variableId, oldValue + value)
+          GlobalMananger.$gameVariables.setValue(variableId, oldValue + value)
           break
         case 2: // Sub
-          $gameVariables.setValue(variableId, oldValue - value)
+          GlobalMananger.$gameVariables.setValue(variableId, oldValue - value)
           break
         case 3: // Mul
-          $gameVariables.setValue(variableId, oldValue * value)
+          GlobalMananger.$gameVariables.setValue(variableId, oldValue * value)
           break
         case 4: // Div
-          $gameVariables.setValue(variableId, oldValue / value)
+          GlobalMananger.$gameVariables.setValue(variableId, oldValue / value)
           break
         case 5: // Mod
-          $gameVariables.setValue(variableId, oldValue % value)
+          GlobalMananger.$gameVariables.setValue(variableId, oldValue % value)
           break
       }
     }
     catch (e) {
       console.error(e)
-      $gameVariables.setValue(variableId, 0)
+      GlobalMananger.$gameVariables.setValue(variableId, 0)
     }
   }
 
@@ -895,7 +896,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     if (this._eventId > 0) {
       const key = [this._mapId, this._eventId, params[0]]
       // @ts-expect-error fix this
-      $gameSelfSwitches.setValue(key, params[1] === 0)
+      GlobalMananger.$gameSelfSwitches.setValue(key, params[1] === 0)
     }
     return true
   }
@@ -903,41 +904,41 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   command124(params: [number, number]): boolean {
     if (params[0] === 0) {
       // Start
-      $gameTimer.start(params[1] * 60)
+      GlobalMananger.$gameTimer.start(params[1] * 60)
     }
     else {
       // Stop
-      $gameTimer.stop()
+      GlobalMananger.$gameTimer.stop()
     }
     return true
   }
 
   command125(params: [number, number, number]): boolean {
     const value = this.operateValue(params[0], params[1], params[2])
-    $gameParty.gainGold(value)
+    GlobalMananger.$gameParty.gainGold(value)
     return true
   }
 
   command126(params: [number, number, number, number]): boolean {
     const value = this.operateValue(params[1], params[2], params[3])
-    $gameParty.gainItem($dataItems[params[0]]!, value)
+    GlobalMananger.$gameParty.gainItem(GlobalMananger.$dataItems[params[0]]!, value)
     return true
   }
 
   command127(params: [number, number, number, number, boolean]): boolean {
     const value = this.operateValue(params[1], params[2], params[3])
-    $gameParty.gainItem($dataWeapons[params[0]]!, value, params[4])
+    GlobalMananger.$gameParty.gainItem(GlobalMananger.$dataWeapons[params[0]]!, value, params[4])
     return true
   }
 
   command128(params: [number, number, number, number, boolean]): boolean {
     const value = this.operateValue(params[1], params[2], params[3])
-    $gameParty.gainItem($dataArmors[params[0]]!, value, params[4])
+    GlobalMananger.$gameParty.gainItem(GlobalMananger.$dataArmors[params[0]]!, value, params[4])
     return true
   }
 
   command129(params: [number, number, number]): boolean {
-    const actor = $gameActors.actor(params[0])
+    const actor = GlobalMananger.$gameActors.actor(params[0])
     if (actor) {
       if (params[1] === 0) {
         // Add
@@ -945,79 +946,79 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
           // Initialize
           actor.setup(params[0])
         }
-        $gameParty.addActor(params[0])
+        GlobalMananger.$gameParty.addActor(params[0])
       }
       else {
         // Remove
-        $gameParty.removeActor(params[0])
+        GlobalMananger.$gameParty.removeActor(params[0])
       }
     }
     return true
   }
 
   command132(params: [MZ.AudioInfo]): boolean {
-    $gameSystem.setBattleBgm(params[0])
+    GlobalMananger.$gameSystem.setBattleBgm(params[0])
     return true
   }
 
   command133(params: [MZ.AudioInfo]): boolean {
-    $gameSystem.setVictoryMe(params[0])
+    GlobalMananger.$gameSystem.setVictoryMe(params[0])
     return true
   }
 
   command134(params: [number]): boolean {
     if (params[0] === 0) {
-      $gameSystem.disableSave()
+      GlobalMananger.$gameSystem.disableSave()
     }
     else {
-      $gameSystem.enableSave()
+      GlobalMananger.$gameSystem.enableSave()
     }
     return true
   }
 
   command135(params: [number]): boolean {
     if (params[0] === 0) {
-      $gameSystem.disableMenu()
+      GlobalMananger.$gameSystem.disableMenu()
     }
     else {
-      $gameSystem.enableMenu()
+      GlobalMananger.$gameSystem.enableMenu()
     }
     return true
   }
 
   command136(params: [number]): boolean {
     if (params[0] === 0) {
-      $gameSystem.disableEncounter()
+      GlobalMananger.$gameSystem.disableEncounter()
     }
     else {
-      $gameSystem.enableEncounter()
+      GlobalMananger.$gameSystem.enableEncounter()
     }
-    $gamePlayer.makeEncounterCount()
+    GlobalMananger.$gamePlayer.makeEncounterCount()
     return true
   }
 
   command137(params: [number]): boolean {
     if (params[0] === 0) {
-      $gameSystem.disableFormation()
+      GlobalMananger.$gameSystem.disableFormation()
     }
     else {
-      $gameSystem.enableFormation()
+      GlobalMananger.$gameSystem.enableFormation()
     }
     return true
   }
 
   command138(params: [RGBA]): boolean {
-    $gameSystem.setWindowTone(params[0])
+    GlobalMananger.$gameSystem.setWindowTone(params[0])
     return true
   }
 
   command139(params: [MZ.AudioInfo]): boolean {
-    $gameSystem.setDefeatMe(params[0])
+    GlobalMananger.$gameSystem.setDefeatMe(params[0])
     return true
   }
 
   command140(params: [number, MZ.AudioInfo]): boolean {
-    const vehicle = $gameMap.vehicle(params[0])
+    const vehicle = GlobalMananger.$gameMap.vehicle(params[0])
     if (vehicle) {
       vehicle.setBgm(params[1])
     }
@@ -1025,7 +1026,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   command201(params: [number, number, number, number, number, number]): boolean {
-    if ($gameParty.inBattle() || $gameMessage.isBusy()) {
+    if (GlobalMananger.$gameParty.inBattle() || GlobalMananger.$gameMessage.isBusy()) {
       return false
     }
     let mapId, x, y
@@ -1037,11 +1038,11 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     }
     else {
       // Designation with variables
-      mapId = $gameVariables.value(params[1])
-      x = $gameVariables.value(params[2])
-      y = $gameVariables.value(params[3])
+      mapId = GlobalMananger.$gameVariables.value(params[1])
+      x = GlobalMananger.$gameVariables.value(params[2])
+      y = GlobalMananger.$gameVariables.value(params[3])
     }
-    $gamePlayer.reserveTransfer(mapId, x, y, params[4], params[5])
+    GlobalMananger.$gamePlayer.reserveTransfer(mapId, x, y, params[4], params[5])
     this.setWaitMode('transfer')
     return true
   }
@@ -1056,11 +1057,11 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     }
     else {
       // Designation with variables
-      mapId = $gameVariables.value(params[2])
-      x = $gameVariables.value(params[3])
-      y = $gameVariables.value(params[4])
+      mapId = GlobalMananger.$gameVariables.value(params[2])
+      x = GlobalMananger.$gameVariables.value(params[3])
+      y = GlobalMananger.$gameVariables.value(params[4])
     }
-    const vehicle = $gameMap.vehicle(params[0])
+    const vehicle = GlobalMananger.$gameMap.vehicle(params[0])
     if (vehicle) {
       vehicle.setLocation(mapId, x, y)
     }
@@ -1076,8 +1077,8 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
       }
       else if (params[1] === 1) {
         // Designation with variables
-        const x = $gameVariables.value(params[2])
-        const y = $gameVariables.value(params[3])
+        const x = GlobalMananger.$gameVariables.value(params[2])
+        const y = GlobalMananger.$gameVariables.value(params[3])
         character.locate(x, y)
       }
       else {
@@ -1095,12 +1096,12 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   command204(params: [number, number, number, number]): boolean {
-    if (!$gameParty.inBattle()) {
-      if ($gameMap.isScrolling()) {
+    if (!GlobalMananger.$gameParty.inBattle()) {
+      if (GlobalMananger.$gameMap.isScrolling()) {
         this.setWaitMode('scroll')
         return false
       }
-      $gameMap.startScroll(params[0], params[1], params[2])
+      GlobalMananger.$gameMap.startScroll(params[0], params[1], params[2])
       if (params[3]) {
         this.setWaitMode('scroll')
       }
@@ -1109,7 +1110,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   command205(params: [number, MZ.Map.Event.MoveRoute, number, number]): boolean {
-    $gameMap.refreshIfNeeded()
+    GlobalMananger.$gameMap.refreshIfNeeded()
     this._characterId = params[0]
     const character = this.character(this._characterId)
     if (character) {
@@ -1122,12 +1123,12 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   command206(): boolean {
-    $gamePlayer.getOnOffVehicle()
+    GlobalMananger.$gamePlayer.getOnOffVehicle()
     return true
   }
 
   command211(params: [number]): boolean {
-    $gamePlayer.setTransparent(params[0] === 0)
+    GlobalMananger.$gamePlayer.setTransparent(params[0] === 0)
     return true
   }
 
@@ -1135,7 +1136,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     this._characterId = params[0]
     const character = this.character(this._characterId)
     if (character) {
-      $gameTemp.requestAnimation([character], params[1])
+      GlobalMananger.$gameTemp.requestAnimation([character], params[1])
       if (params[2]) {
         this.setWaitMode('animation')
       }
@@ -1147,7 +1148,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     this._characterId = params[0]
     const character = this.character(this._characterId)
     if (character) {
-      $gameTemp.requestBalloon(character, params[1])
+      GlobalMananger.$gameTemp.requestBalloon(character, params[1])
       if (params[2]) {
         this.setWaitMode('balloon')
       }
@@ -1157,50 +1158,50 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   command214(): boolean {
     if (this.isOnCurrentMap() && this._eventId > 0) {
-      $gameMap.eraseEvent(this._eventId)
+      GlobalMananger.$gameMap.eraseEvent(this._eventId)
     }
     return true
   }
 
   command216(params: [number]): boolean {
     if (params[0] === 0) {
-      $gamePlayer.showFollowers()
+      GlobalMananger.$gamePlayer.showFollowers()
     }
     else {
-      $gamePlayer.hideFollowers()
+      GlobalMananger.$gamePlayer.hideFollowers()
     }
-    $gamePlayer.refresh()
+    GlobalMananger.$gamePlayer.refresh()
     return true
   }
 
   command217(): boolean {
-    if (!$gameParty.inBattle()) {
-      $gamePlayer.gatherFollowers()
+    if (!GlobalMananger.$gameParty.inBattle()) {
+      GlobalMananger.$gamePlayer.gatherFollowers()
       this.setWaitMode('gather')
     }
     return true
   }
 
   command221(): boolean {
-    if ($gameMessage.isBusy()) {
+    if (GlobalMananger.$gameMessage.isBusy()) {
       return false
     }
-    $gameScreen.startFadeOut(this.fadeSpeed())
+    GlobalMananger.$gameScreen.startFadeOut(this.fadeSpeed())
     this.wait(this.fadeSpeed())
     return true
   }
 
   command222(): boolean {
-    if ($gameMessage.isBusy()) {
+    if (GlobalMananger.$gameMessage.isBusy()) {
       return false
     }
-    $gameScreen.startFadeIn(this.fadeSpeed())
+    GlobalMananger.$gameScreen.startFadeIn(this.fadeSpeed())
     this.wait(this.fadeSpeed())
     return true
   }
 
   command223(params: [RGBA, number, boolean]): boolean {
-    $gameScreen.startTint(params[0], params[1])
+    GlobalMananger.$gameScreen.startTint(params[0], params[1])
     if (params[2]) {
       this.wait(params[1])
     }
@@ -1208,7 +1209,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   command224(params: [RGBA, number, boolean]): boolean {
-    $gameScreen.startFlash(params[0], params[1])
+    GlobalMananger.$gameScreen.startFlash(params[0], params[1])
     if (params[2]) {
       this.wait(params[1])
     }
@@ -1216,7 +1217,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   command225(params: [number, number, number, boolean]): boolean {
-    $gameScreen.startShake(params[0], params[1], params[2])
+    GlobalMananger.$gameScreen.startShake(params[0], params[1], params[2])
     if (params[3]) {
       this.wait(params[2])
     }
@@ -1231,7 +1232,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   command231(params: [number, string, number, number, number, number, number, number, number, number]): boolean {
     const point = this.picturePoint(params)
 
-    $gameScreen.showPicture(
+    GlobalMananger.$gameScreen.showPicture(
       params[0],
       params[1],
       params[2],
@@ -1248,7 +1249,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   command232(params: [number, number, number, number, number, number, number, number, number, number, number, number, number?]): boolean {
     const point = this.picturePoint(params)
     // prettier-ignore
-    $gameScreen.movePicture(
+    GlobalMananger.$gameScreen.movePicture(
       params[0],
       params[2],
       point.x,
@@ -1275,19 +1276,19 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     }
     else {
       // Designation with variables
-      point.x = $gameVariables.value(params[4])
-      point.y = $gameVariables.value(params[5])
+      point.x = GlobalMananger.$gameVariables.value(params[4])
+      point.y = GlobalMananger.$gameVariables.value(params[5])
     }
     return point
   }
 
   command233(params: [number, number]): boolean {
-    $gameScreen.rotatePicture(params[0], params[1])
+    GlobalMananger.$gameScreen.rotatePicture(params[0], params[1])
     return true
   }
 
   command234(params: [number, RGBA, number, boolean]): boolean {
-    $gameScreen.tintPicture(params[0], params[1], params[2])
+    GlobalMananger.$gameScreen.tintPicture(params[0], params[1], params[2])
     if (params[3]) {
       this.wait(params[2])
     }
@@ -1295,13 +1296,13 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   command235(params: [number]): boolean {
-    $gameScreen.erasePicture(params[0])
+    GlobalMananger.$gameScreen.erasePicture(params[0])
     return true
   }
 
   command236(params: [string, number, number, boolean]): boolean {
-    if (!$gameParty.inBattle()) {
-      $gameScreen.changeWeather(params[0], params[1], params[2])
+    if (!GlobalMananger.$gameParty.inBattle()) {
+      GlobalMananger.$gameScreen.changeWeather(params[0], params[1], params[2])
       if (params[3]) {
         this.wait(params[2])
       }
@@ -1320,12 +1321,12 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   }
 
   command243(): boolean {
-    $gameSystem.saveBgm()
+    GlobalMananger.$gameSystem.saveBgm()
     return true
   }
 
   command244(): boolean {
-    $gameSystem.replayBgm()
+    GlobalMananger.$gameSystem.replayBgm()
     return true
   }
 
@@ -1360,7 +1361,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Play Movie
   command261(params: [string]): boolean {
-    if ($gameMessage.isBusy()) {
+    if (GlobalMananger.$gameMessage.isBusy()) {
       return false
     }
     const name = params[0]
@@ -1384,22 +1385,22 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   // Change Map Name Display
   command281(params: [number]): boolean {
     if (params[0] === 0) {
-      $gameMap.enableNameDisplay()
+      GlobalMananger.$gameMap.enableNameDisplay()
     }
     else {
-      $gameMap.disableNameDisplay()
+      GlobalMananger.$gameMap.disableNameDisplay()
     }
     return true
   }
 
   // Change Tileset
   command282(params: [number]): boolean {
-    const tileset = $dataTilesets[params[0]]
+    const tileset = GlobalMananger.$dataTilesets[params[0]]
     const allReady = tileset!.tilesetNames
       .map(tilesetName => ImageManager.loadTileset(tilesetName))
       .every(bitmap => bitmap.isReady())
     if (allReady) {
-      $gameMap.changeTileset(params[0])
+      GlobalMananger.$gameMap.changeTileset(params[0])
       return true
     }
     else {
@@ -1409,14 +1410,14 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Change Battle Background
   command283(params: [string, string]): boolean {
-    $gameMap.changeBattleback(params[0], params[1])
+    GlobalMananger.$gameMap.changeBattleback(params[0], params[1])
     return true
   }
 
   // Change Parallax
   command284(params: [string, boolean, boolean, number, number]): boolean {
     // prettier-ignore
-    $gameMap.changeParallax(
+    GlobalMananger.$gameMap.changeParallax(
       params[0],
       params[1],
       params[2],
@@ -1436,8 +1437,8 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     }
     else if (params[2] === 1) {
       // Designation with variables
-      x = $gameVariables.value(params[3])
-      y = $gameVariables.value(params[4])
+      x = GlobalMananger.$gameVariables.value(params[3])
+      y = GlobalMananger.$gameVariables.value(params[4])
     }
     else {
       // Designation by a character
@@ -1447,23 +1448,23 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
     }
     switch (params[1]) {
       case 0: // Terrain Tag
-        value = $gameMap.terrainTag(x, y)
+        value = GlobalMananger.$gameMap.terrainTag(x, y)
         break
       case 1: // Event ID
-        value = $gameMap.eventIdXy(x, y)
+        value = GlobalMananger.$gameMap.eventIdXy(x, y)
         break
       case 2: // Tile ID (Layer 1)
       case 3: // Tile ID (Layer 2)
       case 4: // Tile ID (Layer 3)
       case 5: // Tile ID (Layer 4)
-        value = $gameMap.tileId(x, y, params[1] - 2)
+        value = GlobalMananger.$gameMap.tileId(x, y, params[1] - 2)
         break
       default:
         // Region ID
-        value = $gameMap.regionId(x, y)
+        value = GlobalMananger.$gameMap.regionId(x, y)
         break
     }
-    $gameVariables.setValue(params[0], value)
+    GlobalMananger.$gameVariables.setValue(params[0], value)
     return true
   }
 
@@ -1471,7 +1472,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
    * Battle Processing
    */
   command301(params: [number, number | boolean, boolean, boolean]): boolean {
-    if (!$gameParty.inBattle()) {
+    if (!GlobalMananger.$gameParty.inBattle()) {
       let troopId: number
       if (params[0] === 0) {
         // Direct designation
@@ -1479,18 +1480,18 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
       }
       else if (params[0] === 1) {
         // Designation with a variable
-        troopId = $gameVariables.value(params[1] as number)
+        troopId = GlobalMananger.$gameVariables.value(params[1] as number)
       }
       else {
         // Same as Random Encounters
-        troopId = $gamePlayer.makeEncounterTroopId()
+        troopId = GlobalMananger.$gamePlayer.makeEncounterTroopId()
       }
-      if ($dataTroops[troopId]) {
+      if (GlobalMananger.$dataTroops[troopId]) {
         BattleManager.setup(troopId, params[2], params[3])
         BattleManager.setEventCallback((n) => {
           this._branch[this._indent] = n
         })
-        $gamePlayer.makeEncounterCount()
+        GlobalMananger.$gamePlayer.makeEncounterCount()
         SceneManager.push(Scene_Battle)
       }
     }
@@ -1523,7 +1524,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Shop Processing
   command302(params: [Window_ShopBuy.Good, Window_ShopBuy.Good, Window_ShopBuy.Good, Window_ShopBuy.Good, boolean]): boolean {
-    if (!$gameParty.inBattle()) {
+    if (!GlobalMananger.$gameParty.inBattle()) {
       const goods = [params]
       while (this.nextEventCode() === 605) {
         this._index++
@@ -1538,8 +1539,8 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Name Input Processing
   command303(params: [actorId: number, maxLength: number]): boolean {
-    if (!$gameParty.inBattle()) {
-      if ($dataActors[params[0]]) {
+    if (!GlobalMananger.$gameParty.inBattle()) {
+      if (GlobalMananger.$dataActors[params[0]]) {
         SceneManager.push(Scene_Name)
         SceneManager.prepareNextScene(params[0], params[1])
       }
@@ -1642,7 +1643,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Change Equipment
   command319(params): boolean {
-    const actor = $gameActors.actor(params[0])
+    const actor = GlobalMananger.$gameActors.actor(params[0])
     if (actor) {
       actor.changeEquipById(params[1], params[2])
     }
@@ -1651,7 +1652,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Change Name
   command320(params): boolean {
-    const actor = $gameActors.actor(params[0])
+    const actor = GlobalMananger.$gameActors.actor(params[0])
     if (actor) {
       actor.setName(params[1])
     }
@@ -1660,8 +1661,8 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Change Class
   command321(params): boolean {
-    const actor = $gameActors.actor(params[0])
-    if (actor && $dataClasses[params[1]]) {
+    const actor = GlobalMananger.$gameActors.actor(params[0])
+    if (actor && GlobalMananger.$dataClasses[params[1]]) {
       actor.changeClass(params[1], params[2])
     }
     return true
@@ -1669,19 +1670,19 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Change Actor Images
   command322(params): boolean {
-    const actor = $gameActors.actor(params[0])
+    const actor = GlobalMananger.$gameActors.actor(params[0])
     if (actor) {
       actor.setCharacterImage(params[1], params[2])
       actor.setFaceImage(params[3], params[4])
       actor.setBattlerImage(params[5])
     }
-    $gamePlayer.refresh()
+    GlobalMananger.$gamePlayer.refresh()
     return true
   }
 
   // Change Vehicle Image
   command323(params): boolean {
-    const vehicle = $gameMap.vehicle(params[0])
+    const vehicle = GlobalMananger.$gameMap.vehicle(params[0])
     if (vehicle) {
       vehicle.setImage(params[1], params[2])
     }
@@ -1690,7 +1691,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Change Nickname
   command324(params): boolean {
-    const actor = $gameActors.actor(params[0])
+    const actor = GlobalMananger.$gameActors.actor(params[0])
     if (actor) {
       actor.setNickname(params[1])
     }
@@ -1699,7 +1700,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Change Profile
   command325(params): boolean {
-    const actor = $gameActors.actor(params[0])
+    const actor = GlobalMananger.$gameActors.actor(params[0])
     if (actor) {
       actor.setProfile(params[1])
     }
@@ -1763,7 +1764,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   command335(params): boolean {
     this.iterateEnemyIndex(params[0], (enemy) => {
       enemy.appear()
-      $gameTroop.makeUniqueNames()
+      GlobalMananger.$gameTroop.makeUniqueNames()
     })
     return true
   }
@@ -1772,7 +1773,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   command336(params): boolean {
     this.iterateEnemyIndex(params[0], (enemy) => {
       enemy.transform(params[1])
-      $gameTroop.makeUniqueNames()
+      GlobalMananger.$gameTroop.makeUniqueNames()
     })
     return true
   }
@@ -1789,7 +1790,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
         targets.push(enemy)
       }
     })
-    $gameTemp.requestAnimation(targets, params[1])
+    GlobalMananger.$gameTemp.requestAnimation(targets, params[1])
     return true
   }
 
@@ -1813,7 +1814,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Open Menu Screen
   command351(): boolean {
-    if (!$gameParty.inBattle()) {
+    if (!GlobalMananger.$gameParty.inBattle()) {
       SceneManager.push(Scene_Menu)
       Window_MenuCommand.initCommandPosition()
     }
@@ -1822,7 +1823,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
 
   // Open Save Screen
   command352(): boolean {
-    if (!$gameParty.inBattle()) {
+    if (!GlobalMananger.$gameParty.inBattle()) {
       SceneManager.push(Scene_Save)
     }
     return true

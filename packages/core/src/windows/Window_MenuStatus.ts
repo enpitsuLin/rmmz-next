@@ -1,6 +1,6 @@
 import type { Rectangle } from '../core'
 import type { Game_Actor } from '../objects/Game_Actor'
-import { ColorManager, ImageManager } from '../managers'
+import { GlobalMananger, ColorManager, ImageManager } from '../managers'
 import { Window_StatusBase } from './Window_StatusBase'
 
 /**
@@ -20,7 +20,7 @@ export class Window_MenuStatus extends Window_StatusBase {
   }
 
   maxItems(): number {
-    return $gameParty.size()
+    return GlobalMananger.$gameParty.size()
   }
 
   numVisibleRows(): number {
@@ -32,7 +32,7 @@ export class Window_MenuStatus extends Window_StatusBase {
   }
 
   actor(index: number): Game_Actor {
-    return $gameParty.members()[index]
+    return GlobalMananger.$gameParty.members()[index]
   }
 
   drawItem(index: number): void {
@@ -72,7 +72,7 @@ export class Window_MenuStatus extends Window_StatusBase {
   processOk(): void {
     super.processOk()
     const actor = this.actor(this.index())
-    $gameParty.setMenuActor(actor)
+    GlobalMananger.$gameParty.setMenuActor(actor)
   }
 
   isCurrentItemEnabled(): boolean {
@@ -86,7 +86,7 @@ export class Window_MenuStatus extends Window_StatusBase {
   }
 
   selectLast(): void {
-    this.smoothSelect($gameParty.menuActor().index() || 0)
+    this.smoothSelect(GlobalMananger.$gameParty.menuActor().index() || 0)
   }
 
   formationMode(): boolean {

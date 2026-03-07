@@ -3,6 +3,7 @@ import { Graphics, Rectangle } from '../core'
 import { ImageManager } from '../managers/ImageManager'
 import { Window_NameEdit, Window_NameInput } from '../windows'
 import { Scene_MenuBase } from './Scene_MenuBase'
+import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Name
@@ -26,7 +27,7 @@ export class Scene_Name extends Scene_MenuBase {
 
   create(): void {
     super.create()
-    this._actor = $gameActors.actor(this._actorId) as Game_Actor
+    this._actor = GlobalMananger.$gameActors.actor(this._actorId) as Game_Actor
     this.createEditWindow()
     this.createInputWindow()
   }
@@ -45,7 +46,7 @@ export class Scene_Name extends Scene_MenuBase {
 
   editWindowRect(): Rectangle {
     const inputWindowHeight = this.calcWindowHeight(9, true)
-    const padding = $gameSystem.windowPadding()
+    const padding = GlobalMananger.$gameSystem.windowPadding()
     const ww = 600
     const wh = ImageManager.standardFaceHeight + padding * 2
     const wx = (Graphics.boxWidth - ww) / 2

@@ -9,6 +9,7 @@ import { Scene_Options } from './Scene_Options'
 import { Scene_Save } from './Scene_Save'
 import { Scene_Skill } from './Scene_Skill'
 import { Scene_Status } from './Scene_Status'
+import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Menu
@@ -147,7 +148,7 @@ export class Scene_Menu extends Scene_MenuBase {
     const index = this._statusWindow.index()
     const pendingIndex = this._statusWindow.pendingIndex()
     if (pendingIndex >= 0) {
-      $gameParty.swapOrder(index, pendingIndex)
+      GlobalMananger.$gameParty.swapOrder(index, pendingIndex)
       this._statusWindow.setPendingIndex(-1)
       this._statusWindow.redrawItem(index)
     }

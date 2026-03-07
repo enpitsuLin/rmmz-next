@@ -1,4 +1,5 @@
 import { Bitmap, Utils } from '../core'
+import { GlobalMananger } from './GlobalManager'
 
 /**
  * ImageManager
@@ -36,8 +37,8 @@ export class ImageManager {
   }
 
   static getIconSize(): number {
-    if ('iconSize' in $dataSystem) {
-      return $dataSystem.iconSize!
+    if ('iconSize' in GlobalMananger.$dataSystem) {
+      return GlobalMananger.$dataSystem.iconSize!
     }
     else {
       return this.standardIconWidth
@@ -45,8 +46,8 @@ export class ImageManager {
   }
 
   static getFaceSize(): number {
-    if ('faceSize' in $dataSystem) {
-      return $dataSystem.faceSize!
+    if ('faceSize' in GlobalMananger.$dataSystem) {
+      return GlobalMananger.$dataSystem.faceSize!
     }
     else {
       return this.standardFaceWidth

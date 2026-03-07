@@ -2,7 +2,7 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type * as PIXI from 'pixi.js'
 import { Bitmap, Rectangle, Sprite, Utils, Window } from '../core'
-import { ColorManager, ImageManager, SoundManager, TextManager } from '../managers'
+import { GlobalMananger, ColorManager, ImageManager, SoundManager, TextManager } from '../managers'
 
 /**
  * Window_Base
@@ -69,19 +69,19 @@ export class Window_Base extends Window {
   }
 
   updatePadding(): void {
-    this.padding = $gameSystem.windowPadding()
+    this.padding = GlobalMananger.$gameSystem.windowPadding()
   }
 
   updateBackOpacity(): void {
-    this.backOpacity = $gameSystem.windowOpacity()
+    this.backOpacity = GlobalMananger.$gameSystem.windowOpacity()
   }
 
   fittingHeight(numLines: number): number {
-    return numLines * this.itemHeight() + $gameSystem.windowPadding() * 2
+    return numLines * this.itemHeight() + GlobalMananger.$gameSystem.windowPadding() * 2
   }
 
   updateTone(): void {
-    const tone = $gameSystem.windowTone()
+    const tone = GlobalMananger.$gameSystem.windowTone()
     this.setTone(tone[0], tone[1], tone[2])
   }
 
@@ -112,8 +112,8 @@ export class Window_Base extends Window {
   }
 
   resetFontSettings(): void {
-    this.contents.fontFace = $gameSystem.mainFontFace()
-    this.contents.fontSize = $gameSystem.mainFontSize()
+    this.contents.fontFace = GlobalMananger.$gameSystem.mainFontFace()
+    this.contents.fontSize = GlobalMananger.$gameSystem.mainFontSize()
     this.resetTextColor()
   }
 
@@ -290,7 +290,7 @@ export class Window_Base extends Window {
     text = text.replace(/\x1B\x1B/g, '\\')
     while (text.match(/\x1BV\[(\d+)\]/gi)) {
       text = text.replace(/\x1BV\[(\d+)\]/gi, (_, p1) =>
-        $gameVariables.value(Number.parseInt(p1)).toString())
+        GlobalMananger.$gameVariables.value(Number.parseInt(p1)).toString())
     }
     text = text.replace(/\x1BN\[(\d+)\]/gi, (_, p1) =>
       this.actorName(Number.parseInt(p1)))
@@ -301,12 +301,12 @@ export class Window_Base extends Window {
   }
 
   actorName(n: number): string {
-    const actor = n >= 1 ? $gameActors.actor(n) : null
+    const actor = n >= 1 ? GlobalMananger.$gameActors.actor(n) : null
     return actor ? actor.name() : ''
   }
 
   partyMemberName(n: number): string {
-    const actor = n >= 1 ? $gameParty.members()[n - 1] : null
+    const actor = n >= 1 ? GlobalMananger.$gameParty.members()[n - 1] : null
     return actor ? actor.name() : ''
   }
 
@@ -415,7 +415,7 @@ export class Window_Base extends Window {
   }
 
   calcTextHeight(textState: Window_Base.TextState): number {
-    const lineSpacing = this.lineHeight() - $gameSystem.mainFontSize()
+    const lineSpacing = this.lineHeight() - GlobalMananger.$gameSystem.mainFontSize()
     const lastFontSize = this.contents.fontSize
     const lines = textState.text.slice(textState.index).split('\n')
     const textHeight = this.maxFontSizeInLine(lines[0]) + lineSpacing

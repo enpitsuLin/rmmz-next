@@ -1,6 +1,6 @@
 import type { Rectangle } from '../core'
 import type { Window_ItemList } from './Window_ItemList'
-import { TextManager } from '../managers'
+import { GlobalMananger, TextManager } from '../managers'
 import { Window_HorzCommand } from './Window_HorzCommand'
 
 /**
@@ -45,7 +45,7 @@ export class Window_ItemCategory extends Window_HorzCommand {
     const table = ['item', 'weapon', 'armor', 'keyItem']
     const index = table.indexOf(name)
     if (index >= 0) {
-      return $dataSystem.itemCategories[index]
+      return GlobalMananger.$dataSystem.itemCategories[index]
     }
     return true
   }

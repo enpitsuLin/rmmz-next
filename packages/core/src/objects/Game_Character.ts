@@ -1,5 +1,5 @@
 import type { MZ } from '@rmmz-lib/database-types'
-import { AudioManager } from '../managers'
+import { AudioManager, GlobalMananger } from '../managers'
 import { Game_CharacterBase } from './Game_CharacterBase'
 
 /**
@@ -217,10 +217,10 @@ export class Game_Character extends Game_CharacterBase {
         this.turnAwayFromPlayer()
         break
       case gc.ROUTE_SWITCH_ON:
-        $gameSwitches.setValue(params[0], true)
+        GlobalMananger.$gameSwitches.setValue(params[0], true)
         break
       case gc.ROUTE_SWITCH_OFF:
-        $gameSwitches.setValue(params[0], false)
+        GlobalMananger.$gameSwitches.setValue(params[0], false)
         break
       case gc.ROUTE_CHANGE_SPEED:
         this.setMoveSpeed(params[0])
@@ -277,11 +277,11 @@ export class Game_Character extends Game_CharacterBase {
   }
 
   deltaXFrom(x: number): number {
-    return $gameMap.deltaX(this.x, x)
+    return GlobalMananger.$gameMap.deltaX(this.x, x)
   }
 
   deltaYFrom(y: number): number {
-    return $gameMap.deltaY(this.y, y)
+    return GlobalMananger.$gameMap.deltaY(this.y, y)
   }
 
   moveRandom(): void {
@@ -348,19 +348,19 @@ export class Game_Character extends Game_CharacterBase {
   }
 
   turnTowardPlayer(): void {
-    this.turnTowardCharacter($gamePlayer)
+    this.turnTowardCharacter(GlobalMananger.$gamePlayer)
   }
 
   turnAwayFromPlayer(): void {
-    this.turnAwayFromCharacter($gamePlayer)
+    this.turnAwayFromCharacter(GlobalMananger.$gamePlayer)
   }
 
   moveTowardPlayer(): void {
-    this.moveTowardCharacter($gamePlayer)
+    this.moveTowardCharacter(GlobalMananger.$gamePlayer)
   }
 
   moveAwayFromPlayer(): void {
-    this.moveAwayFromCharacter($gamePlayer)
+    this.moveAwayFromCharacter(GlobalMananger.$gamePlayer)
   }
 
   moveForward(): void {
@@ -458,7 +458,7 @@ export class Game_Character extends Game_CharacterBase {
 
   findDirectionTo(goalX: number, goalY: number): Game_CharacterBase.CharacterDirection | 0 {
     const searchLimit = this.searchLimit()
-    const mapWidth = $gameMap.width()
+    const mapWidth = GlobalMananger.$gameMap.width()
     const nodeList: Game_Character.PathNode[] = []
     const openList: number[] = []
     const closedList: number[] = []
@@ -473,7 +473,7 @@ export class Game_Character extends Game_CharacterBase {
     start.x = this.x
     start.y = this.y
     start.g = 0
-    start.f = $gameMap.distance(start.x, start.y, goalX, goalY)
+    start.f = GlobalMananger.$gameMap.distance(start.x, start.y, goalX, goalY)
     nodeList.push(start)
     openList.push(start.y * mapWidth + start.x)
 
@@ -506,8 +506,8 @@ export class Game_Character extends Game_CharacterBase {
 
       for (let j = 0; j < 4; j++) {
         const direction = 2 + j * 2
-        const x2 = $gameMap.roundXWithDirection(x1, direction)
-        const y2 = $gameMap.roundYWithDirection(y1, direction)
+        const x2 = GlobalMananger.$gameMap.roundXWithDirection(x1, direction)
+        const y2 = GlobalMananger.$gameMap.roundYWithDirection(y1, direction)
         const pos2 = y2 * mapWidth + x2
 
         if (closedList.includes(pos2)) {
@@ -534,7 +534,7 @@ export class Game_Character extends Game_CharacterBase {
           neighbor.x = x2
           neighbor.y = y2
           neighbor.g = g2
-          neighbor.f = g2 + $gameMap.distance(x2, y2, goalX, goalY)
+          neighbor.f = g2 + GlobalMananger.$gameMap.distance(x2, y2, goalX, goalY)
           if (!best || neighbor.f - neighbor.g < best.f - best.g) {
             best = neighbor
           }
@@ -547,8 +547,8 @@ export class Game_Character extends Game_CharacterBase {
       node = node.parent
     }
 
-    const deltaX1 = $gameMap.deltaX(node.x, start.x)
-    const deltaY1 = $gameMap.deltaY(node.y, start.y)
+    const deltaX1 = GlobalMananger.$gameMap.deltaX(node.x, start.x)
+    const deltaY1 = GlobalMananger.$gameMap.deltaY(node.y, start.y)
     if (deltaY1 > 0) {
       return 2
     }

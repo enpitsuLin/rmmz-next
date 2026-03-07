@@ -1,5 +1,6 @@
 import { Input, Rectangle, TouchInput } from '../core'
 import { Window_Base } from './Window_Base'
+import { GlobalMananger } from '../managers'
 
 /**
  * Window_ScrollText
@@ -31,18 +32,18 @@ export class Window_ScrollText extends Window_Base {
 
   update(): void {
     super.update()
-    if ($gameMessage.scrollMode()) {
+    if (GlobalMananger.$gameMessage.scrollMode()) {
       if (this._text) {
         this.updateMessage()
       }
-      if (!this._text && $gameMessage.hasText()) {
+      if (!this._text && GlobalMananger.$gameMessage.hasText()) {
         this.startMessage()
       }
     }
   }
 
   startMessage(): void {
-    this._text = $gameMessage.allText()
+    this._text = GlobalMananger.$gameMessage.allText()
     if (this._text) {
       this.updatePlacement()
       this._allTextHeight = this.textSizeEx(this._text).height
@@ -54,7 +55,7 @@ export class Window_ScrollText extends Window_Base {
       this.show()
     }
     else {
-      $gameMessage.clear()
+      GlobalMananger.$gameMessage.clear()
     }
   }
 
@@ -95,7 +96,7 @@ export class Window_ScrollText extends Window_Base {
   }
 
   scrollSpeed(): number {
-    let speed = $gameMessage.scrollSpeed() / 2
+    let speed = GlobalMananger.$gameMessage.scrollSpeed() / 2
     if (this.isFastForward()) {
       speed *= this.fastForwardRate()
     }
@@ -103,7 +104,7 @@ export class Window_ScrollText extends Window_Base {
   }
 
   isFastForward(): boolean {
-    if ($gameMessage.scrollNoFast()) {
+    if (GlobalMananger.$gameMessage.scrollNoFast()) {
       return false
     }
     else {
@@ -121,7 +122,7 @@ export class Window_ScrollText extends Window_Base {
 
   terminateMessage(): void {
     this._text = null
-    $gameMessage.clear()
+    GlobalMananger.$gameMessage.clear()
     this.hide()
   }
 }

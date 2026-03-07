@@ -4,6 +4,7 @@ import { DataManager } from '../managers/DataManager'
 import { SoundManager } from '../managers/SoundManager'
 import { Window_Base, Window_Gold, Window_ItemCategory, Window_ShopBuy, Window_ShopCommand, Window_ShopNumber, Window_ShopSell, Window_ShopStatus } from '../windows'
 import { Scene_MenuBase } from './Scene_MenuBase'
+import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Shop
@@ -303,13 +304,13 @@ export class Scene_Shop extends Scene_MenuBase {
   }
 
   doBuy(number: number): void {
-    $gameParty.loseGold(number * this.buyingPrice())
-    $gameParty.gainItem(this._item, number)
+    GlobalMananger.$gameParty.loseGold(number * this.buyingPrice())
+    GlobalMananger.$gameParty.gainItem(this._item, number)
   }
 
   doSell(number: number): void {
-    $gameParty.gainGold(number * this.sellingPrice())
-    $gameParty.loseItem(this._item, number)
+    GlobalMananger.$gameParty.gainGold(number * this.sellingPrice())
+    GlobalMananger.$gameParty.loseItem(this._item, number)
   }
 
   endNumberInput(): void {
@@ -325,8 +326,8 @@ export class Scene_Shop extends Scene_MenuBase {
   }
 
   maxBuy(): number {
-    const num = $gameParty.numItems(this._item)
-    const max = $gameParty.maxItems(this._item) - num
+    const num = GlobalMananger.$gameParty.numItems(this._item)
+    const max = GlobalMananger.$gameParty.maxItems(this._item) - num
     const price = this.buyingPrice()
     if (price > 0) {
       return Math.min(max, Math.floor(this.money() / price))
@@ -337,7 +338,7 @@ export class Scene_Shop extends Scene_MenuBase {
   }
 
   maxSell(): number {
-    return $gameParty.numItems(this._item)
+    return GlobalMananger.$gameParty.numItems(this._item)
   }
 
   money(): number {

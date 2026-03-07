@@ -6,6 +6,7 @@ import { ColorManager } from '../managers/ColorManager'
 import { DataManager } from '../managers/DataManager'
 import { TextManager } from '../managers/TextManager'
 import { Window_StatusBase } from './Window_StatusBase'
+import { GlobalMananger } from '../managers'
 
 /**
  * Window_ShopStatus
@@ -51,7 +52,7 @@ export class Window_ShopStatus extends Window_StatusBase {
     this.changeTextColor(ColorManager.systemColor())
     this.drawText(TextManager.possession, x, y, width - possessionWidth)
     this.resetTextColor()
-    this.drawText(String($gameParty.numItems(this._item)), x, y, width, 'right')
+    this.drawText(String(GlobalMananger.$gameParty.numItems(this._item)), x, y, width, 'right')
   }
 
   drawEquipInfo(x: number, y: number): void {
@@ -65,7 +66,7 @@ export class Window_ShopStatus extends Window_StatusBase {
   statusMembers(): Game_Actor[] {
     const start = this._pageIndex * this.pageSize()
     const end = start + this.pageSize()
-    return $gameParty.members().slice(start, end)
+    return GlobalMananger.$gameParty.members().slice(start, end)
   }
 
   pageSize(): number {
@@ -73,7 +74,7 @@ export class Window_ShopStatus extends Window_StatusBase {
   }
 
   maxPages(): number {
-    return Math.floor(($gameParty.size() + this.pageSize() - 1) / this.pageSize())
+    return Math.floor((GlobalMananger.$gameParty.size() + this.pageSize() - 1) / this.pageSize())
   }
 
   drawActorEquipInfo(x: number, y: number, actor: Game_Actor): void {

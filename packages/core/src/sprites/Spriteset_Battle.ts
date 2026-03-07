@@ -1,7 +1,7 @@
 import type { Game_Battler } from '../objects'
 import type { Sprite_Battler } from './Sprite_Battler'
 import { Graphics, Sprite } from '../core'
-import { ImageManager, SceneManager } from '../managers'
+import { GlobalMananger, ImageManager, SceneManager } from '../managers'
 import { PIXI } from '../pixi'
 import { Sprite_Actor } from './Sprite_Actor'
 import { Sprite_Battleback } from './Sprite_Battleback'
@@ -95,7 +95,7 @@ export class Spriteset_Battle extends Spriteset_Base<Game_Battler> {
   }
 
   createEnemies(): void {
-    const enemies = $gameTroop.members()
+    const enemies = GlobalMananger.$gameTroop.members()
     const sprites = []
     for (const enemy of enemies) {
       sprites.push(new Sprite_Enemy(enemy))
@@ -118,8 +118,8 @@ export class Spriteset_Battle extends Spriteset_Base<Game_Battler> {
 
   createActors(): void {
     this._actorSprites = []
-    if ($gameSystem.isSideView()) {
-      for (let i = 0; i < $gameParty.maxBattleMembers(); i++) {
+    if (GlobalMananger.$gameSystem.isSideView()) {
+      for (let i = 0; i < GlobalMananger.$gameParty.maxBattleMembers(); i++) {
         const sprite = new Sprite_Actor()
         this._actorSprites.push(sprite)
         this._battleField.addChild(sprite)
@@ -128,7 +128,7 @@ export class Spriteset_Battle extends Spriteset_Base<Game_Battler> {
   }
 
   updateActors(): void {
-    const members = $gameParty.battleMembers()
+    const members = GlobalMananger.$gameParty.battleMembers()
     for (let i = 0; i < this._actorSprites.length; i++) {
       this._actorSprites[i].setBattler(members[i]!)
     }

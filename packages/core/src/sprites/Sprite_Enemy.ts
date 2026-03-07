@@ -1,6 +1,6 @@
 import type { Sprite } from '../core'
 import type { Game_Enemy } from '../objects'
-import { ImageManager, SoundManager } from '../managers'
+import { GlobalMananger, ImageManager, SoundManager } from '../managers'
 import { Sprite_Battler } from './Sprite_Battler'
 import { Sprite_StateIcon } from './Sprite_StateIcon'
 
@@ -71,7 +71,7 @@ export class Sprite_Enemy extends Sprite_Battler {
   }
 
   loadBitmap(name: string): void {
-    if ($gameSystem.isSideView()) {
+    if (GlobalMananger.$gameSystem.isSideView()) {
       this.bitmap = ImageManager.loadSvEnemy(name)
     }
     else {

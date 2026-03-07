@@ -1,4 +1,5 @@
 import type { MZ } from '@rmmz-lib/database-types'
+import { GlobalMananger } from '../managers'
 
 /**
  * The game object class for a result of a battle action.
@@ -51,11 +52,11 @@ export class Game_ActionResult {
   }
 
   addedStateObjects(): MZ.State[] {
-    return this.addedStates.map(id => $dataStates[id]!)
+    return this.addedStates.map(id => GlobalMananger.$dataStates[id]!)
   }
 
   removedStateObjects(): MZ.State[] {
-    return this.removedStates.map(id => $dataStates[id]!)
+    return this.removedStates.map(id => GlobalMananger.$dataStates[id]!)
   }
 
   isStatusAffected(): boolean {

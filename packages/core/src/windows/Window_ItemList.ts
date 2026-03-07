@@ -1,6 +1,6 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
-import { DataManager } from '../managers'
+import { GlobalMananger, DataManager } from '../managers'
 import { Window_Selectable } from './Window_Selectable'
 
 /**
@@ -68,7 +68,7 @@ export class Window_ItemList<Item extends MZ.EquipOrItem = MZ.EquipOrItem>
 
   needsNumber(): boolean {
     if (this._category === 'keyItem') {
-      return $dataSystem.optKeyItemsNumber
+      return GlobalMananger.$dataSystem.optKeyItemsNumber
     }
     else {
       return true
@@ -76,18 +76,18 @@ export class Window_ItemList<Item extends MZ.EquipOrItem = MZ.EquipOrItem>
   }
 
   isEnabled(item?: MZ.GeneralItem | null): boolean {
-    return $gameParty.canUse(item)
+    return GlobalMananger.$gameParty.canUse(item)
   }
 
   makeItemList(): void {
-    this._data = $gameParty.allItems().filter((item): item is Item => this.includes(item))
+    this._data = GlobalMananger.$gameParty.allItems().filter((item): item is Item => this.includes(item))
     if (this.includes(null)) {
       this._data.push(null)
     }
   }
 
   selectLast(): void {
-    const index = this._data.indexOf($gameParty.lastItem() as Item)
+    const index = this._data.indexOf(GlobalMananger.$gameParty.lastItem() as Item)
     this.forceSelect(index >= 0 ? index : 0)
   }
 
@@ -110,7 +110,7 @@ export class Window_ItemList<Item extends MZ.EquipOrItem = MZ.EquipOrItem>
   drawItemNumber(item: MZ.GeneralItem, x: number, y: number, width: number): void {
     if (this.needsNumber()) {
       this.drawText(':', x, y, width - this.textWidth('00'), 'right')
-      this.drawText(String($gameParty.numItems(item as MZ.EquipOrItem)), x, y, width, 'right')
+      this.drawText(String(GlobalMananger.$gameParty.numItems(item as MZ.EquipOrItem)), x, y, width, 'right')
     }
   }
 

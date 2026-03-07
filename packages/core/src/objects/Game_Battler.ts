@@ -1,6 +1,6 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_Unit } from './Game_Unit'
-import { BattleManager, DataManager, SoundManager } from '../managers'
+import { BattleManager, DataManager, GlobalMananger, SoundManager } from '../managers'
 import { Game_Action } from './Game_Action'
 import { Game_ActionResult } from './Game_ActionResult'
 import { Game_BattlerBase } from './Game_BattlerBase'
@@ -274,12 +274,12 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
 
   tpbAcceleration(): number {
     const speed = this.tpbRelativeSpeed()
-    const referenceTime = $gameParty.tpbReferenceTime()
+    const referenceTime = GlobalMananger.$gameParty.tpbReferenceTime()
     return speed / referenceTime
   }
 
   tpbRelativeSpeed(): number {
-    return this.tpbSpeed() / $gameParty.tpbBaseSpeed()
+    return this.tpbSpeed() / GlobalMananger.$gameParty.tpbBaseSpeed()
   }
 
   tpbSpeed(): number {
@@ -305,7 +305,7 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
   }
 
   shouldDelayTpbCharge(): boolean {
-    return !BattleManager.isActiveTpb() && $gameParty.canInput()
+    return !BattleManager.isActiveTpb() && GlobalMananger.$gameParty.canInput()
   }
 
   finishTpbCharge(): void {
@@ -355,7 +355,7 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
       return this._tpbTurnCount
     }
     else {
-      return $gameTroop.turnCount() + 1
+      return GlobalMananger.$gameTroop.turnCount() + 1
     }
   }
 
@@ -390,14 +390,14 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
   isStateAddable(stateId: number): boolean {
     return (
       this.isAlive()
-      && !!$dataStates[stateId]
+      && !!GlobalMananger.$dataStates[stateId]
       && !this.isStateResist(stateId)
       && !this.isStateRestrict(stateId)
     )
   }
 
   isStateRestrict(stateId: number): boolean {
-    return !!$dataStates[stateId]?.removeByRestriction && this.isRestricted()
+    return !!GlobalMananger.$dataStates[stateId]?.removeByRestriction && this.isRestricted()
   }
 
   onRestrict(): void {
@@ -423,7 +423,7 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
   }
 
   escape(): void {
-    if ($gameParty.inBattle()) {
+    if (GlobalMananger.$gameParty.inBattle()) {
       this.hide()
     }
     this.clearActions()
@@ -564,7 +564,7 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
   }
 
   consumeItem(item: MZ.EquipOrItem): void {
-    $gameParty.consumeItem(item)
+    GlobalMananger.$gameParty.consumeItem(item)
   }
 
   gainHp(value: number): void {
@@ -609,7 +609,7 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
   }
 
   maxSlipDamage(): number {
-    return $dataSystem.optSlipDeath ? this.hp : Math.max(this.hp - 1, 0)
+    return GlobalMananger.$dataSystem.optSlipDeath ? this.hp : Math.max(this.hp - 1, 0)
   }
 
   regenerateMp(): void {

@@ -1,5 +1,6 @@
 import type * as PIXI from 'pixi.js'
 import { Bitmap, Sprite } from '../core'
+import { GlobalMananger } from '../managers'
 
 /**
  * Sprite_Destination
@@ -23,7 +24,7 @@ export class Sprite_Destination extends Sprite {
 
   update(): void {
     super.update()
-    if ($gameTemp.isDestinationValid()) {
+    if (GlobalMananger.$gameTemp.isDestinationValid()) {
       this.updatePosition()
       this.updateAnimation()
       this.visible = true
@@ -35,8 +36,8 @@ export class Sprite_Destination extends Sprite {
   }
 
   createBitmap(): void {
-    const tileWidth = $gameMap.tileWidth()
-    const tileHeight = $gameMap.tileHeight()
+    const tileWidth = GlobalMananger.$gameMap.tileWidth()
+    const tileHeight = GlobalMananger.$gameMap.tileHeight()
     this.bitmap = new Bitmap(tileWidth, tileHeight)
     this.bitmap.fillAll('white')
     this.anchor.x = 0.5
@@ -45,12 +46,12 @@ export class Sprite_Destination extends Sprite {
   }
 
   updatePosition(): void {
-    const tileWidth = $gameMap.tileWidth()
-    const tileHeight = $gameMap.tileHeight()
-    const x = $gameTemp.destinationX()!
-    const y = $gameTemp.destinationY()!
-    this.x = ($gameMap.adjustX(x) + 0.5) * tileWidth
-    this.y = ($gameMap.adjustY(y) + 0.5) * tileHeight
+    const tileWidth = GlobalMananger.$gameMap.tileWidth()
+    const tileHeight = GlobalMananger.$gameMap.tileHeight()
+    const x = GlobalMananger.$gameTemp.destinationX()!
+    const y = GlobalMananger.$gameTemp.destinationY()!
+    this.x = (GlobalMananger.$gameMap.adjustX(x) + 0.5) * tileWidth
+    this.y = (GlobalMananger.$gameMap.adjustY(y) + 0.5) * tileHeight
   }
 
   updateAnimation(): void {

@@ -2,7 +2,7 @@ import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
 import type { Window_Message } from './Window_Message'
 import { Graphics } from '../core'
-import { ConfigManager, DataManager } from '../managers'
+import { GlobalMananger, ConfigManager, DataManager } from '../managers'
 import { Sprite_Button } from '../sprites'
 import { Window_ItemList } from './Window_ItemList'
 
@@ -87,15 +87,15 @@ export class Window_EventItem extends Window_ItemList {
   }
 
   includes(item: MZ.GeneralItem | null): boolean {
-    const itypeId = $gameMessage.itemChoiceItypeId()
+    const itypeId = GlobalMananger.$gameMessage.itemChoiceItypeId()
     return DataManager.isItem(item) && item.itypeId === itypeId
   }
 
   needsNumber(): boolean {
-    const itypeId = $gameMessage.itemChoiceItypeId()
+    const itypeId = GlobalMananger.$gameMessage.itemChoiceItypeId()
     if (itypeId === 2) {
       // Key Item
-      return $dataSystem.optKeyItemsNumber
+      return GlobalMananger.$dataSystem.optKeyItemsNumber
     }
     else if (itypeId >= 3) {
       // Hidden Item
@@ -114,13 +114,13 @@ export class Window_EventItem extends Window_ItemList {
   onOk(): void {
     const item = this.item()
     const itemId = item ? item.id : 0
-    $gameVariables.setValue($gameMessage.itemChoiceVariableId(), itemId)
+    GlobalMananger.$gameVariables.setValue(GlobalMananger.$gameMessage.itemChoiceVariableId(), itemId)
     this._messageWindow!.terminateMessage()
     this.close()
   }
 
   onCancel(): void {
-    $gameVariables.setValue($gameMessage.itemChoiceVariableId(), 0)
+    GlobalMananger.$gameVariables.setValue(GlobalMananger.$gameMessage.itemChoiceVariableId(), 0)
     this._messageWindow!.terminateMessage()
     this.close()
   }

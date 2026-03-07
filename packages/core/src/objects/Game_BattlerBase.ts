@@ -1,6 +1,7 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_Actor } from './Game_Actor'
 import type { Game_Enemy } from './Game_Enemy'
+import { GlobalMananger } from '../managers'
 import { DataManager } from '../managers/DataManager'
 
 /**
@@ -249,7 +250,7 @@ class Game_BattlerBase<T extends MZ.TraitObject = MZ.TraitObject> {
   }
 
   resetStateCounts(stateId: number): void {
-    const state = $dataStates[stateId]!
+    const state = GlobalMananger.$dataStates[stateId]!
     const variance = 1 + Math.max(state.maxTurns - state.minTurns, 0)
     this._stateTurns[stateId] = state.minTurns + Math.randomInt(variance)
   }
@@ -347,7 +348,7 @@ class Game_BattlerBase<T extends MZ.TraitObject = MZ.TraitObject> {
   }
 
   states(): MZ.State[] {
-    return this._states!.map(id => $dataStates[id]!)
+    return this._states!.map(id => GlobalMananger.$dataStates[id]!)
   }
 
   stateIcons(): number[] {
@@ -709,8 +710,8 @@ class Game_BattlerBase<T extends MZ.TraitObject = MZ.TraitObject> {
 
   sortStates(): void {
     this._states.sort((a, b) => {
-      const p1 = $dataStates[a]!.priority
-      const p2 = $dataStates[b]!.priority
+      const p1 = GlobalMananger.$dataStates[a]!.priority
+      const p2 = GlobalMananger.$dataStates[b]!.priority
       if (p1 !== p2) {
         return p2 - p1
       }
@@ -792,7 +793,7 @@ class Game_BattlerBase<T extends MZ.TraitObject = MZ.TraitObject> {
   }
 
   isOccasionOk(item: MZ.Item | MZ.Skill): boolean {
-    if ($gameParty.inBattle()) {
+    if (GlobalMananger.$gameParty.inBattle()) {
       return item.occasion === 0 || item.occasion === 1
     }
     else {
@@ -815,7 +816,7 @@ class Game_BattlerBase<T extends MZ.TraitObject = MZ.TraitObject> {
   }
 
   meetsItemConditions(item: MZ.Item): boolean {
-    return this.meetsUsableItemConditions(item) && $gameParty.hasItem(item)
+    return this.meetsUsableItemConditions(item) && GlobalMananger.$gameParty.hasItem(item)
   }
 
   canUse(item?: MZ.GeneralItem | null): item is MZ.UsableItem {
@@ -865,11 +866,11 @@ class Game_BattlerBase<T extends MZ.TraitObject = MZ.TraitObject> {
   }
 
   canAttack(): boolean {
-    return this.canUse($dataSkills[this.attackSkillId()]!)
+    return this.canUse(GlobalMananger.$dataSkills[this.attackSkillId()]!)
   }
 
   canGuard(): boolean {
-    return this.canUse($dataSkills[this.guardSkillId()]!)
+    return this.canUse(GlobalMananger.$dataSkills[this.guardSkillId()]!)
   }
 }
 

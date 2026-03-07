@@ -2,6 +2,7 @@ import { Graphics, Rectangle } from '../core'
 import { DataManager } from '../managers/DataManager'
 import { Window_Help, Window_SavefileList } from '../windows'
 import { Scene_MenuBase } from './Scene_MenuBase'
+import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_File
@@ -78,7 +79,7 @@ export class Scene_File extends Scene_MenuBase {
   }
 
   needsAutosave(): boolean {
-    return $gameSystem.isAutosaveEnabled()
+    return GlobalMananger.$gameSystem.isAutosaveEnabled()
   }
 
   activateListWindow(): void {

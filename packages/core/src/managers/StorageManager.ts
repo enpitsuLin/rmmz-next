@@ -1,6 +1,7 @@
 import localforage from 'localforage'
 import pako from 'pako'
 import { JsonEx, Utils } from '../core'
+import { GlobalMananger } from './GlobalManager'
 
 /**
  * StorageManager
@@ -263,7 +264,7 @@ export class StorageManager {
   }
 
   static forageKey(saveName: string): string {
-    const gameId = $dataSystem.advanced.gameId
+    const gameId = GlobalMananger.$dataSystem.advanced.gameId
     return `rmmzsave.${gameId}.${saveName}`
   }
 

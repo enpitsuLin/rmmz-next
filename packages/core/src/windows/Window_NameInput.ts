@@ -1,6 +1,6 @@
 import type { Window_NameEdit } from './Window_NameEdit'
 import { Input, Rectangle } from '../core'
-import { SoundManager } from '../managers'
+import { GlobalMananger, SoundManager } from '../managers'
 import { Window_Selectable } from './Window_Selectable'
 
 /**
@@ -52,14 +52,14 @@ export class Window_NameInput extends Window_Selectable {
   }
 
   table(): string[][] {
-    if ($gameSystem.isJapanese()) {
+    if (GlobalMananger.$gameSystem.isJapanese()) {
       return [
         Window_NameInput.JAPAN1,
         Window_NameInput.JAPAN2,
         Window_NameInput.JAPAN3,
       ]
     }
-    else if ($gameSystem.isRussian()) {
+    else if (GlobalMananger.$gameSystem.isRussian()) {
       return [Window_NameInput.RUSSIA]
     }
     else {

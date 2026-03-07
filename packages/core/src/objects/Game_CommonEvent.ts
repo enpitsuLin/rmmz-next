@@ -1,4 +1,5 @@
 import type { MZ } from '@rmmz-lib/database-types'
+import { GlobalMananger } from '../managers'
 import { Game_Interpreter } from './Game_Interpreter'
 
 /**
@@ -15,7 +16,7 @@ export class Game_CommonEvent {
   }
 
   event(): MZ.CommonEvent {
-    return $dataCommonEvents[this._commonEventId]!
+    return GlobalMananger.$dataCommonEvents[this._commonEventId]!
   }
 
   list(): MZ.EventCommon.PageCommand[] {
@@ -35,7 +36,7 @@ export class Game_CommonEvent {
 
   isActive(): boolean {
     const event = this.event()
-    return event.trigger === 2 && $gameSwitches.value(event.switchId)
+    return event.trigger === 2 && GlobalMananger.$gameSwitches.value(event.switchId)
   }
 
   update(): void {

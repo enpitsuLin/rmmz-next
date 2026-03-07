@@ -3,6 +3,7 @@ import { Graphics, Rectangle } from '../core'
 import { SoundManager } from '../managers/SoundManager'
 import { Window_ItemCategory, Window_ItemList } from '../windows'
 import { Scene_ItemBase } from './Scene_ItemBase'
+import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Item
@@ -70,7 +71,7 @@ export class Scene_Item extends Scene_ItemBase {
   }
 
   user(): Game_Actor {
-    const members = $gameParty.movableMembers()
+    const members = GlobalMananger.$gameParty.movableMembers()
     const bestPha = Math.max(...members.map(member => member.pha))
     return members.find(member => member.pha === bestPha)!
   }
@@ -81,7 +82,7 @@ export class Scene_Item extends Scene_ItemBase {
   }
 
   onItemOk(): void {
-    $gameParty.setLastItem(this.item())
+    GlobalMananger.$gameParty.setLastItem(this.item())
     this.determineItem()
   }
 

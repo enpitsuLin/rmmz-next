@@ -1,6 +1,20 @@
 import type { MZ } from '@rmmz-lib/database-types'
-import type { DataManager, PluginManager } from '.'
-import type { Game_Actors, Game_Map, Game_Message, Game_Party, Game_Player, Game_Screen, Game_SelfSwitches, Game_Switches, Game_System, Game_Temp, Game_Timer, Game_Troop, Game_Variables } from '../objects'
+import type { DataManager } from '.'
+import type {
+  Game_Actors,
+  Game_Map,
+  Game_Message,
+  Game_Party,
+  Game_Player,
+  Game_Screen,
+  Game_SelfSwitches,
+  Game_Switches,
+  Game_System,
+  Game_Temp,
+  Game_Timer,
+  Game_Troop,
+  Game_Variables,
+} from '../objects'
 
 type Constructor = new (...args: any[]) => any
 
@@ -40,8 +54,6 @@ export class GlobalMananger {
   static $gameMap: Game_Map
   static $gamePlayer: Game_Player
   static $testEvent: MZ.EventCommon.PageCommand[] | null = null
-
-  static $plugins: PluginManager.PluginConfig[]
 
   static registry = new Map<string, new (...args: any[]) => any>()
 

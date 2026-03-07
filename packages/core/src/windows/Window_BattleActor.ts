@@ -1,5 +1,6 @@
 import type { Rectangle } from '../core'
 import { Window_BattleStatus } from './Window_BattleStatus'
+import { GlobalMananger } from '../managers'
 
 /**
  * Window_BattleActor
@@ -15,33 +16,33 @@ export class Window_BattleActor extends Window_BattleStatus {
 
   show(): void {
     this.forceSelect(0)
-    $gameTemp.clearTouchState()
+    GlobalMananger.$gameTemp.clearTouchState()
     super.show()
   }
 
   hide(): void {
     super.hide()
-    $gameParty.select(null as any)
+    GlobalMananger.$gameParty.select(null as any)
   }
 
   select(index: number): void {
     super.select(index)
-    $gameParty.select(this.actor(index) as any)
+    GlobalMananger.$gameParty.select(this.actor(index) as any)
   }
 
   processTouch(): void {
     super.processTouch()
     if (this.isOpenAndActive()) {
-      const target = $gameTemp.touchTarget()
+      const target = GlobalMananger.$gameTemp.touchTarget()
       if (target) {
-        const members = $gameParty.battleMembers()
+        const members = GlobalMananger.$gameParty.battleMembers()
         if (members.includes(target as any)) {
           this.select(members.indexOf(target as any))
-          if ($gameTemp.touchState() === 'click') {
+          if (GlobalMananger.$gameTemp.touchState() === 'click') {
             this.processOk()
           }
         }
-        $gameTemp.clearTouchState()
+        GlobalMananger.$gameTemp.clearTouchState()
       }
     }
   }

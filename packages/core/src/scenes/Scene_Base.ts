@@ -9,6 +9,7 @@ import { FontManager } from '../managers/FontManager'
 import { ImageManager } from '../managers/ImageManager'
 import { SceneManager } from '../managers/SceneManager'
 import { Window_Base, Window_Selectable } from '../windows'
+import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Base
@@ -150,7 +151,7 @@ export class Scene_Base extends Stage {
   }
 
   checkGameover(): void {
-    if ($gameParty.isAllDead()) {
+    if (GlobalMananger.$gameParty.isAllDead()) {
       import('./Scene_Gameover').then(({ Scene_Gameover }) => {
         SceneManager.goto(Scene_Gameover)
       })
@@ -245,13 +246,13 @@ export class Scene_Base extends Stage {
     return (
       !DataManager.isBattleTest()
       && !DataManager.isEventTest()
-      && $gameSystem.isAutosaveEnabled()
-      && $gameSystem.isSaveEnabled()
+      && GlobalMananger.$gameSystem.isAutosaveEnabled()
+      && GlobalMananger.$gameSystem.isSaveEnabled()
     )
   }
 
   executeAutosave(): void {
-    $gameSystem.onBeforeSave()
+    GlobalMananger.$gameSystem.onBeforeSave()
     DataManager.saveGame(0)
       .then(() => this.onAutosaveSuccess())
       .catch(() => this.onAutosaveFailure())

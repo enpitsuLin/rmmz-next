@@ -1,6 +1,7 @@
 import type { Rectangle } from '../core'
 import type { Game_Enemy } from '../objects/Game_Enemy'
 import { Window_Selectable } from './Window_Selectable'
+import { GlobalMananger } from '../managers'
 
 /**
  * Window_BattleEnemy
@@ -44,37 +45,37 @@ export class Window_BattleEnemy extends Window_Selectable {
   show(): void {
     this.refresh()
     this.forceSelect(0)
-    $gameTemp.clearTouchState()
+    GlobalMananger.$gameTemp.clearTouchState()
     super.show()
   }
 
   hide(): void {
     super.hide()
-    $gameTroop.select(null as any)
+    GlobalMananger.$gameTroop.select(null as any)
   }
 
   refresh(): void {
-    this._enemies = $gameTroop.aliveMembers()
+    this._enemies = GlobalMananger.$gameTroop.aliveMembers()
     super.refresh()
   }
 
   select(index: number): void {
     super.select(index)
-    $gameTroop.select(this.enemy() as any ?? null)
+    GlobalMananger.$gameTroop.select(this.enemy() as any ?? null)
   }
 
   processTouch(): void {
     super.processTouch()
     if (this.isOpenAndActive()) {
-      const target = $gameTemp.touchTarget()
+      const target = GlobalMananger.$gameTemp.touchTarget()
       if (target) {
         if (this._enemies.includes(target as Game_Enemy)) {
           this.select(this._enemies.indexOf(target as Game_Enemy))
-          if ($gameTemp.touchState() === 'click') {
+          if (GlobalMananger.$gameTemp.touchState() === 'click') {
             this.processOk()
           }
         }
-        $gameTemp.clearTouchState()
+        GlobalMananger.$gameTemp.clearTouchState()
       }
     }
   }

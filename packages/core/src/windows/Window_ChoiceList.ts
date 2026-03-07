@@ -3,6 +3,7 @@ import { Graphics, Rectangle } from '../core'
 import { ConfigManager } from '../managers/ConfigManager'
 import { Sprite_Button } from '../sprites'
 import { Window_Command } from './Window_Command'
+import { GlobalMananger } from '../managers'
 
 /**
  * Window_ChoiceList
@@ -63,7 +64,7 @@ export class Window_ChoiceList extends Window_Command {
   }
 
   selectDefault(): void {
-    this.select($gameMessage.choiceDefaultType())
+    this.select(GlobalMananger.$gameMessage.choiceDefaultType())
   }
 
   updatePlacement(): void {
@@ -74,7 +75,7 @@ export class Window_ChoiceList extends Window_Command {
   }
 
   updateBackground(): void {
-    this._background = $gameMessage.choiceBackground()
+    this._background = GlobalMananger.$gameMessage.choiceBackground()
     this.setBackgroundType(this._background)
   }
 
@@ -94,7 +95,7 @@ export class Window_ChoiceList extends Window_Command {
   }
 
   windowX(): number {
-    const positionType = $gameMessage.choicePositionType()
+    const positionType = GlobalMananger.$gameMessage.choicePositionType()
     if (positionType === 1) {
       return (Graphics.boxWidth - this.windowWidth()) / 2
     }
@@ -126,7 +127,7 @@ export class Window_ChoiceList extends Window_Command {
   }
 
   numVisibleRows(): number {
-    const choices = $gameMessage.choices()
+    const choices = GlobalMananger.$gameMessage.choices()
     return Math.min(choices.length, this.maxLines())
   }
 
@@ -145,7 +146,7 @@ export class Window_ChoiceList extends Window_Command {
 
   maxChoiceWidth(): number {
     let maxWidth = 96
-    const choices = $gameMessage.choices()
+    const choices = GlobalMananger.$gameMessage.choices()
     for (const choice of choices) {
       const textWidth = this.textSizeEx(choice).width
       const choiceWidth = Math.ceil(textWidth) + this.itemPadding() * 2
@@ -157,7 +158,7 @@ export class Window_ChoiceList extends Window_Command {
   }
 
   makeCommandList(): void {
-    const choices = $gameMessage.choices()
+    const choices = GlobalMananger.$gameMessage.choices()
     for (const choice of choices) {
       this.addCommand(choice, 'choice')
     }
@@ -169,21 +170,21 @@ export class Window_ChoiceList extends Window_Command {
   }
 
   isCancelEnabled(): boolean {
-    return $gameMessage.choiceCancelType() !== -1
+    return GlobalMananger.$gameMessage.choiceCancelType() !== -1
   }
 
   needsCancelButton(): boolean {
-    return $gameMessage.choiceCancelType() === -2
+    return GlobalMananger.$gameMessage.choiceCancelType() === -2
   }
 
   callOkHandler(): void {
-    $gameMessage.onChoice(this.index())
+    GlobalMananger.$gameMessage.onChoice(this.index())
     this._messageWindow!.terminateMessage()
     this.close()
   }
 
   callCancelHandler(): void {
-    $gameMessage.onChoice($gameMessage.choiceCancelType())
+    GlobalMananger.$gameMessage.onChoice(GlobalMananger.$gameMessage.choiceCancelType())
     this._messageWindow!.terminateMessage()
     this.close()
   }

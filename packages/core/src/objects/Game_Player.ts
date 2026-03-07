@@ -7,6 +7,7 @@ import { BattleManager } from '../managers/BattleManager'
 import { ConfigManager } from '../managers/ConfigManager'
 import { Game_Character } from './Game_Character'
 import { Game_Followers } from './Game_Followers'
+import { GlobalMananger } from '../managers'
 
 /**
  * The game object class for the player.
@@ -30,7 +31,7 @@ export class Game_Player extends Game_Character {
 
   constructor() {
     super()
-    this.setTransparent($dataSystem.optTransparent)
+    this.setTransparent(GlobalMananger.$dataSystem.optTransparent)
   }
 
   initMembers(): void {
@@ -63,7 +64,7 @@ export class Game_Player extends Game_Character {
   }
 
   refresh(): void {
-    const actor = $gameParty.leader()
+    const actor = GlobalMananger.$gameParty.leader()
     const characterName = actor ? actor.characterName() : ''
     const characterIndex = actor ? actor.characterIndex() : 0
     this.setImage(characterName, characterIndex)
@@ -87,9 +88,9 @@ export class Game_Player extends Game_Character {
   }
 
   setupForNewGame(): void {
-    const mapId = $dataSystem.startMapId
-    const x = $dataSystem.startX
-    const y = $dataSystem.startY
+    const mapId = GlobalMananger.$dataSystem.startMapId
+    const x = GlobalMananger.$dataSystem.startX
+    const y = GlobalMananger.$dataSystem.startY
     this.reserveTransfer(mapId, x, y, 2, 0)
   }
 
@@ -112,8 +113,8 @@ export class Game_Player extends Game_Character {
   performTransfer(): void {
     if (this.isTransferring()) {
       this.setDirection(this._newDirection)
-      if (this._newMapId !== $gameMap.mapId() || this._needsMapReload) {
-        $gameMap.setup(this._newMapId)
+      if (this._newMapId !== GlobalMananger.$gameMap.mapId() || this._needsMapReload) {
+        GlobalMananger.$gameMap.setup(this._newMapId)
         this._needsMapReload = false
       }
       this.locate(this._newX, this._newY)
@@ -133,7 +134,7 @@ export class Game_Player extends Game_Character {
   }
 
   vehicle(): Game_Vehicle | null {
-    return $gameMap.vehicle(this._vehicleType)
+    return GlobalMananger.$gameMap.vehicle(this._vehicleType)
   }
 
   isInBoat(): boolean {
@@ -161,7 +162,7 @@ export class Game_Player extends Game_Character {
   }
 
   isDebugThrough(): boolean {
-    return Input.isPressed('control') && $gameTemp.isPlaytest()
+    return Input.isPressed('control') && GlobalMananger.$gameTemp.isPlaytest()
   }
 
   isCollided(x: number, y: number): boolean {
@@ -174,15 +175,15 @@ export class Game_Player extends Game_Character {
   }
 
   centerX(): number {
-    return ($gameMap.screenTileX() - 1) / 2
+    return (GlobalMananger.$gameMap.screenTileX() - 1) / 2
   }
 
   centerY(): number {
-    return ($gameMap.screenTileY() - 1) / 2
+    return (GlobalMananger.$gameMap.screenTileY() - 1) / 2
   }
 
   center(x: number, y: number): void {
-    return $gameMap.setDisplayPos(x - this.centerX(), y - this.centerY())
+    return GlobalMananger.$gameMap.setDisplayPos(x - this.centerX(), y - this.centerY())
   }
 
   locate(x: number, y: number): void {
@@ -198,19 +199,19 @@ export class Game_Player extends Game_Character {
   increaseSteps(): void {
     super.increaseSteps()
     if (this.isNormal()) {
-      $gameParty.increaseSteps()
+      GlobalMananger.$gameParty.increaseSteps()
     }
   }
 
   makeEncounterCount(): void {
-    const n = $gameMap.encounterStep()
+    const n = GlobalMananger.$gameMap.encounterStep()
     this._encounterCount = Math.randomInt(n) + Math.randomInt(n) + 1
   }
 
   makeEncounterTroopId(): number {
     const encounterList = []
     let weightSum = 0
-    for (const encounter of $gameMap.encounterList()) {
+    for (const encounter of GlobalMananger.$gameMap.encounterList()) {
       if (this.meetsEncounterConditions(encounter)) {
         encounterList.push(encounter)
         weightSum += encounter.weight
@@ -236,10 +237,10 @@ export class Game_Player extends Game_Character {
   }
 
   executeEncounter(): boolean {
-    if (!$gameMap.isEventRunning() && this._encounterCount <= 0) {
+    if (!GlobalMananger.$gameMap.isEventRunning() && this._encounterCount <= 0) {
       this.makeEncounterCount()
       const troopId = this.makeEncounterTroopId()
-      if ($dataTroops[troopId]) {
+      if (GlobalMananger.$dataTroops[troopId]) {
         BattleManager.setup(troopId, true, false)
         BattleManager.onEncounter()
         return true
@@ -254,8 +255,8 @@ export class Game_Player extends Game_Character {
   }
 
   startMapEvent(x: number, y: number, triggers: Game_Player.EventTrigger[], normal: boolean): void {
-    if (!$gameMap.isEventRunning()) {
-      for (const event of $gameMap.eventsXy(x, y)) {
+    if (!GlobalMananger.$gameMap.isEventRunning()) {
+      for (const event of GlobalMananger.$gameMap.eventsXy(x, y)) {
         if (
           event.isTriggerIn(triggers)
           && event.isNormalPriority() === normal
@@ -270,11 +271,11 @@ export class Game_Player extends Game_Character {
     if (!this.isMoving() && this.canMove()) {
       let direction = this.getInputDirection()
       if (direction > 0) {
-        $gameTemp.clearDestination()
+        GlobalMananger.$gameTemp.clearDestination()
       }
-      else if ($gameTemp.isDestinationValid()) {
-        const x = $gameTemp.destinationX()!
-        const y = $gameTemp.destinationY()!
+      else if (GlobalMananger.$gameTemp.isDestinationValid()) {
+        const x = GlobalMananger.$gameTemp.destinationX()!
+        const y = GlobalMananger.$gameTemp.destinationY()!
         direction = this.findDirectionTo(x, y)
       }
       if (direction > 0) {
@@ -284,7 +285,7 @@ export class Game_Player extends Game_Character {
   }
 
   canMove(): boolean {
-    if ($gameMap.isEventRunning() || $gameMessage.isBusy()) {
+    if (GlobalMananger.$gameMap.isEventRunning() || GlobalMananger.$gameMessage.isBusy()) {
       return false
     }
     if (this.isMoveRouteForcing() || this.areFollowersGathering()) {
@@ -328,9 +329,9 @@ export class Game_Player extends Game_Character {
     if (this.isMoving()) {
       return
     }
-    if (this.canMove() && !this.isInVehicle() && !$gameMap.isDashDisabled()) {
+    if (this.canMove() && !this.isInVehicle() && !GlobalMananger.$gameMap.isDashDisabled()) {
       this._dashing
-        = this.isDashButtonPressed() || $gameTemp.isDestinationValid()
+        = this.isDashButtonPressed() || GlobalMananger.$gameTemp.isDestinationValid()
     }
     else {
       this._dashing = false
@@ -348,16 +349,16 @@ export class Game_Player extends Game_Character {
     const x2 = this.scrolledX()
     const y2 = this.scrolledY()
     if (y2 > y1 && y2 > this.centerY()) {
-      $gameMap.scrollDown(y2 - y1)
+      GlobalMananger.$gameMap.scrollDown(y2 - y1)
     }
     if (x2 < x1 && x2 < this.centerX()) {
-      $gameMap.scrollLeft(x1 - x2)
+      GlobalMananger.$gameMap.scrollLeft(x1 - x2)
     }
     if (x2 > x1 && x2 > this.centerX()) {
-      $gameMap.scrollRight(x2 - x1)
+      GlobalMananger.$gameMap.scrollRight(x2 - x1)
     }
     if (y2 < y1 && y2 < this.centerY()) {
-      $gameMap.scrollUp(y1 - y2)
+      GlobalMananger.$gameMap.scrollUp(y1 - y2)
     }
   }
 
@@ -397,11 +398,11 @@ export class Game_Player extends Game_Character {
   }
 
   updateNonmoving(wasMoving: boolean, sceneActive: boolean): void {
-    if (!$gameMap.isEventRunning()) {
+    if (!GlobalMananger.$gameMap.isEventRunning()) {
       if (wasMoving) {
-        $gameParty.onPlayerWalk()
+        GlobalMananger.$gameParty.onPlayerWalk()
         this.checkEventTriggerHere([1, 2])
-        if ($gameMap.setupStartingEvent()) {
+        if (GlobalMananger.$gameMap.setupStartingEvent()) {
           return
         }
       }
@@ -412,7 +413,7 @@ export class Game_Player extends Game_Character {
         this.updateEncounterCount()
       }
       else {
-        $gameTemp.clearDestination()
+        GlobalMananger.$gameTemp.clearDestination()
       }
     }
   }
@@ -435,11 +436,11 @@ export class Game_Player extends Game_Character {
         return true
       }
       this.checkEventTriggerHere([0])
-      if ($gameMap.setupStartingEvent()) {
+      if (GlobalMananger.$gameMap.setupStartingEvent()) {
         return true
       }
       this.checkEventTriggerThere([0, 1, 2])
-      if ($gameMap.setupStartingEvent()) {
+      if (GlobalMananger.$gameMap.setupStartingEvent()) {
         return true
       }
     }
@@ -447,16 +448,16 @@ export class Game_Player extends Game_Character {
   }
 
   triggerTouchAction(): boolean {
-    if ($gameTemp.isDestinationValid()) {
+    if (GlobalMananger.$gameTemp.isDestinationValid()) {
       const direction = this.direction()
       const x1 = this.x
       const y1 = this.y
-      const x2 = $gameMap.roundXWithDirection(x1, direction)
-      const y2 = $gameMap.roundYWithDirection(y1, direction)
-      const x3 = $gameMap.roundXWithDirection(x2, direction)
-      const y3 = $gameMap.roundYWithDirection(y2, direction)
-      const destX = $gameTemp.destinationX()
-      const destY = $gameTemp.destinationY()
+      const x2 = GlobalMananger.$gameMap.roundXWithDirection(x1, direction)
+      const y2 = GlobalMananger.$gameMap.roundYWithDirection(y1, direction)
+      const x3 = GlobalMananger.$gameMap.roundXWithDirection(x2, direction)
+      const y3 = GlobalMananger.$gameMap.roundYWithDirection(y2, direction)
+      const destX = GlobalMananger.$gameTemp.destinationX()
+      const destY = GlobalMananger.$gameTemp.destinationY()
       if (destX === x1 && destY === y1) {
         return this.triggerTouchActionD1(x1, y1)
       }
@@ -471,17 +472,17 @@ export class Game_Player extends Game_Character {
   }
 
   triggerTouchActionD1(x1: number, y1: number): boolean {
-    if ($gameMap.airship().pos(x1, y1)) {
+    if (GlobalMananger.$gameMap.airship().pos(x1, y1)) {
       if (TouchInput.isTriggered() && this.getOnOffVehicle()) {
         return true
       }
     }
     this.checkEventTriggerHere([0])
-    return $gameMap.setupStartingEvent()
+    return GlobalMananger.$gameMap.setupStartingEvent()
   }
 
   triggerTouchActionD2(x2: number, y2: number): boolean {
-    if ($gameMap.boat().pos(x2, y2) || $gameMap.ship().pos(x2, y2)) {
+    if (GlobalMananger.$gameMap.boat().pos(x2, y2) || GlobalMananger.$gameMap.ship().pos(x2, y2)) {
       if (TouchInput.isTriggered() && this.getOnVehicle()) {
         return true
       }
@@ -492,14 +493,14 @@ export class Game_Player extends Game_Character {
       }
     }
     this.checkEventTriggerThere([0, 1, 2])
-    return $gameMap.setupStartingEvent()
+    return GlobalMananger.$gameMap.setupStartingEvent()
   }
 
   triggerTouchActionD3(x2: number, y2: number): boolean {
-    if ($gameMap.isCounter(x2, y2)) {
+    if (GlobalMananger.$gameMap.isCounter(x2, y2)) {
       this.checkEventTriggerThere([0, 1, 2])
     }
-    return $gameMap.setupStartingEvent()
+    return GlobalMananger.$gameMap.setupStartingEvent()
   }
 
   updateEncounterCount(): void {
@@ -510,8 +511,8 @@ export class Game_Player extends Game_Character {
 
   canEncounter(): boolean {
     return (
-      !$gameParty.hasEncounterNone()
-      && $gameSystem.isEncounterEnabled()
+      !GlobalMananger.$gameParty.hasEncounterNone()
+      && GlobalMananger.$gameSystem.isEncounterEnabled()
       && !this.isInAirship()
       && !this.isMoveRouteForcing()
       && !this.isDebugThrough()
@@ -519,8 +520,8 @@ export class Game_Player extends Game_Character {
   }
 
   encounterProgressValue(): number {
-    let value = $gameMap.isBush(this.x, this.y) ? 2 : 1
-    if ($gameParty.hasEncounterHalf()) {
+    let value = GlobalMananger.$gameMap.isBush(this.x, this.y) ? 2 : 1
+    if (GlobalMananger.$gameParty.hasEncounterHalf()) {
       value *= 0.5
     }
     if (this.isInShip()) {
@@ -540,12 +541,12 @@ export class Game_Player extends Game_Character {
       const direction = this.direction()
       const x1 = this.x
       const y1 = this.y
-      const x2 = $gameMap.roundXWithDirection(x1, direction)
-      const y2 = $gameMap.roundYWithDirection(y1, direction)
+      const x2 = GlobalMananger.$gameMap.roundXWithDirection(x1, direction)
+      const y2 = GlobalMananger.$gameMap.roundYWithDirection(y1, direction)
       this.startMapEvent(x2, y2, triggers, true)
-      if (!$gameMap.isAnyEventStarting() && $gameMap.isCounter(x2, y2)) {
-        const x3 = $gameMap.roundXWithDirection(x2, direction)
-        const y3 = $gameMap.roundYWithDirection(y2, direction)
+      if (!GlobalMananger.$gameMap.isAnyEventStarting() && GlobalMananger.$gameMap.isCounter(x2, y2)) {
+        const x3 = GlobalMananger.$gameMap.roundXWithDirection(x2, direction)
+        const y3 = GlobalMananger.$gameMap.roundYWithDirection(y2, direction)
         this.startMapEvent(x3, y3, triggers, true)
       }
     }
@@ -574,15 +575,15 @@ export class Game_Player extends Game_Character {
     const direction = this.direction()
     const x1 = this.x
     const y1 = this.y
-    const x2 = $gameMap.roundXWithDirection(x1, direction)
-    const y2 = $gameMap.roundYWithDirection(y1, direction)
-    if ($gameMap.airship().pos(x1, y1)) {
+    const x2 = GlobalMananger.$gameMap.roundXWithDirection(x1, direction)
+    const y2 = GlobalMananger.$gameMap.roundYWithDirection(y1, direction)
+    if (GlobalMananger.$gameMap.airship().pos(x1, y1)) {
       this._vehicleType = 'airship'
     }
-    else if ($gameMap.ship().pos(x2, y2)) {
+    else if (GlobalMananger.$gameMap.ship().pos(x2, y2)) {
       this._vehicleType = 'ship'
     }
-    else if ($gameMap.boat().pos(x2, y2)) {
+    else if (GlobalMananger.$gameMap.boat().pos(x2, y2)) {
       this._vehicleType = 'boat'
     }
     if (this.isInVehicle()) {
@@ -622,7 +623,7 @@ export class Game_Player extends Game_Character {
   }
 
   isOnDamageFloor(): boolean {
-    return $gameMap.isDamageFloor(this.x, this.y) && !this.isInAirship()
+    return GlobalMananger.$gameMap.isDamageFloor(this.x, this.y) && !this.isInAirship()
   }
 
   moveStraight(d: number): void {

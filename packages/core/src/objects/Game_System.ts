@@ -2,6 +2,7 @@ import type { MZ } from '@rmmz-lib/database-types'
 import type { RGBA } from '../types'
 import { Graphics } from '../core'
 import { AudioManager } from '../managers/AudioManager'
+import { GlobalMananger } from '../managers'
 
 /**
  * The game object class for the system data.
@@ -50,35 +51,35 @@ export class Game_System {
   }
 
   isJapanese(): boolean {
-    return !!$dataSystem.locale.match(/^ja/)
+    return !!GlobalMananger.$dataSystem.locale.match(/^ja/)
   }
 
   isChinese(): boolean {
-    return !!$dataSystem.locale.match(/^zh/)
+    return !!GlobalMananger.$dataSystem.locale.match(/^zh/)
   }
 
   isKorean(): boolean {
-    return !!$dataSystem.locale.match(/^ko/)
+    return !!GlobalMananger.$dataSystem.locale.match(/^ko/)
   }
 
   isCJK(): boolean {
-    return !!$dataSystem.locale.match(/^(ja|zh|ko)/)
+    return !!GlobalMananger.$dataSystem.locale.match(/^(ja|zh|ko)/)
   }
 
   isRussian(): boolean {
-    return !!$dataSystem.locale.match(/^ru/)
+    return !!GlobalMananger.$dataSystem.locale.match(/^ru/)
   }
 
   isSideView(): boolean {
-    return $dataSystem.optSideView
+    return GlobalMananger.$dataSystem.optSideView
   }
 
   isAutosaveEnabled(): boolean {
-    return $dataSystem.optAutosave
+    return GlobalMananger.$dataSystem.optAutosave
   }
 
   isMessageSkipEnabled(): boolean {
-    return $dataSystem.optMessageSkip
+    return GlobalMananger.$dataSystem.optMessageSkip
   }
 
   isSaveEnabled(): boolean {
@@ -158,7 +159,7 @@ export class Game_System {
   }
 
   windowTone(): RGBA {
-    return this._windowTone || $dataSystem.windowTone
+    return this._windowTone || GlobalMananger.$dataSystem.windowTone
   }
 
   setWindowTone(value: RGBA | null): void {
@@ -166,7 +167,7 @@ export class Game_System {
   }
 
   battleBgm(): MZ.AudioInfo | null {
-    return this._battleBgm || $dataSystem.battleBgm
+    return this._battleBgm || GlobalMananger.$dataSystem.battleBgm
   }
 
   setBattleBgm(value: MZ.AudioInfo | null): void {
@@ -174,7 +175,7 @@ export class Game_System {
   }
 
   victoryMe(): MZ.AudioInfo | null {
-    return this._victoryMe || $dataSystem.victoryMe
+    return this._victoryMe || GlobalMananger.$dataSystem.victoryMe
   }
 
   setVictoryMe(value: MZ.AudioInfo | null): void {
@@ -182,7 +183,7 @@ export class Game_System {
   }
 
   defeatMe(): MZ.AudioInfo {
-    return this._defeatMe || $dataSystem.defeatMe
+    return this._defeatMe || GlobalMananger.$dataSystem.defeatMe
   }
 
   setDefeatMe(value: MZ.AudioInfo | null): void {
@@ -203,7 +204,7 @@ export class Game_System {
 
   onBeforeSave(): void {
     this._saveCount++
-    this._versionId = $dataSystem.versionId
+    this._versionId = GlobalMananger.$dataSystem.versionId
     this._framesOnSave = Graphics.frameCount
     this._bgmOnSave = AudioManager.saveBgm()
     this._bgsOnSave = AudioManager.saveBgs()
@@ -247,11 +248,11 @@ export class Game_System {
   }
 
   saveWalkingBgm2(): void {
-    this._walkingBgm = $dataMap.bgm
+    this._walkingBgm = GlobalMananger.$dataMap.bgm
   }
 
   mainFontFace(): string {
-    return `rmmz-mainfont, ${$dataSystem.advanced.fallbackFonts}`
+    return `rmmz-mainfont, ${GlobalMananger.$dataSystem.advanced.fallbackFonts}`
   }
 
   numberFontFace(): string {
@@ -259,7 +260,7 @@ export class Game_System {
   }
 
   mainFontSize(): number {
-    return $dataSystem.advanced.fontSize
+    return GlobalMananger.$dataSystem.advanced.fontSize
   }
 
   windowPadding(): number {
@@ -267,6 +268,6 @@ export class Game_System {
   }
 
   windowOpacity(): number {
-    return $dataSystem.advanced.windowOpacity
+    return GlobalMananger.$dataSystem.advanced.windowOpacity
   }
 }

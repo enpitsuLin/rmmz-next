@@ -1,7 +1,7 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Rectangle } from '../core'
 import type { Game_Actor } from '../objects/Game_Actor'
-import { ConfigManager, TextManager } from '../managers'
+import { GlobalMananger, ConfigManager, TextManager } from '../managers'
 import { Window_Command } from './Window_Command'
 
 /**
@@ -35,7 +35,7 @@ export class Window_ActorCommand extends Window_Command {
   addSkillCommands(): void {
     const skillTypes = this._actor!.skillTypes()
     for (const stypeId of skillTypes) {
-      const name = $dataSystem.skillTypes[stypeId]
+      const name = GlobalMananger.$dataSystem.skillTypes[stypeId]
       this.addCommand(name, 'skill', true, stypeId)
     }
   }

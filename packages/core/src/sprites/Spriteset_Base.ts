@@ -7,6 +7,7 @@ import { Sprite_Animation } from './Sprite_Animation'
 import { Sprite_AnimationMV } from './Sprite_AnimationMV'
 import { Sprite_Picture } from './Sprite_Picture'
 import { Sprite_Timer } from './Sprite_Timer'
+import { GlobalMananger } from '../managers'
 
 /**
  * Spriteset_Base
@@ -80,7 +81,7 @@ export abstract class Spriteset_Base<
     const rect = this.pictureContainerRect()
     this._pictureContainer = new Sprite()
     this._pictureContainer.setFrame(rect.x, rect.y, rect.width, rect.height)
-    for (let i = 1; i <= $gameScreen.maxPictures(); i++) {
+    for (let i = 1; i <= GlobalMananger.$gameScreen.maxPictures(); i++) {
       this._pictureContainer.addChild(new Sprite_Picture(i))
     }
     this.addChild(this._pictureContainer)
@@ -103,17 +104,17 @@ export abstract class Spriteset_Base<
 
   updateBaseFilters(): void {
     const filter = this._baseColorFilter
-    filter.setColorTone($gameScreen.tone())
+    filter.setColorTone(GlobalMananger.$gameScreen.tone())
   }
 
   updateOverallFilters(): void {
     const filter = this._overallColorFilter
-    filter.setBlendColor($gameScreen.flashColor())
-    filter.setBrightness($gameScreen.brightness())
+    filter.setBlendColor(GlobalMananger.$gameScreen.flashColor())
+    filter.setBrightness(GlobalMananger.$gameScreen.brightness())
   }
 
   updatePosition(): void {
-    const screen = $gameScreen
+    const screen = GlobalMananger.$gameScreen
     const scale = screen.zoomScale()
     this.scale.x = scale
     this.scale.y = scale
@@ -137,7 +138,7 @@ export abstract class Spriteset_Base<
 
   processAnimationRequests(): void {
     for (; ;) {
-      const request = $gameTemp.retrieveAnimation()
+      const request = GlobalMananger.$gameTemp.retrieveAnimation()
       if (request) {
         this.createAnimation(request)
       }
@@ -148,7 +149,7 @@ export abstract class Spriteset_Base<
   }
 
   createAnimation(request: Game_Temp.AnimationRequest): void {
-    const animation = $dataAnimations[request.animationId]
+    const animation = GlobalMananger.$dataAnimations[request.animationId]
     const targets = request.targets as Target[]
     const mirror = request.mirror
     let delay = this.animationBaseDelay()

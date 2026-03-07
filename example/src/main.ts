@@ -13,7 +13,9 @@ import {
   WebAudio,
 } from '@rmmz-lib/core'
 import { fileurl } from 'virtual:rmmz-project'
-import './global'
+
+// @ts-expect-error ignore
+globalThis.$plugins = []
 
 ImageManager.loadBitmapFromUrl = function (url) {
   const cache = url.includes('/system/') ? this._system : this._cache

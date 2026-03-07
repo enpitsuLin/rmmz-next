@@ -2,7 +2,7 @@ import type * as PIXI from 'pixi.js'
 import type { Game_Battler } from '../objects'
 import type { RGBA } from '../types'
 import { Bitmap, Sprite } from '../core'
-import { ColorManager } from '../managers'
+import { GlobalMananger, ColorManager } from '../managers'
 
 /**
  * Sprite_Damage
@@ -58,11 +58,11 @@ export class Sprite_Damage extends Sprite {
   }
 
   fontFace(): string {
-    return $gameSystem.numberFontFace()
+    return GlobalMananger.$gameSystem.numberFontFace()
   }
 
   fontSize(): number {
-    return $gameSystem.mainFontSize() + 4
+    return GlobalMananger.$gameSystem.mainFontSize() + 4
   }
 
   damageColor(): string {

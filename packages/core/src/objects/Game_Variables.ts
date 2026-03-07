@@ -1,3 +1,4 @@
+import { GlobalMananger } from '../managers'
 /**
  * The game object class for variables.
  */
@@ -17,7 +18,7 @@ export class Game_Variables {
   }
 
   setValue(variableId: number, value: number): void {
-    if (variableId > 0 && variableId < $dataSystem.variables.length) {
+    if (variableId > 0 && variableId < GlobalMananger.$dataSystem.variables.length) {
       if (typeof value === 'number') {
         value = Math.floor(value)
       }
@@ -27,6 +28,6 @@ export class Game_Variables {
   }
 
   onChange(): void {
-    $gameMap.requestRefresh()
+    GlobalMananger.$gameMap.requestRefresh()
   }
 }

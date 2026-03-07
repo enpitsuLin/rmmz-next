@@ -1,8 +1,7 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_Party } from './Game_Party'
 import type { Game_Troop } from './Game_Troop'
-import { BattleManager, SoundManager, TextManager } from '../managers'
-import { DataManager } from '../managers/DataManager'
+import { BattleManager, DataManager, GlobalMananger, SoundManager, TextManager } from '../managers'
 import { Game_Action } from './Game_Action'
 import { Game_Battler } from './Game_Battler'
 import { Game_Item } from './Game_Item'
@@ -65,7 +64,7 @@ export class Game_Actor extends Game_Battler {
   }
 
   setup(actorId: number): void {
-    const actor = $dataActors[actorId]!
+    const actor = GlobalMananger.$dataActors[actorId]!
     this._actorId = actorId
     this._name = actor.name
     this._nickname = actor.nickname
@@ -85,7 +84,7 @@ export class Game_Actor extends Game_Battler {
   }
 
   actor(): MZ.Actor {
-    return $dataActors[this._actorId]!
+    return GlobalMananger.$dataActors[this._actorId]!
   }
 
   name(): string {
@@ -144,7 +143,7 @@ export class Game_Actor extends Game_Battler {
 
   resetStateCounts(stateId: number): void {
     super.resetStateCounts(stateId)
-    this._stateSteps[stateId] = $dataStates[stateId]!.stepsToRemove
+    this._stateSteps[stateId] = GlobalMananger.$dataStates[stateId]!.stepsToRemove
   }
 
   initImages(): void {
@@ -224,7 +223,7 @@ export class Game_Actor extends Game_Battler {
 
   equipSlots(): number[] {
     const slots: number[] = []
-    for (let i = 1; i < $dataSystem.equipTypes.length; i++) {
+    for (let i = 1; i < GlobalMananger.$dataSystem.equipTypes.length; i++) {
       slots.push(i)
     }
     if (slots.length >= 2 && this.isDualWield()) {
@@ -277,12 +276,12 @@ export class Game_Actor extends Game_Battler {
   }
 
   tradeItemWithParty(newItem: MZ.EquipOrItem | null, oldItem: MZ.EquipOrItem | null): boolean {
-    if (!!newItem && !$gameParty.hasItem(newItem)) {
+    if (!!newItem && !GlobalMananger.$gameParty.hasItem(newItem)) {
       return false
     }
     else {
-      $gameParty.gainItem(oldItem, 1)
-      $gameParty.loseItem(newItem, 1)
+      GlobalMananger.$gameParty.gainItem(oldItem, 1)
+      GlobalMananger.$gameParty.loseItem(newItem, 1)
       return true
     }
   }
@@ -290,10 +289,10 @@ export class Game_Actor extends Game_Battler {
   changeEquipById(etypeId: number, itemId: number): void {
     const slotId = etypeId - 1
     if (this.equipSlots()[slotId] === 1) {
-      this.changeEquip(slotId, $dataWeapons[itemId])
+      this.changeEquip(slotId, GlobalMananger.$dataWeapons[itemId])
     }
     else {
-      this.changeEquip(slotId, $dataArmors[itemId])
+      this.changeEquip(slotId, GlobalMananger.$dataArmors[itemId])
     }
   }
 
@@ -350,7 +349,7 @@ export class Game_Actor extends Game_Battler {
 
   bestEquipItem(slotId: number): MZ.Weapon | MZ.Armor | null {
     const etypeId = this.equipSlots()[slotId]
-    const items = $gameParty
+    const items = GlobalMananger.$gameParty
       .equipItems()
       .filter(item => item.etypeId === etypeId && this.canEquip(item))
     let bestItem = null
@@ -395,7 +394,7 @@ export class Game_Actor extends Game_Battler {
 
   hide(): void {
     super.hide()
-    $gameTemp.requestBattleRefresh()
+    GlobalMananger.$gameTemp.requestBattleRefresh()
   }
 
   isActor(): this is Game_Actor {
@@ -403,19 +402,19 @@ export class Game_Actor extends Game_Battler {
   }
 
   friendsUnit(): Game_Party {
-    return $gameParty
+    return GlobalMananger.$gameParty
   }
 
   opponentsUnit(): Game_Troop {
-    return $gameTroop
+    return GlobalMananger.$gameTroop
   }
 
   index(): number {
-    return $gameParty.members().indexOf(this)
+    return GlobalMananger.$gameParty.members().indexOf(this)
   }
 
   isBattleMember(): boolean {
-    return $gameParty.battleMembers().includes(this)
+    return GlobalMananger.$gameParty.battleMembers().includes(this)
   }
 
   isFormationChangeOk(): boolean {
@@ -423,7 +422,7 @@ export class Game_Actor extends Game_Battler {
   }
 
   currentClass(): MZ.Class {
-    return $dataClasses[this._classId]!
+    return GlobalMananger.$dataClasses[this._classId]!
   }
 
   isClass(gameClass?: MZ.Class | null): boolean {
@@ -438,8 +437,8 @@ export class Game_Actor extends Game_Battler {
   skills(): MZ.Skill[] {
     const list: MZ.Skill[] = []
     for (const id of this._skills.concat(this.addedSkills())) {
-      if (!list.includes($dataSkills[id]!)) {
-        list.push($dataSkills[id]!)
+      if (!list.includes(GlobalMananger.$dataSkills[id]!)) {
+        list.push(GlobalMananger.$dataSkills[id]!)
       }
     }
     return list
@@ -552,10 +551,10 @@ export class Game_Actor extends Game_Battler {
       TextManager.level,
       this._level,
     )
-    $gameMessage.newPage()
-    $gameMessage.add(text)
+    GlobalMananger.$gameMessage.newPage()
+    GlobalMananger.$gameMessage.add(text)
     for (const skill of newSkills) {
-      $gameMessage.add(TextManager.obtainSkill.format(skill.name))
+      GlobalMananger.$gameMessage.add(TextManager.obtainSkill.format(skill.name))
     }
   }
 
@@ -569,7 +568,7 @@ export class Game_Actor extends Game_Battler {
   }
 
   benchMembersExpRate(): number {
-    return $dataSystem.optExtraExp ? 1 : 0
+    return GlobalMananger.$dataSystem.optExtraExp ? 1 : 0
   }
 
   shouldDisplayLevelUp(): boolean {
@@ -597,7 +596,7 @@ export class Game_Actor extends Game_Battler {
   }
 
   hasSkill(skillId: number): boolean {
-    return this.skills().includes($dataSkills[skillId]!)
+    return this.skills().includes(GlobalMananger.$dataSkills[skillId]!)
   }
 
   changeClass(classId: number, keepExp?: boolean): void {
@@ -618,7 +617,7 @@ export class Game_Actor extends Game_Battler {
   setFaceImage(faceName: string, faceIndex: number): void {
     this._faceName = faceName
     this._faceIndex = faceIndex
-    $gameTemp.requestBattleRefresh()
+    GlobalMananger.$gameTemp.requestBattleRefresh()
   }
 
   setBattlerImage(battlerName: string): void {
@@ -626,7 +625,7 @@ export class Game_Actor extends Game_Battler {
   }
 
   isSpriteVisible(): boolean {
-    return $gameSystem.isSideView()
+    return GlobalMananger.$gameSystem.isSideView()
   }
 
   performActionStart(action: Game_Action): void {
@@ -659,7 +658,7 @@ export class Game_Actor extends Game_Battler {
   performAttack(): void {
     const weapons = this.weapons()
     const wtypeId = weapons[0] ? weapons[0].wtypeId : 0
-    const attackMotion = $dataSystem.attackMotions[wtypeId]
+    const attackMotion = GlobalMananger.$dataSystem.attackMotions[wtypeId]
     if (attackMotion) {
       if (attackMotion.type === 0) {
         this.requestMotion('thrust')
@@ -680,7 +679,7 @@ export class Game_Actor extends Game_Battler {
       this.requestMotion('damage')
     }
     else {
-      $gameScreen.startShake(5, 5, 10)
+      GlobalMananger.$gameScreen.startShake(5, 5, 10)
     }
     SoundManager.playActorDamage()
   }
@@ -702,7 +701,7 @@ export class Game_Actor extends Game_Battler {
 
   performCollapse(): void {
     super.performCollapse()
-    if ($gameParty.inBattle()) {
+    if (GlobalMananger.$gameParty.inBattle()) {
       SoundManager.playActorCollapse()
     }
   }
@@ -774,7 +773,7 @@ export class Game_Actor extends Game_Battler {
   onPlayerWalk(): void {
     this.clearResult()
     this.checkFloorEffect()
-    if ($gamePlayer.isNormal()) {
+    if (GlobalMananger.$gamePlayer.isNormal()) {
       this.turnEndOnMap()
       for (const state of this.states()) {
         this.updateStateSteps(state)
@@ -797,7 +796,7 @@ export class Game_Actor extends Game_Battler {
   showAddedStates(): void {
     for (const state of this.result().addedStateObjects()) {
       if (state.message1) {
-        $gameMessage.add(state.message1.format(this._name))
+        GlobalMananger.$gameMessage.add(state.message1.format(this._name))
       }
     }
   }
@@ -805,7 +804,7 @@ export class Game_Actor extends Game_Battler {
   showRemovedStates(): void {
     for (const state of this.result().removedStateObjects()) {
       if (state.message4) {
-        $gameMessage.add(state.message4.format(this._name))
+        GlobalMananger.$gameMessage.add(state.message4.format(this._name))
       }
     }
   }
@@ -815,7 +814,7 @@ export class Game_Actor extends Game_Battler {
   }
 
   turnEndOnMap(): void {
-    if ($gameParty.steps() % this.stepsForTurn() === 0) {
+    if (GlobalMananger.$gameParty.steps() % this.stepsForTurn() === 0) {
       this.onTurnEnd()
       if (this.result().hpDamage > 0) {
         this.performMapDamage()
@@ -824,7 +823,7 @@ export class Game_Actor extends Game_Battler {
   }
 
   checkFloorEffect(): void {
-    if ($gamePlayer.isOnDamageFloor()) {
+    if (GlobalMananger.$gamePlayer.isOnDamageFloor()) {
       this.executeFloorDamage()
     }
   }
@@ -843,12 +842,12 @@ export class Game_Actor extends Game_Battler {
   }
 
   maxFloorDamage(): number {
-    return $dataSystem.optFloorDeath ? this.hp : Math.max(this.hp - 1, 0)
+    return GlobalMananger.$dataSystem.optFloorDeath ? this.hp : Math.max(this.hp - 1, 0)
   }
 
   performMapDamage(): void {
-    if (!$gameParty.inBattle()) {
-      $gameScreen.startFlashForDamage()
+    if (!GlobalMananger.$gameParty.inBattle()) {
+      GlobalMananger.$gameScreen.startFlashForDamage()
     }
   }
 
@@ -882,7 +881,7 @@ export class Game_Actor extends Game_Battler {
   }
 
   lastSkill(): MZ.GeneralItem | null {
-    if ($gameParty.inBattle()) {
+    if (GlobalMananger.$gameParty.inBattle()) {
       return this.lastBattleSkill()
     }
     else {
@@ -921,7 +920,7 @@ export class Game_Actor extends Game_Battler {
   }
 
   meetsUsableItemConditions(item: MZ.UsableItem): boolean {
-    if ($gameParty.inBattle()) {
+    if (GlobalMananger.$gameParty.inBattle()) {
       if (!BattleManager.canEscape() && this.testEscape(item)) {
         return false
       }

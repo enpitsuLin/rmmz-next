@@ -1,6 +1,6 @@
 import type { Game_Actor } from '../objects'
 import { Rectangle } from '../core'
-import { ColorManager, ImageManager } from '../managers'
+import { GlobalMananger, ColorManager, ImageManager } from '../managers'
 import { Window_StatusBase } from './Window_StatusBase'
 
 /**
@@ -74,7 +74,7 @@ export class Window_NameEdit extends Window_StatusBase {
   }
 
   charWidth(): number {
-    const text = $gameSystem.isJapanese() ? '\uFF21' : 'A'
+    const text = GlobalMananger.$gameSystem.isJapanese() ? '\uFF21' : 'A'
     return this.textWidth(text)
   }
 

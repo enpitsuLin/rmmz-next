@@ -3,7 +3,7 @@ import type { Game_Actor } from './Game_Actor'
 import type { Game_Battler } from './Game_Battler'
 import type { Game_Enemy } from './Game_Enemy'
 import type { Game_Unit } from './Game_Unit'
-import { DataManager } from '../managers/DataManager'
+import { DataManager, GlobalMananger } from '../managers'
 import { Game_Item } from './Game_Item'
 
 /**
@@ -65,10 +65,10 @@ export class Game_Action<Item extends Game_Item.ItemType = Game_Item.ItemType> {
 
   subject(): Game_Battler {
     if (this._subjectActorId > 0) {
-      return $gameActors.actor(this._subjectActorId)!
+      return GlobalMananger.$gameActors.actor(this._subjectActorId)!
     }
     else {
-      return $gameTroop.members()[this._subjectEnemyIndex]!
+      return GlobalMananger.$gameTroop.members()[this._subjectEnemyIndex]!
     }
   }
 
@@ -98,11 +98,11 @@ export class Game_Action<Item extends Game_Item.ItemType = Game_Item.ItemType> {
   }
 
   setSkill(skillId: number): void {
-    this._item.setObject($dataSkills[skillId]!)
+    this._item.setObject(GlobalMananger.$dataSkills[skillId]!)
   }
 
   setItem(itemId: number): void {
-    this._item.setObject($dataItems[itemId]!)
+    this._item.setObject(GlobalMananger.$dataItems[itemId]!)
   }
 
   setItemObject(object: MZ.GeneralItem | null): void {
@@ -226,16 +226,16 @@ export class Game_Action<Item extends Game_Item.ItemType = Game_Item.ItemType> {
   }
 
   isAttack(): boolean {
-    return this.item() === $dataSkills[this.subject().attackSkillId()]
+    return this.item() === GlobalMananger.$dataSkills[this.subject().attackSkillId()]
   }
 
   isGuard(): boolean {
-    return this.item() === $dataSkills[this.subject().guardSkillId()]
+    return this.item() === GlobalMananger.$dataSkills[this.subject().guardSkillId()]
   }
 
   isMagicSkill(): boolean {
     if (this.isSkill()) {
-      return $dataSystem.magicSkills.includes((this.item() as MZ.Skill).stypeId)
+      return GlobalMananger.$dataSystem.magicSkills.includes((this.item() as MZ.Skill).stypeId)
     }
     else {
       return false
@@ -457,7 +457,7 @@ export class Game_Action<Item extends Game_Item.ItemType = Game_Item.ItemType> {
   testApply(target: Game_Battler): boolean {
     return (
       this.testLifeAndDeath(target)
-      && ($gameParty.inBattle()
+      && (GlobalMananger.$gameParty.inBattle()
         || (this.isHpRecover() && target.hp < target.mhp)
         || (this.isMpRecover() && target.mp < target.mmp)
         || this.hasItemAnyValidEffects(target))
@@ -603,7 +603,7 @@ export class Game_Action<Item extends Game_Item.ItemType = Game_Item.ItemType> {
       const item = this.item()
       const a = this.subject()
       const b = target
-      const v = $gameVariables._data
+      const v = GlobalMananger.$gameVariables._data
       void [a, b, v] // in scope for eval'd damage formula
       const sign = [3, 4].includes(item.damage.type) ? -1 : 1
       const value = Math.max(eval(item.damage.formula), 0) * sign
@@ -888,7 +888,7 @@ export class Game_Action<Item extends Game_Item.ItemType = Game_Item.ItemType> {
   applyGlobal(): void {
     for (const effect of this.item().effects) {
       if (effect.code === Game_Action.EFFECT_COMMON_EVENT) {
-        $gameTemp.reserveCommonEvent(effect.dataId)
+        GlobalMananger.$gameTemp.reserveCommonEvent(effect.dataId)
       }
     }
     this.updateLastUsed()
@@ -898,29 +898,29 @@ export class Game_Action<Item extends Game_Item.ItemType = Game_Item.ItemType> {
   updateLastUsed(): void {
     const item = this.item()
     if (DataManager.isSkill(item)) {
-      $gameTemp.setLastUsedSkillId(item.id)
+      GlobalMananger.$gameTemp.setLastUsedSkillId(item.id)
     }
     else if (DataManager.isItem(item)) {
-      $gameTemp.setLastUsedItemId(item.id)
+      GlobalMananger.$gameTemp.setLastUsedItemId(item.id)
     }
   }
 
   updateLastSubject(): void {
     const subject = this.subject()
     if (subject.isActor()) {
-      $gameTemp.setLastSubjectActorId(subject.actorId())
+      GlobalMananger.$gameTemp.setLastSubjectActorId(subject.actorId())
     }
     else {
-      $gameTemp.setLastSubjectEnemyIndex(subject.index() + 1)
+      GlobalMananger.$gameTemp.setLastSubjectEnemyIndex(subject.index() + 1)
     }
   }
 
   updateLastTarget(target: Game_Battler): void {
     if (target.isActor()) {
-      $gameTemp.setLastTargetActorId(target.actorId())
+      GlobalMananger.$gameTemp.setLastTargetActorId(target.actorId())
     }
     else {
-      $gameTemp.setLastTargetEnemyIndex(target.index() + 1)
+      GlobalMananger.$gameTemp.setLastTargetEnemyIndex(target.index() + 1)
     }
   }
 }

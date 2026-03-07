@@ -7,6 +7,7 @@ import { Game_CommonEvent } from './Game_CommonEvent'
 import { Game_Event } from './Game_Event'
 import { Game_Interpreter } from './Game_Interpreter'
 import { Game_Vehicle } from './Game_Vehicle'
+import { GlobalMananger } from '../managers'
 
 /**
  * The game object class for a map.
@@ -68,11 +69,11 @@ class Game_Map {
   }
 
   setup(mapId: number): void {
-    if (!$dataMap) {
+    if (!GlobalMananger.$dataMap) {
       throw new Error('The map data is not available')
     }
     this._mapId = mapId
-    this._tilesetId = $dataMap.tilesetId
+    this._tilesetId = GlobalMananger.$dataMap.tilesetId
     this._displayX = 0
     this._displayY = 0
     this.refereshVehicles()
@@ -88,8 +89,8 @@ class Game_Map {
   }
 
   tileWidth(): number {
-    if ('tileSize' in $dataSystem) {
-      return $dataSystem.tileSize
+    if ('tileSize' in GlobalMananger.$dataSystem) {
+      return GlobalMananger.$dataSystem.tileSize
     }
     else {
       return 48
@@ -195,7 +196,7 @@ class Game_Map {
   setupEvents(): void {
     this._events = []
     this._commonEvents = []
-    for (const event of $dataMap.events.filter(event => !!event)) {
+    for (const event of GlobalMananger.$dataMap.events.filter(event => !!event)) {
       this._events[event.id] = new Game_Event(this._mapId, event.id)
     }
     for (const commonEvent of this.parallelCommonEvents()) {
@@ -217,13 +218,13 @@ class Game_Map {
   }
 
   autorunCommonEvents(): MZ.CommonEvent[] {
-    return $dataCommonEvents.filter(
+    return GlobalMananger.$dataCommonEvents.filter(
       (commonEvent): commonEvent is MZ.CommonEvent => !!commonEvent && commonEvent.trigger === 1,
     )
   }
 
   parallelCommonEvents(): MZ.CommonEvent[] {
-    return $dataCommonEvents.filter(
+    return GlobalMananger.$dataCommonEvents.filter(
       (commonEvent): commonEvent is MZ.CommonEvent => !!commonEvent && commonEvent.trigger === 2,
     )
   }
@@ -235,20 +236,20 @@ class Game_Map {
   }
 
   setupParallax(): void {
-    this._parallaxName = $dataMap.parallaxName || ''
+    this._parallaxName = GlobalMananger.$dataMap.parallaxName || ''
     this._parallaxZero = ImageManager.isZeroParallax(this._parallaxName)
-    this._parallaxLoopX = $dataMap.parallaxLoopX
-    this._parallaxLoopY = $dataMap.parallaxLoopY
-    this._parallaxSx = $dataMap.parallaxSx
-    this._parallaxSy = $dataMap.parallaxSy
+    this._parallaxLoopX = GlobalMananger.$dataMap.parallaxLoopX
+    this._parallaxLoopY = GlobalMananger.$dataMap.parallaxLoopY
+    this._parallaxSx = GlobalMananger.$dataMap.parallaxSx
+    this._parallaxSy = GlobalMananger.$dataMap.parallaxSy
     this._parallaxX = 0
     this._parallaxY = 0
   }
 
   setupBattleback(): void {
-    if ($dataMap.specifyBattleback) {
-      this._battleback1Name = $dataMap.battleback1Name
-      this._battleback2Name = $dataMap.battleback2Name
+    if (GlobalMananger.$dataMap.specifyBattleback) {
+      this._battleback1Name = GlobalMananger.$dataMap.battleback1Name
+      this._battleback2Name = GlobalMananger.$dataMap.battleback2Name
     }
     else {
       this._battleback1Name = null
@@ -302,7 +303,7 @@ class Game_Map {
   }
 
   tileset(): MZ.Tileset {
-    return $dataTilesets[this._tilesetId]!
+    return GlobalMananger.$dataTilesets[this._tilesetId]!
   }
 
   tilesetFlags(): number[] {
@@ -311,39 +312,39 @@ class Game_Map {
   }
 
   displayName(): string {
-    return $dataMap.displayName
+    return GlobalMananger.$dataMap.displayName
   }
 
   width(): number {
-    return $dataMap.width
+    return GlobalMananger.$dataMap.width
   }
 
   height(): number {
-    return $dataMap.height
+    return GlobalMananger.$dataMap.height
   }
 
   data(): number[] {
-    return $dataMap.data
+    return GlobalMananger.$dataMap.data
   }
 
   isLoopHorizontal(): boolean {
-    return $dataMap.scrollType === 2 || $dataMap.scrollType === 3
+    return GlobalMananger.$dataMap.scrollType === 2 || GlobalMananger.$dataMap.scrollType === 3
   }
 
   isLoopVertical(): boolean {
-    return $dataMap.scrollType === 1 || $dataMap.scrollType === 3
+    return GlobalMananger.$dataMap.scrollType === 1 || GlobalMananger.$dataMap.scrollType === 3
   }
 
   isDashDisabled(): boolean {
-    return $dataMap.disableDashing
+    return GlobalMananger.$dataMap.disableDashing
   }
 
   encounterList(): MZ.Map['encounterList'] {
-    return $dataMap.encounterList
+    return GlobalMananger.$dataMap.encounterList
   }
 
   encounterStep(): number {
-    return $dataMap.encounterStep
+    return GlobalMananger.$dataMap.encounterStep
   }
 
   isOverworld(): boolean {
@@ -441,16 +442,16 @@ class Game_Map {
   }
 
   autoplay(): void {
-    if ($dataMap.autoplayBgm) {
-      if ($gamePlayer.isInVehicle()) {
-        $gameSystem.saveWalkingBgm2()
+    if (GlobalMananger.$dataMap.autoplayBgm) {
+      if (GlobalMananger.$gamePlayer.isInVehicle()) {
+        GlobalMananger.$gameSystem.saveWalkingBgm2()
       }
       else {
-        AudioManager.playBgm($dataMap.bgm)
+        AudioManager.playBgm(GlobalMananger.$dataMap.bgm)
       }
     }
-    if ($dataMap.autoplayBgs) {
-      AudioManager.playBgs($dataMap.bgs)
+    if (GlobalMananger.$dataMap.autoplayBgs) {
+      AudioManager.playBgs(GlobalMananger.$dataMap.bgs)
     }
   }
 
@@ -495,7 +496,7 @@ class Game_Map {
   scrollDown(distance: number): void {
     if (this.isLoopVertical()) {
       this._displayY += distance
-      this._displayY %= $dataMap.height
+      this._displayY %= GlobalMananger.$dataMap.height
       if (this._parallaxLoopY) {
         this._parallaxY += distance
       }
@@ -512,8 +513,8 @@ class Game_Map {
 
   scrollLeft(distance: number): void {
     if (this.isLoopHorizontal()) {
-      this._displayX += $dataMap.width - distance
-      this._displayX %= $dataMap.width
+      this._displayX += GlobalMananger.$dataMap.width - distance
+      this._displayX %= GlobalMananger.$dataMap.width
       if (this._parallaxLoopX) {
         this._parallaxX -= distance
       }
@@ -528,7 +529,7 @@ class Game_Map {
   scrollRight(distance: number): void {
     if (this.isLoopHorizontal()) {
       this._displayX += distance
-      this._displayX %= $dataMap.width
+      this._displayX %= GlobalMananger.$dataMap.width
       if (this._parallaxLoopX) {
         this._parallaxX += distance
       }
@@ -545,8 +546,8 @@ class Game_Map {
 
   scrollUp(distance: number): void {
     if (this.isLoopVertical()) {
-      this._displayY += $dataMap.height - distance
-      this._displayY %= $dataMap.height
+      this._displayY += GlobalMananger.$dataMap.height - distance
+      this._displayY %= GlobalMananger.$dataMap.height
       if (this._parallaxLoopY) {
         this._parallaxY -= distance
       }
@@ -581,9 +582,9 @@ class Game_Map {
   }
 
   tileId(x: number, y: number, z: number): number {
-    const width = $dataMap.width
-    const height = $dataMap.height
-    return $dataMap.data[(z * height + y) * width + x] || 0
+    const width = GlobalMananger.$dataMap.width
+    const height = GlobalMananger.$dataMap.height
+    return GlobalMananger.$dataMap.data[(z * height + y) * width + x] || 0
   }
 
   layeredTiles(x: number, y: number): number[] {
@@ -806,9 +807,9 @@ class Game_Map {
   }
 
   setupTestEvent(): boolean {
-    if (window.$testEvent) {
-      this._interpreter.setup($testEvent!, 0)
-      $testEvent = null
+    if (GlobalMananger.$testEvent) {
+      this._interpreter.setup(GlobalMananger.$testEvent!, 0)
+      GlobalMananger.$testEvent = null
       return true
     }
     return false
@@ -827,7 +828,7 @@ class Game_Map {
 
   setupAutorunCommonEvent(): boolean {
     for (const commonEvent of this.autorunCommonEvents()) {
-      if ($gameSwitches.value(commonEvent.switchId)) {
+      if (GlobalMananger.$gameSwitches.value(commonEvent.switchId)) {
         this._interpreter.setup(commonEvent.list)
         return true
       }

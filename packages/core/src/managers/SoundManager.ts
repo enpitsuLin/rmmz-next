@@ -1,4 +1,5 @@
 import { AudioManager } from './AudioManager'
+import { GlobalMananger } from './GlobalManager'
 
 /**
  * The static class that plays sound effects defined in the database.
@@ -16,14 +17,14 @@ export class SoundManager {
   }
 
   static loadSystemSound(n: number): void {
-    if ($dataSystem) {
-      AudioManager.loadStaticSe($dataSystem.sounds[n])
+    if (GlobalMananger.$dataSystem) {
+      AudioManager.loadStaticSe(GlobalMananger.$dataSystem.sounds[n])
     }
   }
 
   static playSystemSound(n: number): void {
-    if ($dataSystem) {
-      AudioManager.playStaticSe($dataSystem.sounds[n])
+    if (GlobalMananger.$dataSystem) {
+      AudioManager.playStaticSe(GlobalMananger.$dataSystem.sounds[n])
     }
   }
 

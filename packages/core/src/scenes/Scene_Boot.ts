@@ -1,5 +1,5 @@
 import { Graphics, Utils } from '../core'
-import { StorageManager } from '../managers'
+import { GlobalMananger, StorageManager } from '../managers'
 import { ColorManager } from '../managers/ColorManager'
 import { ConfigManager } from '../managers/ConfigManager'
 import { DataManager } from '../managers/DataManager'
@@ -54,9 +54,9 @@ export class Scene_Boot extends Scene_Base {
   }
 
   setEncryptionInfo(): void {
-    const hasImages = $dataSystem.hasEncryptedImages
-    const hasAudio = $dataSystem.hasEncryptedAudio
-    const key = $dataSystem.encryptionKey
+    const hasImages = GlobalMananger.$dataSystem.hasEncryptedImages
+    const hasAudio = GlobalMananger.$dataSystem.hasEncryptedAudio
+    const key = GlobalMananger.$dataSystem.encryptionKey
     Utils.setEncryptionInfo(hasImages, hasAudio, key)
   }
 
@@ -71,7 +71,7 @@ export class Scene_Boot extends Scene_Base {
   }
 
   loadGameFonts(): void {
-    const advanced = $dataSystem.advanced
+    const advanced = GlobalMananger.$dataSystem.advanced
     FontManager.load('rmmz-mainfont', advanced.mainFontFilename)
     FontManager.load('rmmz-numberfont', advanced.numberFontFilename)
   }
@@ -111,8 +111,8 @@ export class Scene_Boot extends Scene_Base {
   }
 
   resizeScreen(): void {
-    const screenWidth = $dataSystem.advanced.screenWidth
-    const screenHeight = $dataSystem.advanced.screenHeight
+    const screenWidth = GlobalMananger.$dataSystem.advanced.screenWidth
+    const screenHeight = GlobalMananger.$dataSystem.advanced.screenHeight
     Graphics.resize(screenWidth, screenHeight)
     Graphics.defaultScale = this.screenScale()
     this.adjustBoxSize()
@@ -120,8 +120,8 @@ export class Scene_Boot extends Scene_Base {
   }
 
   adjustBoxSize(): void {
-    const uiAreaWidth = $dataSystem.advanced.uiAreaWidth
-    const uiAreaHeight = $dataSystem.advanced.uiAreaHeight
+    const uiAreaWidth = GlobalMananger.$dataSystem.advanced.uiAreaWidth
+    const uiAreaHeight = GlobalMananger.$dataSystem.advanced.uiAreaHeight
     const boxMargin = 4
     Graphics.boxWidth = uiAreaWidth - boxMargin * 2
     Graphics.boxHeight = uiAreaHeight - boxMargin * 2
@@ -138,8 +138,8 @@ export class Scene_Boot extends Scene_Base {
   }
 
   screenScale(): number {
-    if ('screenScale' in $dataSystem.advanced) {
-      return $dataSystem.advanced.screenScale!
+    if ('screenScale' in GlobalMananger.$dataSystem.advanced) {
+      return GlobalMananger.$dataSystem.advanced.screenScale!
     }
     else {
       return 1
@@ -147,11 +147,11 @@ export class Scene_Boot extends Scene_Base {
   }
 
   updateDocumentTitle(): void {
-    document.title = $dataSystem.gameTitle
+    document.title = GlobalMananger.$dataSystem.gameTitle
   }
 
   checkPlayerLocation(): void {
-    if ($dataSystem.startMapId === 0) {
+    if (GlobalMananger.$dataSystem.startMapId === 0) {
       throw new Error('Player\'s starting position is not set')
     }
   }

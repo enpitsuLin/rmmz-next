@@ -1,7 +1,7 @@
 import type * as PIXI from 'pixi.js'
 import type { Game_Battler } from '../objects'
 import { Bitmap, Sprite } from '../core'
-import { ColorManager } from '../managers'
+import { GlobalMananger, ColorManager } from '../managers'
 
 /**
  * Sprite_Name
@@ -45,11 +45,11 @@ export class Sprite_Name extends Sprite {
   }
 
   fontFace(): string {
-    return $gameSystem.mainFontFace()
+    return GlobalMananger.$gameSystem.mainFontFace()
   }
 
   fontSize(): number {
-    return $gameSystem.mainFontSize()
+    return GlobalMananger.$gameSystem.mainFontSize()
   }
 
   setup(battler: Game_Battler): void {

@@ -2,7 +2,7 @@ import type * as PIXI from 'pixi.js'
 import type { Game_Battler } from '../objects'
 import type { RGBA } from '../types'
 import { Bitmap, Sprite } from '../core'
-import { ColorManager, TextManager } from '../managers'
+import { GlobalMananger, ColorManager, TextManager } from '../managers'
 
 /**
  * Sprite_Gauge
@@ -77,19 +77,19 @@ export class Sprite_Gauge extends Sprite {
   }
 
   labelFontFace(): string {
-    return $gameSystem.mainFontFace()
+    return GlobalMananger.$gameSystem.mainFontFace()
   }
 
   labelFontSize(): number {
-    return $gameSystem.mainFontSize() - 2
+    return GlobalMananger.$gameSystem.mainFontSize() - 2
   }
 
   valueFontFace(): string {
-    return $gameSystem.numberFontFace()
+    return GlobalMananger.$gameSystem.numberFontFace()
   }
 
   valueFontSize(): number {
-    return $gameSystem.mainFontSize() - 6
+    return GlobalMananger.$gameSystem.mainFontSize() - 6
   }
 
   setup(battler: Game_Battler, statusType: Sprite_Gauge.StatusType): void {
@@ -170,7 +170,7 @@ export class Sprite_Gauge extends Sprite {
   isValid(): boolean {
     if (this._battler) {
       if (this._statusType === 'tp' && !this._battler.isPreserveTp()) {
-        return $gameParty.inBattle()
+        return GlobalMananger.$gameParty.inBattle()
       }
       else {
         return true

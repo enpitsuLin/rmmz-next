@@ -1,6 +1,6 @@
 import type { Rectangle } from '../core'
 import type { Game_Actor } from '../objects/Game_Actor'
-import { ImageManager } from '../managers'
+import { GlobalMananger, ImageManager } from '../managers'
 import { Window_StatusBase } from './Window_StatusBase'
 
 /**
@@ -32,7 +32,7 @@ export class Window_BattleStatus extends Window_StatusBase {
   }
 
   maxItems(): number {
-    return $gameParty.battleMembers().length
+    return GlobalMananger.$gameParty.battleMembers().length
   }
 
   rowSpacing(): number {
@@ -44,25 +44,25 @@ export class Window_BattleStatus extends Window_StatusBase {
   }
 
   actor(index: number): Game_Actor {
-    return $gameParty.battleMembers()[index]
+    return GlobalMananger.$gameParty.battleMembers()[index]
   }
 
   selectActor(actor: Game_Actor | null): void {
-    const members = $gameParty.battleMembers()
+    const members = GlobalMananger.$gameParty.battleMembers()
     this.select(members.indexOf(actor!))
   }
 
   update(): void {
     super.update()
-    if ($gameTemp.isBattleRefreshRequested()) {
+    if (GlobalMananger.$gameTemp.isBattleRefreshRequested()) {
       this.preparePartyRefresh()
     }
   }
 
   preparePartyRefresh(): void {
-    $gameTemp.clearBattleRefreshRequest()
+    GlobalMananger.$gameTemp.clearBattleRefreshRequest()
     this._bitmapsReady = 0
-    for (const actor of $gameParty.members()) {
+    for (const actor of GlobalMananger.$gameParty.members()) {
       const bitmap = ImageManager.loadFace(actor.faceName())
       bitmap.addLoadListener(this.performPartyRefresh.bind(this))
     }
@@ -70,7 +70,7 @@ export class Window_BattleStatus extends Window_StatusBase {
 
   performPartyRefresh(): void {
     this._bitmapsReady++
-    if (this._bitmapsReady >= $gameParty.members().length) {
+    if (this._bitmapsReady >= GlobalMananger.$gameParty.members().length) {
       this.refresh()
     }
   }
@@ -130,7 +130,7 @@ export class Window_BattleStatus extends Window_StatusBase {
 
   basicGaugesY(rect: Rectangle): number {
     const bottom = rect.y + rect.height - this.extraHeight()
-    const numGauges = $dataSystem.optDisplayTp ? 3 : 2
+    const numGauges = GlobalMananger.$dataSystem.optDisplayTp ? 3 : 2
     return bottom - this.gaugeLineHeight() * numGauges
   }
 }

@@ -1,3 +1,4 @@
+import { GlobalMananger } from '../managers'
 /**
  * The game object class for switches.
  */
@@ -17,14 +18,14 @@ class Game_Switches {
   }
 
   setValue(switchId: number, value: boolean): void {
-    if (switchId > 0 && switchId < $dataSystem.switches.length) {
+    if (switchId > 0 && switchId < GlobalMananger.$dataSystem.switches.length) {
       this._data[switchId] = value
       this.onChange()
     }
   }
 
   onChange(): void {
-    $gameMap.requestRefresh()
+    GlobalMananger.$gameMap.requestRefresh()
   }
 }
 

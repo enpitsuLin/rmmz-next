@@ -1,7 +1,7 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { VehicleType } from '../types'
 import type { Game_CharacterBase } from './Game_CharacterBase'
-import { AudioManager } from '../managers'
+import { GlobalMananger, AudioManager } from '../managers'
 import { Game_Character } from './Game_Character'
 
 /**
@@ -64,13 +64,13 @@ export class Game_Vehicle extends Game_Character {
 
   vehicle(): MZ.System.Boat | MZ.System.Ship | MZ.System.Airship | null {
     if (this.isBoat()) {
-      return $dataSystem.boat
+      return GlobalMananger.$dataSystem.boat
     }
     else if (this.isShip()) {
-      return $dataSystem.ship
+      return GlobalMananger.$dataSystem.ship
     }
     else if (this.isAirship()) {
-      return $dataSystem.airship
+      return GlobalMananger.$dataSystem.airship
     }
     else {
       return null
@@ -86,10 +86,10 @@ export class Game_Vehicle extends Game_Character {
 
   refresh(): void {
     if (this._driving) {
-      this._mapId = $gameMap.mapId()
+      this._mapId = GlobalMananger.$gameMap.mapId()
       this.syncWithPlayer()
     }
-    else if (this._mapId === $gameMap.mapId()) {
+    else if (this._mapId === GlobalMananger.$gameMap.mapId()) {
       this.locate(this.x, this.y)
     }
     if (this.isAirship()) {
@@ -100,7 +100,7 @@ export class Game_Vehicle extends Game_Character {
     }
     this.setWalkAnime(this._driving!)
     this.setStepAnime(this._driving!)
-    this.setTransparent(this._mapId !== $gameMap.mapId())
+    this.setTransparent(this._mapId !== GlobalMananger.$gameMap.mapId())
   }
 
   setLocation(mapId: number, x: number, y: number): void {
@@ -110,7 +110,7 @@ export class Game_Vehicle extends Game_Character {
   }
 
   pos(x: number, y: number): boolean {
-    if (this._mapId === $gameMap.mapId()) {
+    if (this._mapId === GlobalMananger.$gameMap.mapId()) {
       return super.pos(x, y)
     }
     else {
@@ -119,13 +119,13 @@ export class Game_Vehicle extends Game_Character {
   }
 
   isMapPassable(x: number, y: number, d: number): boolean {
-    const x2 = $gameMap.roundXWithDirection(x, d)
-    const y2 = $gameMap.roundYWithDirection(y, d)
+    const x2 = GlobalMananger.$gameMap.roundXWithDirection(x, d)
+    const y2 = GlobalMananger.$gameMap.roundYWithDirection(y, d)
     if (this.isBoat()) {
-      return $gameMap.isBoatPassable(x2, y2)
+      return GlobalMananger.$gameMap.isBoatPassable(x2, y2)
     }
     else if (this.isShip()) {
-      return $gameMap.isShipPassable(x2, y2)
+      return GlobalMananger.$gameMap.isShipPassable(x2, y2)
     }
     else if (this.isAirship()) {
       return true
@@ -139,7 +139,7 @@ export class Game_Vehicle extends Game_Character {
     this._driving = true
     this.setWalkAnime(true)
     this.setStepAnime(true)
-    $gameSystem.saveWalkingBgm()
+    GlobalMananger.$gameSystem.saveWalkingBgm()
     this.playBgm()
   }
 
@@ -148,7 +148,7 @@ export class Game_Vehicle extends Game_Character {
     this.setWalkAnime(false)
     this.setStepAnime(false)
     this.resetDirection()
-    $gameSystem.replayWalkingBgm()
+    GlobalMananger.$gameSystem.replayWalkingBgm()
   }
 
   setBgm(bgm: MZ.AudioInfo): void {
@@ -160,7 +160,7 @@ export class Game_Vehicle extends Game_Character {
   }
 
   syncWithPlayer(): void {
-    this.copyPosition($gamePlayer)
+    this.copyPosition(GlobalMananger.$gamePlayer)
     this.refreshBushDepth()
   }
 
@@ -224,25 +224,25 @@ export class Game_Vehicle extends Game_Character {
   }
 
   isTakeoffOk(): boolean {
-    return $gamePlayer.areFollowersGathered()
+    return GlobalMananger.$gamePlayer.areFollowersGathered()
   }
 
   isLandOk(x: number, y: number, d: Game_CharacterBase.CharacterDirection): boolean {
     if (this.isAirship()) {
-      if (!$gameMap.isAirshipLandOk(x, y)) {
+      if (!GlobalMananger.$gameMap.isAirshipLandOk(x, y)) {
         return false
       }
-      if ($gameMap.eventsXy(x, y).length > 0) {
+      if (GlobalMananger.$gameMap.eventsXy(x, y).length > 0) {
         return false
       }
     }
     else {
-      const x2 = $gameMap.roundXWithDirection(x, d)
-      const y2 = $gameMap.roundYWithDirection(y, d)
-      if (!$gameMap.isValid(x2, y2)) {
+      const x2 = GlobalMananger.$gameMap.roundXWithDirection(x, d)
+      const y2 = GlobalMananger.$gameMap.roundYWithDirection(y, d)
+      if (!GlobalMananger.$gameMap.isValid(x2, y2)) {
         return false
       }
-      if (!$gameMap.isPassable(x2, y2, this.reverseDir(d))) {
+      if (!GlobalMananger.$gameMap.isPassable(x2, y2, this.reverseDir(d))) {
         return false
       }
       if (this.isCollidedWithCharacters(x2, y2)) {

@@ -5,7 +5,7 @@ import type { Window_Gold } from './Window_Gold'
 import type { Window_NameBox } from './Window_NameBox'
 import type { Window_NumberInput } from './Window_NumberInput'
 import { Graphics, Input, TouchInput } from '../core'
-import { ImageManager } from '../managers'
+import { GlobalMananger, ImageManager } from '../managers'
 import { Window_Base } from './Window_Base'
 
 /**
@@ -125,11 +125,11 @@ export class Window_Message extends Window_Base {
   }
 
   canStart(): boolean {
-    return $gameMessage.hasText() && !$gameMessage.scrollMode()
+    return GlobalMananger.$gameMessage.hasText() && !GlobalMananger.$gameMessage.scrollMode()
   }
 
   startMessage(): void {
-    const text = $gameMessage.allText()
+    const text = GlobalMananger.$gameMessage.allText()
     const textState = this.createTextState(text, 0, 0, 0)
     textState.x = this.newLineX(textState)
     textState.startX = textState.x
@@ -142,7 +142,7 @@ export class Window_Message extends Window_Base {
   }
 
   newLineX(textState: Window_Base.TextState): number {
-    const faceExists = $gameMessage.faceName() !== ''
+    const faceExists = GlobalMananger.$gameMessage.faceName() !== ''
     const faceWidth = ImageManager.standardFaceWidth
     const spacing = 20
     const margin = faceExists ? faceWidth + spacing : 4
@@ -151,7 +151,7 @@ export class Window_Message extends Window_Base {
 
   updatePlacement(): void {
     const goldWindow = this._goldWindow
-    this._positionType = $gameMessage.positionType()
+    this._positionType = GlobalMananger.$gameMessage.positionType()
     this.y = (this._positionType * (Graphics.boxHeight - this.height)) / 2
     if (goldWindow) {
       goldWindow.y = this.y > 0 ? 0 : Graphics.boxHeight - goldWindow.height
@@ -159,14 +159,14 @@ export class Window_Message extends Window_Base {
   }
 
   updateBackground(): void {
-    this._background = $gameMessage.background() as Window_Message.BackgroundType
+    this._background = GlobalMananger.$gameMessage.background() as Window_Message.BackgroundType
     this.setBackgroundType(this._background)
   }
 
   terminateMessage(): void {
     this.close()
     this._goldWindow!.close()
-    $gameMessage.clear()
+    GlobalMananger.$gameMessage.clear()
   }
 
   updateWait(): boolean {
@@ -180,7 +180,7 @@ export class Window_Message extends Window_Base {
   }
 
   cancelWait(): void {
-    if ($gameSystem.isMessageSkipEnabled()) {
+    if (GlobalMananger.$gameSystem.isMessageSkipEnabled()) {
       this._waitCount = 0
     }
   }
@@ -289,15 +289,15 @@ export class Window_Message extends Window_Base {
   }
 
   startInput(): boolean {
-    if ($gameMessage.isChoice()) {
+    if (GlobalMananger.$gameMessage.isChoice()) {
       this._choiceListWindow!.start()
       return true
     }
-    else if ($gameMessage.isNumberInput()) {
+    else if (GlobalMananger.$gameMessage.isNumberInput()) {
       this._numberInputWindow!.start()
       return true
     }
-    else if ($gameMessage.isItemChoice()) {
+    else if (GlobalMananger.$gameMessage.isItemChoice()) {
       this._eventItemWindow!.start()
       return true
     }
@@ -316,16 +316,16 @@ export class Window_Message extends Window_Base {
 
   doesContinue(): boolean {
     return (
-      $gameMessage.hasText()
-      && !$gameMessage.scrollMode()
+      GlobalMananger.$gameMessage.hasText()
+      && !GlobalMananger.$gameMessage.scrollMode()
       && !this.areSettingsChanged()
     )
   }
 
   areSettingsChanged(): boolean {
     return (
-      this._background !== $gameMessage.background()
-      || this._positionType !== $gameMessage.positionType()
+      this._background !== GlobalMananger.$gameMessage.background()
+      || this._positionType !== GlobalMananger.$gameMessage.positionType()
     )
   }
 
@@ -347,17 +347,17 @@ export class Window_Message extends Window_Base {
   }
 
   updateSpeakerName(): void {
-    this._nameBoxWindow!.setName($gameMessage.speakerName())
+    this._nameBoxWindow!.setName(GlobalMananger.$gameMessage.speakerName())
   }
 
   loadMessageFace(): void {
-    this._faceBitmap = ImageManager.loadFace($gameMessage.faceName())
+    this._faceBitmap = ImageManager.loadFace(GlobalMananger.$gameMessage.faceName())
   }
 
   drawMessageFace(): void {
-    const faceName = $gameMessage.faceName()
-    const faceIndex = $gameMessage.faceIndex()
-    const rtl = $gameMessage.isRTL()
+    const faceName = GlobalMananger.$gameMessage.faceName()
+    const faceIndex = GlobalMananger.$gameMessage.faceIndex()
+    const rtl = GlobalMananger.$gameMessage.isRTL()
     const width = ImageManager.standardFaceWidth
     const height = this.innerHeight
     const x = rtl ? this.innerWidth - width - 4 : 4

@@ -8,6 +8,7 @@ import { Game_Action } from '../objects'
 import { Window_MenuActor } from '../windows'
 import { Scene_Map } from './Scene_Map'
 import { Scene_MenuBase } from './Scene_MenuBase'
+import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_ItemBase
@@ -121,10 +122,10 @@ export abstract class Scene_ItemBase extends Scene_MenuBase {
       return []
     }
     else if (action.isForAll()) {
-      return $gameParty.members()
+      return GlobalMananger.$gameParty.members()
     }
     else {
-      return [$gameParty.members()[this._actorWindow.index()]]
+      return [GlobalMananger.$gameParty.members()[this._actorWindow.index()]]
     }
   }
 
@@ -151,7 +152,7 @@ export abstract class Scene_ItemBase extends Scene_MenuBase {
   }
 
   checkCommonEvent(): void {
-    if ($gameTemp.isCommonEventReserved()) {
+    if (GlobalMananger.$gameTemp.isCommonEventReserved()) {
       SceneManager.goto(Scene_Map)
     }
   }

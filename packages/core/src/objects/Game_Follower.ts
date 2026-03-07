@@ -1,4 +1,5 @@
 import type { Game_Actor } from '.'
+import { GlobalMananger } from '../managers'
 import { Game_Character } from './Game_Character'
 
 /**
@@ -12,7 +13,7 @@ class Game_Follower extends Game_Character {
   constructor(memberIndex: number) {
     super()
     this._memberIndex = memberIndex
-    this.setTransparent($dataSystem.optTransparent)
+    this.setTransparent(GlobalMananger.$dataSystem.optTransparent)
     this.setThrough(true)
   }
 
@@ -23,26 +24,26 @@ class Game_Follower extends Game_Character {
   }
 
   actor(): Game_Actor {
-    return $gameParty.battleMembers()[this._memberIndex]
+    return GlobalMananger.$gameParty.battleMembers()[this._memberIndex]
   }
 
   isVisible(): boolean {
-    return this.actor() && $gamePlayer.followers().isVisible()
+    return this.actor() && GlobalMananger.$gamePlayer.followers().isVisible()
   }
 
   isGathered(): boolean {
-    return !this.isMoving() && this.pos($gamePlayer.x, $gamePlayer.y)
+    return !this.isMoving() && this.pos(GlobalMananger.$gamePlayer.x, GlobalMananger.$gamePlayer.y)
   }
 
   update(): void {
     super.update()
-    this.setMoveSpeed($gamePlayer.realMoveSpeed())
-    this.setOpacity($gamePlayer.opacity())
-    this.setBlendMode($gamePlayer.blendMode())
-    this.setWalkAnime($gamePlayer.hasWalkAnime())
-    this.setStepAnime($gamePlayer.hasStepAnime())
-    this.setDirectionFix($gamePlayer.isDirectionFixed())
-    this.setTransparent($gamePlayer.isTransparent())
+    this.setMoveSpeed(GlobalMananger.$gamePlayer.realMoveSpeed())
+    this.setOpacity(GlobalMananger.$gamePlayer.opacity())
+    this.setBlendMode(GlobalMananger.$gamePlayer.blendMode())
+    this.setWalkAnime(GlobalMananger.$gamePlayer.hasWalkAnime())
+    this.setStepAnime(GlobalMananger.$gamePlayer.hasStepAnime())
+    this.setDirectionFix(GlobalMananger.$gamePlayer.isDirectionFixed())
+    this.setTransparent(GlobalMananger.$gamePlayer.isTransparent())
   }
 
   chaseCharacter(character: Game_Character): void {
@@ -57,7 +58,7 @@ class Game_Follower extends Game_Character {
     else if (sy !== 0) {
       this.moveStraight(sy > 0 ? 8 : 2)
     }
-    this.setMoveSpeed($gamePlayer.realMoveSpeed())
+    this.setMoveSpeed(GlobalMananger.$gamePlayer.realMoveSpeed())
   }
 }
 

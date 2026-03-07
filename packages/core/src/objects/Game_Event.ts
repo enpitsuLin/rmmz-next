@@ -1,5 +1,6 @@
 import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_CharacterBase } from './Game_CharacterBase'
+import { GlobalMananger } from '../managers'
 import { Game_Character } from './Game_Character'
 import { Game_Interpreter } from './Game_Interpreter'
 
@@ -49,7 +50,7 @@ export class Game_Event extends Game_Character {
   }
 
   event(): MZ.Map.Event {
-    return $dataMap.events[this._eventId]!
+    return GlobalMananger.$dataMap.events[this._eventId]!
   }
 
   page(): MZ.Map.Event.Page {
@@ -68,12 +69,12 @@ export class Game_Event extends Game_Character {
   }
 
   isCollidedWithEvents(x: number, y: number): boolean {
-    const events = $gameMap.eventsXyNt(x, y)
+    const events = GlobalMananger.$gameMap.eventsXyNt(x, y)
     return events.length > 0
   }
 
   isCollidedWithPlayerCharacters(x: number, y: number): boolean {
-    return this.isNormalPriority() && $gamePlayer.isCollided(x, y)
+    return this.isNormalPriority() && GlobalMananger.$gamePlayer.isCollided(x, y)
   }
 
   lock(): void {
@@ -165,8 +166,8 @@ export class Game_Event extends Game_Character {
   }
 
   isNearThePlayer(): boolean {
-    const sx = Math.abs(this.deltaXFrom($gamePlayer.x))
-    const sy = Math.abs(this.deltaYFrom($gamePlayer.y))
+    const sx = Math.abs(this.deltaXFrom(GlobalMananger.$gamePlayer.x))
+    const sy = Math.abs(this.deltaYFrom(GlobalMananger.$gamePlayer.y))
     return sx + sy < 20
   }
 
@@ -222,34 +223,34 @@ export class Game_Event extends Game_Character {
 
   meetsConditions(page: MZ.Map.Event.Page): boolean {
     const c = page.conditions
-    if (c.switch1Valid && !$gameSwitches.value(c.switch1Id)) {
+    if (c.switch1Valid && !GlobalMananger.$gameSwitches.value(c.switch1Id)) {
       return false
     }
-    if (c.switch2Valid && !$gameSwitches.value(c.switch2Id)) {
+    if (c.switch2Valid && !GlobalMananger.$gameSwitches.value(c.switch2Id)) {
       return false
     }
     if (
       c.variableValid
-      && $gameVariables.value(c.variableId) < c.variableValue
+      && GlobalMananger.$gameVariables.value(c.variableId) < c.variableValue
     ) {
       return false
     }
     if (c.selfSwitchValid) {
       const key = [this._mapId, this._eventId, c.selfSwitchCh]
       // @ts-expect-error to fix this
-      if ($gameSelfSwitches.value(key) !== true) {
+      if (GlobalMananger.$gameSelfSwitches.value(key) !== true) {
         return false
       }
     }
     if (c.itemValid) {
-      const item = $dataItems[c.itemId]
-      if (!$gameParty.hasItem(item)) {
+      const item = GlobalMananger.$dataItems[c.itemId]
+      if (!GlobalMananger.$gameParty.hasItem(item)) {
         return false
       }
     }
     if (c.actorValid) {
-      const actor = $gameActors.actor(c.actorId)!
-      if (!$gameParty.members().includes(actor)) {
+      const actor = GlobalMananger.$gameActors.actor(c.actorId)!
+      if (!GlobalMananger.$gameParty.members().includes(actor)) {
         return false
       }
     }
@@ -322,8 +323,8 @@ export class Game_Event extends Game_Character {
   }
 
   checkEventTriggerTouch(x: number, y: number): void {
-    if (!$gameMap.isEventRunning()) {
-      if (this._trigger === 2 && $gamePlayer.pos(x, y)) {
+    if (!GlobalMananger.$gameMap.isEventRunning()) {
+      if (this._trigger === 2 && GlobalMananger.$gamePlayer.pos(x, y)) {
         if (!this.isJumping() && this.isNormalPriority()) {
           this.start()
         }

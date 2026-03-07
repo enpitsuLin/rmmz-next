@@ -1,7 +1,7 @@
 import type { Bitmap } from '../core'
 import type { Game_CharacterBase } from '../objects'
 import { Sprite } from '../core'
-import { ImageManager } from '../managers'
+import { GlobalMananger, ImageManager } from '../managers'
 
 /**
  * Sprite_Character
@@ -73,14 +73,14 @@ export class Sprite_Character extends Sprite {
   }
 
   tilesetBitmap(tileId: number): Bitmap {
-    const tileset = $gameMap.tileset()
+    const tileset = GlobalMananger.$gameMap.tileset()
     const setNumber = 5 + Math.floor(tileId / 256)
     return ImageManager.loadTileset(tileset.tilesetNames[setNumber])
   }
 
   updateBitmap(): void {
     if (this.isImageChanged()) {
-      this._tilesetId = $gameMap.tilesetId()
+      this._tilesetId = GlobalMananger.$gameMap.tilesetId()
       this._tileId = this._character.tileId()
       this._characterName = this._character.characterName()
       this._characterIndex = this._character.characterIndex()
@@ -95,7 +95,7 @@ export class Sprite_Character extends Sprite {
 
   isImageChanged(): boolean {
     return (
-      this._tilesetId !== $gameMap.tilesetId()
+      this._tilesetId !== GlobalMananger.$gameMap.tilesetId()
       || this._tileId !== this._character.tileId()
       || this._characterName !== this._character.characterName()
       || this._characterIndex !== this._character.characterIndex()
@@ -176,7 +176,7 @@ export class Sprite_Character extends Sprite {
 
   patternWidth(): number {
     if (this._tileId > 0) {
-      return $gameMap.tileWidth()
+      return GlobalMananger.$gameMap.tileWidth()
     }
     else if (this._isBigCharacter) {
       return this.bitmap.width / 3
@@ -188,7 +188,7 @@ export class Sprite_Character extends Sprite {
 
   patternHeight(): number {
     if (this._tileId > 0) {
-      return $gameMap.tileHeight()
+      return GlobalMananger.$gameMap.tileHeight()
     }
     else if (this._isBigCharacter) {
       return this.bitmap.height / 4

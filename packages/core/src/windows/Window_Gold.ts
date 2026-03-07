@@ -1,5 +1,5 @@
 import type { Rectangle } from '../core'
-import { TextManager } from '../managers'
+import { GlobalMananger, TextManager } from '../managers'
 import { Window_Selectable } from './Window_Selectable'
 
 /**
@@ -27,7 +27,7 @@ export class Window_Gold extends Window_Selectable {
   }
 
   value(): number {
-    return $gameParty.gold()
+    return GlobalMananger.$gameParty.gold()
   }
 
   currencyUnit(): string {

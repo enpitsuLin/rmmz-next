@@ -10,6 +10,7 @@ import { Scene_Gameover } from './Scene_Gameover'
 import { Scene_Map } from './Scene_Map'
 import { Scene_Message } from './Scene_Message'
 import { Scene_Title } from './Scene_Title'
+import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Battle
@@ -49,8 +50,8 @@ export class Scene_Battle extends Scene_Message {
 
   update(): void {
     const active = this.isActive()
-    $gameTimer.update(active)
-    $gameScreen.update()
+    GlobalMananger.$gameTimer.update(active)
+    GlobalMananger.$gameScreen.update()
     this.updateVisibility()
     if (active && !this.isBusy()) {
       this.updateBattleProcess()
@@ -119,8 +120,8 @@ export class Scene_Battle extends Scene_Message {
 
   terminate(): void {
     super.terminate()
-    $gameParty.onBattleEnd()
-    $gameTroop.onBattleEnd()
+    GlobalMananger.$gameParty.onBattleEnd()
+    GlobalMananger.$gameTroop.onBattleEnd()
     AudioManager.stopMe()
     if (this.shouldAutosave()) {
       this.requestAutosave()
@@ -143,7 +144,7 @@ export class Scene_Battle extends Scene_Message {
   }
 
   updateStatusWindowVisibility(): void {
-    if ($gameMessage.isBusy()) {
+    if (GlobalMananger.$gameMessage.isBusy()) {
       this._statusWindow.close()
     }
     else if (this.shouldOpenStatusWindow()) {
@@ -181,7 +182,7 @@ export class Scene_Battle extends Scene_Message {
   }
 
   updateInputWindowVisibility(): void {
-    if ($gameMessage.isBusy()) {
+    if (GlobalMananger.$gameMessage.isBusy()) {
       this.closeCommandWindows()
       this.hideSubInputWindows()
     }
@@ -576,7 +577,7 @@ export class Scene_Battle extends Scene_Message {
     const item = this._itemWindow.item()!
     const action = BattleManager.inputtingAction()
     action?.setItem(item.id)
-    $gameParty.setLastItem(item)
+    GlobalMananger.$gameParty.setLastItem(item)
     this.onSelectAction()
   }
 

@@ -7,6 +7,7 @@ import { PIXI } from '../pixi'
 import { Sprite_Button } from '../sprites'
 import { Window_Help } from '../windows'
 import { Scene_Base } from './Scene_Base'
+import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_MenuBase
@@ -84,7 +85,7 @@ export class Scene_MenuBase extends Scene_Base {
   }
 
   updateActor(): void {
-    this._actor = $gameParty.menuActor()
+    this._actor = GlobalMananger.$gameParty.menuActor()
   }
 
   createBackground(): void {
@@ -167,13 +168,13 @@ export class Scene_MenuBase extends Scene_Base {
   }
 
   nextActor(): void {
-    $gameParty.makeMenuActorNext()
+    GlobalMananger.$gameParty.makeMenuActorNext()
     this.updateActor()
     this.onActorChange()
   }
 
   previousActor(): void {
-    $gameParty.makeMenuActorPrevious()
+    GlobalMananger.$gameParty.makeMenuActorPrevious()
     this.updateActor()
     this.onActorChange()
   }

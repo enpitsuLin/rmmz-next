@@ -1,4 +1,5 @@
 import { Graphics } from '../core'
+import { GlobalMananger } from '../managers'
 import { ImageManager } from '../managers/ImageManager'
 
 /**
@@ -188,9 +189,9 @@ class Game_CharacterBase {
   }
 
   canPass(x: number, y: number, d: number): boolean {
-    const x2 = $gameMap.roundXWithDirection(x, d)
-    const y2 = $gameMap.roundYWithDirection(y, d)
-    if (!$gameMap.isValid(x2, y2)) {
+    const x2 = GlobalMananger.$gameMap.roundXWithDirection(x, d)
+    const y2 = GlobalMananger.$gameMap.roundYWithDirection(y, d)
+    if (!GlobalMananger.$gameMap.isValid(x2, y2)) {
       return false
     }
     if (this.isThrough() || this.isDebugThrough()) {
@@ -206,8 +207,8 @@ class Game_CharacterBase {
   }
 
   canPassDiagonally(x: number, y: number, horz: number, vert: number): boolean {
-    const x2 = $gameMap.roundXWithDirection(x, horz)
-    const y2 = $gameMap.roundYWithDirection(y, vert)
+    const x2 = GlobalMananger.$gameMap.roundXWithDirection(x, horz)
+    const y2 = GlobalMananger.$gameMap.roundYWithDirection(y, vert)
     if (this.canPass(x, y, vert) && this.canPass(x, y2, horz)) {
       return true
     }
@@ -218,10 +219,10 @@ class Game_CharacterBase {
   }
 
   isMapPassable(x: number, y: number, d: number): boolean {
-    const x2 = $gameMap.roundXWithDirection(x, d)
-    const y2 = $gameMap.roundYWithDirection(y, d)
+    const x2 = GlobalMananger.$gameMap.roundXWithDirection(x, d)
+    const y2 = GlobalMananger.$gameMap.roundYWithDirection(y, d)
     const d2 = this.reverseDir(d as Game_CharacterBase.CharacterDirection)
-    return $gameMap.isPassable(x, y, d) && $gameMap.isPassable(x2, y2, d2)
+    return GlobalMananger.$gameMap.isPassable(x, y, d) && GlobalMananger.$gameMap.isPassable(x2, y2, d2)
   }
 
   isCollidedWithCharacters(x: number, y: number): boolean {
@@ -229,12 +230,12 @@ class Game_CharacterBase {
   }
 
   isCollidedWithEvents(x: number, y: number): boolean {
-    const events = $gameMap.eventsXyNt(x, y)
+    const events = GlobalMananger.$gameMap.eventsXyNt(x, y)
     return events.some(event => event.isNormalPriority())
   }
 
   isCollidedWithVehicles(x: number, y: number): boolean {
-    return $gameMap.boat().posNt(x, y) || $gameMap.ship().posNt(x, y)
+    return GlobalMananger.$gameMap.boat().posNt(x, y) || GlobalMananger.$gameMap.ship().posNt(x, y)
   }
 
   setPosition(x: number, y: number): void {
@@ -282,20 +283,20 @@ class Game_CharacterBase {
   }
 
   scrolledX(): number {
-    return $gameMap.adjustX(this._realX)
+    return GlobalMananger.$gameMap.adjustX(this._realX)
   }
 
   scrolledY(): number {
-    return $gameMap.adjustY(this._realY)
+    return GlobalMananger.$gameMap.adjustY(this._realY)
   }
 
   screenX(): number {
-    const tw = $gameMap.tileWidth()
+    const tw = GlobalMananger.$gameMap.tileWidth()
     return Math.floor(this.scrolledX() * tw + tw / 2)
   }
 
   screenY(): number {
-    const th = $gameMap.tileHeight()
+    const th = GlobalMananger.$gameMap.tileHeight()
     return Math.floor(
       this.scrolledY() * th + th - this.shiftY() - this.jumpHeight(),
     )
@@ -308,8 +309,8 @@ class Game_CharacterBase {
   isNearTheScreen(): boolean {
     const gw = Graphics.width
     const gh = Graphics.height
-    const tw = $gameMap.tileWidth()
-    const th = $gameMap.tileHeight()
+    const tw = GlobalMananger.$gameMap.tileWidth()
+    const th = GlobalMananger.$gameMap.tileHeight()
     const px = this.scrolledX() * tw + tw / 2 - gw / 2
     const py = this.scrolledY() * th + th / 2 - gh / 2
     return px >= -gw && px <= gw && py >= -gh && py <= gh
@@ -340,8 +341,8 @@ class Game_CharacterBase {
       = (this._realY * this._jumpCount + this._y) / (this._jumpCount + 1.0)
     this.refreshBushDepth()
     if (this._jumpCount === 0) {
-      this._realX = this._x = $gameMap.roundX(this._x)
-      this._realY = this._y = $gameMap.roundY(this._y)
+      this._realX = this._x = GlobalMananger.$gameMap.roundX(this._x)
+      this._realY = this._y = GlobalMananger.$gameMap.roundY(this._y)
     }
   }
 
@@ -421,7 +422,7 @@ class Game_CharacterBase {
       && !this.isJumping()
     ) {
       if (!this.isMoving()) {
-        this._bushDepth = $gameMap.bushDepth()
+        this._bushDepth = GlobalMananger.$gameMap.bushDepth()
       }
     }
     else {
@@ -430,19 +431,19 @@ class Game_CharacterBase {
   }
 
   isOnLadder(): boolean {
-    return $gameMap.isLadder(this._x, this._y)
+    return GlobalMananger.$gameMap.isLadder(this._x, this._y)
   }
 
   isOnBush(): boolean {
-    return $gameMap.isBush(this._x, this._y)
+    return GlobalMananger.$gameMap.isBush(this._x, this._y)
   }
 
   terrainTag(): number {
-    return $gameMap.terrainTag(this._x, this._y)
+    return GlobalMananger.$gameMap.terrainTag(this._x, this._y)
   }
 
   regionId(): number {
-    return $gameMap.regionId(this._x, this._y)
+    return GlobalMananger.$gameMap.regionId(this._x, this._y)
   }
 
   increaseSteps(): void {
@@ -480,8 +481,8 @@ class Game_CharacterBase {
   }
 
   checkEventTriggerTouchFront(d: number): void {
-    const x2 = $gameMap.roundXWithDirection(this._x, d)
-    const y2 = $gameMap.roundYWithDirection(this._y, d)
+    const x2 = GlobalMananger.$gameMap.roundXWithDirection(this._x, d)
+    const y2 = GlobalMananger.$gameMap.roundYWithDirection(this._y, d)
     this.checkEventTriggerTouch(x2, y2)
   }
 
@@ -501,10 +502,10 @@ class Game_CharacterBase {
     this.setMovementSuccess(this.canPass(this._x, this._y, d))
     if (this.isMovementSucceeded()) {
       this.setDirection(d)
-      this._x = $gameMap.roundXWithDirection(this._x, d)
-      this._y = $gameMap.roundYWithDirection(this._y, d)
-      this._realX = $gameMap.xWithDirection(this._x, this.reverseDir(d as Game_CharacterBase.CharacterDirection))
-      this._realY = $gameMap.yWithDirection(this._y, this.reverseDir(d as Game_CharacterBase.CharacterDirection))
+      this._x = GlobalMananger.$gameMap.roundXWithDirection(this._x, d)
+      this._y = GlobalMananger.$gameMap.roundYWithDirection(this._y, d)
+      this._realX = GlobalMananger.$gameMap.xWithDirection(this._x, this.reverseDir(d as Game_CharacterBase.CharacterDirection))
+      this._realY = GlobalMananger.$gameMap.yWithDirection(this._y, this.reverseDir(d as Game_CharacterBase.CharacterDirection))
       this.increaseSteps()
     }
     else {
@@ -518,10 +519,10 @@ class Game_CharacterBase {
       this.canPassDiagonally(this._x, this._y, horz, vert),
     )
     if (this.isMovementSucceeded()) {
-      this._x = $gameMap.roundXWithDirection(this._x, horz)
-      this._y = $gameMap.roundYWithDirection(this._y, vert)
-      this._realX = $gameMap.xWithDirection(this._x, this.reverseDir(horz as Game_CharacterBase.CharacterDirection))
-      this._realY = $gameMap.yWithDirection(this._y, this.reverseDir(vert as Game_CharacterBase.CharacterDirection))
+      this._x = GlobalMananger.$gameMap.roundXWithDirection(this._x, horz)
+      this._y = GlobalMananger.$gameMap.roundYWithDirection(this._y, vert)
+      this._realX = GlobalMananger.$gameMap.xWithDirection(this._x, this.reverseDir(horz as Game_CharacterBase.CharacterDirection))
+      this._realY = GlobalMananger.$gameMap.yWithDirection(this._y, this.reverseDir(vert as Game_CharacterBase.CharacterDirection))
       this.increaseSteps()
     }
     if (this._direction === this.reverseDir(horz as Game_CharacterBase.CharacterDirection)) {

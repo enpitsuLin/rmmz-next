@@ -8,6 +8,7 @@ import { Scene_Base } from './Scene_Base'
 import { Scene_Load } from './Scene_Load'
 import { Scene_Map } from './Scene_Map'
 import { Scene_Options } from './Scene_Options'
+import { GlobalMananger } from '../managers'
 
 /*
  /* Scene_Title
@@ -61,10 +62,10 @@ export class Scene_Title extends Scene_Base {
 
   createBackground(): void {
     this._backSprite1 = new Sprite(
-      ImageManager.loadTitle1($dataSystem.title1Name),
+      ImageManager.loadTitle1(GlobalMananger.$dataSystem.title1Name),
     )
     this._backSprite2 = new Sprite(
-      ImageManager.loadTitle2($dataSystem.title2Name),
+      ImageManager.loadTitle2(GlobalMananger.$dataSystem.title2Name),
     )
     this.addChild(this._backSprite1)
     this.addChild(this._backSprite2)
@@ -75,7 +76,7 @@ export class Scene_Title extends Scene_Base {
       new Bitmap(Graphics.width, Graphics.height),
     )
     this.addChild(this._gameTitleSprite)
-    if ($dataSystem.optDrawTitle) {
+    if (GlobalMananger.$dataSystem.optDrawTitle) {
       this.drawGameTitle()
     }
   }
@@ -84,9 +85,9 @@ export class Scene_Title extends Scene_Base {
     const x = 20
     const y = Graphics.height / 4
     const maxWidth = Graphics.width - x * 2
-    const text = $dataSystem.gameTitle
+    const text = GlobalMananger.$dataSystem.gameTitle
     const bitmap = this._gameTitleSprite.bitmap
-    bitmap.fontFace = $gameSystem.mainFontFace()
+    bitmap.fontFace = GlobalMananger.$gameSystem.mainFontFace()
     bitmap.outlineColor = 'black'
     bitmap.outlineWidth = 8
     bitmap.fontSize = 72
@@ -101,7 +102,7 @@ export class Scene_Title extends Scene_Base {
   }
 
   createCommandWindow(): void {
-    const background = $dataSystem.titleCommandWindow.background
+    const background = GlobalMananger.$dataSystem.titleCommandWindow.background
     const rect = this.commandWindowRect()
     this._commandWindow = new Window_TitleCommand(rect)
     this._commandWindow.setBackgroundType(background)
@@ -112,8 +113,8 @@ export class Scene_Title extends Scene_Base {
   }
 
   commandWindowRect(): Rectangle {
-    const offsetX = $dataSystem.titleCommandWindow.offsetX
-    const offsetY = $dataSystem.titleCommandWindow.offsetY
+    const offsetX = GlobalMananger.$dataSystem.titleCommandWindow.offsetX
+    const offsetY = GlobalMananger.$dataSystem.titleCommandWindow.offsetY
     const ww = this.mainCommandWidth()
     const wh = this.calcWindowHeight(3, true)
     const wx = (Graphics.boxWidth - ww) / 2 + offsetX
@@ -139,7 +140,7 @@ export class Scene_Title extends Scene_Base {
   }
 
   playTitleMusic(): void {
-    AudioManager.playBgm($dataSystem.titleBgm)
+    AudioManager.playBgm(GlobalMananger.$dataSystem.titleBgm)
     AudioManager.stopBgs()
     AudioManager.stopMe()
   }

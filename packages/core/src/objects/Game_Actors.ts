@@ -1,3 +1,4 @@
+import { GlobalMananger } from '../managers'
 import { Game_Actor } from './Game_Actor'
 
 /**
@@ -11,7 +12,7 @@ class Game_Actors {
   }
 
   actor(actorId: number): Game_Actor | null {
-    if ($dataActors[actorId]) {
+    if (GlobalMananger.$dataActors[actorId]) {
       if (!this._data[actorId]) {
         this._data[actorId] = new Game_Actor(actorId)
       }

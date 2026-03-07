@@ -2,7 +2,7 @@ import type { MZ } from '@rmmz-lib/database-types'
 import type { Game_Character } from '../objects'
 import type { PIXI } from '../pixi'
 import { Graphics, Sprite, Tilemap, TilingSprite, Weather } from '../core'
-import { ImageManager } from '../managers'
+import { GlobalMananger, ImageManager } from '../managers'
 import { Sprite_Balloon } from './Sprite_Balloon'
 import { Sprite_Character } from './Sprite_Character'
 import { Sprite_Destination } from './Sprite_Destination'
@@ -78,11 +78,11 @@ export class Spriteset_Map extends Spriteset_Base<Game_Character> {
 
   createTilemap(): void {
     const tilemap = new Tilemap()
-    tilemap.tileWidth = $gameMap.tileWidth()
-    tilemap.tileHeight = $gameMap.tileHeight()
-    tilemap.setData($gameMap.width(), $gameMap.height(), $gameMap.data())
-    tilemap.horizontalWrap = $gameMap.isLoopHorizontal()
-    tilemap.verticalWrap = $gameMap.isLoopVertical()
+    tilemap.tileWidth = GlobalMananger.$gameMap.tileWidth()
+    tilemap.tileHeight = GlobalMananger.$gameMap.tileHeight()
+    tilemap.setData(GlobalMananger.$gameMap.width(), GlobalMananger.$gameMap.height(), GlobalMananger.$gameMap.data())
+    tilemap.horizontalWrap = GlobalMananger.$gameMap.isLoopHorizontal()
+    tilemap.verticalWrap = GlobalMananger.$gameMap.isLoopVertical()
     this._baseSprite.addChild(tilemap)
     this._effectsContainer = tilemap
     this._tilemap = tilemap
@@ -90,7 +90,7 @@ export class Spriteset_Map extends Spriteset_Base<Game_Character> {
   }
 
   loadTileset(): void {
-    this._tileset = $gameMap.tileset()
+    this._tileset = GlobalMananger.$gameMap.tileset()
     if (this._tileset) {
       const bitmaps = []
       const tilesetNames = this._tileset.tilesetNames
@@ -98,22 +98,22 @@ export class Spriteset_Map extends Spriteset_Base<Game_Character> {
         bitmaps.push(ImageManager.loadTileset(name))
       }
       this._tilemap.setBitmaps(bitmaps)
-      this._tilemap.flags = $gameMap.tilesetFlags()
+      this._tilemap.flags = GlobalMananger.$gameMap.tilesetFlags()
     }
   }
 
   createCharacters(): void {
     this._characterSprites = []
-    for (const event of $gameMap.events()) {
+    for (const event of GlobalMananger.$gameMap.events()) {
       this._characterSprites.push(new Sprite_Character(event))
     }
-    for (const vehicle of $gameMap.vehicles()) {
+    for (const vehicle of GlobalMananger.$gameMap.vehicles()) {
       this._characterSprites.push(new Sprite_Character(vehicle))
     }
-    for (const follower of $gamePlayer.followers().reverseData()) {
+    for (const follower of GlobalMananger.$gamePlayer.followers().reverseData()) {
       this._characterSprites.push(new Sprite_Character(follower))
     }
-    this._characterSprites.push(new Sprite_Character($gamePlayer))
+    this._characterSprites.push(new Sprite_Character(GlobalMananger.$gamePlayer))
     for (const sprite of this._characterSprites) {
       this._tilemap.addChild(sprite)
     }
@@ -140,40 +140,40 @@ export class Spriteset_Map extends Spriteset_Base<Game_Character> {
   }
 
   updateTileset(): void {
-    if (this._tileset !== $gameMap.tileset()) {
+    if (this._tileset !== GlobalMananger.$gameMap.tileset()) {
       this.loadTileset()
     }
   }
 
   updateParallax(): void {
-    if (this._parallaxName !== $gameMap.parallaxName()) {
-      this._parallaxName = $gameMap.parallaxName()
+    if (this._parallaxName !== GlobalMananger.$gameMap.parallaxName()) {
+      this._parallaxName = GlobalMananger.$gameMap.parallaxName()
       this._parallax.bitmap = ImageManager.loadParallax(this._parallaxName)
     }
     if (this._parallax.bitmap) {
       const bitmap = this._parallax.bitmap
-      this._parallax.origin.x = $gameMap.parallaxOx() % bitmap.width
-      this._parallax.origin.y = $gameMap.parallaxOy() % bitmap.height
+      this._parallax.origin.x = GlobalMananger.$gameMap.parallaxOx() % bitmap.width
+      this._parallax.origin.y = GlobalMananger.$gameMap.parallaxOy() % bitmap.height
     }
   }
 
   updateTilemap(): void {
-    this._tilemap.origin.x = $gameMap.displayX() * $gameMap.tileWidth()
-    this._tilemap.origin.y = $gameMap.displayY() * $gameMap.tileHeight()
+    this._tilemap.origin.x = GlobalMananger.$gameMap.displayX() * GlobalMananger.$gameMap.tileWidth()
+    this._tilemap.origin.y = GlobalMananger.$gameMap.displayY() * GlobalMananger.$gameMap.tileHeight()
   }
 
   updateShadow(): void {
-    const airship = $gameMap.airship()
+    const airship = GlobalMananger.$gameMap.airship()
     this._shadowSprite.x = airship.shadowX()
     this._shadowSprite.y = airship.shadowY()
     this._shadowSprite.opacity = airship.shadowOpacity()
   }
 
   updateWeather(): void {
-    this._weather.type = $gameScreen.weatherType() as Weather.WeatherType
-    this._weather.power = $gameScreen.weatherPower()
-    this._weather.origin.x = $gameMap.displayX() * $gameMap.tileWidth()
-    this._weather.origin.y = $gameMap.displayY() * $gameMap.tileHeight()
+    this._weather.type = GlobalMananger.$gameScreen.weatherType() as Weather.WeatherType
+    this._weather.power = GlobalMananger.$gameScreen.weatherPower()
+    this._weather.origin.x = GlobalMananger.$gameMap.displayX() * GlobalMananger.$gameMap.tileWidth()
+    this._weather.origin.y = GlobalMananger.$gameMap.displayY() * GlobalMananger.$gameMap.tileHeight()
   }
 
   updateBalloons(): void {
@@ -187,7 +187,7 @@ export class Spriteset_Map extends Spriteset_Base<Game_Character> {
 
   processBalloonRequests(): void {
     for (; ;) {
-      const request = $gameTemp.retrieveBalloon()
+      const request = GlobalMananger.$gameTemp.retrieveBalloon()
       if (request) {
         this.createBalloon(request)
       }

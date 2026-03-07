@@ -1,6 +1,6 @@
 import type * as PIXI from 'pixi.js'
 import { Bitmap, Graphics, Sprite } from '../core'
-import { ColorManager } from '../managers'
+import { GlobalMananger, ColorManager } from '../managers'
 
 /**
  * Sprite_Timer
@@ -29,11 +29,11 @@ export class Sprite_Timer extends Sprite {
   }
 
   fontFace(): string {
-    return $gameSystem.numberFontFace()
+    return GlobalMananger.$gameSystem.numberFontFace()
   }
 
   fontSize(): number {
-    return $gameSystem.mainFontSize() + 8
+    return GlobalMananger.$gameSystem.mainFontSize() + 8
   }
 
   update(): void {
@@ -44,8 +44,8 @@ export class Sprite_Timer extends Sprite {
   }
 
   updateBitmap(): void {
-    if (this._seconds !== $gameTimer.seconds()) {
-      this._seconds = $gameTimer.seconds()
+    if (this._seconds !== GlobalMananger.$gameTimer.seconds()) {
+      this._seconds = GlobalMananger.$gameTimer.seconds()
       this.redraw()
     }
   }
@@ -70,6 +70,6 @@ export class Sprite_Timer extends Sprite {
   }
 
   updateVisibility(): void {
-    this.visible = $gameTimer.isWorking()
+    this.visible = GlobalMananger.$gameTimer.isWorking()
   }
 }

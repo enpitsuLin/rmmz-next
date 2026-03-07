@@ -10,10 +10,10 @@ export class EffectManager {
     throw new Error('This is a static class')
   }
 
-  static _cache: Record<string, EffekseerEffect> = {}
+  static _cache: Record<string, effekseer.EffekseerEffect> = {}
   static _errorUrls: string[] = []
 
-  static load(filename: string): EffekseerEffect | null {
+  static load(filename: string): effekseer.EffekseerEffect | null {
     if (filename) {
       const url = this.makeUrl(filename)
       const cache = this._cache
@@ -27,7 +27,7 @@ export class EffectManager {
     }
   }
 
-  static startLoading(url: string): EffekseerEffect {
+  static startLoading(url: string): effekseer.EffekseerEffect {
     const onLoad = (): void => this.onLoad()
     const onError = (_message: string, errorUrl: string): void => this.onError(errorUrl)
     const effect = Graphics.effekseer.loadEffect(url, 1, onLoad, onError)
@@ -63,7 +63,7 @@ export class EffectManager {
   }
 
   static throwLoadError(url: string): never {
-    const retry = (): EffekseerEffect => this.startLoading(url)
+    const retry = (): effekseer.EffekseerEffect => this.startLoading(url)
     // TODO fix this
     // eslint-disable-next-line no-throw-literal
     throw ['LoadError', url, retry]
