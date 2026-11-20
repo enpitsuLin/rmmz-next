@@ -102,6 +102,21 @@ export async function loadPlugins() {
         return generateClientModule(await readPlugins())
       }
     },
+    configureServer(server) {
+      const pluginsFile = join(projectRoot, PLUGINS_FILE)
+      server.watcher.add(pluginsFile)
+      server.watcher.on('change', (file) => {
+        if (file !== pluginsFile) {
+          return
+        }
+        const moduleGraph = server.environments.client.moduleGraph
+        const module = moduleGraph.getModuleById(RESOLVED_VIRTUAL_MODULE_ID)
+        if (module) {
+          moduleGraph.invalidateModule(module)
+        }
+        server.ws.send({ type: 'full-reload' })
+      })
+    },
     // 生产构建：把游戏资源复制到输出目录，与生成的 index.html 同级
     async writeBundle(options: Rollup.OutputOptions) {
       if (!options.dir) {
