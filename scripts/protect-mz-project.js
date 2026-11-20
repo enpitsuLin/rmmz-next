@@ -9,6 +9,7 @@
  */
 import { execFileSync } from 'node:child_process'
 import { chmodSync } from 'node:fs'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 const file = fileURLToPath(new URL('../example/package.json', import.meta.url))

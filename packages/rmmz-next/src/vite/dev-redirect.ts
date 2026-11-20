@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path'
 /**
  * The RPG Maker MZ editor's playtest launches NW.js with the project directory
  * itself, so `index.html` is loaded over `file://` and the Vite entry module
- * (`/src/main.ts`) cannot be resolved. The project ships a loader script,
+ * (`/js/main.ts`) cannot be resolved. The project ships a loader script,
  * tagged with `data-rmmz-dev-redirect`, that follows the running dev server.
  *
  * The plugins below publish the dev server URL for that loader and strip it

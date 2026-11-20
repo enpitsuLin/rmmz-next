@@ -23,7 +23,7 @@
     "skipLibCheck": true
   },
   "include": [
-    "src",
+    "js/main.ts",
     "js/plugins/RmmzGlobals.js",
     "js/plugins/TestPlugin.js"
   ]
