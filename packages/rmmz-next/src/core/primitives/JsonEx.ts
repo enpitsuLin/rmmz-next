@@ -1,4 +1,4 @@
-import { GlobalMananger } from '../managers/GlobalManager'
+import { ClassRegistry } from '../managers/ClassRegistry'
 
 /**
  * Checks whether a value is a traversable JSON record (plain object or array).
@@ -77,7 +77,7 @@ export class JsonEx {
     if (isTraversable(value)) {
       const tag = value['@']
       if (typeof tag === 'string') {
-        const ctor = GlobalMananger.get(tag)
+        const ctor = ClassRegistry.get(tag)
         if (ctor) {
           Object.setPrototypeOf(value, ctor.prototype)
         }

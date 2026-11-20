@@ -1,5 +1,6 @@
 export * from './AudioManager'
 export * from './BattleManager'
+export * from './ClassRegistry'
 export * from './ColorManager'
 export * from './ConfigManager'
 export * from './DataManager'

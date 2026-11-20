@@ -15,6 +15,7 @@ import { Game_Variables } from '../objects/Game_Variables'
 import { Graphics } from '../primitives/Graphics'
 import { Utils } from '../primitives/Utils'
 import { BattleManager } from './BattleManager'
+import { ClassRegistry } from './ClassRegistry'
 import { GlobalMananger } from './GlobalManager'
 import { ImageManager } from './ImageManager'
 import { SceneManager } from './SceneManager'
@@ -50,7 +51,7 @@ export class DataManager {
             if (item == null)
               return null
             const ctor = item['@']
-              ? GlobalMananger.get(item['@']) ?? Object
+              ? ClassRegistry.get(item['@']) ?? Object
               : item.constructor !== Object
                 ? item.constructor
                 : inst[key]?.constructor || Object
@@ -61,7 +62,7 @@ export class DataManager {
         }
         else if (typeof value === 'object') {
           const ctor = value['@']
-            ? GlobalMananger.get(value['@']) ?? Object
+            ? ClassRegistry.get(value['@']) ?? Object
             : value.constructor !== Object
               ? value.constructor
               : inst[key]?.constructor || Object

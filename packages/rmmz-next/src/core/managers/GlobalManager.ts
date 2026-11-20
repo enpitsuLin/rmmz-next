@@ -13,9 +13,7 @@ import type { Game_Timer } from '../objects/Game_Timer'
 import type { Game_Troop } from '../objects/Game_Troop'
 import type { Game_Variables } from '../objects/Game_Variables'
 import type { DataManager } from './DataManager'
-
-type AnyConstructor = abstract new (...args: any[]) => any
-type Constructor = new (...args: any[]) => any
+import { ClassRegistry } from './ClassRegistry'
 
 /**
  * Brand new manager to manager replace original RMMZ global state and Game Object class resolve
@@ -54,8 +52,6 @@ export class GlobalMananger {
   static $gamePlayer: Game_Player
   static $testEvent: MZ.EventCommon.PageCommand[] | null = null
 
-  static registry = new Map<string, new (...args: any[]) => any>()
-
   private constructor() {}
 
   static isReady(): boolean {
@@ -70,29 +66,11 @@ export class GlobalMananger {
    * cycle, and materializing that barrel's namespace during evaluation throws a
    * TDZ error in production bundles.
    */
-  static init(constructors: AnyConstructor[]): void {
+  static init(constructors: ClassRegistry.AnyConstructor[]): void {
     constructors.forEach((ctor) => {
-      this.register(ctor as Constructor)
+      ClassRegistry.register(ctor as ClassRegistry.Constructor)
     })
     this.initialized = true
-  }
-
-  /**
-   * Register a class constructor for ESM-compatible serialization/deserialization.
-   * Replaces the original eval()/window[] lookup used in RMMZ.
-   */
-  static register(constructor: Constructor): void {
-    if (!constructor.name) {
-      throw new TypeError('Constructor has no properly name')
-    }
-    this.registry.set(constructor.name, constructor)
-  }
-
-  /**
-   * Retrieve a registered class constructor by name.
-   */
-  static get<T extends Constructor>(name: string): T | undefined {
-    return this.registry.get(name) as T | undefined
   }
 }
 
