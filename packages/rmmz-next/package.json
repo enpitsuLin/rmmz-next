@@ -1,0 +1,65 @@
+{
+  "name": "rmmz-next",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "description": "RPG Maker MZ engine, runtime and Vite integration",
+  "exports": {
+    ".": "./src/core/index.ts",
+    "./database-types": "./src/database-types/index.ts",
+    "./runtime": "./src/runtime/index.ts",
+    "./vite": "./src/vite/index.ts",
+    "./package.json": "./package.json",
+    "./client": {
+      "types": "./src/vite/client.d.ts"
+    },
+    "./global-types": {
+      "types": "./src/core/global-types.d.ts"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build"
+  },
+  "peerDependencies": {
+    "vite": "^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "localforage": "catalog:",
+    "pako": "catalog:",
+    "pixi.js": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:types",
+    "@types/pako": "catalog:types",
+    "tsdown": "catalog:build",
+    "typescript": "catalog:dev",
+    "vite": "catalog:dev"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./database-types": "./dist/database-types.js",
+      "./runtime": "./dist/runtime.js",
+      "./vite": "./dist/vite.js",
+      "./package.json": "./package.json",
+      "./client": {
+        "types": "./dist/vite/client.d.ts"
+      },
+      "./global-types": {
+        "types": "./dist/global-types.d.ts"
+      }
+    }
+  }
+}

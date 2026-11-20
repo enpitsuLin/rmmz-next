@@ -1,5 +1,5 @@
 {
-  "name": "rmmz-lib-example",
+  "name": "rmmz-next-example",
   "type": "module",
   "version": "1.0.0",
   "private": true,
@@ -12,15 +12,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@rmmz-lib/core": "workspace:*",
-    "@rmmz-lib/database-types": "workspace:*",
-    "@rmmz-lib/runtime": "workspace:*"
+    "rmmz-next": "workspace:*"
   },
   "devDependencies": {
-    "@types/nw.js": "catalog:types",
+    "@types/node": "catalog:types",
     "cac": "catalog:",
-    "vite": "catalog:dev",
-    "vite-plugin-rmmz": "workspace:*"
+    "vite": "catalog:dev"
   },
   "chromium-args": "--force-color-profile=srgb",
   "window": {

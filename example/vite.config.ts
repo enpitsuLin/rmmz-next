@@ -1,5 +1,5 @@
+import { rmmz } from 'rmmz-next/vite'
 import { defineConfig } from 'vite'
-import { rmmz } from 'vite-plugin-rmmz'
 
 export default defineConfig({
   base: './',

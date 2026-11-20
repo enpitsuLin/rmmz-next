@@ -1,0 +1,268 @@
+import type * as PIXI from 'pixi.js'
+import type { Sprite } from '../primitives'
+import type { RGBA } from '../types'
+import { GlobalMananger } from '../managers'
+import { AudioManager } from '../managers/AudioManager'
+import { DataManager } from '../managers/DataManager'
+import { EffectManager } from '../managers/EffectManager'
+import { FontManager } from '../managers/FontManager'
+import { ImageManager } from '../managers/ImageManager'
+import { SceneManager } from '../managers/SceneManager'
+import { ColorFilter, Graphics, Stage, WindowLayer } from '../primitives'
+import { Window_Base, Window_Selectable } from '../windows'
+
+/*
+ /* Scene_Base
+ /*
+ /* The superclass of all scenes within the game.
+ */
+export class Scene_Base extends Stage {
+  _started!: boolean
+  _active!: boolean
+  _fadeSign!: number
+  _fadeDuration!: number
+  _fadeWhite!: boolean
+  _fadeOpacity!: number
+  _colorFilter!: ColorFilter
+  _windowLayer!: WindowLayer
+
+  perpare?(...args: any[]): void
+
+  override children!: PIXI.Sprite[]
+
+  constructor() {
+    super()
+    this._started = false
+    this._active = false
+    this._fadeSign = 0
+    this._fadeDuration = 0
+    this._fadeWhite = false
+    this._fadeOpacity = 0
+    this.createColorFilter()
+  }
+
+  create(): void {
+    //
+  }
+
+  isActive(): boolean {
+    return this._active
+  }
+
+  isReady(): boolean {
+    return (
+      ImageManager.isReady() && EffectManager.isReady() && FontManager.isReady()
+    )
+  }
+
+  start(): void {
+    this._started = true
+    this._active = true
+  }
+
+  update(): void {
+    this.updateFade()
+    this.updateColorFilter()
+    this.updateChildren()
+    AudioManager.checkErrors()
+  }
+
+  stop(): void {
+    this._active = false
+  }
+
+  isStarted(): boolean {
+    return this._started
+  }
+
+  isBusy(): boolean {
+    return this.isFading()
+  }
+
+  isFading(): boolean {
+    return this._fadeDuration > 0
+  }
+
+  terminate(): void {
+    //
+  }
+
+  createWindowLayer(): void {
+    this._windowLayer = new WindowLayer()
+    this._windowLayer.x = (Graphics.width - Graphics.boxWidth) / 2
+    this._windowLayer.y = (Graphics.height - Graphics.boxHeight) / 2
+    this.addChild(this._windowLayer)
+  }
+
+  addWindow(window: Sprite | Window_Base): void {
+    this._windowLayer.addChild(window)
+  }
+
+  startFadeIn(duration: number, white: boolean = false): void {
+    this._fadeSign = 1
+    this._fadeDuration = duration || 30
+    this._fadeWhite = white
+    this._fadeOpacity = 255
+    this.updateColorFilter()
+  }
+
+  startFadeOut(duration: number, white: boolean = false): void {
+    this._fadeSign = -1
+    this._fadeDuration = duration || 30
+    this._fadeWhite = white
+    this._fadeOpacity = 0
+    this.updateColorFilter()
+  }
+
+  createColorFilter(): void {
+    this._colorFilter = new ColorFilter()
+    this.filters = [this._colorFilter]
+  }
+
+  updateColorFilter(): void {
+    const c = this._fadeWhite ? 255 : 0
+    const blendColor: RGBA = [c, c, c, this._fadeOpacity]
+    this._colorFilter.setBlendColor(blendColor)
+  }
+
+  updateFade(): void {
+    if (this._fadeDuration > 0) {
+      const d = this._fadeDuration
+      if (this._fadeSign > 0) {
+        this._fadeOpacity -= this._fadeOpacity / d
+      }
+      else {
+        this._fadeOpacity += (255 - this._fadeOpacity) / d
+      }
+      this._fadeDuration--
+    }
+  }
+
+  updateChildren(): void {
+    for (const child of this.children) {
+      if (child.update) {
+        child.update()
+      }
+    }
+  }
+
+  popScene(): void {
+    SceneManager.pop()
+  }
+
+  checkGameover(): void {
+    if (GlobalMananger.$gameParty.isAllDead()) {
+      import('./Scene_Gameover').then(({ Scene_Gameover }) => {
+        SceneManager.goto(Scene_Gameover)
+      })
+    }
+  }
+
+  fadeOutAll(): void {
+    const time = this.slowFadeSpeed() / 60
+    AudioManager.fadeOutBgm(time)
+    AudioManager.fadeOutBgs(time)
+    AudioManager.fadeOutMe(time)
+    this.startFadeOut(this.slowFadeSpeed())
+  }
+
+  fadeSpeed(): number {
+    return 24
+  }
+
+  slowFadeSpeed(): number {
+    return this.fadeSpeed() * 2
+  }
+
+  scaleSprite(sprite: Sprite): void {
+    const ratioX = Graphics.width / sprite.bitmap!.width
+    const ratioY = Graphics.height / sprite.bitmap!.height
+    const scale = Math.max(ratioX, ratioY, 1.0)
+    sprite.scale.x = scale
+    sprite.scale.y = scale
+  }
+
+  centerSprite(sprite: Sprite): void {
+    sprite.x = Graphics.width / 2
+    sprite.y = Graphics.height / 2
+    sprite.anchor.x = 0.5
+    sprite.anchor.y = 0.5
+  }
+
+  isBottomHelpMode(): boolean {
+    return true
+  }
+
+  isBottomButtonMode(): boolean {
+    return false
+  }
+
+  isRightInputMode(): boolean {
+    return true
+  }
+
+  mainCommandWidth(): number {
+    return 240
+  }
+
+  buttonAreaTop(): number {
+    if (this.isBottomButtonMode()) {
+      return Graphics.boxHeight - this.buttonAreaHeight()
+    }
+    else {
+      return 0
+    }
+  }
+
+  buttonAreaBottom(): number {
+    return this.buttonAreaTop() + this.buttonAreaHeight()
+  }
+
+  buttonAreaHeight(): number {
+    return 52
+  }
+
+  buttonY(): number {
+    const offsetY = Math.floor((this.buttonAreaHeight() - 48) / 2)
+    return this.buttonAreaTop() + offsetY
+  }
+
+  calcWindowHeight(numLines: number, selectable: boolean): number {
+    if (selectable) {
+      return Window_Selectable.prototype.fittingHeight(numLines)
+    }
+    else {
+      return Window_Base.prototype.fittingHeight(numLines)
+    }
+  }
+
+  requestAutosave(): void {
+    if (this.isAutosaveEnabled()) {
+      this.executeAutosave()
+    }
+  }
+
+  isAutosaveEnabled(): boolean {
+    return (
+      !DataManager.isBattleTest()
+      && !DataManager.isEventTest()
+      && GlobalMananger.$gameSystem.isAutosaveEnabled()
+      && GlobalMananger.$gameSystem.isSaveEnabled()
+    )
+  }
+
+  executeAutosave(): void {
+    GlobalMananger.$gameSystem.onBeforeSave()
+    DataManager.saveGame(0)
+      .then(() => this.onAutosaveSuccess())
+      .catch(() => this.onAutosaveFailure())
+  }
+
+  onAutosaveSuccess(): void {
+    //
+  }
+
+  onAutosaveFailure(): void {
+    //
+  }
+}

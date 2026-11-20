@@ -98,7 +98,7 @@ by path depth. The canonical order for object files:
 
 ```typescript
 // 1. type — external packages
-import type { MZ } from '@rmmz-lib/database-types'
+import type { MZ } from 'rmmz-next/database-types'
 
 // 2. type — parent directory (../)
 import type { VehicleType } from '../types'
@@ -127,8 +127,8 @@ import-order or unused-import errors before finishing.
 |------|-------|--------|
 | `Game_CharacterBase.CharacterDirection` | `2 \| 4 \| 6 \| 8` | `Game_CharacterBase` namespace |
 | `Game_CharacterBase.CharacterPriorityType` | `0 \| 1 \| 2` | `Game_CharacterBase` namespace |
-| `VehicleType` | `'boat' \| 'ship' \| 'airship' \| 'walk' \| ''` | `packages/core/src/types/index.ts` |
-| `MZ.Map.EncounterList` | `{ troopId, weight, regionSet }` | `@rmmz-lib/database-types` |
+| `VehicleType` | `'boat' \| 'ship' \| 'airship' \| 'walk' \| ''` | `packages/rmmz-next/src/core/types/index.ts` |
+| `MZ.Map.EncounterList` | `{ troopId, weight, regionSet }` | `rmmz-next/database-types` |
 | `Game_Vehicle \| null` | nullable vehicle | `$gameMap.vehicle(type)` return |
 
 ## Non-null assertions

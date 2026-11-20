@@ -1,4 +1,4 @@
-import { Scene_Boot } from '@rmmz-lib/core'
+import { Scene_Boot } from 'rmmz-next'
 
 const Scene_Boot_start = Scene_Boot.prototype.start
 

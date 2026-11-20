@@ -1,17 +1,16 @@
 {
-  "name": "@rmmz-lib/monorepo",
+  "name": "rmmz-next-monorepo",
   "type": "module",
   "private": true,
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "build": "tsdown"
+    "build": "pnpm --filter rmmz-next build"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",
     "@types/node": "catalog:types",
     "eslint": "catalog:dev",
-    "tsdown": "catalog:build",
     "typescript": "catalog:dev"
   }
 }

@@ -39,9 +39,6 @@ catalogs:
     '@types/node':
       specifier: ^25.3.3
       version: 25.3.3
-    '@types/nw.js':
-      specifier: ^0.92.0
-      version: 0.92.0
     '@types/pako':
       specifier: ^1.0.7
       version: 1.0.7
@@ -59,43 +56,28 @@ importers:
       eslint:
         specifier: catalog:dev
         version: 10.0.2(jiti@2.6.1)
-      tsdown:
-        specifier: catalog:build
-        version: 0.21.0(synckit@0.11.12)(typescript@5.9.3)
       typescript:
         specifier: catalog:dev
         version: 5.9.3
 
   example:
     dependencies:
-      '@rmmz-lib/core':
+      rmmz-next:
         specifier: workspace:*
-        version: link:../packages/core
-      '@rmmz-lib/database-types':
-        specifier: workspace:*
-        version: link:../packages/database-types
-      '@rmmz-lib/runtime':
-        specifier: workspace:*
-        version: link:../packages/runtime
+        version: link:../packages/rmmz-next
     devDependencies:
-      '@types/nw.js':
+      '@types/node':
         specifier: catalog:types
-        version: 0.92.0
+        version: 25.3.3
       cac:
         specifier: 'catalog:'
         version: 7.0.0
       vite:
         specifier: catalog:dev
         version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
-      vite-plugin-rmmz:
-        specifier: workspace:*
-        version: link:../packages/vite-plugin-rmmz
 
-  packages/core:
+  packages/rmmz-next:
     dependencies:
-      '@rmmz-lib/database-types':
-        specifier: workspace:*
-        version: link:../database-types
       localforage:
         specifier: 'catalog:'
         version: 1.10.0
@@ -106,23 +88,18 @@ importers:
         specifier: 'catalog:'
         version: 7.4.3
     devDependencies:
-      '@types/nw.js':
+      '@types/node':
         specifier: catalog:types
-        version: 0.92.0
+        version: 25.3.3
       '@types/pako':
         specifier: catalog:types
         version: 1.0.7
-
-  packages/database-types: {}
-
-  packages/runtime:
-    dependencies:
-      '@rmmz-lib/core':
-        specifier: workspace:*
-        version: link:../core
-
-  packages/vite-plugin-rmmz:
-    devDependencies:
+      tsdown:
+        specifier: catalog:build
+        version: 0.21.0(synckit@0.11.12)(typescript@5.9.3)
+      typescript:
+        specifier: catalog:dev
+        version: 5.9.3
       vite:
         specifier: catalog:dev
         version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
@@ -994,9 +971,6 @@ packages:
 
   '@types/node@25.3.3':
     resolution: {integrity: sha512-DpzbrH7wIcBaJibpKo9nnSQL0MTRdnWttGyE5haGwK86xgMOkFLp7vEyfQPGLOJh5wNYiJ3V9PmUMDhV9u8kkQ==}
-
-  '@types/nw.js@0.92.0':
-    resolution: {integrity: sha512-Lmang5tGGogfjSXx0DTeM3VN48rAX8wF/F+1fGbBd/NaU6RgPBogmzgjqsmqufRqpsZQD5d9fGfCyyzMg43ZkQ==}
 
   '@types/pako@1.0.7':
     resolution: {integrity: sha512-YBtzT2ztNF6R/9+UXj2wTGFnC9NklAnASt3sC0h2m1bbH7G6FyBIkt4AN8ThZpNfxUo1b2iMVO0UawiJymEt8A==}
@@ -3016,10 +2990,6 @@ snapshots:
   '@types/node@25.3.3':
     dependencies:
       undici-types: 7.18.2
-
-  '@types/nw.js@0.92.0':
-    dependencies:
-      '@types/node': 25.3.3
 
   '@types/pako@1.0.7': {}
 

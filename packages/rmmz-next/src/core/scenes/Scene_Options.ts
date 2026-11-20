@@ -1,0 +1,52 @@
+import { ConfigManager } from '../managers/ConfigManager'
+import { Graphics, Rectangle } from '../primitives'
+import { Window_Options } from '../windows'
+import { Scene_MenuBase } from './Scene_MenuBase'
+
+/*
+ /* Scene_Options
+ /*
+ /* The scene class of the options screen.
+ */
+export class Scene_Options extends Scene_MenuBase {
+  _optionsWindow!: Window_Options
+
+  constructor() {
+    super()
+  }
+
+  create(): void {
+    super.create()
+    this.createOptionsWindow()
+  }
+
+  terminate(): void {
+    super.terminate()
+    ConfigManager.save()
+  }
+
+  createOptionsWindow(): void {
+    const rect = this.optionsWindowRect()
+    this._optionsWindow = new Window_Options(rect)
+    this._optionsWindow.setHandler('cancel', this.popScene.bind(this))
+    this.addWindow(this._optionsWindow)
+  }
+
+  optionsWindowRect(): Rectangle {
+    const n = Math.min(this.maxCommands(), this.maxVisibleCommands())
+    const ww = 400
+    const wh = this.calcWindowHeight(n, true)
+    const wx = (Graphics.boxWidth - ww) / 2
+    const wy = (Graphics.boxHeight - wh) / 2
+    return new Rectangle(wx, wy, ww, wh)
+  }
+
+  maxCommands(): number {
+    // Increase this value when adding option items.
+    return 7
+  }
+
+  maxVisibleCommands(): number {
+    return 12
+  }
+}

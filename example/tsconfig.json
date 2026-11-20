@@ -11,9 +11,9 @@
     "moduleResolution": "bundler",
     "types": [
       "vite/client",
-      "vite-plugin-rmmz/client",
-      "@rmmz-lib/core/global-types",
-      "nw.js"
+      "node",
+      "rmmz-next/client",
+      "rmmz-next/global-types"
     ],
     "allowJs": true,
     "strict": true,
