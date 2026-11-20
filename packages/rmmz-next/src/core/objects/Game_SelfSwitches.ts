@@ -1,4 +1,4 @@
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 /**
  * The game object class for self switches.
  */

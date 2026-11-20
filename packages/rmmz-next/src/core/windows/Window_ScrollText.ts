@@ -1,4 +1,4 @@
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Input, Rectangle, TouchInput } from '../primitives'
 import { Window_Base } from './Window_Base'
 

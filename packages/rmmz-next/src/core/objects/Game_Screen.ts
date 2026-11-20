@@ -1,5 +1,5 @@
 import type { RGBA } from '../types'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Game_Picture } from './Game_Picture'
 
 /**

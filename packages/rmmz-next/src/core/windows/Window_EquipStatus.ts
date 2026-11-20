@@ -1,6 +1,8 @@
 import type { Game_Actor } from '../objects/Game_Actor'
 import type { Rectangle } from '../primitives'
-import { ColorManager, ImageManager, TextManager } from '../managers'
+import { ColorManager } from '../managers/ColorManager'
+import { ImageManager } from '../managers/ImageManager'
+import { TextManager } from '../managers/TextManager'
 import { Window_StatusBase } from './Window_StatusBase'
 
 /**

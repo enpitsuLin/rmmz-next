@@ -1,5 +1,6 @@
 import type { Rectangle } from '../primitives'
-import { ColorManager, GlobalMananger } from '../managers'
+import { ColorManager } from '../managers/ColorManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Window_Base } from './Window_Base'
 
 /**

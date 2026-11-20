@@ -1,5 +1,5 @@
-import { GlobalMananger } from '../managers'
 import { DataManager } from '../managers/DataManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Graphics, Rectangle } from '../primitives'
 import { Window_Help, Window_SavefileList } from '../windows'
 import { Scene_MenuBase } from './Scene_MenuBase'

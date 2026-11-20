@@ -1,6 +1,6 @@
 import type { Game_Enemy } from '../objects/Game_Enemy'
 import type { Rectangle } from '../primitives'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Window_Selectable } from './Window_Selectable'
 
 /**

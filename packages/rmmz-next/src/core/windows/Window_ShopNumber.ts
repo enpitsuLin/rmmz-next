@@ -1,5 +1,6 @@
 import type { MZ } from '../../database-types'
-import { ConfigManager, TextManager } from '../managers'
+import { ConfigManager } from '../managers/ConfigManager'
+import { TextManager } from '../managers/TextManager'
 import { Input, Rectangle } from '../primitives'
 import { Sprite_Button } from '../sprites/Sprite_Button'
 import { Window_Selectable } from './Window_Selectable'

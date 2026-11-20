@@ -1,7 +1,8 @@
 import type * as PIXI from 'pixi.js'
 import type { MZ } from '../../database-types'
 import type { RGBA } from '../types'
-import { AudioManager, EffectManager } from '../managers'
+import { AudioManager } from '../managers/AudioManager'
+import { EffectManager } from '../managers/EffectManager'
 import { Graphics, Point, Sprite } from '../primitives'
 
 /**

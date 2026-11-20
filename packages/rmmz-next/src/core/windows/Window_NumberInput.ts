@@ -1,5 +1,6 @@
 import type { Window_Message } from './Window_Message'
-import { ConfigManager, GlobalMananger } from '../managers'
+import { ConfigManager } from '../managers/ConfigManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Graphics, Input, Rectangle } from '../primitives'
 import { Sprite_Button } from '../sprites'
 import { Window_Selectable } from './Window_Selectable'

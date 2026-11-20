@@ -1,8 +1,8 @@
 import type { MZ } from '../../database-types'
 import type { Game_Actor } from './Game_Actor'
 import type { Game_Enemy } from './Game_Enemy'
-import { GlobalMananger } from '../managers'
 import { DataManager } from '../managers/DataManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 
 /**
  * The superclass of Game_Battler.

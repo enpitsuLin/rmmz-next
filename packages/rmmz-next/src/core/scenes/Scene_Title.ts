@@ -1,6 +1,6 @@
-import { GlobalMananger } from '../managers'
 import { AudioManager } from '../managers/AudioManager'
 import { DataManager } from '../managers/DataManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
 import { SceneManager } from '../managers/SceneManager'
 import { Bitmap, Graphics, Rectangle, Sprite } from '../primitives'

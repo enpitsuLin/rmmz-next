@@ -1,7 +1,7 @@
 import type { MZ } from '../../database-types'
 import type { VehicleType } from '../types'
-import { GlobalMananger } from '../managers'
 import { AudioManager } from '../managers/AudioManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
 import { Graphics } from '../primitives'
 import { Game_CommonEvent } from './Game_CommonEvent'

@@ -1,4 +1,4 @@
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { SceneManager } from '../managers/SceneManager'
 import { Graphics, Rectangle } from '../primitives'
 import { Window_Gold, Window_MenuCommand, Window_MenuStatus } from '../windows'

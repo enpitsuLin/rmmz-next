@@ -1,6 +1,8 @@
 import type { Game_Enemy } from '../objects'
 import type { Sprite } from '../primitives'
-import { GlobalMananger, ImageManager, SoundManager } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
+import { ImageManager } from '../managers/ImageManager'
+import { SoundManager } from '../managers/SoundManager'
 import { Sprite_Battler } from './Sprite_Battler'
 import { Sprite_StateIcon } from './Sprite_StateIcon'
 

@@ -2,7 +2,8 @@ import type * as PIXI from 'pixi.js'
 import type { MV } from '../../database-types'
 import type { Bitmap } from '../primitives'
 import type { RGBA } from '../types'
-import { AudioManager, ImageManager } from '../managers'
+import { AudioManager } from '../managers/AudioManager'
+import { ImageManager } from '../managers/ImageManager'
 import { ScreenSprite, Sprite } from '../primitives'
 
 /**

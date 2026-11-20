@@ -1,5 +1,5 @@
 import type { Game_Character } from '../objects'
-import { ImageManager } from '../managers'
+import { ImageManager } from '../managers/ImageManager'
 import { Sprite } from '../primitives'
 
 /**

@@ -1,7 +1,7 @@
-import { GlobalMananger } from '../managers'
 import { AudioManager } from '../managers/AudioManager'
 import { BattleManager } from '../managers/BattleManager'
 import { ConfigManager } from '../managers/ConfigManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { SceneManager } from '../managers/SceneManager'
 import { Graphics, Rectangle } from '../primitives'
 import { Sprite_Button } from '../sprites'

@@ -1,4 +1,4 @@
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Game_Follower } from './Game_Follower'
 
 /**

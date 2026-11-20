@@ -1,4 +1,4 @@
-import { ImageManager } from '../managers'
+import { ImageManager } from '../managers/ImageManager'
 import { Sprite } from '../primitives'
 
 /**

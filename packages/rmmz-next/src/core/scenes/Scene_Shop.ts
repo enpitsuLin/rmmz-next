@@ -1,6 +1,6 @@
 import type { MZ } from '../../database-types'
-import { GlobalMananger } from '../managers'
 import { DataManager } from '../managers/DataManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { SoundManager } from '../managers/SoundManager'
 import { Graphics, Rectangle } from '../primitives'
 import { Window_Base, Window_Gold, Window_ItemCategory, Window_ShopBuy, Window_ShopCommand, Window_ShopNumber, Window_ShopSell, Window_ShopStatus } from '../windows'

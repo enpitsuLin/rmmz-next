@@ -1,4 +1,3 @@
-import type { DataManager } from '.'
 import type { MZ } from '../../database-types'
 import type {
   Game_Actors,
@@ -15,6 +14,7 @@ import type {
   Game_Troop,
   Game_Variables,
 } from '../objects'
+import type { DataManager } from './DataManager'
 
 type AnyConstructor = abstract new (...args: any[]) => any
 type Constructor = new (...args: any[]) => any

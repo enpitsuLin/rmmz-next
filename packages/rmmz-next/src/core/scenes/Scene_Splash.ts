@@ -1,4 +1,4 @@
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
 import { SceneManager } from '../managers/SceneManager'
 import { Input, Sprite, TouchInput } from '../primitives'

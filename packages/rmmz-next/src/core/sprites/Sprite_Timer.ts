@@ -1,5 +1,6 @@
 import type * as PIXI from 'pixi.js'
-import { ColorManager, GlobalMananger } from '../managers'
+import { ColorManager } from '../managers/ColorManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Bitmap, Graphics, Sprite } from '../primitives'
 
 /**

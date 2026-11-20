@@ -1,7 +1,7 @@
 import type { Game_Actor } from '../objects'
 import * as PIXI from 'pixi.js'
-import { GlobalMananger } from '../managers'
 import { ConfigManager } from '../managers/ConfigManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { SceneManager } from '../managers/SceneManager'
 import { SoundManager } from '../managers/SoundManager'
 import { Graphics, Rectangle, Sprite } from '../primitives'

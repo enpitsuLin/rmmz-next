@@ -1,7 +1,9 @@
 import type * as PIXI from 'pixi.js'
 import type { Game_Battler } from '../objects'
 import type { RGBA } from '../types'
-import { ColorManager, GlobalMananger, TextManager } from '../managers'
+import { ColorManager } from '../managers/ColorManager'
+import { GlobalMananger } from '../managers/GlobalManager'
+import { TextManager } from '../managers/TextManager'
 import { Bitmap, Sprite } from '../primitives'
 
 /**

@@ -1,6 +1,7 @@
 import type { Rectangle } from '../primitives'
 import type { Window_ItemList } from './Window_ItemList'
-import { GlobalMananger, TextManager } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
+import { TextManager } from '../managers/TextManager'
 import { Window_HorzCommand } from './Window_HorzCommand'
 
 /**

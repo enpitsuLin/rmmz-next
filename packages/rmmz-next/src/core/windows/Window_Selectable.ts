@@ -1,6 +1,7 @@
 import type { MZ } from '../../database-types'
 import type { Window_Help } from './Window_Help'
-import { ColorManager, SoundManager } from '../managers'
+import { ColorManager } from '../managers/ColorManager'
+import { SoundManager } from '../managers/SoundManager'
 import { Input, Point, Rectangle, TouchInput } from '../primitives'
 import { Window_Scrollable } from './Window_Scrollable'
 

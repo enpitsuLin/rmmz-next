@@ -1,5 +1,7 @@
 import type { Bitmap } from '../primitives'
-import { BattleManager, GlobalMananger, ImageManager } from '../managers'
+import { BattleManager } from '../managers/BattleManager'
+import { GlobalMananger } from '../managers/GlobalManager'
+import { ImageManager } from '../managers/ImageManager'
 import { Graphics, TilingSprite } from '../primitives'
 
 /**

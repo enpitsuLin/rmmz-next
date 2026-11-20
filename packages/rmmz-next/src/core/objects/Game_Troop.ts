@@ -1,5 +1,6 @@
 import type { MZ } from '../../database-types'
-import { BattleManager, GlobalMananger } from '../managers'
+import { BattleManager } from '../managers/BattleManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Game_Enemy } from './Game_Enemy'
 import { Game_Interpreter } from './Game_Interpreter'
 import { Game_Unit } from './Game_Unit'

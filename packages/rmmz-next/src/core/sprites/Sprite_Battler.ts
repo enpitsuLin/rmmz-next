@@ -1,6 +1,6 @@
 import type { Game_Battler } from '../objects'
 import type { Sprite } from '../primitives'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Sprite_Clickable } from './Sprite_Clickable'
 import { Sprite_Damage } from './Sprite_Damage'
 

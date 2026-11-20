@@ -2,7 +2,7 @@ import type { MZ } from '../../database-types'
 import type { Game_Actor } from '../objects/Game_Actor'
 import type { Rectangle } from '../primitives'
 import type { Window_SkillList } from './Window_SkillList'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Window_Command } from './Window_Command'
 
 /**

@@ -1,5 +1,5 @@
 import type { Rectangle } from '../primitives'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Window_BattleStatus } from './Window_BattleStatus'
 
 /**

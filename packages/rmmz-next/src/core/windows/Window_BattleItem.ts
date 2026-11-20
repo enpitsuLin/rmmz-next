@@ -1,6 +1,6 @@
 import type { MZ } from '../../database-types'
 import type { Rectangle } from '../primitives'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Window_ItemList } from './Window_ItemList'
 
 /**

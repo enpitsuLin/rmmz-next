@@ -2,7 +2,8 @@ import type { MZ } from '../../database-types'
 import type { Game_Action } from './Game_Action'
 import type { Game_Party } from './Game_Party'
 import type { Game_Troop } from './Game_Troop'
-import { GlobalMananger, SoundManager } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
+import { SoundManager } from '../managers/SoundManager'
 import { Game_Battler } from './Game_Battler'
 
 /**

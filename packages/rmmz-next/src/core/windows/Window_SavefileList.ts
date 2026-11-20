@@ -1,5 +1,6 @@
 import type { Rectangle } from '../primitives'
-import { DataManager, TextManager } from '../managers'
+import { DataManager } from '../managers/DataManager'
+import { TextManager } from '../managers/TextManager'
 import { Window_Selectable } from './Window_Selectable'
 
 /**

@@ -1,7 +1,11 @@
 /* eslint-disable no-control-regex */
 import type * as PIXI from 'pixi.js'
 import type { MZ } from '../../database-types'
-import { ColorManager, GlobalMananger, ImageManager, SoundManager, TextManager } from '../managers'
+import { ColorManager } from '../managers/ColorManager'
+import { GlobalMananger } from '../managers/GlobalManager'
+import { ImageManager } from '../managers/ImageManager'
+import { SoundManager } from '../managers/SoundManager'
+import { TextManager } from '../managers/TextManager'
 import { Bitmap, Rectangle, Sprite, Utils, Window } from '../primitives'
 
 /**

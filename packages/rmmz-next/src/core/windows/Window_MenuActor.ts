@@ -1,6 +1,7 @@
 import type { MZ } from '../../database-types'
 import type { Rectangle } from '../primitives'
-import { DataManager, GlobalMananger } from '../managers'
+import { DataManager } from '../managers/DataManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Game_Action } from '../objects'
 import { Window_MenuStatus } from './Window_MenuStatus'
 

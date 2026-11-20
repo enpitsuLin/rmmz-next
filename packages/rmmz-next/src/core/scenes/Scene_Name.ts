@@ -1,5 +1,5 @@
 import type { Game_Actor } from '../objects/Game_Actor'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
 import { Graphics, Rectangle } from '../primitives'
 import { Window_NameEdit, Window_NameInput } from '../windows'

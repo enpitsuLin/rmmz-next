@@ -1,5 +1,5 @@
 import type { Window_Message } from './Window_Message'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Graphics, Rectangle } from '../primitives'
 import { Window_Base } from './Window_Base'
 

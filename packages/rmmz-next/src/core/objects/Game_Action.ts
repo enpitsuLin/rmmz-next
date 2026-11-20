@@ -3,7 +3,8 @@ import type { Game_Actor } from './Game_Actor'
 import type { Game_Battler } from './Game_Battler'
 import type { Game_Enemy } from './Game_Enemy'
 import type { Game_Unit } from './Game_Unit'
-import { DataManager, GlobalMananger } from '../managers'
+import { DataManager } from '../managers/DataManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Game_Item } from './Game_Item'
 
 /**

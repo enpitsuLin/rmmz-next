@@ -1,4 +1,4 @@
-import { ImageManager } from '../managers'
+import { ImageManager } from '../managers/ImageManager'
 import { Input, Rectangle } from '../primitives'
 import { Sprite_Clickable } from './Sprite_Clickable'
 

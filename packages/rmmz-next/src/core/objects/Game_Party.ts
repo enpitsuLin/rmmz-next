@@ -1,7 +1,7 @@
 import type { MZ } from '../../database-types'
 import type { Game_Actor } from './Game_Actor'
-import { GlobalMananger } from '../managers'
 import { DataManager } from '../managers/DataManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { TextManager } from '../managers/TextManager'
 import { Game_Item } from './Game_Item'
 import { Game_Unit } from './Game_Unit'

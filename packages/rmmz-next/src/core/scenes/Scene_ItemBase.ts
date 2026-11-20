@@ -1,7 +1,7 @@
 import type { MZ } from '../../database-types'
 import type { Game_Actor, Game_Battler } from '../objects'
 import type { Window_Selectable } from '../windows'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { SceneManager } from '../managers/SceneManager'
 import { SoundManager } from '../managers/SoundManager'
 import { Game_Action } from '../objects'

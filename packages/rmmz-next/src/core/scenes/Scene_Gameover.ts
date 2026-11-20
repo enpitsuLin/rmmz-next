@@ -1,4 +1,7 @@
-import { AudioManager, GlobalMananger, ImageManager, SceneManager } from '../managers'
+import { AudioManager } from '../managers/AudioManager'
+import { GlobalMananger } from '../managers/GlobalManager'
+import { ImageManager } from '../managers/ImageManager'
+import { SceneManager } from '../managers/SceneManager'
 import { Input, Sprite, TouchInput } from '../primitives'
 import { Scene_Base } from './Scene_Base'
 import { Scene_Title } from './Scene_Title'

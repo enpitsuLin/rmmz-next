@@ -3,7 +3,7 @@ import type { Game_Actor } from '../objects'
 import type { Rectangle } from '../primitives'
 import type { Window_EquipItem } from './Window_EquipItem'
 import type { Window_EquipStatus } from './Window_EquipStatus'
-import { ColorManager } from '../managers'
+import { ColorManager } from '../managers/ColorManager'
 import { Window_StatusBase } from './Window_StatusBase'
 
 /**

@@ -1,5 +1,7 @@
 import type { Rectangle } from '../primitives'
-import { DataManager, GlobalMananger, TextManager } from '../managers'
+import { DataManager } from '../managers/DataManager'
+import { GlobalMananger } from '../managers/GlobalManager'
+import { TextManager } from '../managers/TextManager'
 import { Window_Command } from './Window_Command'
 
 /**

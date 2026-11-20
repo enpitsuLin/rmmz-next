@@ -1,5 +1,5 @@
 import type * as PIXI from 'pixi.js'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Bitmap, Sprite } from '../primitives'
 
 /**

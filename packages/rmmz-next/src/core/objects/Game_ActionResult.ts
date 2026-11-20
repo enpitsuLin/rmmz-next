@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 
 /**
  * The game object class for a result of a battle action.

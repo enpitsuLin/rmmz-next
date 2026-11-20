@@ -1,7 +1,7 @@
 import type { MZ } from '../../database-types'
 import type { RGBA } from '../types'
-import { GlobalMananger } from '../managers'
 import { AudioManager } from '../managers/AudioManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Graphics } from '../primitives'
 
 /**

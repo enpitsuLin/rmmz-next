@@ -1,5 +1,5 @@
 import type { Game_Actor } from '../objects'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { SoundManager } from '../managers/SoundManager'
 import { Graphics, Rectangle } from '../primitives'
 import { Window_ItemCategory, Window_ItemList } from '../windows'

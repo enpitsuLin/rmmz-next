@@ -1,7 +1,9 @@
 import type { MZ } from '../../database-types'
 import type { Game_Actor } from '../objects/Game_Actor'
 import type { Rectangle } from '../primitives'
-import { ConfigManager, GlobalMananger, TextManager } from '../managers'
+import { ConfigManager } from '../managers/ConfigManager'
+import { GlobalMananger } from '../managers/GlobalManager'
+import { TextManager } from '../managers/TextManager'
 import { Window_Command } from './Window_Command'
 
 /**

@@ -1,5 +1,6 @@
 import type { Game_Picture } from '../objects'
-import { GlobalMananger, ImageManager } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
+import { ImageManager } from '../managers/ImageManager'
 import { Sprite_Clickable } from './Sprite_Clickable'
 
 /**

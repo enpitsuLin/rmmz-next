@@ -1,5 +1,6 @@
 import type { MZ } from '../../database-types'
-import { AudioManager, GlobalMananger } from '../managers'
+import { AudioManager } from '../managers/AudioManager'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Game_CharacterBase } from './Game_CharacterBase'
 
 /**

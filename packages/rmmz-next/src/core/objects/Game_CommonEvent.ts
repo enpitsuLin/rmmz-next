@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import { GlobalMananger } from '../managers'
+import { GlobalMananger } from '../managers/GlobalManager'
 import { Game_Interpreter } from './Game_Interpreter'
 
 /**
