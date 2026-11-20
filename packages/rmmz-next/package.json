@@ -18,7 +18,11 @@
     }
   },
   "types": "./dist/index.d.ts",
+  "bin": {
+    "rmmz-next": "./bin/cli.js"
+  },
   "files": [
+    "bin",
     "dist"
   ],
   "scripts": {
@@ -36,6 +40,7 @@
     }
   },
   "dependencies": {
+    "cac": "catalog:",
     "fflate": "catalog:",
     "localforage": "catalog:",
     "pixi.js": "catalog:"

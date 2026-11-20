@@ -3,14 +3,10 @@ import { spawn } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { homedir, platform } from 'node:os'
-import { dirname, join } from 'node:path'
+import { join, resolve } from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 import cac from 'cac'
-import { createLogger, createServer } from 'vite'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
 const isWindows = platform() === 'win32'
 const isLinux = platform() === 'linux'
 const isMacOS = platform() === 'darwin'
@@ -223,15 +219,9 @@ function getNWJSPath() {
   return findNWJS(rmmzPath)
 }
 
-function getProjectPath(customPath = null) {
-  if (customPath && existsSync(customPath))
-    return customPath
-
-  const defaultPath = join(__dirname, '..', 'dist')
-  if (existsSync(defaultPath))
-    return defaultPath
-
-  return null
+function getProjectPath(customPath) {
+  const projectPath = resolve(customPath ?? 'dist')
+  return existsSync(projectPath) ? projectPath : null
 }
 
 // ============================================================================
@@ -270,14 +260,14 @@ function commandFind() {
   }
 }
 
-function commandGame(options) {
+function commandGame(dir) {
   const nwjsPath = getNWJSPath()
   if (!nwjsPath) {
     console.error('Could not find nwjs executable.')
     process.exit(1)
   }
 
-  const projectPath = getProjectPath(options.projectPath)
+  const projectPath = getProjectPath(dir)
   if (!projectPath) {
     console.error('Game directory not found. Run "vite build" first.')
     process.exit(1)
@@ -309,15 +299,15 @@ async function commandDev() {
     process.exit(1)
   }
 
-  let gameProcess = null
+  const { createLogger, createServer } = await import('vite')
 
   // Create prefixed logger for Vite
   const createPrefixedLogger = (prefix) => {
     const logger = createLogger()
-    const prefixOutput = fn => (msg, ...args) => {
+    const prefixOutput = fn => (msg, options) => {
       const lines = msg.split('\n').filter(Boolean)
       for (const line of lines) {
-        fn(`[${prefix}] ${line}`, ...args)
+        fn(`[${prefix}] ${line}`, options)
       }
     }
     return {
@@ -331,48 +321,39 @@ async function commandDev() {
   // Start Vite dev server with JavaScript API
   console.log('[vite] Starting...')
   const viteServer = await createServer({
-    root: join(__dirname, '..'),
     customLogger: createPrefixedLogger('vite'),
   })
 
-  await viteServer.listen()
+  try {
+    await viteServer.listen()
 
-  const serverUrl = viteServer.resolvedUrls?.local?.[0]
-  if (!serverUrl) {
-    console.error('Vite dev server did not expose a local URL.')
-    await viteServer.close()
-    process.exit(1)
-  }
+    const serverUrl = viteServer.resolvedUrls?.local?.[0]
+    if (!serverUrl)
+      throw new Error('Vite dev server did not expose a local URL.')
 
-  // NW.js expects an app directory as its argument, not a URL. Generate a tiny
-  // app that redirects to the dev server, and keep Node APIs enabled in the
-  // remote page so the game behaves like a packaged build.
-  const rootDir = join(__dirname, '..')
-  const rootManifest = JSON.parse(readFileSync(join(rootDir, 'package.json'), 'utf8'))
-  // Reuse one app directory across runs: the runtime saves next to the app, so a
-  // throwaway directory would lose every save when the process exits.
-  const devAppDir = join(rootDir, '.rmmz-dev')
-  await mkdir(devAppDir, { recursive: true })
-  await writeFile(
-    join(devAppDir, 'package.json'),
-    JSON.stringify({
-      'name': 'rmmz-next-dev',
-      'main': 'index.html',
-      'node-remote': rootManifest['node-remote'] ?? new URL(serverUrl).origin,
-      'chromium-args': rootManifest['chromium-args'],
-      'window': rootManifest.window,
-    }, null, 2),
-  )
-  await writeFile(
-    join(devAppDir, 'index.html'),
-    `<!doctype html><meta charset="utf-8"><script>location.replace(${JSON.stringify(serverUrl)})</script>`,
-  )
+    // NW.js needs an app directory, with Node APIs enabled for the remote page.
+    const rootDir = viteServer.config.root
+    const rootManifest = JSON.parse(readFileSync(join(rootDir, 'package.json'), 'utf8'))
+    // A stable app directory preserves saves between development sessions.
+    const devAppDir = join(rootDir, '.rmmz-dev')
+    await mkdir(devAppDir, { recursive: true })
+    await writeFile(
+      join(devAppDir, 'package.json'),
+      JSON.stringify({
+        'name': 'rmmz-next-dev',
+        'main': 'index.html',
+        'node-remote': rootManifest['node-remote'] ?? new URL(serverUrl).origin,
+        'chromium-args': rootManifest['chromium-args'],
+        'window': rootManifest.window,
+      }, null, 2),
+    )
+    await writeFile(
+      join(devAppDir, 'index.html'),
+      `<!doctype html><meta charset="utf-8"><script>location.replace(${JSON.stringify(serverUrl)})</script>`,
+    )
 
-  // Launch game after Vite is ready. The Vite root is the game project root,
-  // so relative asset paths just work once the page is served by Vite.
-  setTimeout(() => {
     console.log('[game] Starting...')
-    gameProcess = spawn(nwjsPath, [devAppDir], {
+    const gameProcess = spawn(nwjsPath, [devAppDir], {
       cwd: rootDir,
       stdio: 'pipe',
     })
@@ -387,8 +368,10 @@ async function commandDev() {
     gameProcess.stdout?.on('data', prefixOutput('game', console.log))
     gameProcess.stderr?.on('data', prefixOutput('game', console.error))
 
-    gameProcess.on('error', (err) => {
+    gameProcess.on('error', async (err) => {
       console.error('[game] Failed to start:', err)
+      await viteServer.close()
+      process.exit(1)
     })
 
     gameProcess.on('exit', async (code) => {
@@ -396,28 +379,23 @@ async function commandDev() {
       await viteServer.close()
       process.exit(code ?? 0)
     })
-  }, 1000)
 
-  // Handle shutdown signals
-  const shutdown = async () => {
-    console.log('\nShutting down...')
-    if (gameProcess && !gameProcess.killed) {
+    const shutdown = async () => {
+      console.log('\nShutting down...')
       gameProcess.kill('SIGTERM')
-      setTimeout(() => {
-        if (!gameProcess.killed)
-          gameProcess.kill('SIGKILL')
-      }, 2000)
+      await viteServer.close()
+      process.exit(0)
     }
-    await viteServer.close()
-    process.exit(0)
+
+    process.on('SIGINT', shutdown)
+    process.on('SIGTERM', shutdown)
+
+    if (isWindows)
+      process.on('SIGBREAK', shutdown)
   }
-
-  process.on('SIGINT', shutdown)
-  process.on('SIGTERM', shutdown)
-
-  // Windows uses SIGBREAK for Ctrl+C
-  if (isWindows) {
-    process.on('SIGBREAK', shutdown)
+  catch (error) {
+    await viteServer.close()
+    throw error
   }
 }
 
@@ -425,33 +403,35 @@ async function commandDev() {
 // Setup CLI with cac
 // ============================================================================
 
-const cli = cac('rmmz-dev')
+const cli = cac('rmmz-next')
 
 cli
   .command('dev', 'Start Vite dev server + game')
-  .action(async () => {
-    await commandDev()
-  })
+  .action(commandDev)
 
 cli
   .command('game [dir]', 'Run a built game directory with nwjs (default: dist)')
-  .action((dir) => {
-    commandGame({ projectPath: dir })
-  })
+  .action(commandGame)
 
 cli
   .command('find', 'Find and display nwjs path')
-  .action(() => {
-    commandFind()
-  })
+  .action(commandFind)
 
 cli.help()
-cli.parse()
 
-if (!cli.matchedCommand && !cli.options.help) {
-  if (cli.args[0]) {
-    console.error(`Unknown command: ${cli.args[0]}`)
-    process.exit(1)
+try {
+  cli.parse(process.argv, { run: false })
+
+  if (cli.matchedCommand) {
+    await cli.runMatchedCommand()
   }
-  await commandDev()
+  else if (!cli.options.help) {
+    if (cli.args[0])
+      throw new Error(`Unknown command: ${cli.args[0]}`)
+    await commandDev()
+  }
+}
+catch (error) {
+  console.error(error instanceof Error ? error.message : error)
+  process.exitCode = 1
 }

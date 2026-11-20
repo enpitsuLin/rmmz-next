@@ -66,15 +66,15 @@ importers:
       '@types/node':
         specifier: catalog:types
         version: 25.3.3
-      cac:
-        specifier: 'catalog:'
-        version: 7.0.0
       vite:
         specifier: catalog:dev
         version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
 
   packages/rmmz-next:
     dependencies:
+      cac:
+        specifier: 'catalog:'
+        version: 7.0.0
       fflate:
         specifier: 'catalog:'
         version: 0.8.3

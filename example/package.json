@@ -7,7 +7,7 @@
   "main": "index.html",
   "scripts": {
     "dev:server": "vite",
-    "dev": "node scripts/dev.js",
+    "dev": "rmmz-next dev",
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
@@ -17,7 +17,6 @@
   },
   "devDependencies": {
     "@types/node": "catalog:types",
-    "cac": "catalog:",
     "vite": "catalog:dev"
   },
   "chromium-args": "--force-color-profile=srgb",
