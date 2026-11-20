@@ -12,7 +12,8 @@ import { ColorFilter } from '../primitives/ColorFilter'
 import { Graphics } from '../primitives/Graphics'
 import { Stage } from '../primitives/Stage'
 import { WindowLayer } from '../primitives/WindowLayer'
-import { Window_Base, Window_Selectable } from '../windows'
+import { Window_Base } from '../windows/Window_Base'
+import { Window_Selectable } from '../windows/Window_Selectable'
 
 /*
  /* Scene_Base

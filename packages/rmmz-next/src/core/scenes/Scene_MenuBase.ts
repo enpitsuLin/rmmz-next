@@ -7,8 +7,8 @@ import { SoundManager } from '../managers/SoundManager'
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
 import { Sprite } from '../primitives/Sprite'
-import { Sprite_Button } from '../sprites'
-import { Window_Help } from '../windows'
+import { Sprite_Button } from '../sprites/Sprite_Button'
+import { Window_Help } from '../windows/Window_Help'
 import { Scene_Base } from './Scene_Base'
 
 /*

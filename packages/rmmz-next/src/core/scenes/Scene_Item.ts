@@ -3,7 +3,8 @@ import { GlobalMananger } from '../managers/GlobalManager'
 import { SoundManager } from '../managers/SoundManager'
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
-import { Window_ItemCategory, Window_ItemList } from '../windows'
+import { Window_ItemCategory } from '../windows/Window_ItemCategory'
+import { Window_ItemList } from '../windows/Window_ItemList'
 import { Scene_ItemBase } from './Scene_ItemBase'
 
 /*

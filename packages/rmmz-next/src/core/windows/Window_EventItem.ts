@@ -5,7 +5,7 @@ import { ConfigManager } from '../managers/ConfigManager'
 import { DataManager } from '../managers/DataManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Graphics } from '../primitives/Graphics'
-import { Sprite_Button } from '../sprites'
+import { Sprite_Button } from '../sprites/Sprite_Button'
 import { Window_ItemList } from './Window_ItemList'
 
 /**

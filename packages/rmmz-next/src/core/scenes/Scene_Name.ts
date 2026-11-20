@@ -3,7 +3,8 @@ import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
-import { Window_NameEdit, Window_NameInput } from '../windows'
+import { Window_NameEdit } from '../windows/Window_NameEdit'
+import { Window_NameInput } from '../windows/Window_NameInput'
 import { Scene_MenuBase } from './Scene_MenuBase'
 
 /*

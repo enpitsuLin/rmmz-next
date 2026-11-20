@@ -1,6 +1,12 @@
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
-import { Window_ChoiceList, Window_EventItem, Window_Gold, Window_Message, Window_NameBox, Window_NumberInput, Window_ScrollText } from '../windows'
+import { Window_ChoiceList } from '../windows/Window_ChoiceList'
+import { Window_EventItem } from '../windows/Window_EventItem'
+import { Window_Gold } from '../windows/Window_Gold'
+import { Window_Message } from '../windows/Window_Message'
+import { Window_NameBox } from '../windows/Window_NameBox'
+import { Window_NumberInput } from '../windows/Window_NumberInput'
+import { Window_ScrollText } from '../windows/Window_ScrollText'
 import { Scene_Base } from './Scene_Base'
 
 /*

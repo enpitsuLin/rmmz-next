@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import type { Sprite_Balloon } from '../sprites'
+import type { Sprite_Balloon } from '../sprites/Sprite_Balloon'
 import type { Game_Battler } from './Game_Battler'
 import type { Game_Character } from './Game_Character'
 import { GlobalMananger } from '../managers/GlobalManager'

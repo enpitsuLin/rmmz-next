@@ -1,7 +1,7 @@
 import { ConfigManager } from '../managers/ConfigManager'
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
-import { Window_Options } from '../windows'
+import { Window_Options } from '../windows/Window_Options'
 import { Scene_MenuBase } from './Scene_MenuBase'
 
 /*

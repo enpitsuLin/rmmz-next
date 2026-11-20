@@ -3,7 +3,7 @@ import { ConfigManager } from '../managers/ConfigManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
-import { Sprite_Button } from '../sprites'
+import { Sprite_Button } from '../sprites/Sprite_Button'
 import { Window_Command } from './Window_Command'
 
 /**

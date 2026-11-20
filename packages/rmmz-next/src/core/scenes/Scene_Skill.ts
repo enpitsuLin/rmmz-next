@@ -3,7 +3,9 @@ import type { Game_Actor } from '../objects/Game_Actor'
 import { SoundManager } from '../managers/SoundManager'
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
-import { Window_SkillList, Window_SkillStatus, Window_SkillType } from '../windows'
+import { Window_SkillList } from '../windows/Window_SkillList'
+import { Window_SkillStatus } from '../windows/Window_SkillStatus'
+import { Window_SkillType } from '../windows/Window_SkillType'
 import { Scene_ItemBase } from './Scene_ItemBase'
 
 /*

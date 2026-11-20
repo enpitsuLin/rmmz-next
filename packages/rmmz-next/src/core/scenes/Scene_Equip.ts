@@ -1,7 +1,10 @@
 import { SoundManager } from '../managers/SoundManager'
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
-import { Window_EquipCommand, Window_EquipItem, Window_EquipSlot, Window_EquipStatus } from '../windows'
+import { Window_EquipCommand } from '../windows/Window_EquipCommand'
+import { Window_EquipItem } from '../windows/Window_EquipItem'
+import { Window_EquipSlot } from '../windows/Window_EquipSlot'
+import { Window_EquipStatus } from '../windows/Window_EquipStatus'
 import { Scene_MenuBase } from './Scene_MenuBase'
 
 /*

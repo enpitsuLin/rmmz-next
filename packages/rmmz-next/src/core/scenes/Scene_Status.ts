@@ -1,6 +1,9 @@
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
-import { Window_Help, Window_Status, Window_StatusEquip, Window_StatusParams } from '../windows'
+import { Window_Help } from '../windows/Window_Help'
+import { Window_Status } from '../windows/Window_Status'
+import { Window_StatusEquip } from '../windows/Window_StatusEquip'
+import { Window_StatusParams } from '../windows/Window_StatusParams'
 import { Scene_MenuBase } from './Scene_MenuBase'
 
 /*

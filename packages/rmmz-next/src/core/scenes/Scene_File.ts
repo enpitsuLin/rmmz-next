@@ -2,7 +2,8 @@ import { DataManager } from '../managers/DataManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
-import { Window_Help, Window_SavefileList } from '../windows'
+import { Window_Help } from '../windows/Window_Help'
+import { Window_SavefileList } from '../windows/Window_SavefileList'
 import { Scene_MenuBase } from './Scene_MenuBase'
 
 /*

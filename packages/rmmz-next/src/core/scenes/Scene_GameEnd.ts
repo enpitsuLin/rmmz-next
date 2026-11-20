@@ -1,7 +1,8 @@
 import { SceneManager } from '../managers/SceneManager'
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
-import { Window_GameEnd, Window_TitleCommand } from '../windows'
+import { Window_GameEnd } from '../windows/Window_GameEnd'
+import { Window_TitleCommand } from '../windows/Window_TitleCommand'
 import { Scene_MenuBase } from './Scene_MenuBase'
 import { Scene_Title } from './Scene_Title'
 

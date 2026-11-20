@@ -6,7 +6,9 @@ import { ColorManager } from '../managers/ColorManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
 import { TextManager } from '../managers/TextManager'
-import { Sprite_Gauge, Sprite_Name, Sprite_StateIcon } from '../sprites'
+import { Sprite_Gauge } from '../sprites/Sprite_Gauge'
+import { Sprite_Name } from '../sprites/Sprite_Name'
+import { Sprite_StateIcon } from '../sprites/Sprite_StateIcon'
 import { Window_Selectable } from './Window_Selectable'
 
 /**
