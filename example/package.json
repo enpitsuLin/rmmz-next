@@ -10,7 +10,8 @@
     "dev": "rmmz-next dev",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "rmmz-next protect"
   },
   "dependencies": {
     "rmmz-next": "workspace:*"
