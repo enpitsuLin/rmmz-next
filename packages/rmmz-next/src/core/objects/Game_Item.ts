@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 
 /**
@@ -79,16 +79,16 @@ export class Game_Item<Item extends Game_Item.ItemType = Game_Item.ItemType> {
   }
 
   setObject(item: MZ.GeneralItem | null): void {
-    if (DataManager.isSkill(item)) {
+    if (Database.isSkill(item)) {
       this._dataClass = 'skill' as Item
     }
-    else if (DataManager.isItem(item)) {
+    else if (Database.isItem(item)) {
       this._dataClass = 'item' as Item
     }
-    else if (DataManager.isWeapon(item)) {
+    else if (Database.isWeapon(item)) {
       this._dataClass = 'weapon' as Item
     }
-    else if (DataManager.isArmor(item)) {
+    else if (Database.isArmor(item)) {
       this._dataClass = 'armor' as Item
     }
     else {

@@ -9,7 +9,6 @@ import { Game_Action } from '../objects/Game_Action'
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
 import { Window_MenuActor } from '../windows/Window_MenuActor'
-import { Scene_Map } from './Scene_Map'
 import { Scene_MenuBase } from './Scene_MenuBase'
 
 /*
@@ -155,7 +154,7 @@ export abstract class Scene_ItemBase extends Scene_MenuBase {
 
   checkCommonEvent(): void {
     if (GlobalMananger.$gameTemp.isCommonEventReserved()) {
-      SceneManager.goto(Scene_Map)
+      SceneManager.goto('Map')
     }
   }
 }

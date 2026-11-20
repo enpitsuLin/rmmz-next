@@ -5,7 +5,6 @@ import { Input } from '../primitives/Input'
 import { Sprite } from '../primitives/Sprite'
 import { TouchInput } from '../primitives/TouchInput'
 import { Scene_Base } from './Scene_Base'
-import { Scene_Title } from './Scene_Title'
 
 /*
  /* Scene_Splash
@@ -92,6 +91,6 @@ export class Scene_Splash extends Scene_Base {
   }
 
   gotoTitle(): void {
-    SceneManager.goto(Scene_Title)
+    SceneManager.goto('Title')
   }
 }

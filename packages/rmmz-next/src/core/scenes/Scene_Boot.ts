@@ -1,9 +1,11 @@
 import { ColorManager } from '../managers/ColorManager'
 import { ConfigManager } from '../managers/ConfigManager'
+import { Database } from '../managers/Database'
 import { DataManager } from '../managers/DataManager'
 import { FontManager } from '../managers/FontManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
+import { SavefileManager } from '../managers/SavefileManager'
 import { SceneManager } from '../managers/SceneManager'
 import { SoundManager } from '../managers/SoundManager'
 import { StorageManager } from '../managers/StorageManager'
@@ -11,9 +13,6 @@ import { Graphics } from '../primitives/Graphics'
 import { Utils } from '../primitives/Utils'
 import { Window_TitleCommand } from '../windows/Window_TitleCommand'
 import { Scene_Base } from './Scene_Base'
-import { Scene_Battle } from './Scene_Battle'
-import { Scene_Map } from './Scene_Map'
-import { Scene_Splash } from './Scene_Splash'
 
 /*
  /* Scene_Boot
@@ -68,7 +67,7 @@ export class Scene_Boot extends Scene_Base {
   }
 
   loadPlayerData(): void {
-    DataManager.loadGlobalInfo()
+    SavefileManager.loadGlobalInfo()
     ConfigManager.load()
   }
 
@@ -79,24 +78,24 @@ export class Scene_Boot extends Scene_Base {
   }
 
   isPlayerDataLoaded(): boolean {
-    return DataManager.isGlobalInfoLoaded() && ConfigManager.isLoaded()
+    return SavefileManager.isGlobalInfoLoaded() && ConfigManager.isLoaded()
   }
 
   start(): void {
     super.start()
     SoundManager.preloadImportantSounds()
-    if (DataManager.isBattleTest()) {
+    if (Database.isBattleTest()) {
       DataManager.setupBattleTest()
-      SceneManager.goto(Scene_Battle)
+      SceneManager.goto('Battle')
     }
-    else if (DataManager.isEventTest()) {
+    else if (Database.isEventTest()) {
       DataManager.setupEventTest()
-      SceneManager.goto(Scene_Map)
+      SceneManager.goto('Map')
     }
-    else if (DataManager.isTitleSkip()) {
+    else if (Database.isTitleSkip()) {
       this.checkPlayerLocation()
       DataManager.setupNewGame()
-      SceneManager.goto(Scene_Map)
+      SceneManager.goto('Map')
     }
     else {
       this.startNormalGame()
@@ -109,7 +108,7 @@ export class Scene_Boot extends Scene_Base {
     this.checkPlayerLocation()
     DataManager.setupNewGame()
     Window_TitleCommand.initCommandPosition()
-    SceneManager.goto(Scene_Splash)
+    SceneManager.goto('Splash')
   }
 
   resizeScreen(): void {

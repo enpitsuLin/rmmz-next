@@ -1,10 +1,10 @@
 import type { MainOptions } from './types'
 import {
+  builtInScenes,
   GlobalMananger,
   initEffekseerRuntime,
   loadExternalLibs,
   PluginManager,
-  Scene_Boot,
   SceneManager,
 } from '../core'
 import {
@@ -220,7 +220,7 @@ export class Main {
 
   private startGame(): void {
     this.eraseLoadingSpinner()
-    SceneManager.run(Scene_Boot)
+    SceneManager.run('Boot', builtInScenes)
   }
 
   private printError(name: string, message: string): void {

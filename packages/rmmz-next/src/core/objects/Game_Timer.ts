@@ -1,8 +1,8 @@
-import { BattleManager } from '../managers/BattleManager'
-
 /**
  * The game object class for the timer.
  */
+import { BattleManager } from '../managers/BattleManager'
+
 export class Game_Timer {
   _frames: number
   _working: boolean

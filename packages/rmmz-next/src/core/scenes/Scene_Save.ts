@@ -1,5 +1,5 @@
-import { DataManager } from '../managers/DataManager'
 import { GlobalMananger } from '../managers/GlobalManager'
+import { SavefileManager } from '../managers/SavefileManager'
 import { SoundManager } from '../managers/SoundManager'
 import { TextManager } from '../managers/TextManager'
 import { Scene_File } from './Scene_File'
@@ -40,7 +40,7 @@ export class Scene_Save extends Scene_File {
   executeSave(savefileId: number): void {
     GlobalMananger.$gameSystem.setSavefileId(savefileId)
     GlobalMananger.$gameSystem.onBeforeSave()
-    DataManager.saveGame(savefileId)
+    SavefileManager.saveGame(savefileId)
       .then(() => this.onSaveSuccess())
       .catch(() => this.onSaveFailure())
   }

@@ -1,6 +1,6 @@
 import type { MZ } from '../../database-types'
 import type { Game_Actor } from './Game_Actor'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { TextManager } from '../managers/TextManager'
 import { Game_Item } from './Game_Item'
@@ -126,13 +126,13 @@ class Game_Party extends Game_Unit<Game_Actor> {
     if (!item) {
       return null
     }
-    else if (DataManager.isItem(item)) {
+    else if (Database.isItem(item)) {
       return this._items
     }
-    else if (DataManager.isWeapon(item)) {
+    else if (Database.isWeapon(item)) {
       return this._weapons
     }
-    else if (DataManager.isArmor(item)) {
+    else if (Database.isArmor(item)) {
       return this._armors
     }
     else {
@@ -314,7 +314,7 @@ class Game_Party extends Game_Unit<Game_Actor> {
   }
 
   consumeItem(item: MZ.EquipOrItem): void {
-    if (DataManager.isItem(item) && item.consumable) {
+    if (Database.isItem(item) && item.consumable) {
       this.loseItem(item, 1)
     }
   }

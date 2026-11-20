@@ -16,13 +16,6 @@ import { Input } from '../primitives/Input'
 import { Point } from '../primitives/Point'
 import { Utils } from '../primitives/Utils'
 import { Video } from '../primitives/Video'
-import { Scene_Battle } from '../scenes/Scene_Battle'
-import { Scene_Gameover } from '../scenes/Scene_Gameover'
-import { Scene_Menu } from '../scenes/Scene_Menu'
-import { Scene_Name } from '../scenes/Scene_Name'
-import { Scene_Save } from '../scenes/Scene_Save'
-import { Scene_Shop } from '../scenes/Scene_Shop'
-import { Scene_Title } from '../scenes/Scene_Title'
 import { Window_MenuCommand } from '../windows/Window_MenuCommand'
 
 /**
@@ -1503,7 +1496,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
           this._branch[this._indent] = n
         })
         GlobalMananger.$gamePlayer.makeEncounterCount()
-        SceneManager.push(Scene_Battle)
+        SceneManager.push('Battle')
       }
     }
     return true
@@ -1542,7 +1535,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
         // TODO: to improve this
         goods.push(this.currentCommand().parameters as any)
       }
-      SceneManager.push(Scene_Shop)
+      SceneManager.push('Shop')
       SceneManager.prepareNextScene(goods, params[4])
     }
     return true
@@ -1552,7 +1545,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   command303(params: [actorId: number, maxLength: number]): boolean {
     if (!GlobalMananger.$gameParty.inBattle()) {
       if (GlobalMananger.$dataActors[params[0]]) {
-        SceneManager.push(Scene_Name)
+        SceneManager.push('Name')
         SceneManager.prepareNextScene(params[0], params[1])
       }
     }
@@ -1830,7 +1823,7 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   // Open Menu Screen
   command351(): boolean {
     if (!GlobalMananger.$gameParty.inBattle()) {
-      SceneManager.push(Scene_Menu)
+      SceneManager.push('Menu')
       Window_MenuCommand.initCommandPosition()
     }
     return true
@@ -1839,20 +1832,20 @@ class Game_Interpreter implements Game_Interpreter.InterpreterCommand {
   // Open Save Screen
   command352(): boolean {
     if (!GlobalMananger.$gameParty.inBattle()) {
-      SceneManager.push(Scene_Save)
+      SceneManager.push('Save')
     }
     return true
   }
 
   // Game Over
   command353(): boolean {
-    SceneManager.goto(Scene_Gameover)
+    SceneManager.goto('Gameover')
     return true
   }
 
   // Return to Title Screen
   command354(): boolean {
-    SceneManager.goto(Scene_Title)
+    SceneManager.goto('Title')
     return true
   }
 

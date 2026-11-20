@@ -1,5 +1,3 @@
-import { Graphics } from './Graphics'
-
 /**
  * The static class that handles video playback.
  *
@@ -9,6 +7,7 @@ export class Video {
   static _element: HTMLVideoElement | null = null
   static _loading: boolean = false
   static _volume: number = 1
+  static _visibilityHandler: ((visible: boolean) => void) | null = null
 
   constructor() {
     throw new Error('This is a static class')
@@ -19,14 +18,28 @@ export class Video {
    *
    * @param {number} width - The width of the video.
    * @param {number} height - The height of the video.
+   * @param onVisibilityChange - Called with true when the video covers the
+   *   screen and false when it stops covering it. Defaults to the handler
+   *   registered by `Graphics`.
    */
-  static initialize(width: number, height: number): void {
+  static initialize(width: number, height: number, onVisibilityChange?: (visible: boolean) => void): void {
     this._element = null
     this._loading = false
     this._volume = 1
+    if (onVisibilityChange) {
+      this._visibilityHandler = onVisibilityChange
+    }
     this._createElement()
     this._setupEventHandlers()
     this.resize(width, height)
+  }
+
+  /**
+   * Sets the handler used when `initialize` is called without one, so that
+   * `Video.initialize(width, height)` keeps covering the game canvas.
+   */
+  static setVisibilityHandler(handler: ((visible: boolean) => void) | null): void {
+    this._visibilityHandler = handler
   }
 
   /**
@@ -115,12 +128,7 @@ export class Video {
   }
 
   static _updateVisibility(videoVisible: boolean): void {
-    if (videoVisible) {
-      Graphics.hideScreen()
-    }
-    else {
-      Graphics.showScreen()
-    }
+    this._visibilityHandler?.(videoVisible)
     this._element!.style.opacity = videoVisible ? '1' : '0'
   }
 

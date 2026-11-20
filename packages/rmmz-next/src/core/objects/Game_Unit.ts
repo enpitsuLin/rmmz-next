@@ -1,5 +1,5 @@
 import type { Game_Battler } from './Game_Battler'
-import { BattleManager } from '../managers/BattleManager'
+import { Database } from '../managers/Database'
 
 /**
  * The superclass of Game_Party and Game_Troop.
@@ -130,7 +130,7 @@ class Game_Unit<Member extends Game_Battler = Game_Battler> {
   }
 
   tpbReferenceTime(): number {
-    return BattleManager.isActiveTpb() ? 240 : 60
+    return Database.isActiveTpb() ? 240 : 60
   }
 
   updateTpb(): void {

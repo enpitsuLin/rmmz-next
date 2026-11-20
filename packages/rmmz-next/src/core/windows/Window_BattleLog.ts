@@ -4,7 +4,7 @@ import type { Game_Actor } from '../objects/Game_Actor'
 import type { Game_Battler } from '../objects/Game_Battler'
 import type { Spriteset_Battle } from '../sprites/Spriteset_Battle'
 import type { PickMethodProperties } from '../types'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { SoundManager } from '../managers/SoundManager'
 import { TextManager } from '../managers/TextManager'
@@ -342,7 +342,7 @@ export class Window_BattleLog extends Window_Base {
 
   displayAction(subject: Game_Battler, item: MZ.UsableItem): void {
     const numMethods = this._methods.length
-    if (DataManager.isSkill(item)) {
+    if (Database.isSkill(item)) {
       const skill = item as MZ.Skill & { message1: string, message2: string }
       this.displayItemMessage(skill.message1, subject, item)
       this.displayItemMessage(skill.message2, subject, item)

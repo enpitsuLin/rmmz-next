@@ -5,14 +5,7 @@ import { Rectangle } from '../primitives/Rectangle'
 import { Window_Gold } from '../windows/Window_Gold'
 import { Window_MenuCommand } from '../windows/Window_MenuCommand'
 import { Window_MenuStatus } from '../windows/Window_MenuStatus'
-import { Scene_Equip } from './Scene_Equip'
-import { Scene_GameEnd } from './Scene_GameEnd'
-import { Scene_Item } from './Scene_Item'
 import { Scene_MenuBase } from './Scene_MenuBase'
-import { Scene_Options } from './Scene_Options'
-import { Scene_Save } from './Scene_Save'
-import { Scene_Skill } from './Scene_Skill'
-import { Scene_Status } from './Scene_Status'
 
 /*
  /* Scene_Menu
@@ -97,7 +90,7 @@ export class Scene_Menu extends Scene_MenuBase {
   }
 
   commandItem(): void {
-    SceneManager.push(Scene_Item)
+    SceneManager.push('Item')
   }
 
   commandPersonal(): void {
@@ -117,27 +110,27 @@ export class Scene_Menu extends Scene_MenuBase {
   }
 
   commandOptions(): void {
-    SceneManager.push(Scene_Options)
+    SceneManager.push('Options')
   }
 
   commandSave(): void {
-    SceneManager.push(Scene_Save)
+    SceneManager.push('Save')
   }
 
   commandGameEnd(): void {
-    SceneManager.push(Scene_GameEnd)
+    SceneManager.push('GameEnd')
   }
 
   onPersonalOk(): void {
     switch (this._commandWindow.currentSymbol()) {
       case 'skill':
-        SceneManager.push(Scene_Skill)
+        SceneManager.push('Skill')
         break
       case 'equip':
-        SceneManager.push(Scene_Equip)
+        SceneManager.push('Equip')
         break
       case 'status':
-        SceneManager.push(Scene_Status)
+        SceneManager.push('Status')
         break
     }
   }

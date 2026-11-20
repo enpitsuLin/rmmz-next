@@ -1,5 +1,5 @@
 import type { Rectangle } from '../primitives/Rectangle'
-import { DataManager } from '../managers/DataManager'
+import { SavefileManager } from '../managers/SavefileManager'
 import { TextManager } from '../managers/TextManager'
 import { Window_Selectable } from './Window_Selectable'
 
@@ -26,7 +26,7 @@ export class Window_SavefileList extends Window_Selectable {
   }
 
   maxItems(): number {
-    return DataManager.maxSavefiles() - (this._autosave ? 0 : 1)
+    return SavefileManager.maxSavefiles() - (this._autosave ? 0 : 1)
   }
 
   numVisibleRows(): number {
@@ -39,7 +39,7 @@ export class Window_SavefileList extends Window_Selectable {
 
   drawItem(index: number): void {
     const savefileId = this.indexToSavefileId(index)
-    const info = DataManager.savefileInfo(savefileId)
+    const info = SavefileManager.savefileInfo(savefileId)
     const rect = this.itemRectWithPadding(index)
     this.resetTextColor()
     this.changePaintOpacity(this.isEnabled(savefileId))
@@ -62,7 +62,7 @@ export class Window_SavefileList extends Window_Selectable {
       return savefileId > 0
     }
     else {
-      return !!DataManager.savefileInfo(savefileId)
+      return !!SavefileManager.savefileInfo(savefileId)
     }
   }
 
@@ -85,7 +85,7 @@ export class Window_SavefileList extends Window_Selectable {
     }
   }
 
-  drawContents(info: DataManager.SavefileInfo, rect: Rectangle): void {
+  drawContents(info: SavefileManager.SavefileInfo, rect: Rectangle): void {
     const bottom = rect.y + rect.height
     if (rect.width >= 420) {
       this.drawPartyCharacters(info, rect.x + 220, bottom - 8)
@@ -97,7 +97,7 @@ export class Window_SavefileList extends Window_Selectable {
     }
   }
 
-  drawPartyCharacters(info: DataManager.SavefileInfo, x: number, y: number): void {
+  drawPartyCharacters(info: SavefileManager.SavefileInfo, x: number, y: number): void {
     if (info.characters) {
       let characterX = x
       for (const data of info.characters) {
@@ -107,7 +107,7 @@ export class Window_SavefileList extends Window_Selectable {
     }
   }
 
-  drawPlaytime(info: DataManager.SavefileInfo, x: number, y: number, width: number): void {
+  drawPlaytime(info: SavefileManager.SavefileInfo, x: number, y: number, width: number): void {
     if (info.playtime) {
       this.drawText(info.playtime, x, y, width, 'right')
     }

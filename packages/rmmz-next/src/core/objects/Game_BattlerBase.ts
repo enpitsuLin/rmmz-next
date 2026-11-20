@@ -1,7 +1,7 @@
 import type { MZ } from '../../database-types'
 import type { Game_Actor } from './Game_Actor'
 import type { Game_Enemy } from './Game_Enemy'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 
 /**
@@ -823,10 +823,10 @@ class Game_BattlerBase<T extends MZ.TraitObject = MZ.TraitObject> {
     if (!item) {
       return false
     }
-    else if (DataManager.isSkill(item)) {
+    else if (Database.isSkill(item)) {
       return this.meetsSkillConditions(item)
     }
-    else if (DataManager.isItem(item)) {
+    else if (Database.isItem(item)) {
       return this.meetsItemConditions(item)
     }
     else {
@@ -838,10 +838,10 @@ class Game_BattlerBase<T extends MZ.TraitObject = MZ.TraitObject> {
     if (!item) {
       return false
     }
-    else if (DataManager.isWeapon(item)) {
+    else if (Database.isWeapon(item)) {
       return this.canEquipWeapon(item)
     }
-    else if (DataManager.isArmor(item)) {
+    else if (Database.isArmor(item)) {
       return this.canEquipArmor(item)
     }
     else {

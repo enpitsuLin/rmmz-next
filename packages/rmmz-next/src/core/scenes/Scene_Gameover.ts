@@ -6,7 +6,6 @@ import { Input } from '../primitives/Input'
 import { Sprite } from '../primitives/Sprite'
 import { TouchInput } from '../primitives/TouchInput'
 import { Scene_Base } from './Scene_Base'
-import { Scene_Title } from './Scene_Title'
 
 /**
  * The scene class of the game over screen.
@@ -65,6 +64,6 @@ export class Scene_Gameover extends Scene_Base {
   }
 
   gotoTitle(): void {
-    SceneManager.goto(Scene_Title)
+    SceneManager.goto('Title')
   }
 }

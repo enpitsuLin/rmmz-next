@@ -1,5 +1,5 @@
 import type { Rectangle } from '../primitives/Rectangle'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { TextManager } from '../managers/TextManager'
 import { Window_Command } from './Window_Command'
@@ -99,7 +99,7 @@ export class Window_MenuCommand extends Window_Command {
   }
 
   isSaveEnabled(): boolean {
-    return !DataManager.isEventTest() && GlobalMananger.$gameSystem.isSaveEnabled()
+    return !Database.isEventTest() && GlobalMananger.$gameSystem.isSaveEnabled()
   }
 
   isGameEndEnabled(): boolean {

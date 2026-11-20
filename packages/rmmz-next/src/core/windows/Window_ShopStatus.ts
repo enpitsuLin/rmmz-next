@@ -2,7 +2,7 @@ import type { MZ } from '../../database-types'
 import type { Game_Actor } from '../objects/Game_Actor'
 import type { Rectangle } from '../primitives/Rectangle'
 import { ColorManager } from '../managers/ColorManager'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { TextManager } from '../managers/TextManager'
 import { Input } from '../primitives/Input'
@@ -44,7 +44,7 @@ export class Window_ShopStatus extends Window_StatusBase {
   }
 
   isEquipItem(): boolean {
-    return DataManager.isWeapon(this._item) || DataManager.isArmor(this._item)
+    return Database.isWeapon(this._item) || Database.isArmor(this._item)
   }
 
   drawPossession(x: number, y: number): void {
@@ -102,7 +102,7 @@ export class Window_ShopStatus extends Window_StatusBase {
   }
 
   paramId(): number {
-    return DataManager.isWeapon(this._item) ? 2 : 3
+    return Database.isWeapon(this._item) ? 2 : 3
   }
 
   currentEquippedItem(actor: Game_Actor, etypeId: number): MZ.Armor | MZ.Weapon | null {

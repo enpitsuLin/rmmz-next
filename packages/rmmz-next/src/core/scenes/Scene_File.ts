@@ -1,5 +1,5 @@
-import { DataManager } from '../managers/DataManager'
 import { GlobalMananger } from '../managers/GlobalManager'
+import { SavefileManager } from '../managers/SavefileManager'
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
 import { Window_Help } from '../windows/Window_Help'
@@ -20,7 +20,7 @@ export class Scene_File extends Scene_MenuBase {
 
   create(): void {
     super.create()
-    DataManager.loadAllSavefileImages()
+    SavefileManager.loadAllSavefileImages()
     this.createHelpWindow()
     this.createListWindow()
     this._helpWindow.setText(this.helpWindowText())

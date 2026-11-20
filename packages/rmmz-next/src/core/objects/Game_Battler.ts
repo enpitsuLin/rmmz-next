@@ -1,7 +1,6 @@
 import type { MZ } from '../../database-types'
 import type { Game_Unit } from './Game_Unit'
-import { BattleManager } from '../managers/BattleManager'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { SoundManager } from '../managers/SoundManager'
 import { Game_Action } from './Game_Action'
@@ -308,7 +307,7 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
   }
 
   shouldDelayTpbCharge(): boolean {
-    return !BattleManager.isActiveTpb() && GlobalMananger.$gameParty.canInput()
+    return !Database.isActiveTpb() && GlobalMananger.$gameParty.canInput()
   }
 
   finishTpbCharge(): void {
@@ -354,7 +353,7 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
   }
 
   turnCount(): number {
-    if (BattleManager.isTpb()) {
+    if (Database.isTpb()) {
       return this._tpbTurnCount
     }
     else {
@@ -363,7 +362,7 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
   }
 
   canInput(): boolean {
-    if (BattleManager.isTpb() && !this.isTpbCharged()) {
+    if (Database.isTpb() && !this.isTpbCharged()) {
       return false
     }
     return super.canInput()
@@ -558,10 +557,10 @@ export abstract class Game_Battler<T extends MZ.TraitObject = MZ.TraitObject> ex
   }
 
   useItem(item: MZ.GeneralItem | null): void {
-    if (DataManager.isSkill(item)) {
+    if (Database.isSkill(item)) {
       this.paySkillCost(item)
     }
-    else if (DataManager.isItem(item)) {
+    else if (Database.isItem(item)) {
       this.consumeItem(item)
     }
   }

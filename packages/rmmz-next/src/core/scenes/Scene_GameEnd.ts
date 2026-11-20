@@ -4,7 +4,6 @@ import { Rectangle } from '../primitives/Rectangle'
 import { Window_GameEnd } from '../windows/Window_GameEnd'
 import { Window_TitleCommand } from '../windows/Window_TitleCommand'
 import { Scene_MenuBase } from './Scene_MenuBase'
-import { Scene_Title } from './Scene_Title'
 
 /*
  /* Scene_GameEnd
@@ -51,7 +50,7 @@ export class Scene_GameEnd extends Scene_MenuBase {
 
   commandToTitle(): void {
     this.fadeOutAll()
-    SceneManager.goto(Scene_Title)
+    SceneManager.goto('Title')
     Window_TitleCommand.initCommandPosition()
   }
 }

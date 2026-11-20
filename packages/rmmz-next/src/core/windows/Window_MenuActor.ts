@@ -1,6 +1,6 @@
 import type { MZ } from '../../database-types'
 import type { Rectangle } from '../primitives/Rectangle'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Game_Action } from '../objects/Game_Action'
 import { Window_MenuStatus } from './Window_MenuStatus'
@@ -34,7 +34,7 @@ export class Window_MenuActor extends Window_MenuStatus {
     this.setCursorFixed(false)
     this.setCursorAll(false)
     if (action.isForUser()) {
-      if (DataManager.isSkill(item)) {
+      if (Database.isSkill(item)) {
         this.setCursorFixed(true)
         this.forceSelect(actor.index())
       }

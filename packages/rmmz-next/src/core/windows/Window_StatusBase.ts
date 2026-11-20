@@ -1,8 +1,8 @@
 import type { Game_Actor } from '../objects/Game_Actor'
 import type { Rectangle } from '../primitives/Rectangle'
 import type { Sprite } from '../primitives/Sprite'
-import { BattleManager } from '../managers/BattleManager'
 import { ColorManager } from '../managers/ColorManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
 import { TextManager } from '../managers/TextManager'
@@ -83,7 +83,7 @@ export class Window_StatusBase extends Window_Selectable {
   }
 
   placeTimeGauge(actor: Game_Actor, x: number, y: number): void {
-    if (BattleManager.isTpb()) {
+    if (Database.isTpb()) {
       this.placeGauge(actor, 'time', x, y)
     }
   }

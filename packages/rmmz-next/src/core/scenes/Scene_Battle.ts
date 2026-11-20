@@ -1,6 +1,7 @@
 import { AudioManager } from '../managers/AudioManager'
 import { BattleManager } from '../managers/BattleManager'
 import { ConfigManager } from '../managers/ConfigManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { SceneManager } from '../managers/SceneManager'
 import { Graphics } from '../primitives/Graphics'
@@ -16,10 +17,7 @@ import { Window_BattleSkill } from '../windows/Window_BattleSkill'
 import { Window_BattleStatus } from '../windows/Window_BattleStatus'
 import { Window_Help } from '../windows/Window_Help'
 import { Window_PartyCommand } from '../windows/Window_PartyCommand'
-import { Scene_Gameover } from './Scene_Gameover'
-import { Scene_Map } from './Scene_Map'
 import { Scene_Message } from './Scene_Message'
-import { Scene_Title } from './Scene_Title'
 
 /*
  /* Scene_Battle
@@ -80,7 +78,7 @@ export class Scene_Battle extends Scene_Message {
   }
 
   isTimeActive(): boolean {
-    if (BattleManager.isActiveTpb()) {
+    if (Database.isActiveTpb()) {
       return !this._skillWindow.active && !this._itemWindow.active
     }
     else {
@@ -138,13 +136,13 @@ export class Scene_Battle extends Scene_Message {
   }
 
   shouldAutosave(): boolean {
-    return SceneManager.isNextScene(Scene_Map)
+    return SceneManager.isNextScene('Map')
   }
 
   needsSlowFadeOut(): boolean {
     return (
-      SceneManager.isNextScene(Scene_Title)
-      || SceneManager.isNextScene(Scene_Gameover)
+      SceneManager.isNextScene('Title')
+      || SceneManager.isNextScene('Gameover')
     )
   }
 

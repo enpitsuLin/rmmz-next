@@ -1,10 +1,9 @@
-import { DataManager } from '../managers/DataManager'
 import { GlobalMananger } from '../managers/GlobalManager'
+import { SavefileManager } from '../managers/SavefileManager'
 import { SceneManager } from '../managers/SceneManager'
 import { SoundManager } from '../managers/SoundManager'
 import { TextManager } from '../managers/TextManager'
 import { Scene_File } from './Scene_File'
-import { Scene_Map } from './Scene_Map'
 
 /*
  /* Scene_Load
@@ -35,7 +34,7 @@ export class Scene_Load extends Scene_File {
   }
 
   firstSavefileId(): number {
-    return DataManager.latestSavefileId()
+    return SavefileManager.latestSavefileId()
   }
 
   onSavefileOk(): void {
@@ -50,7 +49,7 @@ export class Scene_Load extends Scene_File {
   }
 
   executeLoad(savefileId: number): void {
-    DataManager.loadGame(savefileId)
+    SavefileManager.loadGame(savefileId)
       .then(() => this.onLoadSuccess())
       .catch(() => this.onLoadFailure())
   }
@@ -59,7 +58,7 @@ export class Scene_Load extends Scene_File {
     SoundManager.playLoad()
     this.fadeOutAll()
     this.reloadMapIfUpdated()
-    SceneManager.goto(Scene_Map)
+    SceneManager.goto('Map')
     this._loadSuccess = true
   }
 

@@ -2,7 +2,7 @@ import type { MZ } from '../../database-types'
 import type { Rectangle } from '../primitives/Rectangle'
 import type { Window_Message } from './Window_Message'
 import { ConfigManager } from '../managers/ConfigManager'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Graphics } from '../primitives/Graphics'
 import { Sprite_Button } from '../sprites/Sprite_Button'
@@ -90,7 +90,7 @@ export class Window_EventItem extends Window_ItemList {
 
   includes(item: MZ.GeneralItem | null): boolean {
     const itypeId = GlobalMananger.$gameMessage.itemChoiceItypeId()
-    return DataManager.isItem(item) && item.itypeId === itypeId
+    return Database.isItem(item) && item.itypeId === itypeId
   }
 
   needsNumber(): boolean {

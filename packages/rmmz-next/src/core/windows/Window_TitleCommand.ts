@@ -1,5 +1,5 @@
 import type { Rectangle } from '../primitives/Rectangle'
-import { DataManager } from '../managers/DataManager'
+import { SavefileManager } from '../managers/SavefileManager'
 import { TextManager } from '../managers/TextManager'
 import { Window_Command } from './Window_Command'
 
@@ -29,7 +29,7 @@ export class Window_TitleCommand extends Window_Command {
   }
 
   isContinueEnabled(): boolean {
-    return DataManager.isAnySavefileExists()
+    return SavefileManager.isAnySavefileExists()
   }
 
   processOk(): void {

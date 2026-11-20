@@ -16,13 +16,7 @@ import { Sprite_Button } from '../sprites/Sprite_Button'
 import { Spriteset_Map } from '../sprites/Spriteset_Map'
 import { Window_MapName } from '../windows/Window_MapName'
 import { Window_MenuCommand } from '../windows/Window_MenuCommand'
-import { Scene_Battle } from './Scene_Battle'
-import { Scene_Debug } from './Scene_Debug'
-import { Scene_Gameover } from './Scene_Gameover'
-import { Scene_Load } from './Scene_Load'
-import { Scene_Menu } from './Scene_Menu'
 import { Scene_Message } from './Scene_Message'
-import { Scene_Title } from './Scene_Title'
 
 /*
  /* Scene_Map
@@ -118,7 +112,7 @@ export class Scene_Map extends Scene_Message {
     if (this.isSceneChangeOk()) {
       this.updateScene()
     }
-    else if (SceneManager.isNextScene(Scene_Battle)) {
+    else if (SceneManager.isNextScene('Battle')) {
       this.updateEncounterEffect()
     }
     this.updateWaitCount()
@@ -158,10 +152,10 @@ export class Scene_Map extends Scene_Message {
     if (this.needsSlowFadeOut()) {
       this.startFadeOut(this.slowFadeSpeed(), false)
     }
-    else if (SceneManager.isNextScene(Scene_Map)) {
+    else if (SceneManager.isNextScene('Map')) {
       this.fadeOutForTransfer()
     }
-    else if (SceneManager.isNextScene(Scene_Battle)) {
+    else if (SceneManager.isNextScene('Battle')) {
       this.launchBattle()
     }
   }
@@ -177,7 +171,7 @@ export class Scene_Map extends Scene_Message {
 
   terminate(): void {
     super.terminate()
-    if (!SceneManager.isNextScene(Scene_Battle)) {
+    if (!SceneManager.isNextScene('Battle')) {
       this._spriteset.update()
       this._mapNameWindow.hide()
       this.hideMenuButton()
@@ -188,15 +182,15 @@ export class Scene_Map extends Scene_Message {
 
   needsFadeIn(): boolean {
     return (
-      SceneManager.isPreviousScene(Scene_Battle)
-      || SceneManager.isPreviousScene(Scene_Load)
+      SceneManager.isPreviousScene('Battle')
+      || SceneManager.isPreviousScene('Load')
     )
   }
 
   needsSlowFadeOut(): boolean {
     return (
-      SceneManager.isNextScene(Scene_Title)
-      || SceneManager.isNextScene(Scene_Gameover)
+      SceneManager.isNextScene('Title')
+      || SceneManager.isNextScene('Gameover')
     )
   }
 
@@ -343,13 +337,13 @@ export class Scene_Map extends Scene_Message {
 
   updateTransferPlayer(): void {
     if (GlobalMananger.$gamePlayer.isTransferring()) {
-      SceneManager.goto(Scene_Map)
+      SceneManager.goto('Map')
     }
   }
 
   updateEncounter(): void {
     if (GlobalMananger.$gamePlayer.executeEncounter()) {
-      SceneManager.push(Scene_Battle)
+      SceneManager.push('Battle')
     }
   }
 
@@ -373,7 +367,7 @@ export class Scene_Map extends Scene_Message {
 
   callMenu(): void {
     SoundManager.playOk()
-    SceneManager.push(Scene_Menu)
+    SceneManager.push('Menu')
     Window_MenuCommand.initCommandPosition()
     GlobalMananger.$gameTemp.clearDestination()
     this._mapNameWindow.hide()
@@ -382,7 +376,7 @@ export class Scene_Map extends Scene_Message {
 
   updateCallDebug(): void {
     if (this.isDebugCalled()) {
-      SceneManager.push(Scene_Debug)
+      SceneManager.push('Debug')
     }
   }
 

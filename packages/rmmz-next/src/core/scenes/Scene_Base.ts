@@ -2,11 +2,12 @@ import type * as PIXI from 'pixi.js'
 import type { Sprite } from '../primitives/Sprite'
 import type { RGBA } from '../types'
 import { AudioManager } from '../managers/AudioManager'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { EffectManager } from '../managers/EffectManager'
 import { FontManager } from '../managers/FontManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
+import { SavefileManager } from '../managers/SavefileManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ColorFilter } from '../primitives/ColorFilter'
 import { Graphics } from '../primitives/Graphics'
@@ -156,9 +157,7 @@ export class Scene_Base extends Stage {
 
   checkGameover(): void {
     if (GlobalMananger.$gameParty.isAllDead()) {
-      import('./Scene_Gameover').then(({ Scene_Gameover }) => {
-        SceneManager.goto(Scene_Gameover)
-      })
+      SceneManager.goto('Gameover')
     }
   }
 
@@ -248,8 +247,8 @@ export class Scene_Base extends Stage {
 
   isAutosaveEnabled(): boolean {
     return (
-      !DataManager.isBattleTest()
-      && !DataManager.isEventTest()
+      !Database.isBattleTest()
+      && !Database.isEventTest()
       && GlobalMananger.$gameSystem.isAutosaveEnabled()
       && GlobalMananger.$gameSystem.isSaveEnabled()
     )
@@ -257,7 +256,7 @@ export class Scene_Base extends Stage {
 
   executeAutosave(): void {
     GlobalMananger.$gameSystem.onBeforeSave()
-    DataManager.saveGame(0)
+    SavefileManager.saveGame(0)
       .then(() => this.onAutosaveSuccess())
       .catch(() => this.onAutosaveFailure())
   }

@@ -2,7 +2,7 @@ import type { MZ } from '../../database-types'
 import type { Game_Party } from './Game_Party'
 import type { Game_Troop } from './Game_Troop'
 import { BattleManager } from '../managers/BattleManager'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { SoundManager } from '../managers/SoundManager'
 import { TextManager } from '../managers/TextManager'
@@ -241,11 +241,11 @@ export class Game_Actor extends Game_Battler {
   }
 
   weapons(): MZ.Weapon[] {
-    return this.equips().filter(item => !!item && DataManager.isWeapon(item))
+    return this.equips().filter(item => !!item && Database.isWeapon(item))
   }
 
   armors(): MZ.Armor[] {
-    return this.equips().filter(item => !!item && DataManager.isArmor(item))
+    return this.equips().filter(item => !!item && Database.isArmor(item))
   }
 
   hasWeapon(weapon?: MZ.Weapon | null): boolean {
@@ -933,7 +933,7 @@ export class Game_Actor extends Game_Battler {
   }
 
   onEscapeFailure(): void {
-    if (BattleManager.isTpb()) {
+    if (Database.isTpb()) {
       this.applyTpbPenalty()
     }
     this.clearActions()

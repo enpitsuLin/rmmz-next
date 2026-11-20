@@ -9,9 +9,6 @@ import { Rectangle } from '../primitives/Rectangle'
 import { Sprite } from '../primitives/Sprite'
 import { Window_TitleCommand } from '../windows/Window_TitleCommand'
 import { Scene_Base } from './Scene_Base'
-import { Scene_Load } from './Scene_Load'
-import { Scene_Map } from './Scene_Map'
-import { Scene_Options } from './Scene_Options'
 
 /*
  /* Scene_Title
@@ -129,17 +126,17 @@ export class Scene_Title extends Scene_Base {
     DataManager.setupNewGame()
     this._commandWindow.close()
     this.fadeOutAll()
-    SceneManager.goto(Scene_Map)
+    SceneManager.goto('Map')
   }
 
   commandContinue(): void {
     this._commandWindow.close()
-    SceneManager.push(Scene_Load)
+    SceneManager.push('Load')
   }
 
   commandOptions(): void {
     this._commandWindow.close()
-    SceneManager.push(Scene_Options)
+    SceneManager.push('Options')
   }
 
   playTitleMusic(): void {

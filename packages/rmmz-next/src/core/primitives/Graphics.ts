@@ -117,6 +117,14 @@ export class Graphics {
     this._setupEventHandlers()
     this._createPixiApp()
     this._createEffekseerContext()
+    Video.setVisibilityHandler((visible) => {
+      if (visible) {
+        this.hideScreen()
+      }
+      else {
+        this.showScreen()
+      }
+    })
 
     return !!this._app
   }

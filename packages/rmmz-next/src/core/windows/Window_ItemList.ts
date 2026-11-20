@@ -1,6 +1,6 @@
 import type { MZ } from '../../database-types'
 import type { Rectangle } from '../primitives/Rectangle'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Window_Selectable } from './Window_Selectable'
 
@@ -55,13 +55,13 @@ export class Window_ItemList<Item extends MZ.EquipOrItem = MZ.EquipOrItem>
   includes(item: MZ.GeneralItem | null): boolean {
     switch (this._category) {
       case 'item':
-        return DataManager.isItem(item) && item.itypeId === 1
+        return Database.isItem(item) && item.itypeId === 1
       case 'weapon':
-        return DataManager.isWeapon(item)
+        return Database.isWeapon(item)
       case 'armor':
-        return DataManager.isArmor(item)
+        return Database.isArmor(item)
       case 'keyItem':
-        return DataManager.isItem(item) && item.itypeId === 2
+        return Database.isItem(item) && item.itypeId === 2
       default:
         return false
     }

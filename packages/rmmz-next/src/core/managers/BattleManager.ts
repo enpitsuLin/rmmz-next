@@ -7,8 +7,8 @@ import type { Spriteset_Battle } from '../sprites/Spriteset_Battle'
 import type { BattlePhase } from '../types'
 import type { Window_BattleLog } from '../windows/Window_BattleLog'
 import { Game_Action } from '../objects/Game_Action'
-import { Scene_Gameover } from '../scenes/Scene_Gameover'
 import { AudioManager } from './AudioManager'
+import { Database } from './Database'
 import { GlobalMananger } from './GlobalManager'
 import { SceneManager } from './SceneManager'
 import { SoundManager } from './SoundManager'
@@ -87,12 +87,14 @@ export class BattleManager {
     this._tpbNeedsPartyCommand = true
   }
 
+  // Battle system queries live in `Database` so game objects can ask without
+  // importing this manager; these two stay for the RMMZ plugin surface.
   static isTpb(): boolean {
-    return GlobalMananger.$dataSystem.battleSystem >= 1
+    return Database.isTpb()
   }
 
   static isActiveTpb(): boolean {
-    return GlobalMananger.$dataSystem.battleSystem === 1
+    return Database.isActiveTpb()
   }
 
   static isBattleTest(): boolean {
@@ -166,7 +168,7 @@ export class BattleManager {
     if (!this.isBusy() && !this.updateEvent()) {
       this.updatePhase(timeActive)
     }
-    if (this.isTpb()) {
+    if (Database.isTpb()) {
       this.updateTpbInput()
     }
   }
@@ -353,7 +355,7 @@ export class BattleManager {
   static selectNextActor(): void {
     this.changeCurrentActor(true)
     if (!this._currentActor) {
-      if (this.isTpb()) {
+      if (Database.isTpb()) {
         this.changeCurrentActor(true)
       }
       else {
@@ -373,7 +375,7 @@ export class BattleManager {
   }
 
   static selectPreviousActor(): void {
-    if (this.isTpb()) {
+    if (Database.isTpb()) {
       this.changeCurrentActor(true)
       if (!this._currentActor) {
         this._inputting = GlobalMananger.$gameParty.canInput()
@@ -406,7 +408,7 @@ export class BattleManager {
 
   static finishActorInput(): void {
     if (this._currentActor) {
-      if (this.isTpb()) {
+      if (Database.isTpb()) {
         this._currentActor.startTpbCasting()
       }
       this._currentActor.setActionState('waiting')
@@ -420,7 +422,7 @@ export class BattleManager {
   }
 
   static updateStart(): void {
-    if (this.isTpb()) {
+    if (Database.isTpb()) {
       this._phase = 'turn'
     }
     else {
@@ -432,7 +434,7 @@ export class BattleManager {
     this._phase = 'turn'
     GlobalMananger.$gameTroop.increaseTurn()
     GlobalMananger.$gameParty.requestMotionRefresh()
-    if (!this.isTpb()) {
+    if (!Database.isTpb()) {
       this.makeActionOrders()
       this._logWindow!.startTurn()
       this._inputting = false
@@ -441,7 +443,7 @@ export class BattleManager {
 
   static updateTurn(timeActive: boolean): void {
     GlobalMananger.$gameParty.requestMotionRefresh()
-    if (this.isTpb() && timeActive) {
+    if (Database.isTpb() && timeActive) {
       this.updateTpb()
     }
     if (!this._subject) {
@@ -450,7 +452,7 @@ export class BattleManager {
     if (this._subject) {
       this.processTurn()
     }
-    else if (!this.isTpb()) {
+    else if (!Database.isTpb()) {
       this.endTurn()
     }
   }
@@ -507,7 +509,7 @@ export class BattleManager {
   }
 
   static endBattlerActions(battler: Game_Battler): void {
-    battler.setActionState(this.isTpb() ? 'undecided' : 'done')
+    battler.setActionState(Database.isTpb() ? 'undecided' : 'done')
     battler.onAllActionsEnd()
     battler.clearTpbChargeTime()
     this.displayBattlerStatus(battler, true)
@@ -520,7 +522,7 @@ export class BattleManager {
   }
 
   static updateTurnEnd(): void {
-    if (this.isTpb()) {
+    if (Database.isTpb()) {
       this.startTurn()
     }
     else {
@@ -750,7 +752,7 @@ export class BattleManager {
     GlobalMananger.$gameParty.onEscapeFailure()
     this.displayEscapeFailureMessage()
     this._escapeRatio += 0.1
-    if (!this.isTpb()) {
+    if (!Database.isTpb()) {
       this.startTurn()
     }
   }
@@ -806,7 +808,7 @@ export class BattleManager {
         SceneManager.pop()
       }
       else {
-        SceneManager.goto(Scene_Gameover)
+        SceneManager.goto('Gameover')
       }
     }
     else {

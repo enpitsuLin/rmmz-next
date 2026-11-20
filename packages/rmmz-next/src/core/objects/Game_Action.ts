@@ -3,7 +3,7 @@ import type { Game_Actor } from './Game_Actor'
 import type { Game_Battler } from './Game_Battler'
 import type { Game_Enemy } from './Game_Enemy'
 import type { Game_Unit } from './Game_Unit'
-import { DataManager } from '../managers/DataManager'
+import { Database } from '../managers/Database'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Game_Item } from './Game_Item'
 
@@ -898,10 +898,10 @@ export class Game_Action<Item extends Game_Item.ItemType = Game_Item.ItemType> {
 
   updateLastUsed(): void {
     const item = this.item()
-    if (DataManager.isSkill(item)) {
+    if (Database.isSkill(item)) {
       GlobalMananger.$gameTemp.setLastUsedSkillId(item.id)
     }
-    else if (DataManager.isItem(item)) {
+    else if (Database.isItem(item)) {
       GlobalMananger.$gameTemp.setLastUsedItemId(item.id)
     }
   }

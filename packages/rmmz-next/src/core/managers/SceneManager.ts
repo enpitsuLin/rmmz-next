@@ -1,3 +1,4 @@
+import type { SceneName } from '../scenes/builtInScenes'
 import type { Scene_Base } from '../scenes/Scene_Base'
 import { Bitmap } from '../primitives/Bitmap'
 import { Graphics } from '../primitives/Graphics'
@@ -10,32 +11,58 @@ import { AudioManager } from './AudioManager'
 import { EffectManager } from './EffectManager'
 import { ImageManager } from './ImageManager'
 
-type SceneConstructor = new (...args: unknown[]) => Scene_Base
-
 /**
  * SceneManager
  *
  * The static class that manages scene transitions.
+ *
+ * Scenes are addressed by name instead of by class, so code that only
+ * transitions to a scene never imports it. The name -> constructor table lives
+ * in `scenes/builtInScenes.ts` and is handed over by {@link SceneManager.run}.
+ *
+ * Every transition API also accepts a scene class, so plugins can pass their own
+ * `Scene_*` constructors without touching the built-in table.
  */
 export class SceneManager {
   constructor() {
     throw new Error('This is a static class')
   }
 
+  static _scenes = new Map<SceneName, SceneManager.SceneConstructor>()
+
   static _scene: Scene_Base | null = null
+  static _sceneConstructor: SceneManager.SceneConstructor | null = null
   static _nextScene: Scene_Base | null = null
-  static _stack: SceneConstructor[] = []
+  static _nextSceneConstructor: SceneManager.SceneConstructor | null = null
+  static _stack: SceneManager.SceneConstructor[] = []
   static _exiting = false
   static _previousScene: Scene_Base | null = null
-  static _previousClass: SceneConstructor | null = null
+  static _previousClass: SceneManager.SceneConstructor | null = null
   static _backgroundBitmap: Bitmap | null = null
   static _smoothDeltaTime = 1
   static _elapsedTime = 0
 
-  static run(sceneClass: SceneConstructor): void {
+  static _getConstructor(sceneName: SceneName): SceneManager.SceneConstructor {
+    const constructor = this._scenes.get(sceneName)
+    if (!constructor) {
+      throw new Error(`Scene is not registered: ${sceneName}`)
+    }
+    return constructor
+  }
+
+  static _resolveScene(scene: SceneManager.SceneTarget): SceneManager.SceneConstructor {
+    return typeof scene === 'string' ? this._getConstructor(scene) : scene
+  }
+
+  static run(scene: SceneManager.SceneTarget, scenes?: Record<SceneName, SceneManager.SceneConstructor>): void {
+    if (scenes) {
+      for (const name of Object.keys(scenes) as SceneName[]) {
+        this._scenes.set(name, scenes[name])
+      }
+    }
     try {
       this.initialize()
-      this.goto(sceneClass)
+      this.goto(scene)
       Graphics.startGameLoop()
     }
     catch (e) {
@@ -74,7 +101,14 @@ export class SceneManager {
   }
 
   static initVideo(): void {
-    Video.initialize(Graphics.width, Graphics.height)
+    Video.initialize(Graphics.width, Graphics.height, (visible) => {
+      if (visible) {
+        Graphics.hideScreen()
+      }
+      else {
+        Graphics.showScreen()
+      }
+    })
   }
 
   static initInput(): void {
@@ -242,7 +276,9 @@ export class SceneManager {
         this.onSceneTerminate()
       }
       this._scene = this._nextScene
+      this._sceneConstructor = this._nextSceneConstructor
       this._nextScene = null
+      this._nextSceneConstructor = null
       if (this._scene) {
         this._scene.create()
         this.onSceneCreate()
@@ -278,7 +314,7 @@ export class SceneManager {
 
   static onSceneTerminate(): void {
     this._previousScene = this._scene
-    this._previousClass = this._scene!.constructor as SceneConstructor
+    this._previousClass = this._sceneConstructor
     Graphics.setStage(null!)
   }
 
@@ -308,26 +344,28 @@ export class SceneManager {
     return !!this._scene && this._scene.isBusy()
   }
 
-  static isNextScene(sceneClass: SceneConstructor): boolean {
-    return !!this._nextScene && this._nextScene.constructor === sceneClass
+  static isNextScene(scene: SceneManager.SceneTarget): boolean {
+    return this._nextSceneConstructor === this._resolveScene(scene)
   }
 
-  static isPreviousScene(sceneClass: SceneConstructor): boolean {
-    return this._previousClass === sceneClass
+  static isPreviousScene(scene: SceneManager.SceneTarget): boolean {
+    return this._previousClass === this._resolveScene(scene)
   }
 
-  static goto(SceneClass: SceneConstructor | null): void {
-    if (SceneClass) {
-      this._nextScene = new SceneClass()
+  static goto(scene: SceneManager.SceneTarget | null): void {
+    if (scene) {
+      const constructor = this._resolveScene(scene)
+      this._nextScene = new constructor()
+      this._nextSceneConstructor = constructor
     }
     if (this._scene) {
       this._scene.stop()
     }
   }
 
-  static push(sceneClass: SceneConstructor): void {
-    this._stack.push(this._scene!.constructor as SceneConstructor)
-    this.goto(sceneClass)
+  static push(scene: SceneManager.SceneTarget): void {
+    this._stack.push(this._sceneConstructor!)
+    this.goto(scene)
   }
 
   static pop(): void {
@@ -374,4 +412,14 @@ export class SceneManager {
     TouchInput.update()
     Graphics.startGameLoop()
   }
+}
+
+export namespace SceneManager {
+  export type SceneConstructor = new (...args: unknown[]) => Scene_Base
+
+  /**
+   * A built-in scene name, or any scene class. Plugins pass their own
+   * `Scene_*` constructors directly instead of registering them.
+   */
+  export type SceneTarget = SceneName | SceneConstructor
 }

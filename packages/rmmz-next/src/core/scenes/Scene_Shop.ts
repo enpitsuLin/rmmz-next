@@ -1,6 +1,6 @@
 import type { MZ } from '../../database-types'
-import { DataManager } from '../managers/DataManager'
 import { GlobalMananger } from '../managers/GlobalManager'
+import { SavefileManager } from '../managers/SavefileManager'
 import { SoundManager } from '../managers/SoundManager'
 import { Graphics } from '../primitives/Graphics'
 import { Rectangle } from '../primitives/Rectangle'
@@ -44,7 +44,7 @@ export class Scene_Shop extends Scene_MenuBase {
 
   create(): void {
     super.create()
-    DataManager.loadAllSavefileImages()
+    SavefileManager.loadAllSavefileImages()
     this.createHelpWindow()
     this.createGoldWindow()
     this.createCommandWindow()

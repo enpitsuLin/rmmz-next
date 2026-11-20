@@ -12,7 +12,7 @@ import type { Game_Temp } from '../objects/Game_Temp'
 import type { Game_Timer } from '../objects/Game_Timer'
 import type { Game_Troop } from '../objects/Game_Troop'
 import type { Game_Variables } from '../objects/Game_Variables'
-import type { DataManager } from './DataManager'
+import type { Database } from './Database'
 import { ClassRegistry } from './ClassRegistry'
 
 /**
@@ -21,20 +21,20 @@ import { ClassRegistry } from './ClassRegistry'
 export class GlobalMananger {
   protected static initialized = false
 
-  static $dataActors: DataManager.DatabaseFile<MZ.Actor>
-  static $dataClasses: DataManager.DatabaseFile<MZ.Class>
-  static $dataSkills: DataManager.DatabaseFile<MZ.Skill>
-  static $dataItems: DataManager.DatabaseFile<MZ.Item>
-  static $dataWeapons: DataManager.DatabaseFile<MZ.Weapon>
-  static $dataArmors: DataManager.DatabaseFile<MZ.Armor>
-  static $dataEnemies: DataManager.DatabaseFile<MZ.Enemy>
-  static $dataTroops: DataManager.DatabaseFile<MZ.Troop>
-  static $dataStates: DataManager.DatabaseFile<MZ.State>
-  static $dataAnimations: DataManager.DatabaseFile<MZ.Animation>
-  static $dataTilesets: DataManager.DatabaseFile<MZ.Tileset>
-  static $dataCommonEvents: DataManager.DatabaseFile<MZ.CommonEvent>
+  static $dataActors: Database.DatabaseFile<MZ.Actor>
+  static $dataClasses: Database.DatabaseFile<MZ.Class>
+  static $dataSkills: Database.DatabaseFile<MZ.Skill>
+  static $dataItems: Database.DatabaseFile<MZ.Item>
+  static $dataWeapons: Database.DatabaseFile<MZ.Weapon>
+  static $dataArmors: Database.DatabaseFile<MZ.Armor>
+  static $dataEnemies: Database.DatabaseFile<MZ.Enemy>
+  static $dataTroops: Database.DatabaseFile<MZ.Troop>
+  static $dataStates: Database.DatabaseFile<MZ.State>
+  static $dataAnimations: Database.DatabaseFile<MZ.Animation>
+  static $dataTilesets: Database.DatabaseFile<MZ.Tileset>
+  static $dataCommonEvents: Database.DatabaseFile<MZ.CommonEvent>
   static $dataSystem: MZ.System
-  static $dataMapInfos: DataManager.DatabaseFile<MZ.MapInfo>
+  static $dataMapInfos: Database.DatabaseFile<MZ.MapInfo>
   static $dataMap: MZ.Map
 
   static $gameTemp: Game_Temp
