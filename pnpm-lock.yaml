@@ -100,9 +100,6 @@ importers:
       '@rmmz-lib/database-types':
         specifier: workspace:*
         version: link:../database-types
-      '@types/pako':
-        specifier: catalog:types
-        version: 1.0.7
       localforage:
         specifier: 'catalog:'
         version: 1.10.0
@@ -116,6 +113,9 @@ importers:
       '@types/nw.js':
         specifier: catalog:types
         version: 0.92.0
+      '@types/pako':
+        specifier: catalog:types
+        version: 1.0.7
 
   packages/database-types: {}
 

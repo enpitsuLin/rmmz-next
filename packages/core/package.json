@@ -21,12 +21,12 @@
   },
   "dependencies": {
     "@rmmz-lib/database-types": "workspace:*",
-    "@types/pako": "catalog:types",
     "localforage": "catalog:",
     "pako": "catalog:",
     "pixi.js": "catalog:"
   },
   "devDependencies": {
+    "@types/pako": "catalog:types",
     "@types/nw.js": "catalog:types"
   },
   "publishConfig": {
