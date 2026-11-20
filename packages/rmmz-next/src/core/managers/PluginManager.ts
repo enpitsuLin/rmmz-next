@@ -14,7 +14,6 @@ export class PluginManager {
     throw new Error('This is a static class')
   }
 
-  static _scripts: string[] = []
   static _parameters: Record<string, Record<string, string>> = {}
   static _commands: Record<string, (args: Record<string, string>) => void> = {}
 
@@ -25,11 +24,12 @@ export class PluginManager {
    * parameters during module initialization.
    */
   static setup(plugins: PluginManager.PluginConfig[]): void {
+    const registered = new Set<string>()
     for (const plugin of plugins) {
       const pluginName = Utils.extractFileName(plugin.name)
-      if (pluginName && plugin.status && !this._scripts.includes(pluginName)) {
+      if (pluginName && plugin.status && !registered.has(pluginName)) {
         this.setParameters(pluginName, plugin.parameters)
-        this._scripts.push(pluginName)
+        registered.add(pluginName)
       }
     }
   }
