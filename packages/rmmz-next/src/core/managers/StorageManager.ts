@@ -1,7 +1,23 @@
-import localforage from 'localforage'
-import pako from 'pako'
 import { JsonEx, Utils } from '../primitives'
 import { GlobalMananger } from './GlobalManager'
+
+type Forage = typeof import('localforage')
+type Pako = typeof import('pako')
+
+// Save data and browser storage are only needed when the player actually
+// saves or loads, so keep both libraries out of the boot chunk.
+let foragePromise: Promise<Forage> | undefined
+let pakoPromise: Promise<Pako> | undefined
+
+function loadForage(): Promise<Forage> {
+  foragePromise ??= import('localforage').then(module => (module as { default?: Forage }).default ?? (module as unknown as Forage))
+  return foragePromise
+}
+
+function loadPako(): Promise<Pako> {
+  pakoPromise ??= import('pako').then(module => (module as { default?: Pako }).default ?? (module as unknown as Pako))
+  return pakoPromise
+}
 
 /**
  * StorageManager
@@ -56,36 +72,21 @@ export class StorageManager {
     })
   }
 
-  static jsonToZip(json: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      try {
-        const zip = pako.deflate(json, { to: 'string', level: 1 })
-        if (zip.length >= 50000) {
-          console.warn('Save data is too big.')
-        }
-        resolve(zip)
-      }
-      catch (e) {
-        reject(e)
-      }
-    })
+  static async jsonToZip(json: string): Promise<string> {
+    const pako = await loadPako()
+    const zip = pako.deflate(json, { to: 'string', level: 1 })
+    if (zip.length >= 50000) {
+      console.warn('Save data is too big.')
+    }
+    return zip
   }
 
-  static zipToJson(zip: string | null): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      try {
-        if (zip) {
-          const json = pako.inflate(zip, { to: 'string' })
-          resolve(json)
-        }
-        else {
-          resolve('null')
-        }
-      }
-      catch (e) {
-        reject(e)
-      }
-    })
+  static async zipToJson(zip: string | null): Promise<string> {
+    if (!zip) {
+      return 'null'
+    }
+    const pako = await loadPako()
+    return pako.inflate(zip, { to: 'string' })
   }
 
   static saveZip(saveName: string, zip: string): Promise<void> {
@@ -172,21 +173,20 @@ export class StorageManager {
     this.fsUnlink(this.filePath(saveName))
   }
 
-  static saveToForage(saveName: string, zip: string): Promise<void> {
+  static async saveToForage(saveName: string, zip: string): Promise<void> {
+    const forage = await loadForage()
     const key = this.forageKey(saveName)
     const testKey = this.forageTestKey()
-    setTimeout(() => localforage.removeItem(testKey))
-    return localforage
-      .setItem(testKey, zip)
-      .then(() => localforage.setItem(key, zip))
-      .then(() => {
-        this.updateForageKeys()
-      })
+    setTimeout(() => forage.removeItem(testKey))
+    await forage.setItem(testKey, zip)
+    await forage.setItem(key, zip)
+    this.updateForageKeys()
   }
 
-  static loadFromForage(saveName: string): Promise<string | null> {
+  static async loadFromForage(saveName: string): Promise<string | null> {
+    const forage = await loadForage()
     const key = this.forageKey(saveName)
-    return localforage.getItem<string>(key)
+    return forage.getItem<string>(key)
   }
 
   static forageExists(saveName: string): boolean {
@@ -194,20 +194,19 @@ export class StorageManager {
     return this._forageKeys.includes(key)
   }
 
-  static removeForage(saveName: string): Promise<void> {
+  static async removeForage(saveName: string): Promise<void> {
+    const forage = await loadForage()
     const key = this.forageKey(saveName)
-    return localforage.removeItem(key).then(() => {
-      this.updateForageKeys()
-    })
+    await forage.removeItem(key)
+    this.updateForageKeys()
   }
 
-  static updateForageKeys(): Promise<number> {
+  static async updateForageKeys(): Promise<number> {
     this._forageKeysUpdated = false
-    return localforage.keys().then((keys) => {
-      this._forageKeys = keys
-      this._forageKeysUpdated = true
-      return 0
-    })
+    const forage = await loadForage()
+    this._forageKeys = await forage.keys()
+    this._forageKeysUpdated = true
+    return 0
   }
 
   static forageKeysUpdated(): boolean {
