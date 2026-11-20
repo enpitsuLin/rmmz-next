@@ -208,12 +208,14 @@ export class Main {
 
   private isPathRandomized(): boolean {
     // [Note] We cannot save the game properly when Gatekeeper Path
-    //   Randomization is in effect.
+    //   Randomization is in effect. Translocated apps are mounted below
+    //   /private/var/.../AppTranslocation/, but other /private/var paths are
+    //   legitimate (for example temporary directories used during development).
     // NW.js exposes Node's process on the global object.
     // eslint-disable-next-line node/prefer-global/process
     const nodeProcess = (globalThis as { process?: NodeLikeProcess }).process
     const filename = nodeProcess?.mainModule?.filename
-    return filename?.startsWith('/private/var') ?? false
+    return filename?.includes('/AppTranslocation/') ?? false
   }
 
   private startGame(): void {
