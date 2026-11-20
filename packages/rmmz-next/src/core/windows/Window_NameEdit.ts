@@ -1,4 +1,4 @@
-import type { Game_Actor } from '../objects'
+import type { Game_Actor } from '../objects/Game_Actor'
 import { ColorManager } from '../managers/ColorManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'

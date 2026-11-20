@@ -1,4 +1,4 @@
-import type { Game_Battler } from '../objects'
+import type { Game_Battler } from '../objects/Game_Battler'
 import { ImageManager } from '../managers/ImageManager'
 import { Sprite } from '../primitives'
 

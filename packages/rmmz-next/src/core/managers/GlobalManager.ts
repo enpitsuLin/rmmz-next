@@ -1,19 +1,17 @@
 import type { MZ } from '../../database-types'
-import type {
-  Game_Actors,
-  Game_Map,
-  Game_Message,
-  Game_Party,
-  Game_Player,
-  Game_Screen,
-  Game_SelfSwitches,
-  Game_Switches,
-  Game_System,
-  Game_Temp,
-  Game_Timer,
-  Game_Troop,
-  Game_Variables,
-} from '../objects'
+import type { Game_Actors } from '../objects/Game_Actors'
+import type { Game_Map } from '../objects/Game_Map'
+import type { Game_Message } from '../objects/Game_Message'
+import type { Game_Party } from '../objects/Game_Party'
+import type { Game_Player } from '../objects/Game_Player'
+import type { Game_Screen } from '../objects/Game_Screen'
+import type { Game_SelfSwitches } from '../objects/Game_SelfSwitches'
+import type { Game_Switches } from '../objects/Game_Switches'
+import type { Game_System } from '../objects/Game_System'
+import type { Game_Temp } from '../objects/Game_Temp'
+import type { Game_Timer } from '../objects/Game_Timer'
+import type { Game_Troop } from '../objects/Game_Troop'
+import type { Game_Variables } from '../objects/Game_Variables'
 import type { DataManager } from './DataManager'
 
 type AnyConstructor = abstract new (...args: any[]) => any

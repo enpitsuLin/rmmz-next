@@ -1,4 +1,4 @@
-import type { Game_Enemy } from '../objects'
+import type { Game_Enemy } from '../objects/Game_Enemy'
 import type { Sprite } from '../primitives'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'

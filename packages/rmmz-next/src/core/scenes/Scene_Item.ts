@@ -1,4 +1,4 @@
-import type { Game_Actor } from '../objects'
+import type { Game_Actor } from '../objects/Game_Actor'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { SoundManager } from '../managers/SoundManager'
 import { Graphics, Rectangle } from '../primitives'

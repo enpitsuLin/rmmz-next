@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import type { Game_Actor } from '../objects'
+import type { Game_Actor } from '../objects/Game_Actor'
 import type { Rectangle } from '../primitives'
 import { ColorManager } from '../managers/ColorManager'
 import { Window_Selectable } from './Window_Selectable'

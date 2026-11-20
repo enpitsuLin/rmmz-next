@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import type { Game_Actor } from '../objects'
+import type { Game_Actor } from '../objects/Game_Actor'
 import { SoundManager } from '../managers/SoundManager'
 import { Graphics, Rectangle } from '../primitives'
 import { Window_SkillList, Window_SkillStatus, Window_SkillType } from '../windows'

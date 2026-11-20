@@ -1,4 +1,4 @@
-import type { Game_Battler } from '../objects'
+import type { Game_Battler } from '../objects/Game_Battler'
 import type { Sprite } from '../primitives'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Sprite_Clickable } from './Sprite_Clickable'

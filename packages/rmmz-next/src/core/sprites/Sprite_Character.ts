@@ -1,4 +1,4 @@
-import type { Game_CharacterBase } from '../objects'
+import type { Game_CharacterBase } from '../objects/Game_CharacterBase'
 import type { Bitmap } from '../primitives'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'

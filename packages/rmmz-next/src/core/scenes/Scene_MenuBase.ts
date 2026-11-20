@@ -1,4 +1,4 @@
-import type { Game_Actor } from '../objects'
+import type { Game_Actor } from '../objects/Game_Actor'
 import * as PIXI from 'pixi.js'
 import { ConfigManager } from '../managers/ConfigManager'
 import { GlobalMananger } from '../managers/GlobalManager'

@@ -1,4 +1,4 @@
-import type { Game_Battler } from '../objects'
+import type { Game_Battler } from '../objects/Game_Battler'
 import type { Sprite_Battler } from './Sprite_Battler'
 import * as PIXI from 'pixi.js'
 import { GlobalMananger } from '../managers/GlobalManager'

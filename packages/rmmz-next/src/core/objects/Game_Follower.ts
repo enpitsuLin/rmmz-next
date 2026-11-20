@@ -1,4 +1,4 @@
-import type { Game_Actor } from '.'
+import type { Game_Actor } from './Game_Actor'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Game_Character } from './Game_Character'
 

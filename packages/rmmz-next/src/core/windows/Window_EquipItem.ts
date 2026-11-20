@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import type { Game_Actor } from '../objects'
+import type { Game_Actor } from '../objects/Game_Actor'
 import type { Rectangle } from '../primitives'
 import type { Window_EquipStatus } from './Window_EquipStatus'
 import { JsonEx } from '../primitives'

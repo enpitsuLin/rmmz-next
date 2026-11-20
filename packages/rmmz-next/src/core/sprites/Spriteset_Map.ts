@@ -1,6 +1,6 @@
 import type * as PIXI from 'pixi.js'
 import type { MZ } from '../../database-types'
-import type { Game_Character } from '../objects'
+import type { Game_Character } from '../objects/Game_Character'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
 import { Graphics, Sprite, Tilemap, TilingSprite, Weather } from '../primitives'
