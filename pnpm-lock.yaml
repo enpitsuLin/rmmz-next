@@ -13,12 +13,12 @@ catalogs:
     cac:
       specifier: ^7.0.0
       version: 7.0.0
+    fflate:
+      specifier: ^0.8.3
+      version: 0.8.3
     localforage:
       specifier: ^1.10.0
       version: 1.10.0
-    pako:
-      specifier: 1.0.11
-      version: 1.0.11
     pixi.js:
       specifier: 7.4.3
       version: 7.4.3
@@ -39,9 +39,6 @@ catalogs:
     '@types/node':
       specifier: ^25.3.3
       version: 25.3.3
-    '@types/pako':
-      specifier: ^1.0.7
-      version: 1.0.7
 
 importers:
 
@@ -78,12 +75,12 @@ importers:
 
   packages/rmmz-next:
     dependencies:
+      fflate:
+        specifier: 'catalog:'
+        version: 0.8.3
       localforage:
         specifier: 'catalog:'
         version: 1.10.0
-      pako:
-        specifier: 'catalog:'
-        version: 1.0.11
       pixi.js:
         specifier: 'catalog:'
         version: 7.4.3
@@ -91,9 +88,6 @@ importers:
       '@types/node':
         specifier: catalog:types
         version: 25.3.3
-      '@types/pako':
-        specifier: catalog:types
-        version: 1.0.7
       tsdown:
         specifier: catalog:build
         version: 0.21.0(synckit@0.11.12)(typescript@5.9.3)
@@ -972,9 +966,6 @@ packages:
   '@types/node@25.3.3':
     resolution: {integrity: sha512-DpzbrH7wIcBaJibpKo9nnSQL0MTRdnWttGyE5haGwK86xgMOkFLp7vEyfQPGLOJh5wNYiJ3V9PmUMDhV9u8kkQ==}
 
-  '@types/pako@1.0.7':
-    resolution: {integrity: sha512-YBtzT2ztNF6R/9+UXj2wTGFnC9NklAnASt3sC0h2m1bbH7G6FyBIkt4AN8ThZpNfxUo1b2iMVO0UawiJymEt8A==}
-
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
 
@@ -1503,6 +1494,9 @@ packages:
       picomatch:
         optional: true
 
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
+
   file-entry-cache@8.0.0:
     resolution: {integrity: sha512-XXTUwCvisa5oacNGRP9SfNtYBNAMi+RPwBFmblZEF7N7swHYQS6/Zfk7SRwx4D5j3CH211YNRco1DEMNVfZCnQ==}
     engines: {node: '>=16.0.0'}
@@ -1941,9 +1935,6 @@ packages:
 
   package-manager-detector@1.6.0:
     resolution: {integrity: sha512-61A5ThoTiDG/C8s8UMZwSorAGwMJ0ERVGj2OjoW5pAalsNOg15+iQiPzrLJ4jhZ1HJzmC2PIHT2oEiH3R5fzNA==}
-
-  pako@1.0.11:
-    resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
 
   parse-gitignore@2.0.0:
     resolution: {integrity: sha512-RmVuCHWsfu0QPNW+mraxh/xjQVw/lhUCUru8Zni3Ctq3AoMhpDTq0OVdKS6iesd6Kqb7viCV3isAL43dciOSog==}
@@ -2991,8 +2982,6 @@ snapshots:
     dependencies:
       undici-types: 7.18.2
 
-  '@types/pako@1.0.7': {}
-
   '@types/unist@3.0.3': {}
 
   '@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3))(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3)':
@@ -3621,6 +3610,8 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.3
 
+  fflate@0.8.3: {}
+
   file-entry-cache@8.0.0:
     dependencies:
       flat-cache: 4.0.1
@@ -4190,8 +4181,6 @@ snapshots:
       p-limit: 3.1.0
 
   package-manager-detector@1.6.0: {}
-
-  pako@1.0.11: {}
 
   parse-gitignore@2.0.0: {}
 

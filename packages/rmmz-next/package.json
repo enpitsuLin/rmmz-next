@@ -36,13 +36,12 @@
     }
   },
   "dependencies": {
+    "fflate": "catalog:",
     "localforage": "catalog:",
-    "pako": "catalog:",
     "pixi.js": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:types",
-    "@types/pako": "catalog:types",
     "tsdown": "catalog:build",
     "typescript": "catalog:dev",
     "vite": "catalog:dev"

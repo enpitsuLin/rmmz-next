@@ -2,21 +2,21 @@ import { JsonEx, Utils } from '../primitives'
 import { GlobalMananger } from './GlobalManager'
 
 type Forage = typeof import('localforage')
-type Pako = typeof import('pako')
+type Fflate = typeof import('fflate')
 
 // Save data and browser storage are only needed when the player actually
 // saves or loads, so keep both libraries out of the boot chunk.
 let foragePromise: Promise<Forage> | undefined
-let pakoPromise: Promise<Pako> | undefined
+let fflatePromise: Promise<Fflate> | undefined
 
 function loadForage(): Promise<Forage> {
   foragePromise ??= import('localforage').then(module => (module as { default?: Forage }).default ?? (module as unknown as Forage))
   return foragePromise
 }
 
-function loadPako(): Promise<Pako> {
-  pakoPromise ??= import('pako').then(module => (module as { default?: Pako }).default ?? (module as unknown as Pako))
-  return pakoPromise
+function loadFflate(): Promise<Fflate> {
+  fflatePromise ??= import('fflate')
+  return fflatePromise
 }
 
 /**
@@ -73,8 +73,10 @@ export class StorageManager {
   }
 
   static async jsonToZip(json: string): Promise<string> {
-    const pako = await loadPako()
-    const zip = pako.deflate(json, { to: 'string', level: 1 })
+    const { strFromU8, strToU8, zlibSync } = await loadFflate()
+    // Save files store the binary zlib stream as a Latin-1 string, matching
+    // the format written by previous (pako-based) versions.
+    const zip = strFromU8(zlibSync(strToU8(json), { level: 1 }), true)
     if (zip.length >= 50000) {
       console.warn('Save data is too big.')
     }
@@ -85,8 +87,8 @@ export class StorageManager {
     if (!zip) {
       return 'null'
     }
-    const pako = await loadPako()
-    return pako.inflate(zip, { to: 'string' })
+    const { strFromU8, strToU8, unzlibSync } = await loadFflate()
+    return strFromU8(unzlibSync(strToU8(zip, true)))
   }
 
   static saveZip(saveName: string, zip: string): Promise<void> {
