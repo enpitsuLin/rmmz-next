@@ -14,6 +14,29 @@
 
 <body style="background-color: black">
     <script type="module" src="/src/main.ts"></script>
+    <script data-rmmz-dev-redirect>
+      // The editor's playtest opens this page over file://, where the Vite
+      // entry module cannot load. Follow the running dev server instead.
+      (function () {
+        if (location.protocol === 'http:' || location.protocol === 'https:') return
+        var hint = function () {
+          document.documentElement.innerHTML = '<body style="background:#111;color:#eee;font:14px system-ui,sans-serif;padding:24px"><p>Vite dev server is not running.</p><p>Start it with <code>pnpm run dev:server</code>, then playtest again.</p></body>'
+        }
+        var url
+        try {
+          var fs = require('fs')
+          var path = require('path')
+          var dir = path.dirname(process.mainModule.filename)
+          url = JSON.parse(fs.readFileSync(path.join(dir, 'node_modules/.cache/rmmz-dev-server.json'), 'utf8')).url
+        } catch (e) {
+          return hint()
+        }
+        // A stale URL file can outlive the server, so probe before navigating.
+        fetch(url, { mode: 'no-cors' }).then(function () {
+          location.replace(url)
+        }, hint)
+      })()
+    </script>
 </body>
 
 </html>

@@ -358,7 +358,7 @@ async function commandDev() {
     JSON.stringify({
       'name': 'rmmz-next-dev',
       'main': 'index.html',
-      'node-remote': new URL(serverUrl).origin,
+      'node-remote': rootManifest['node-remote'] ?? new URL(serverUrl).origin,
       'chromium-args': rootManifest['chromium-args'],
       'window': rootManifest.window,
     }, null, 2),
