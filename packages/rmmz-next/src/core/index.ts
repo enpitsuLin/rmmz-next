@@ -1,5 +1,6 @@
 import './shim'
 
+export * from './globals'
 export * from './libs'
 export * from './managers'
 
