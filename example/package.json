@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "",
-  "main": "index.js",
+  "main": "index.html",
   "scripts": {
     "dev:server": "vite",
     "dev": "node scripts/dev.js",
@@ -13,12 +13,21 @@
   },
   "dependencies": {
     "@rmmz-lib/core": "workspace:*",
-    "@rmmz-lib/database-types": "workspace:*"
+    "@rmmz-lib/database-types": "workspace:*",
+    "@rmmz-lib/runtime": "workspace:*"
   },
   "devDependencies": {
     "@types/nw.js": "catalog:types",
     "cac": "catalog:",
     "vite": "catalog:dev",
     "vite-plugin-rmmz": "workspace:*"
+  },
+  "chromium-args": "--force-color-profile=srgb",
+  "window": {
+    "title": "Vite",
+    "width": 816,
+    "height": 624,
+    "position": "center",
+    "icon": "icon/icon.png"
   }
 }

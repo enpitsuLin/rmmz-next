@@ -1,13 +1,35 @@
 declare module 'virtual:rmmz-project' {
-  /**
-   * 获取指定文件路径对应的请求 URL
-   * @param filePath 相对于项目根目录的文件路径
-   * @returns string 可用于直接请求的 URL
-   */
-  export function fileurl(filePath: string): string
+  export interface RmmzPluginConfig {
+    name: string
+    status: boolean
+    description: string
+    parameters: Record<string, string>
+  }
+
+  export interface RmmzRuntimeConfig {
+    /**
+     * `js/plugins.js` 中的插件配置
+     */
+    plugins: RmmzPluginConfig[]
+
+    /**
+     * 依次加载已启用的插件模块
+     */
+    loadPlugins: () => Promise<void>
+  }
 
   /**
-   * 项目根目录的绝对路径
+   * `js/plugins.js` 中的插件配置
    */
-  export const projectRoot: string
+  export const plugins: RmmzPluginConfig[]
+
+  /**
+   * 依次加载已启用的插件模块
+   */
+  export function loadPlugins(): Promise<void>
+
+  /**
+   * 打包好的启动配置，可直接传给 `startRmmz`
+   */
+  export const runtime: RmmzRuntimeConfig
 }

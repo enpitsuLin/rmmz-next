@@ -1,5 +1,5 @@
 import type { MZ } from '@rmmz-lib/database-types'
-import type { PIXI } from '../pixi'
+import type * as PIXI from 'pixi.js'
 import type { RGBA } from '../types'
 import { Graphics, Point, Sprite } from '../core'
 import { AudioManager, EffectManager } from '../managers'

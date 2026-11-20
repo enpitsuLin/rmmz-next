@@ -1,7 +1,7 @@
 import type { MV, MZ } from '@rmmz-lib/database-types'
+import type * as PIXI from 'pixi.js'
 import type { Tilemap } from '../core'
 import type { Game_Battler, Game_Character, Game_Temp } from '../objects'
-import type { PIXI } from '../pixi'
 import { ColorFilter, Graphics, Rectangle, ScreenSprite, Sprite } from '../core'
 import { GlobalMananger } from '../managers'
 import { Sprite_Animation } from './Sprite_Animation'

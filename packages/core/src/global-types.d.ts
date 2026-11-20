@@ -126,7 +126,7 @@ interface Object {
   deepAssign: (target: object, source: object) => object
 }
 
-namespace effekseer {
+declare namespace effekseer {
   export function initRuntime(path: string, onload: () => void, onerror: () => void): void
 
   export function createContext(): EffekseerContext

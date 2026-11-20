@@ -32,12 +32,6 @@
   "peerDependencies": {
     "vite": "^7.0.0"
   },
-  "dependencies": {
-    "@rmmz-lib/core": "workspace:*",
-    "@rmmz-lib/database-types": "workspace:*",
-    "defu": "catalog:tools",
-    "ufo": "catalog:tools"
-  },
   "devDependencies": {
     "vite": "catalog:dev"
   },

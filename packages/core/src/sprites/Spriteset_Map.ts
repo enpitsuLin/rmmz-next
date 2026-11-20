@@ -1,6 +1,6 @@
 import type { MZ } from '@rmmz-lib/database-types'
+import type * as PIXI from 'pixi.js'
 import type { Game_Character } from '../objects'
-import type { PIXI } from '../pixi'
 import { Graphics, Sprite, Tilemap, TilingSprite, Weather } from '../core'
 import { GlobalMananger, ImageManager } from '../managers'
 import { Sprite_Balloon } from './Sprite_Balloon'

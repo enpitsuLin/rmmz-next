@@ -35,13 +35,6 @@ catalogs:
     vite:
       specifier: ^7.3.1
       version: 7.3.1
-  tools:
-    defu:
-      specifier: ^6.1.4
-      version: 6.1.4
-    ufo:
-      specifier: ^1.6.3
-      version: 1.6.3
   types:
     '@types/node':
       specifier: ^25.3.3
@@ -81,6 +74,9 @@ importers:
       '@rmmz-lib/database-types':
         specifier: workspace:*
         version: link:../packages/database-types
+      '@rmmz-lib/runtime':
+        specifier: workspace:*
+        version: link:../packages/runtime
     devDependencies:
       '@types/nw.js':
         specifier: catalog:types
@@ -119,20 +115,13 @@ importers:
 
   packages/database-types: {}
 
-  packages/vite-plugin-rmmz:
+  packages/runtime:
     dependencies:
       '@rmmz-lib/core':
         specifier: workspace:*
         version: link:../core
-      '@rmmz-lib/database-types':
-        specifier: workspace:*
-        version: link:../database-types
-      defu:
-        specifier: catalog:tools
-        version: 6.1.4
-      ufo:
-        specifier: catalog:tools
-        version: 1.6.3
+
+  packages/vite-plugin-rmmz:
     devDependencies:
       vite:
         specifier: catalog:dev

@@ -11,7 +11,8 @@
   },
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "libs"
   ],
   "scripts": {
     "build": "tsdown",
@@ -26,8 +27,8 @@
     "pixi.js": "catalog:"
   },
   "devDependencies": {
-    "@types/pako": "catalog:types",
-    "@types/nw.js": "catalog:types"
+    "@types/nw.js": "catalog:types",
+    "@types/pako": "catalog:types"
   },
   "publishConfig": {
     "exports": {

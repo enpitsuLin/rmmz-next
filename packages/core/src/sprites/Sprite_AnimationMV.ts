@@ -1,6 +1,6 @@
 import type { MV } from '@rmmz-lib/database-types'
+import type * as PIXI from 'pixi.js'
 import type { Bitmap } from '../core'
-import type { PIXI } from '../pixi'
 import type { RGBA } from '../types'
 import { ScreenSprite, Sprite } from '../core'
 import { AudioManager, ImageManager } from '../managers'

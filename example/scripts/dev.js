@@ -226,7 +226,7 @@ function getProjectPath(customPath = null) {
   if (customPath && existsSync(customPath))
     return customPath
 
-  const defaultPath = join(__dirname, '..', 'project')
+  const defaultPath = join(__dirname, '..', 'dist')
   if (existsSync(defaultPath))
     return defaultPath
 
@@ -278,7 +278,7 @@ function commandGame(options) {
 
   const projectPath = getProjectPath(options.projectPath)
   if (!projectPath) {
-    console.error('Project path not found.')
+    console.error('Game directory not found. Run "vite build" first.')
     process.exit(1)
   }
 
@@ -301,16 +301,10 @@ function commandGame(options) {
   })
 }
 
-async function commandDev(options) {
+async function commandDev() {
   const nwjsPath = getNWJSPath()
   if (!nwjsPath) {
     console.error('Could not find nwjs executable.')
-    process.exit(1)
-  }
-
-  const projectPath = getProjectPath(options.projectPath)
-  if (!projectPath) {
-    console.error('Project path not found.')
     process.exit(1)
   }
 
@@ -342,10 +336,18 @@ async function commandDev(options) {
 
   await viteServer.listen()
 
-  // Launch game after Vite is ready
+  const serverUrl = viteServer.resolvedUrls?.local?.[0]
+  if (!serverUrl) {
+    console.error('Vite dev server did not expose a local URL.')
+    await viteServer.close()
+    process.exit(1)
+  }
+
+  // Launch game after Vite is ready. The Vite root is the game project root,
+  // so NW.js can load the dev server directly and relative asset paths just work.
   setTimeout(() => {
     console.log('[game] Starting...')
-    gameProcess = spawn(nwjsPath, [projectPath], {
+    gameProcess = spawn(nwjsPath, [serverUrl], {
       cwd: join(__dirname, '..'),
       stdio: 'pipe',
     })
@@ -401,21 +403,15 @@ async function commandDev(options) {
 const cli = cac('rmmz-dev')
 
 cli
-  .command('[project-path]', 'Start Vite dev server + game (default)')
-  .action(async (projectPath) => {
-    await commandDev({ projectPath })
+  .command('dev', 'Start Vite dev server + game')
+  .action(async () => {
+    await commandDev()
   })
 
 cli
-  .command('dev [project-path]', 'Start Vite dev server + game')
-  .action(async (projectPath) => {
-    await commandDev({ projectPath })
-  })
-
-cli
-  .command('game [project-path]', 'Start only the game')
-  .action((projectPath) => {
-    commandGame({ projectPath })
+  .command('game [dir]', 'Run a built game directory with nwjs (default: dist)')
+  .action((dir) => {
+    commandGame({ projectPath: dir })
   })
 
 cli
@@ -426,3 +422,11 @@ cli
 
 cli.help()
 cli.parse()
+
+if (!cli.matchedCommand && !cli.options.help) {
+  if (cli.args[0]) {
+    console.error(`Unknown command: ${cli.args[0]}`)
+    process.exit(1)
+  }
+  await commandDev()
+}

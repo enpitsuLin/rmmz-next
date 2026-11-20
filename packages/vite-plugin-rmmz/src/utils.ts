@@ -1,21 +1,6 @@
+import type { RMMZPluginConfig } from './types'
 import { copyFile, mkdir, readdir } from 'node:fs/promises'
-import { extname, join } from 'node:path'
-import { BINARY_EXTENSIONS, MIME_TYPES } from './constants.ts'
-
-export function getMimeType(filePath: string): string {
-  const ext = extname(filePath).toLowerCase()
-  return MIME_TYPES.get(ext) ?? 'text/plain'
-}
-
-export function isBinaryFile(filePath: string): boolean {
-  const ext = extname(filePath).toLowerCase()
-  return BINARY_EXTENSIONS.has(ext)
-}
-
-export function shouldTransform(filePath: string): boolean {
-  const ext = extname(filePath).toLowerCase()
-  return ['.js', '.ts', '.jsx', '.tsx'].includes(ext)
-}
+import { join } from 'node:path'
 
 // 递归复制目录
 export async function copyDirectory(src: string, dest: string): Promise<void> {
@@ -33,4 +18,16 @@ export async function copyDirectory(src: string, dest: string): Promise<void> {
       await copyFile(srcPath, destPath)
     }
   }
+}
+
+/**
+ * `js/plugins.js` is generated as `var $plugins = [...];`.
+ * Strip the wrapper and parse the JSON array.
+ */
+export function parsePluginsFile(source: string): RMMZPluginConfig[] {
+  const match = /var\s+\$plugins\s*=\s*([\s\S]*)/.exec(source)
+  if (!match) {
+    return []
+  }
+  return JSON.parse(match[1].trim().replace(/;$/, '')) as RMMZPluginConfig[]
 }

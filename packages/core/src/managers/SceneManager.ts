@@ -3,7 +3,6 @@ import { Bitmap, Graphics, Input, TouchInput, Utils, Video, WebAudio } from '../
 import { AudioManager } from './AudioManager'
 import { EffectManager } from './EffectManager'
 import { ImageManager } from './ImageManager'
-import { PluginManager } from './PluginManager'
 
 type SceneConstructor = new (...args: unknown[]) => Scene_Base
 
@@ -40,7 +39,6 @@ export class SceneManager {
 
   static initialize(): void {
     this.checkBrowser()
-    this.checkPluginErrors()
     this.initGraphics()
     this.initAudio()
     this.initVideo()
@@ -57,10 +55,6 @@ export class SceneManager {
       throw new Error('Your browser does not support CSS Font Loading.')
     if (!Utils.canUseIndexedDB())
       throw new Error('Your browser does not support IndexedDB.')
-  }
-
-  static checkPluginErrors(): void {
-    PluginManager.checkErrors()
   }
 
   static initGraphics(): void {

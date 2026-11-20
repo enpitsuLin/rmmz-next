@@ -3,7 +3,11 @@ import { Utils } from '../core'
 /**
  * PluginManager
  *
- * The static class that manages the plugins.
+ * The static class that keeps plugin parameters and plugin commands.
+ *
+ * It intentionally knows nothing about how plugin code is fetched: plugins are
+ * shipped as ES modules by the host (the Vite virtual module in this repo), so
+ * loading them is a bootstrap concern rather than a manager concern.
  */
 export class PluginManager {
   constructor() {
@@ -11,16 +15,20 @@ export class PluginManager {
   }
 
   static _scripts: string[] = []
-  static _errorUrls: string[] = []
   static _parameters: Record<string, Record<string, string>> = {}
   static _commands: Record<string, (args: Record<string, string>) => void> = {}
 
+  /**
+   * Registers the enabled plugins and their parameters.
+   *
+   * Call this before the plugin modules are evaluated so plugins can read their
+   * parameters during module initialization.
+   */
   static setup(plugins: PluginManager.PluginConfig[]): void {
     for (const plugin of plugins) {
       const pluginName = Utils.extractFileName(plugin.name)
       if (pluginName && plugin.status && !this._scripts.includes(pluginName)) {
         this.setParameters(pluginName, plugin.parameters)
-        this.loadScript(plugin.name)
         this._scripts.push(pluginName)
       }
     }
@@ -32,37 +40,6 @@ export class PluginManager {
 
   static setParameters(name: string, parameters: Record<string, string>): void {
     this._parameters[name.toLowerCase()] = parameters
-  }
-
-  static loadScript(filename: string): void {
-    const url = this.makeUrl(filename)
-    const script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.src = url
-    script.async = false
-    script.defer = true
-    script.addEventListener('error', this.onError.bind(this))
-    ;(script as HTMLScriptElement & { _url: string })._url = url
-    document.body.appendChild(script)
-  }
-
-  static onError(e: Event): void {
-    this._errorUrls.push((e.target as HTMLScriptElement)._url!)
-  }
-
-  static makeUrl(filename: string): string {
-    return `js/plugins/${Utils.encodeURI(filename)}.js`
-  }
-
-  static checkErrors(): void {
-    const url = this._errorUrls.shift()
-    if (url) {
-      this.throwLoadError(url)
-    }
-  }
-
-  static throwLoadError(url: string): void {
-    throw new Error(`Failed to load: ${url}`)
   }
 
   static registerCommand(

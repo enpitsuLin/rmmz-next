@@ -1,10 +1,10 @@
 import './shim'
 
 export * from './core'
+export * from './libs'
 
 export * from './managers'
 export * from './objects'
-export * from './pixi'
 export * from './scenes'
 export * from './sprites'
 export * from './windows'
