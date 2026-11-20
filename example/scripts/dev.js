@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { homedir, platform } from 'node:os'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
@@ -343,12 +344,41 @@ async function commandDev() {
     process.exit(1)
   }
 
+  // NW.js expects an app directory as its argument, not a URL. Generate a tiny
+  // app that redirects to the dev server, and keep Node APIs enabled in the
+  // remote page so the game behaves like a packaged build.
+  const rootDir = join(__dirname, '..')
+  const rootManifest = JSON.parse(readFileSync(join(rootDir, 'package.json'), 'utf8'))
+  // Keep the app inside the project so the macOS path-randomization check in the
+  // runtime does not mistake the temporary directory for a translocated .app.
+  const devAppRoot = join(rootDir, 'node_modules', '.cache')
+  await mkdir(devAppRoot, { recursive: true })
+  const devAppDir = await mkdtemp(join(devAppRoot, 'rmmz-next-dev-'))
+  await writeFile(
+    join(devAppDir, 'package.json'),
+    JSON.stringify({
+      'name': 'rmmz-next-dev',
+      'main': 'index.html',
+      'node-remote': new URL(serverUrl).origin,
+      'chromium-args': rootManifest['chromium-args'],
+      'window': rootManifest.window,
+    }, null, 2),
+  )
+  await writeFile(
+    join(devAppDir, 'index.html'),
+    `<!doctype html><meta charset="utf-8"><script>location.replace(${JSON.stringify(serverUrl)})</script>`,
+  )
+
+  const cleanupDevApp = async () => {
+    await rm(devAppDir, { recursive: true, force: true })
+  }
+
   // Launch game after Vite is ready. The Vite root is the game project root,
-  // so NW.js can load the dev server directly and relative asset paths just work.
+  // so relative asset paths just work once the page is served by Vite.
   setTimeout(() => {
     console.log('[game] Starting...')
-    gameProcess = spawn(nwjsPath, [serverUrl], {
-      cwd: join(__dirname, '..'),
+    gameProcess = spawn(nwjsPath, [devAppDir], {
+      cwd: rootDir,
       stdio: 'pipe',
     })
 
@@ -368,6 +398,7 @@ async function commandDev() {
 
     gameProcess.on('exit', async (code) => {
       console.log(`[game] Exited with code ${code}`)
+      await cleanupDevApp()
       await viteServer.close()
       process.exit(code ?? 0)
     })
@@ -383,6 +414,7 @@ async function commandDev() {
           gameProcess.kill('SIGKILL')
       }, 2000)
     }
+    await cleanupDevApp()
     await viteServer.close()
     process.exit(0)
   }
