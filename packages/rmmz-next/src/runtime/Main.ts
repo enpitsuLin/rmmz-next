@@ -147,6 +147,13 @@ export class Main {
   }
 
   private testXhr(): void {
+    // NW.js serves the app from a chrome-extension:// origin and rejects XHR
+    // requests to local module URLs, even though local files are readable.
+    const nw = (globalThis as { nw?: NwGlobal }).nw
+    if (nw || location.protocol === 'chrome-extension:') {
+      this.xhrSucceeded = true
+      return
+    }
     const xhr = new XMLHttpRequest()
     xhr.open('GET', import.meta.url)
     xhr.onload = () => (this.xhrSucceeded = true)
