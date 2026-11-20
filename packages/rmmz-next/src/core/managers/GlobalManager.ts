@@ -16,6 +16,7 @@ import type {
   Game_Variables,
 } from '../objects'
 
+type AnyConstructor = abstract new (...args: any[]) => any
 type Constructor = new (...args: any[]) => any
 
 /**
@@ -63,13 +64,17 @@ export class GlobalMananger {
     return this.initialized
   }
 
-  static async init(): Promise<void> {
-    const objects = await import('../objects')
-
-    Object.values(objects).forEach((ctor) => {
-      if (ctor.prototype.constructor) {
-        this.register(ctor as Constructor)
-      }
+  /**
+   * Registers every game object class used by save data.
+   *
+   * The host injects the constructors instead of this manager importing the
+   * `objects` barrel: the manager sits inside the `managers` <-> `objects`
+   * cycle, and materializing that barrel's namespace during evaluation throws a
+   * TDZ error in production bundles.
+   */
+  static init(constructors: AnyConstructor[]): void {
+    constructors.forEach((ctor) => {
+      this.register(ctor as Constructor)
     })
     this.initialized = true
   }

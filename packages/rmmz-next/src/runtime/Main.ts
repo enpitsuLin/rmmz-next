@@ -7,6 +7,71 @@ import {
   Scene_Boot,
   SceneManager,
 } from '../core'
+import {
+  Game_Action,
+  Game_ActionResult,
+  Game_Actor,
+  Game_Actors,
+  Game_Battler,
+  Game_BattlerBase,
+  Game_Character,
+  Game_CharacterBase,
+  Game_CommonEvent,
+  Game_Enemy,
+  Game_Event,
+  Game_Follower,
+  Game_Followers,
+  Game_Interpreter,
+  Game_Item,
+  Game_Map,
+  Game_Message,
+  Game_Party,
+  Game_Picture,
+  Game_Player,
+  Game_Screen,
+  Game_SelfSwitches,
+  Game_Switches,
+  Game_System,
+  Game_Temp,
+  Game_Timer,
+  Game_Troop,
+  Game_Unit,
+  Game_Variables,
+  Game_Vehicle,
+} from '../core/objects'
+
+const objectConstructors = [
+  Game_Action,
+  Game_ActionResult,
+  Game_Actor,
+  Game_Actors,
+  Game_Battler,
+  Game_BattlerBase,
+  Game_Character,
+  Game_CharacterBase,
+  Game_CommonEvent,
+  Game_Enemy,
+  Game_Event,
+  Game_Follower,
+  Game_Followers,
+  Game_Interpreter,
+  Game_Item,
+  Game_Map,
+  Game_Message,
+  Game_Party,
+  Game_Picture,
+  Game_Player,
+  Game_Screen,
+  Game_SelfSwitches,
+  Game_Switches,
+  Game_System,
+  Game_Temp,
+  Game_Timer,
+  Game_Troop,
+  Game_Unit,
+  Game_Variables,
+  Game_Vehicle,
+]
 
 interface NwWindow {
   on: (event: 'close', listener: () => void) => void
@@ -42,7 +107,7 @@ export class Main {
   }
 
   run(): this {
-    void GlobalMananger.init()
+    GlobalMananger.init(objectConstructors)
     this.showLoadingSpinner()
     this.testXhr()
     this.hookNwjsClose()
