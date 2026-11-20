@@ -57,7 +57,7 @@ export function virtualModule(options: RMMZPluginOptions = {}): Plugin {
       .join('\n')
 
     return `
-export const plugins = ${JSON.stringify(plugins, null, 2)}
+export const $plugins = ${JSON.stringify(plugins, null, 2)}
 
 const pluginModules = [
 ${pluginImports}
@@ -73,11 +73,6 @@ export async function loadPlugins() {
       throw new Error('[rmmz] Failed to load plugin "' + name + '": ' + reason)
     }
   }
-}
-
-export const runtime = {
-  plugins,
-  loadPlugins,
 }
 `
   }

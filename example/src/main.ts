@@ -1,4 +1,4 @@
-import { startRmmz } from '@rmmz-lib/runtime'
-import { runtime } from 'virtual:rmmz-project'
+import { Main } from '@rmmz-lib/runtime'
+import { $plugins, loadPlugins } from 'virtual:rmmz-project'
 
-startRmmz(runtime)
+new Main({ plugins: $plugins, loadPlugins }).run()

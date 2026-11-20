@@ -1,4 +1,4 @@
-import type { RmmzRuntimeOptions } from './types'
+import type { MainOptions } from './types'
 import {
   GlobalMananger,
   initEffekseerRuntime,
@@ -25,7 +25,7 @@ interface NodeLikeProcess {
  * Boots an RPG Maker MZ game in a bundled host.
  *
  * Everything project- or bundler-specific is injected through
- * {@link RmmzRuntimeOptions}, so this class never imports Vite virtual modules.
+ * {@link MainOptions}, so this class never imports Vite virtual modules.
  * The engine libraries (Effekseer, Vorbis decoder) are owned by core.
  */
 export class Main {
@@ -36,7 +36,7 @@ export class Main {
   private readonly plugins: PluginManager.PluginConfig[]
   private readonly loadPluginModules: (() => Promise<void>) | undefined
 
-  constructor(options: RmmzRuntimeOptions) {
+  constructor(options: MainOptions) {
     this.plugins = options.plugins ?? []
     this.loadPluginModules = options.loadPlugins
   }
@@ -168,11 +168,4 @@ export class Main {
     messageDiv.innerHTML = message
     return nameDiv.outerHTML + messageDiv.outerHTML
   }
-}
-
-/**
- * Creates a {@link Main} and starts the boot sequence.
- */
-export function startRmmz(options: RmmzRuntimeOptions): Main {
-  return new Main(options).run()
 }
