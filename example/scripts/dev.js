@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import { homedir, platform } from 'node:os'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
@@ -349,11 +349,10 @@ async function commandDev() {
   // remote page so the game behaves like a packaged build.
   const rootDir = join(__dirname, '..')
   const rootManifest = JSON.parse(readFileSync(join(rootDir, 'package.json'), 'utf8'))
-  // Keep the app inside the project so the macOS path-randomization check in the
-  // runtime does not mistake the temporary directory for a translocated .app.
-  const devAppRoot = join(rootDir, 'node_modules', '.cache')
-  await mkdir(devAppRoot, { recursive: true })
-  const devAppDir = await mkdtemp(join(devAppRoot, 'rmmz-next-dev-'))
+  // Reuse one app directory across runs: the runtime saves next to the app, so a
+  // throwaway directory would lose every save when the process exits.
+  const devAppDir = join(rootDir, '.rmmz-dev')
+  await mkdir(devAppDir, { recursive: true })
   await writeFile(
     join(devAppDir, 'package.json'),
     JSON.stringify({
@@ -368,10 +367,6 @@ async function commandDev() {
     join(devAppDir, 'index.html'),
     `<!doctype html><meta charset="utf-8"><script>location.replace(${JSON.stringify(serverUrl)})</script>`,
   )
-
-  const cleanupDevApp = async () => {
-    await rm(devAppDir, { recursive: true, force: true })
-  }
 
   // Launch game after Vite is ready. The Vite root is the game project root,
   // so relative asset paths just work once the page is served by Vite.
@@ -398,7 +393,6 @@ async function commandDev() {
 
     gameProcess.on('exit', async (code) => {
       console.log(`[game] Exited with code ${code}`)
-      await cleanupDevApp()
       await viteServer.close()
       process.exit(code ?? 0)
     })
@@ -414,7 +408,6 @@ async function commandDev() {
           gameProcess.kill('SIGKILL')
       }, 2000)
     }
-    await cleanupDevApp()
     await viteServer.close()
     process.exit(0)
   }
