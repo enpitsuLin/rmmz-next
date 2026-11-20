@@ -5,7 +5,8 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "build": "pnpm --filter rmmz-next build"
+    "build": "pnpm --filter rmmz-next build",
+    "postinstall": "node scripts/protect-mz-project.js"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:dev",
