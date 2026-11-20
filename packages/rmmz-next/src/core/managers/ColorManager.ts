@@ -1,5 +1,5 @@
 import type { Game_BattlerBase } from '../objects/Game_BattlerBase'
-import type { Bitmap } from '../primitives'
+import type { Bitmap } from '../primitives/Bitmap'
 import { ImageManager } from './ImageManager'
 
 /**

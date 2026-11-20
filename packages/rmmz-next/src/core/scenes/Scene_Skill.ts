@@ -1,7 +1,8 @@
 import type { MZ } from '../../database-types'
 import type { Game_Actor } from '../objects/Game_Actor'
 import { SoundManager } from '../managers/SoundManager'
-import { Graphics, Rectangle } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { Rectangle } from '../primitives/Rectangle'
 import { Window_SkillList, Window_SkillStatus, Window_SkillType } from '../windows'
 import { Scene_ItemBase } from './Scene_ItemBase'
 

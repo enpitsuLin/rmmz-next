@@ -2,7 +2,7 @@ import type { Game_Actor } from '../objects/Game_Actor'
 import { ColorManager } from '../managers/ColorManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
-import { Rectangle } from '../primitives'
+import { Rectangle } from '../primitives/Rectangle'
 import { Window_StatusBase } from './Window_StatusBase'
 
 /**

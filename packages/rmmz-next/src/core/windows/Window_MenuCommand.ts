@@ -1,4 +1,4 @@
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import { DataManager } from '../managers/DataManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { TextManager } from '../managers/TextManager'

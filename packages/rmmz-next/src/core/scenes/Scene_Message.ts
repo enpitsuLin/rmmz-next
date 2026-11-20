@@ -1,4 +1,5 @@
-import { Graphics, Rectangle } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { Rectangle } from '../primitives/Rectangle'
 import { Window_ChoiceList, Window_EventItem, Window_Gold, Window_Message, Window_NameBox, Window_NumberInput, Window_ScrollText } from '../windows'
 import { Scene_Base } from './Scene_Base'
 

@@ -1,4 +1,5 @@
-import { Graphics, Rectangle } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { Rectangle } from '../primitives/Rectangle'
 import { Window_Base, Window_DebugEdit, Window_DebugRange } from '../windows'
 import { Scene_MenuBase } from './Scene_MenuBase'
 

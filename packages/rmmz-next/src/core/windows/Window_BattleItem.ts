@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Window_ItemList } from './Window_ItemList'
 

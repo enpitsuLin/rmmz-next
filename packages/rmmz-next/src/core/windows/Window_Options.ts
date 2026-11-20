@@ -1,4 +1,4 @@
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import { ConfigManager } from '../managers/ConfigManager'
 import { TextManager } from '../managers/TextManager'
 import { Window_Command } from './Window_Command'

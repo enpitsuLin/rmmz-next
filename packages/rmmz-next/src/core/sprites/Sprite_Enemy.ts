@@ -1,5 +1,5 @@
 import type { Game_Enemy } from '../objects/Game_Enemy'
-import type { Sprite } from '../primitives'
+import type { Sprite } from '../primitives/Sprite'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
 import { SoundManager } from '../managers/SoundManager'

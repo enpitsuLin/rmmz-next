@@ -1,8 +1,9 @@
-import type { Bitmap } from '../primitives'
+import type { Bitmap } from '../primitives/Bitmap'
 import { BattleManager } from '../managers/BattleManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
-import { Graphics, TilingSprite } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { TilingSprite } from '../primitives/TilingSprite'
 
 /**
  * Sprite_Battleback

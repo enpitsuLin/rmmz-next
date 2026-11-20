@@ -1,6 +1,7 @@
 import type { Window_Message } from './Window_Message'
 import { GlobalMananger } from '../managers/GlobalManager'
-import { Graphics, Rectangle } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { Rectangle } from '../primitives/Rectangle'
 import { Window_Base } from './Window_Base'
 
 /**

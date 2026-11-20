@@ -1,4 +1,4 @@
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import { BattleManager } from '../managers/BattleManager'
 import { TextManager } from '../managers/TextManager'
 import { Window_Command } from './Window_Command'

@@ -1,7 +1,8 @@
 import type { Window_NameEdit } from './Window_NameEdit'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { SoundManager } from '../managers/SoundManager'
-import { Input, Rectangle } from '../primitives'
+import { Input } from '../primitives/Input'
+import { Rectangle } from '../primitives/Rectangle'
 import { Window_Selectable } from './Window_Selectable'
 
 /**

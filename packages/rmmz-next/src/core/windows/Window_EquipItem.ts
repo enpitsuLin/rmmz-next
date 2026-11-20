@@ -1,8 +1,8 @@
 import type { MZ } from '../../database-types'
 import type { Game_Actor } from '../objects/Game_Actor'
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import type { Window_EquipStatus } from './Window_EquipStatus'
-import { JsonEx } from '../primitives'
+import { JsonEx } from '../primitives/JsonEx'
 import { Window_ItemList } from './Window_ItemList'
 
 /**

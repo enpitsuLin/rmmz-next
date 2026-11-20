@@ -1,8 +1,8 @@
 import type { Game_CharacterBase } from '../objects/Game_CharacterBase'
-import type { Bitmap } from '../primitives'
+import type { Bitmap } from '../primitives/Bitmap'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
-import { Sprite } from '../primitives'
+import { Sprite } from '../primitives/Sprite'
 
 /**
  * Sprite_Character

@@ -1,5 +1,6 @@
 import type { Game_Actor } from '../objects/Game_Actor'
-import type { Rectangle, Sprite } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
+import type { Sprite } from '../primitives/Sprite'
 import { BattleManager } from '../managers/BattleManager'
 import { ColorManager } from '../managers/ColorManager'
 import { GlobalMananger } from '../managers/GlobalManager'

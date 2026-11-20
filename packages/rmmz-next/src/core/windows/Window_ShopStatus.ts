@@ -1,11 +1,12 @@
 import type { MZ } from '../../database-types'
 import type { Game_Actor } from '../objects/Game_Actor'
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import { ColorManager } from '../managers/ColorManager'
 import { DataManager } from '../managers/DataManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { TextManager } from '../managers/TextManager'
-import { Input, TouchInput } from '../primitives'
+import { Input } from '../primitives/Input'
+import { TouchInput } from '../primitives/TouchInput'
 import { Window_StatusBase } from './Window_StatusBase'
 
 /**

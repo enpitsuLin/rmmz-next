@@ -3,7 +3,8 @@ import type { Game_Battler } from '../objects/Game_Battler'
 import type { RGBA } from '../types'
 import { ColorManager } from '../managers/ColorManager'
 import { GlobalMananger } from '../managers/GlobalManager'
-import { Bitmap, Sprite } from '../primitives'
+import { Bitmap } from '../primitives/Bitmap'
+import { Sprite } from '../primitives/Sprite'
 
 /**
  * Sprite_Damage

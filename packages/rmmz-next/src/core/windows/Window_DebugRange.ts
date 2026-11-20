@@ -1,7 +1,7 @@
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import type { Window_DebugEdit } from './Window_DebugEdit'
 import { GlobalMananger } from '../managers/GlobalManager'
-import { Input } from '../primitives'
+import { Input } from '../primitives/Input'
 import { Window_Selectable } from './Window_Selectable'
 
 /**

@@ -1,7 +1,8 @@
 import type { Game_Actor } from '../objects/Game_Actor'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
-import { Graphics, Rectangle } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { Rectangle } from '../primitives/Rectangle'
 import { Window_NameEdit, Window_NameInput } from '../windows'
 import { Scene_MenuBase } from './Scene_MenuBase'
 

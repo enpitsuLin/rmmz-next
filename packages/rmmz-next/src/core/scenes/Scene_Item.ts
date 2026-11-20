@@ -1,7 +1,8 @@
 import type { Game_Actor } from '../objects/Game_Actor'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { SoundManager } from '../managers/SoundManager'
-import { Graphics, Rectangle } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { Rectangle } from '../primitives/Rectangle'
 import { Window_ItemCategory, Window_ItemList } from '../windows'
 import { Scene_ItemBase } from './Scene_ItemBase'
 

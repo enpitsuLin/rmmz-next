@@ -1,5 +1,6 @@
 import { ImageManager } from '../managers/ImageManager'
-import { Input, Rectangle } from '../primitives'
+import { Input } from '../primitives/Input'
+import { Rectangle } from '../primitives/Rectangle'
 import { Sprite_Clickable } from './Sprite_Clickable'
 
 /**

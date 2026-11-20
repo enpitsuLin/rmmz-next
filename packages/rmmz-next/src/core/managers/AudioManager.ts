@@ -1,5 +1,7 @@
 import type { MZ } from '../../database-types'
-import { Graphics, Utils, WebAudio } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { Utils } from '../primitives/Utils'
+import { WebAudio } from '../primitives/WebAudio'
 
 /**
  * AudioManager

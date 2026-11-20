@@ -1,7 +1,7 @@
 import type { Game_Actor } from '../objects/Game_Actor'
 import { BattleManager } from '../managers/BattleManager'
 import { ImageManager } from '../managers/ImageManager'
-import { Sprite } from '../primitives'
+import { Sprite } from '../primitives/Sprite'
 import { Sprite_Battler } from './Sprite_Battler'
 import { Sprite_StateOverlay } from './Sprite_StateOverlay'
 import { Sprite_Weapon } from './Sprite_Weapon'

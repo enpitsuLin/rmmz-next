@@ -1,4 +1,5 @@
-import { Bitmap, Utils } from '../primitives'
+import { Bitmap } from '../primitives/Bitmap'
+import { Utils } from '../primitives/Utils'
 import { GlobalMananger } from './GlobalManager'
 
 /**

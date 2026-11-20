@@ -1,5 +1,7 @@
-import type { Rectangle } from '../primitives'
-import { Input, Point, TouchInput } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
+import { Input } from '../primitives/Input'
+import { Point } from '../primitives/Point'
+import { TouchInput } from '../primitives/TouchInput'
 import { Window_Base } from './Window_Base'
 
 /**

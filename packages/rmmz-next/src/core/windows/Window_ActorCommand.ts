@@ -1,6 +1,6 @@
 import type { MZ } from '../../database-types'
 import type { Game_Actor } from '../objects/Game_Actor'
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import { ConfigManager } from '../managers/ConfigManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { TextManager } from '../managers/TextManager'

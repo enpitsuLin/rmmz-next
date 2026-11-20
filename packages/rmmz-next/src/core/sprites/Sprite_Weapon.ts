@@ -1,5 +1,5 @@
 import { ImageManager } from '../managers/ImageManager'
-import { Sprite } from '../primitives'
+import { Sprite } from '../primitives/Sprite'
 
 /**
  * Sprite_Weapon

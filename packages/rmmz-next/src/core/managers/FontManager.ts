@@ -1,4 +1,4 @@
-import { Utils } from '../primitives'
+import { Utils } from '../primitives/Utils'
 
 /**
  * FontManager

@@ -1,4 +1,5 @@
-import { JsonEx, Utils } from '../primitives'
+import { JsonEx } from '../primitives/JsonEx'
+import { Utils } from '../primitives/Utils'
 import { GlobalMananger } from './GlobalManager'
 
 type Forage = typeof import('localforage')

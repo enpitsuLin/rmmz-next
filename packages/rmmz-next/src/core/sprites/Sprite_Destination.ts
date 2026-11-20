@@ -1,6 +1,7 @@
 import type * as PIXI from 'pixi.js'
 import { GlobalMananger } from '../managers/GlobalManager'
-import { Bitmap, Sprite } from '../primitives'
+import { Bitmap } from '../primitives/Bitmap'
+import { Sprite } from '../primitives/Sprite'
 
 /**
  * Sprite_Destination

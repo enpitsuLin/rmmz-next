@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import type { Window_ShopStatus } from './Window_ShopStatus'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Window_Selectable } from './Window_Selectable'

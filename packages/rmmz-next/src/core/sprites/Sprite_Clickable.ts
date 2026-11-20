@@ -1,4 +1,7 @@
-import { Point, Rectangle, Sprite, TouchInput } from '../primitives'
+import { Point } from '../primitives/Point'
+import { Rectangle } from '../primitives/Rectangle'
+import { Sprite } from '../primitives/Sprite'
+import { TouchInput } from '../primitives/TouchInput'
 
 /**
  * Sprite_Clickable

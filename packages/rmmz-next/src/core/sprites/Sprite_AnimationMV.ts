@@ -1,10 +1,11 @@
 import type * as PIXI from 'pixi.js'
 import type { MV } from '../../database-types'
-import type { Bitmap } from '../primitives'
+import type { Bitmap } from '../primitives/Bitmap'
 import type { RGBA } from '../types'
 import { AudioManager } from '../managers/AudioManager'
 import { ImageManager } from '../managers/ImageManager'
-import { ScreenSprite, Sprite } from '../primitives'
+import { ScreenSprite } from '../primitives/ScreenSprite'
+import { Sprite } from '../primitives/Sprite'
 
 /**
  * Sprite_AnimationMV

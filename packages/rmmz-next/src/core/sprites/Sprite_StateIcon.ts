@@ -1,6 +1,6 @@
 import type { Game_Battler } from '../objects/Game_Battler'
 import { ImageManager } from '../managers/ImageManager'
-import { Sprite } from '../primitives'
+import { Sprite } from '../primitives/Sprite'
 
 /**
  * Sprite_StateIcon

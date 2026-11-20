@@ -1,5 +1,5 @@
 import type * as PIXI from 'pixi.js'
-import type { Sprite } from '../primitives'
+import type { Sprite } from '../primitives/Sprite'
 import type { RGBA } from '../types'
 import { AudioManager } from '../managers/AudioManager'
 import { DataManager } from '../managers/DataManager'
@@ -8,7 +8,10 @@ import { FontManager } from '../managers/FontManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
 import { SceneManager } from '../managers/SceneManager'
-import { ColorFilter, Graphics, Stage, WindowLayer } from '../primitives'
+import { ColorFilter } from '../primitives/ColorFilter'
+import { Graphics } from '../primitives/Graphics'
+import { Stage } from '../primitives/Stage'
+import { WindowLayer } from '../primitives/WindowLayer'
 import { Window_Base, Window_Selectable } from '../windows'
 
 /*

@@ -1,4 +1,5 @@
-import { Graphics, Rectangle } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { Rectangle } from '../primitives/Rectangle'
 import { Window_Help, Window_Status, Window_StatusEquip, Window_StatusParams } from '../windows'
 import { Scene_MenuBase } from './Scene_MenuBase'
 

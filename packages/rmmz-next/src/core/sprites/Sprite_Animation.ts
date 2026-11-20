@@ -3,7 +3,9 @@ import type { MZ } from '../../database-types'
 import type { RGBA } from '../types'
 import { AudioManager } from '../managers/AudioManager'
 import { EffectManager } from '../managers/EffectManager'
-import { Graphics, Point, Sprite } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { Point } from '../primitives/Point'
+import { Sprite } from '../primitives/Sprite'
 
 /**
  * Sprite_Animation

@@ -1,6 +1,6 @@
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
-import { Graphics } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
 
 /**
  * The superclass of Game_Character.

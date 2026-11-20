@@ -1,7 +1,9 @@
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
 import { SceneManager } from '../managers/SceneManager'
-import { Input, Sprite, TouchInput } from '../primitives'
+import { Input } from '../primitives/Input'
+import { Sprite } from '../primitives/Sprite'
+import { TouchInput } from '../primitives/TouchInput'
 import { Scene_Base } from './Scene_Base'
 import { Scene_Title } from './Scene_Title'
 

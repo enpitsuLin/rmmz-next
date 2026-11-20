@@ -1,4 +1,4 @@
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import { ColorManager } from '../managers/ColorManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Window_Base } from './Window_Base'

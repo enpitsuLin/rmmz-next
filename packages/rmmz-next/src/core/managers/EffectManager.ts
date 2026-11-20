@@ -1,4 +1,5 @@
-import { Graphics, Utils } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { Utils } from '../primitives/Utils'
 
 /**
  * EffectManager

@@ -3,7 +3,7 @@ import type { Sprite_Balloon } from '../sprites'
 import type { Game_Battler } from './Game_Battler'
 import type { Game_Character } from './Game_Character'
 import { GlobalMananger } from '../managers/GlobalManager'
-import { Utils } from '../primitives'
+import { Utils } from '../primitives/Utils'
 
 /**
  * The game object class for temporary data that is not included in save data.

@@ -1,5 +1,7 @@
 import { GlobalMananger } from '../managers/GlobalManager'
-import { Input, Rectangle, TouchInput } from '../primitives'
+import { Input } from '../primitives/Input'
+import { Rectangle } from '../primitives/Rectangle'
+import { TouchInput } from '../primitives/TouchInput'
 import { Window_Base } from './Window_Base'
 
 /**

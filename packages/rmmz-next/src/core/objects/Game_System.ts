@@ -2,7 +2,7 @@ import type { MZ } from '../../database-types'
 import type { RGBA } from '../types'
 import { AudioManager } from '../managers/AudioManager'
 import { GlobalMananger } from '../managers/GlobalManager'
-import { Graphics } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
 
 /**
  * The game object class for the system data.

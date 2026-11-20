@@ -2,7 +2,10 @@ import type { MZ } from '../../database-types'
 import type { Window_Help } from './Window_Help'
 import { ColorManager } from '../managers/ColorManager'
 import { SoundManager } from '../managers/SoundManager'
-import { Input, Point, Rectangle, TouchInput } from '../primitives'
+import { Input } from '../primitives/Input'
+import { Point } from '../primitives/Point'
+import { Rectangle } from '../primitives/Rectangle'
+import { TouchInput } from '../primitives/TouchInput'
 import { Window_Scrollable } from './Window_Scrollable'
 
 /**

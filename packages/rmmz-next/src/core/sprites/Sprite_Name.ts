@@ -2,7 +2,8 @@ import type * as PIXI from 'pixi.js'
 import type { Game_Battler } from '../objects/Game_Battler'
 import { ColorManager } from '../managers/ColorManager'
 import { GlobalMananger } from '../managers/GlobalManager'
-import { Bitmap, Sprite } from '../primitives'
+import { Bitmap } from '../primitives/Bitmap'
+import { Sprite } from '../primitives/Sprite'
 
 /**
  * Sprite_Name

@@ -1,6 +1,6 @@
 import type { MZ } from '../../database-types'
 import type { Game_Actor } from '../objects/Game_Actor'
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import type { Window_EquipItem } from './Window_EquipItem'
 import type { Window_EquipStatus } from './Window_EquipStatus'
 import { ColorManager } from '../managers/ColorManager'

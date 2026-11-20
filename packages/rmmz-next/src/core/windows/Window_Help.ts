@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import { Window_Base } from './Window_Base'
 
 /**

@@ -4,7 +4,8 @@ import type { RGBA } from '../types'
 import { ColorManager } from '../managers/ColorManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { TextManager } from '../managers/TextManager'
-import { Bitmap, Sprite } from '../primitives'
+import { Bitmap } from '../primitives/Bitmap'
+import { Sprite } from '../primitives/Sprite'
 
 /**
  * Sprite_Gauge

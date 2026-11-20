@@ -1,4 +1,4 @@
-import { Utils } from '../primitives'
+import { Utils } from '../primitives/Utils'
 
 /**
  * The game object class for the state of the message window that displays text or selections, etc.

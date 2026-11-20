@@ -1,10 +1,10 @@
 import type { MZ } from '../../database-types'
-import type { Rectangle } from '../primitives'
+import type { Rectangle } from '../primitives/Rectangle'
 import type { Window_Message } from './Window_Message'
 import { ConfigManager } from '../managers/ConfigManager'
 import { DataManager } from '../managers/DataManager'
 import { GlobalMananger } from '../managers/GlobalManager'
-import { Graphics } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
 import { Sprite_Button } from '../sprites'
 import { Window_ItemList } from './Window_ItemList'
 

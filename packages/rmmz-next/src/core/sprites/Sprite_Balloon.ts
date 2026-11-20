@@ -1,6 +1,6 @@
 import type { Game_Character } from '../objects/Game_Character'
 import { ImageManager } from '../managers/ImageManager'
-import { Sprite } from '../primitives'
+import { Sprite } from '../primitives/Sprite'
 
 /**
  * Sprite_Balloon

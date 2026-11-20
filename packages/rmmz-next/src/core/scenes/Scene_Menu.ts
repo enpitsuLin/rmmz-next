@@ -1,6 +1,7 @@
 import { GlobalMananger } from '../managers/GlobalManager'
 import { SceneManager } from '../managers/SceneManager'
-import { Graphics, Rectangle } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { Rectangle } from '../primitives/Rectangle'
 import { Window_Gold, Window_MenuCommand, Window_MenuStatus } from '../windows'
 import { Scene_Equip } from './Scene_Equip'
 import { Scene_GameEnd } from './Scene_GameEnd'

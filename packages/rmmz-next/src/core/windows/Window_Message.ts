@@ -1,4 +1,5 @@
-import type { Bitmap, Rectangle } from '../primitives'
+import type { Bitmap } from '../primitives/Bitmap'
+import type { Rectangle } from '../primitives/Rectangle'
 import type { Window_ChoiceList } from './Window_ChoiceList'
 import type { Window_EventItem } from './Window_EventItem'
 import type { Window_Gold } from './Window_Gold'
@@ -6,7 +7,9 @@ import type { Window_NameBox } from './Window_NameBox'
 import type { Window_NumberInput } from './Window_NumberInput'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
-import { Graphics, Input, TouchInput } from '../primitives'
+import { Graphics } from '../primitives/Graphics'
+import { Input } from '../primitives/Input'
+import { TouchInput } from '../primitives/TouchInput'
 import { Window_Base } from './Window_Base'
 
 /**

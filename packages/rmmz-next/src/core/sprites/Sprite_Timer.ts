@@ -1,7 +1,9 @@
 import type * as PIXI from 'pixi.js'
 import { ColorManager } from '../managers/ColorManager'
 import { GlobalMananger } from '../managers/GlobalManager'
-import { Bitmap, Graphics, Sprite } from '../primitives'
+import { Bitmap } from '../primitives/Bitmap'
+import { Graphics } from '../primitives/Graphics'
+import { Sprite } from '../primitives/Sprite'
 
 /**
  * Sprite_Timer

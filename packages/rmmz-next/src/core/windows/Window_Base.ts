@@ -6,7 +6,11 @@ import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'
 import { SoundManager } from '../managers/SoundManager'
 import { TextManager } from '../managers/TextManager'
-import { Bitmap, Rectangle, Sprite, Utils, Window } from '../primitives'
+import { Bitmap } from '../primitives/Bitmap'
+import { Rectangle } from '../primitives/Rectangle'
+import { Sprite } from '../primitives/Sprite'
+import { Utils } from '../primitives/Utils'
+import { Window } from '../primitives/Window'
 
 /**
  * Window_Base
