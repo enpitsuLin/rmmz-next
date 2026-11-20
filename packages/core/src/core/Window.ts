@@ -1,6 +1,6 @@
 import type { RGBA } from '../types'
 import type { Bitmap } from './Bitmap'
-import { PIXI } from '../pixi'
+import * as PIXI from 'pixi.js'
 import { Point } from './Point'
 import { Rectangle } from './Rectangle'
 import { Sprite } from './Sprite'

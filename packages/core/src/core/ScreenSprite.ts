@@ -1,4 +1,4 @@
-import { PIXI } from '../pixi'
+import * as PIXI from 'pixi.js'
 
 /** Options for destroying the screen sprite (compatible with PIXI.Container destroy). */
 export interface ScreenSpriteDestroyOptions {

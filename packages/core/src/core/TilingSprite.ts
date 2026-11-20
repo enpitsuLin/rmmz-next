@@ -1,5 +1,5 @@
 import type { Bitmap } from './Bitmap'
-import { PIXI } from '../pixi'
+import * as PIXI from 'pixi.js'
 import { Point } from './Point'
 import { Rectangle } from './Rectangle'
 

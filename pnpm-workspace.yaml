@@ -27,5 +27,5 @@ catalogs:
     '@types/nw.js': ^0.92.0
     '@types/pako': ^1.0.7
 
-onlyBuiltDependencies:
-  - esbuild
+allowBuilds:
+  esbuild: true

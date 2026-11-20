@@ -1,4 +1,4 @@
-import { PIXI } from '../pixi'
+import * as PIXI from 'pixi.js'
 import { Bitmap } from './Bitmap'
 import { Graphics } from './Graphics'
 import { Point } from './Point'

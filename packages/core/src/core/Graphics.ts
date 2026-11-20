@@ -1,4 +1,4 @@
-import { PIXI } from '../pixi'
+import * as PIXI from 'pixi.js'
 import { FPSCounter } from './FPSCounter'
 import { Utils } from './Utils'
 import { Video } from './Video'
