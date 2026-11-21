@@ -1,8 +1,8 @@
 import { Camera3D, DirectionalLight, FlatMaterial, Geometry3D, Material3D, Mesh3D, ParticleContainer3D, PointLight, Sprite3D, View3D } from '@pixi/3d'
 import { BloomEffect, TiltShiftEffect } from '@pixi/3d/extras'
 import type { BaseMaterial3D, Pass3D } from '@pixi/3d'
-import { ColorMatrixFilter, Container, Rectangle, Sprite, Texture } from 'pixi.js'
-import { Graphics, ImageManager } from 'rmmz-next'
+import { Container } from 'pixi.js'
+import { Graphics } from 'rmmz-next'
 import type { Assets, Look } from './assets'
 import { facingTexture } from './assets'
 import type { RunEvent, RunSession } from './session'
@@ -10,6 +10,7 @@ import type { Point } from './content'
 import type { Prop } from './world'
 import { distance } from './content'
 import { shakeGain } from './audio'
+import { WeaponEffects } from './weapon-effects'
 
 interface ActorVisual { sprite: Sprite3D, shadow: Sprite3D, material: Material3D, deathAge: number }
 interface Particle { sprite: Sprite3D, life: number, age: number, vx: number, vy: number, vz: number, size: number }
@@ -27,21 +28,17 @@ export class GraveyardView {
   private environment = { skyColor: 0, groundColor: 0, intensity: 0 }
   private sky = { skyColor: 0, groundColor: 0, intensity: 1 }
   private fog = { type: 'exp2' as const, color: 0, density: 0 }
-  private vignette!: Sprite
   private ambient: { sprite: Sprite3D, height: number, phase: number, leaf: boolean }[] = []
   private actors = new Map<number, ActorVisual>()
   private pickups = new Map<number, Sprite3D>()
   private projectiles = new Map<number, Sprite3D>()
-  private pools = new Map<number, Sprite3D>()
   private props: BrazierVisual[] = []
   private brazierGlows: ParticleContainer3D
   private hero: ActorVisual
-  private tomes: Sprite3D[] = []
-  private ward: Sprite3D
+  private weapons: WeaponEffects
   private lamps: PointLight[] = []
   private particles: Particle[] = []
   private focus = { x: 0, z: 6 }
-  private colorGrade = new ColorMatrixFilter()
   private shake = 0
   private clock = 0
   readonly framing = { pitch: 42, distance: 24 }
@@ -86,20 +83,13 @@ export class GraveyardView {
       const glow = this.sprite(assets.effects[0]!, .24)
       glow.tint = 0xffc477; glow.position.set(point[0]!, point[1]!, point[2]!)
     }
-    this.ward = this.flat(3, 3, 3, .04)
-    this.ward.visible = false
-    for (let i = 0; i < 4; i++) { const book = this.sprite(assets.animations.tome!.textures[0]!, assets.animations.tome!.height); book.visible = false; this.tomes.push(book) }
     const gl = Graphics.app.renderer.gl
     if (gl.getExtension('EXT_color_buffer_float')) {
       this.passes = [new TiltShiftEffect({ focalDepth: 22.25, focalNear: 24 * look.focus + 1.75, focalFar: 24 * (look.focus + .22) + 1.75, maxBlur: look.tilt }), new BloomEffect({ threshold: look.bloomThreshold, intensity: look.bloomIntensity, radius: look.bloomRadius, levels: 5 })]
-      this.view.passes = this.passes
     }
-    const color = this.colorGrade
-    color.contrast(look.contrast - 1, false); color.saturate(look.saturation - 1, true)
-    this.view.filters = [color]
-    const shade = new Sprite(new Texture({ source: ImageManager.loadBitmap('img/nightward/reference/', 'ui-soft').baseTexture, frame: new Rectangle(128, 0, 64, 64) }))
-    this.vignette = shade
-    shade.width = Graphics.width; shade.height = Graphics.height; shade.tint = 0x000000; shade.alpha = look.vignette; this.overlay.addChild(shade)
+    this.weapons = new WeaponEffects(run, assets, this.view)
+    this.passes.push(this.weapons.pass)
+    this.view.passes = this.passes
     this.update([], 0)
     run.isSpawnVisible = point => {
       const screen = this.view.worldToScreen({ x: point.x, y: .5, z: point.z })
@@ -158,38 +148,27 @@ export class GraveyardView {
     }
   }
   private burst(event: RunEvent): void {
-    if (event.kind === 'hit') return
+    if (event.kind === 'hit' || event.kind === 'death' || event.kind === 'break' || event.kind === 'lash' || event.kind === 'wand' || event.kind === 'tomes' || event.kind === 'lightning' || event.kind === 'ward' || event.kind === 'flask') return
     if (event.kind === 'hurt') { this.shake = .26; this.particle(event, 0xdc6577, 9); return }
-    if (event.kind === 'death' || event.kind === 'break') { this.particle(event, event.kind === 'break' ? 0xffb963 : 0x8d99ad, 5, event.value ?? 1); return }
     if (event.kind === 'upgrade' || event.kind === 'chest') { this.particle(event, 0xf7da83, 16); return }
     if (event.kind === 'boss' || event.kind === 'bossDeath' || event.kind === 'ring') {
       if (event.kind !== 'ring') this.shake = .6
       return
     }
-    if (event.kind === 'pickup' || event.kind === 'wand' || event.kind === 'tomes') return
+    if (event.kind === 'pickup') return
     let sprite: Sprite3D
     let life = .35
-    if (event.kind === 'lash') {
-      sprite = this.flat(3, event.value! * 2, event.extra! * 2, .55)
-      sprite.position.set(event.x + event.side! * event.value! * .42, .55, event.z)
-      sprite.tint = 0xf4d6a1; life = .18
-    }
-    else if (event.kind === 'lightning') {
-      sprite = this.sprite(this.assets.effects[2]!, 8)
-      sprite.width = .28; sprite.position.set(event.x, 4, event.z)
-      this.particle(event, 0xc3e8ff, 9)
-    }
-    else if (event.kind === 'scythe' || event.kind === 'windup') {
+    if (event.kind === 'scythe' || event.kind === 'windup') {
       sprite = this.flat(3, 4, event.kind === 'windup' ? 1 : 2, .12)
       sprite.rotation.z = event.side!; sprite.tint = 0xf07c99; life = event.kind === 'windup' ? .45 : .25
     }
     else {
       const size = event.value! * 2
-      sprite = this.flat(event.kind === 'flask' ? 4 : 3, size, size, .05)
-      sprite.tint = event.kind === 'relic' ? 0xfff0b8 : event.kind === 'ward' ? 0xe9d88a : 0x81e6b5
+      sprite = this.flat(3, size, size, .05)
+      sprite.tint = 0xfff0b8
       if (event.kind === 'relic') { life = .65; this.shake = .4 }
     }
-    sprite.x = event.kind === 'lash' ? sprite.x : event.x; sprite.z = event.z
+    sprite.x = event.x; sprite.z = event.z
     this.particles.push({ sprite, age: 0, life, vx: 0, vy: 0, vz: 0, size: 0 })
   }
   beginIntro(fromTitle: boolean): void {
@@ -225,12 +204,10 @@ export class GraveyardView {
     if (this.introAge >= 1) this.introAge = -1
     if (this.dawnAge >= 3) { this.dawnAge = -1; this.dawnFrom = undefined }
     const look = this.look
-    this.colorGrade.contrast(look.contrast - 1, false); this.colorGrade.saturate(look.saturation - 1, true)
     this.view.exposure = look.exposure; this.fog.color = look.fogColor; this.fog.density = look.fogDensity
     this.sky.skyColor = look.skyTop; this.sky.groundColor = look.skyHorizon
     this.environment.skyColor = look.skyColor; this.environment.groundColor = look.groundColor; this.environment.intensity = look.hemisphere
     this.moon.color = look.moonColor; this.moon.intensity = look.moonIntensity
-    this.vignette.alpha = look.vignette
     for (const pass of this.passes) {
       if (pass instanceof BloomEffect) { pass.intensity = look.bloomIntensity; pass.threshold = look.bloomThreshold; pass.radius = look.bloomRadius }
       if (pass instanceof TiltShiftEffect) { pass.maxBlur = look.tilt; pass.focalDepth = this.framing.distance - 1.75; pass.focalNear = this.framing.distance * look.focus + 1.75; pass.focalFar = this.framing.distance * (look.focus + .22) + 1.75 }
@@ -327,22 +304,10 @@ export class GraveyardView {
       sprite.texture = animation.textures[Math.floor(pickup.age * animation.fps) % animation.textures.length]!
       sprite.position.set(pickup.x, pickup.y + Math.sin(pickup.age * 3) * .08, pickup.z); sprite.visible = distance(pickup, this.focus) < 29
     })
-    this.syncObjects(run.projectiles, this.projectiles, projectile => this.sprite(projectile.kind === 'flask' ? this.assets.animations.flask!.textures[0]! : this.assets.effects[0]!, projectile.kind === 'wave' ? 2.6 : projectile.kind === 'flask' ? this.assets.animations.flask!.height : .4), (projectile, sprite) => {
+    this.syncObjects(run.projectiles.filter(projectile => projectile.kind === 'wave'), this.projectiles, () => this.sprite(this.assets.effects[0]!, 2.6), (projectile, sprite) => {
       sprite.position.set(projectile.x, projectile.y, projectile.z)
-      if (projectile.kind === 'flask') sprite.texture = this.assets.animations.flask!.textures[Math.floor(projectile.age * 10) % 2]!
-      else if (projectile.kind === 'wave') { sprite.width = 3; sprite.height = 1.3; sprite.tint = 0xc8b3ff }
-      else sprite.tint = 0xa6c5ff
+      sprite.width = 3; sprite.height = 1.3; sprite.tint = 0xc8b3ff
     })
-    this.syncObjects(run.pools, this.pools, pool => this.flat(0, pool.skill.data.radius! * 2, pool.skill.data.radius! * 2, .045), (pool, sprite) => { sprite.x = pool.x; sprite.z = pool.z; sprite.tint = 0x64ed9f; sprite.alpha = Math.min(1, (pool.life - pool.age) * 3) * (.6 + Math.sin(pool.age * 10) * .12) })
-    const tome = run.weapon('tomes')
-    for (let i = 0; i < this.tomes.length; i++) {
-      const sprite = this.tomes[i]!, angle = run.tomes.angle + i * Math.PI * 2 / (tome?.data.count ?? 1)
-      sprite.visible = !!tome && run.tomes.fade > .01 && i < tome.data.count!
-      if (tome) { const animation = this.assets.animations.tome!; sprite.texture = animation.textures[Math.floor(run.time * animation.fps) % animation.textures.length]!; sprite.position.set(run.hero.x + Math.cos(angle) * tome.data.radius!, 1, run.hero.z + Math.sin(angle) * tome.data.radius!); sprite.alpha = run.tomes.fade }
-    }
-    const ward = run.weapon('ward')
-    this.ward.visible = !!ward
-    if (ward) { this.ward.position.set(run.hero.x, .04, run.hero.z); this.ward.setSize(ward.data.radius! * 2); this.ward.alpha = .22 + Math.sin(this.clock * 3) * .08 }
     this.particles = this.particles.filter(particle => {
       particle.age += dt
       if (particle.age >= particle.life) { particle.sprite.destroy(); return false }
@@ -352,6 +317,18 @@ export class GraveyardView {
       if (particle.size) { particle.vy -= dt * 7; sprite.height = particle.size * (1 - particle.age / particle.life * .6) }
       return true
     })
+    const strike = this.weapons.update(events, dt, this.look, { x: this.focus.x, y: .7, z: this.focus.z })
+    this.view.exposure = this.look.exposure * (1 + .2 * strike)
+    this.environment.intensity = this.look.hemisphere + strike * .25
+    this.sky.intensity = 1 + strike * 2.5
+    const mix = (from: number, to: number, amount: number): number => {
+      const r = Math.round((from >> 16 & 255) + ((to >> 16 & 255) - (from >> 16 & 255)) * amount)
+      const g = Math.round((from >> 8 & 255) + ((to >> 8 & 255) - (from >> 8 & 255)) * amount)
+      const b = Math.round((from & 255) + ((to & 255) - (from & 255)) * amount)
+      return r << 16 | g << 8 | b
+    }
+    this.sky.skyColor = mix(this.look.skyTop, 6970572, strike * .75)
+    this.sky.groundColor = mix(this.look.skyHorizon, 14209279, strike * .6)
   }
   private syncObjects<T extends { id: number }>(items: T[], visuals: Map<number, Sprite3D>, create: (item: T) => Sprite3D, update: (item: T, visual: Sprite3D) => void): void {
     const ids = new Set(items.map(item => item.id))
@@ -367,8 +344,8 @@ export class GraveyardView {
     this.view.removeFromParent()
     this.overlay.removeFromParent()
     this.overlay.destroy({ children: true })
+    this.weapons.destroy()
     this.view.destroy({ children: true })
-    this.colorGrade.destroy()
     for (const pass of this.passes) pass.destroy()
     for (const material of this.materials) material.destroy()
     for (const geometry of this.geometries) geometry.destroy()

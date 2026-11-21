@@ -6,14 +6,14 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pipeline } from 'node:stream/promises'
 
-export async function bakeReferenceMedia({ root, output, code, helpersCode, uiOnly = false, skinOnly = false }) {
+export async function bakeReferenceMedia({ root, output, code, helpersCode, uiOnly = false, skinOnly = false, combatOnly = false, source }) {
   const temporary = await mkdtemp(join(tmpdir(), 'nightward-media-'))
   const chrome = process.env.NIGHTWARD_CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
   const encoder = process.env.NIGHTWARD_FFMPEG || 'ffmpeg'
   let finish, reject
   const completed = new Promise((resolve, fail) => { finish = resolve; reject = fail })
   const uiCues = { Tick: 'tick', Stamp: 'stamp', Swoosh: 'swoosh' }
-  const cueFiles = skinOnly ? {} : uiOnly ? uiCues : { ...uiCues, Cursor: 'select', Confirm: 'confirm', Cancel: 'back', Hit: 'hit', Pickup: 'gem', Level: 'levelUp', Chest: 'chest', Hurt: 'hurt', Lightning: 'storm', Flask: 'flask', Reaper: 'roar', Relic: 'boom', Lash: 'lash', Wand: 'wand', Tomes: 'tomes', Ward: 'ward', Title: 'title', Warn: 'warn', Victory: 'victory', Defeat: 'death' }
+  const cueFiles = combatOnly || skinOnly ? {} : uiOnly ? uiCues : { ...uiCues, Cursor: 'select', Confirm: 'confirm', Cancel: 'back', Hit: 'hit', Pickup: 'gem', Level: 'levelUp', Chest: 'chest', Hurt: 'hurt', Lightning: 'storm', Flask: 'flask', Reaper: 'roar', Relic: 'boom', Lash: 'lash', Wand: 'wand', Tomes: 'tomes', Ward: 'ward', Title: 'title', Warn: 'warn', Victory: 'victory', Defeat: 'death' }
   const skinSeed = readFileSync(`${root}img/system/Window.png`).toString('base64')
   const script = `
 const helpers = ${helpersCode};
@@ -43,6 +43,12 @@ async function windowskin(ui){
   await png('Window',canvas);
 }
 async function main(){
+  if(${combatOnly}){
+    const atlas=new yI();
+    await png('combat-fx',atlas._source.resource);
+    await post('combat-fx.json',JSON.stringify({source:${JSON.stringify(source ?? null)},frames:Object.fromEntries(Object.entries(Le).map(([name,[x,y,width,height]])=>[name,{x,y,width,height}]))}));
+    await fetch('/done',{method:'POST'});return;
+  }
   const ui = new Y();
   await windowskin(ui);
   if(${skinOnly}){await fetch('/done',{method:'POST'});return;}
@@ -100,13 +106,13 @@ main().catch(error=>fetch('/error',{method:'POST',body:error.stack||String(error
   browser.on('exit', (code, signal) => { if (code !== 0 || signal) reject(new Error(`Media renderer exited ${code ?? signal}: ${errors}`)) })
   try {
     await completed
-    for (const name of [...uiOnly ? [] : ['Nightward', 'Reaper'], ...Object.keys(cueFiles)]) {
+    for (const name of [...uiOnly || combatOnly ? [] : ['Nightward', 'Reaper'], ...Object.keys(cueFiles)]) {
       const folder = name === 'Nightward' || name === 'Reaper' ? 'bgm' : name === 'Victory' || name === 'Defeat' ? 'me' : 'se'
       const encoding = spawnSync(encoder, ['-hide_banner', '-loglevel', 'error', '-y', '-i', join(temporary, `${name}.wav`), '-c:a', 'libvorbis', '-q:a', '5', `${root}audio/${folder}/${name}.ogg`], { stdio: 'inherit' })
       if (encoding.status !== 0) throw new Error(`Encoding failed: ${name}`)
     }
-    if (!uiOnly) writeFileSync(`${root}audio/bgm/Dawn.ogg`, readFileSync(`${root}audio/bgm/Nightward.ogg`))
-    console.log(skinOnly ? 'Packed the reference panels into the native MZ Window.png skin.' : uiOnly ? 'Baked the reference UI, both glyph sizes, and UI sound cues.' : 'Baked the reference UI atlas, glyphs, moon, two music scores, and all sound cues.')
+    if (!uiOnly && !combatOnly) writeFileSync(`${root}audio/bgm/Dawn.ogg`, readFileSync(`${root}audio/bgm/Nightward.ogg`))
+    console.log(combatOnly ? 'Baked the original combat atlas and frame manifest.' : skinOnly ? 'Packed the reference panels into the native MZ Window.png skin.' : uiOnly ? 'Baked the reference UI, both glyph sizes, and UI sound cues.' : 'Baked the reference UI atlas, glyphs, moon, two music scores, and all sound cues.')
   }
   finally {
     if (browser.pid) { browser.kill(); await exited }

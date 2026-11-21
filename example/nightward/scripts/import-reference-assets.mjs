@@ -4,7 +4,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import vm from 'node:vm'
 import { deflateSync, gzipSync } from 'node:zlib'
-import ts from 'typescript'
+import { collectReference } from './reference-source.mjs'
 
 // Compile the public reference's procedural assets into ordinary MZ resources.
 // Only asset generators execute here; the reference game and engine never ship.
@@ -14,43 +14,12 @@ const source = process.env.NIGHTWARD_REFERENCE_SOURCE
   ? readFileSync(process.env.NIGHTWARD_REFERENCE_SOURCE, 'utf8')
   : await fetch(sourceUrl).then(response => { if (!response.ok) throw new Error(`Reference HTTP ${response.status}`); return response.text() })
 const external = new Set(['U', 'Fe', 'kt', 'ts', 'fp'])
-function collect(sourceText, roots, ignored = new Set()) {
-  const input = '/reference.js'
-  const file = ts.createSourceFile(input, sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
-  const host = ts.createCompilerHost({ allowJs: true, noResolve: true, noLib: true })
-  host.getSourceFile = name => name === input ? file : undefined
-  host.fileExists = name => name === input
-  host.readFile = name => name === input ? sourceText : undefined
-  const checker = ts.createProgram([input], { allowJs: true, noResolve: true, noLib: true }, host).getTypeChecker()
-  const declarations = new Map(), symbols = new Map(), selected = new Set()
-  for (const node of file.statements) {
-    const entries = ts.isVariableStatement(node) ? node.declarationList.declarations : [node]
-    for (const entry of entries) if (entry.name && ts.isIdentifier(entry.name)) {
-      declarations.set(entry.name.text, entry)
-      symbols.set(checker.getSymbolAtLocation(entry.name), entry)
-    }
-  }
-  function include(entry) {
-    if (!entry || selected.has(entry)) return
-    selected.add(entry)
-    const visit = node => {
-      if (ts.isIdentifier(node) && !ignored.has(node.text)) {
-        const dependency = symbols.get(checker.getSymbolAtLocation(node))
-        if (dependency) include(dependency)
-      }
-      ts.forEachChild(node, visit)
-    }
-    visit(entry)
-  }
-  for (const name of roots) include(declarations.get(name))
-  return [...selected].sort((a, b) => a.pos - b.pos).map(node => ts.isVariableDeclaration(node) ? `const ${node.getText(file)};` : node.getText(file)).join('\n')
-}
 const loaderUrl = 'https://goodstuff.pixijs.io/nightward/assets/index-CSDXPW24.js'
 const loaderSource = process.env.NIGHTWARD_REFERENCE_LOADER ? readFileSync(process.env.NIGHTWARD_REFERENCE_LOADER, 'utf8') : await fetch(loaderUrl).then(response => response.text())
-const loaderCode = collect(loaderSource, ['x', 'T', 'A', 'S', 'J', 'b', 'y', 'N'])
+const loaderCode = collectReference(loaderSource, ['x', 'T', 'A', 'S', 'J', 'b', 'y', 'N'])
 const helpersCode = `(()=>{${loaderCode};return {y5:y,x5:J,w5:x,d_:A,f_:T,Ts:S,hn:N,Mx:b};})()`
 const roots = ['_P', 'gP', 'NO', 'x9', 'hs', 'Bt', 'pe', 'hh', 'xs', 'cR', 'uR', 'dR', 'rt', 'xx', 'Y', 'gR', 'pz', 'qP', 'BP', 'X8', '$8', 'gx', '_f', 'j9', 'K9']
-const code = collect(source, roots, external)
+const code = collectReference(source, roots, external)
 console.log(`Compiling original asset generators (${code.length} characters).`)
 if (process.argv.includes('--ui-only') || process.argv.includes('--windowskin-only')) {
   await bakeReferenceMedia({ root, output: `${root}img/nightward/reference`, code, helpersCode, uiOnly: true, skinOnly: process.argv.includes('--windowskin-only') })
@@ -187,3 +156,4 @@ writeFileSync(`${output}/manifest.json`, `${JSON.stringify({ source: { url: sour
 console.log(`Wrote original actor animations, icons, ${Object.keys(surfaces).length} surfaces and ${meshes.length} world meshes (${offset} geometry bytes).`)
 
 await bakeReferenceMedia({ root, output, code, helpersCode })
+await import('./import-reference-combat.mjs')

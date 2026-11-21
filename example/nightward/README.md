@@ -65,6 +65,8 @@
 
    地图事件的碰撞位置已同步原版墓园。相机、月光、火光、材质粗糙度、雾、泛光和景深参数也已按原版接入。界面使用 RMMZ `Window` / `Window_Selectable` 与原版风格的 `img/system/Window.png`，保留原版像素比例、布局和动画时序。字效、光晕与飞行图标继续使用 Pixi，选项处理由原生选择窗口管理。标题、HUD、升级/宝箱、暂停与结算的实现见 [UI 说明](docs/ui-replication.md)。
 
+   六种武器使用原版战斗绘制模块、特效图集和镜头后处理；首次出手、连发、法典休眠和火池伤害时序同步原版。Cinder 每级减少 8% 冷却，Haste 每级增加 10% 移速，见 [武器说明](docs/weapon-replication.md)。
+
    数据和素材已经随工程提供，正常启动不需要生成。需要重新制作资产时：
 
    ```sh
@@ -72,7 +74,7 @@
    pnpm --filter nightward generate:content
    ```
 
-   资产编译需要访问官方发布脚本、可用的 Chrome 和 FFmpeg。可用 `NIGHTWARD_CHROME`、`NIGHTWARD_FFMPEG` 指定其路径；已有脚本快照可通过 `NIGHTWARD_REFERENCE_SOURCE`、`NIGHTWARD_REFERENCE_LOADER` 指定。独立 Chrome 只用于生成 UI 图片和离线音频，不运行游戏。
+   资产编译需要访问官方发布脚本、可用的 Chrome 和 FFmpeg。可用 `NIGHTWARD_CHROME`、`NIGHTWARD_FFMPEG` 指定其路径；已有脚本快照可通过 `NIGHTWARD_REFERENCE_SOURCE`、`NIGHTWARD_REFERENCE_LOADER` 指定。独立 Chrome 只用于生成 UI、战斗特效图集和离线音频，不运行游戏。
 
    `generate:content` 只重建 RMMZ 数据，不再生成替代图像或音乐。**重新生成会覆盖对应数据库或资产的手动修改。** [资产来源说明](docs/reference-assets.md) 记录来源与转换方式。
 

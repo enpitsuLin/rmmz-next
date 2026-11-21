@@ -20,12 +20,14 @@ export function hitEnemy(run: RunSession, enemy: Enemy, skillId: number, key: We
   action.apply(enemy.battler)
   const dealt = before - enemy.battler.hp
   if (dealt <= 0) return
-  run.damage[key] += dealt
+  const power = enemy.battler.result().hpDamage
+  run.damage[key] += power
   enemy.flash = .1
   const n = direction(enemy.x - origin.x, enemy.z - origin.z)
   enemy.vx += n.x * knockback * enemy.data.knockback
   enemy.vz += n.z * knockback * enemy.data.knockback
-  run.emit({ kind: 'hit', x: enemy.x, z: enemy.z, value: dealt, color: key === 'flask' ? 0x80ecc2 : 0xf8eac8 })
+  const y = enemy.data.hover + Math.sin(enemy.age * 4 + enemy.id) * enemy.data.bob + enemy.data.height * (enemy.elite ? 1.6 : 1) * .5
+  run.emit({ kind: 'hit', x: enemy.x, y, z: enemy.z, value: power, color: key === 'flask' ? 0xffb860 : 0xf8eac8, weapon: key, target: enemy })
   if (enemy.battler.isDead()) killEnemy(run, enemy)
 }
 export function beginCast(run: RunSession, skillId: number): void {
@@ -39,14 +41,15 @@ export function killEnemy(run: RunSession, enemy: Enemy): void {
   enemy.dead = true
   enemy.dying = .18
   run.kills++
-  run.emit({ kind: 'death', x: enemy.x, z: enemy.z, value: enemy.elite ? 2 : 1 })
+  const y = enemy.data.hover + Math.sin(enemy.age * 4 + enemy.id) * enemy.data.bob + enemy.data.height * (enemy.elite ? 1.6 : 1) * .5
+  run.emit({ kind: 'death', x: enemy.x, y, z: enemy.z, value: enemy.elite ? 2 : 1, target: enemy })
   if (enemy.data.key === 'reaper') { run.bossDefeated = true; run.emit({ kind: 'bossDeath', x: enemy.x, z: enemy.z }); return }
   dropPickup(run, enemy.elite ? 'gemBig' : Math.random() < enemy.data.midChance ? 'gemMedium' : 'gemSmall', enemy)
   if (enemy.elite) dropPickup(run, 'chest', enemy)
 }
 export function hurtHero(run: RunSession, enemy: Enemy, power: number, origin: Point, wave = false): void {
   if (run.invulnerable > 0 || run.demo || run.actor.isDead()) return
-  const action = new NightwardAction(enemy.battler, 1 - run.passiveValue('cinder'), power)
+  const action = new NightwardAction(enemy.battler, 1, power)
   action.setSkill(wave ? run.content.waveSkill : run.content.contactSkill)
   action.apply(run.actor)
   action.applyGlobal()

@@ -15,6 +15,8 @@ export function facingTexture(texture: Texture, facing: number): Texture {
   return mirrored
 }
 export interface Frame { x: number, y: number, width: number, height: number }
+const combatNames = ['glow', 'hotGlow', 'spark', 'puff', 'ring', 'crescent', 'bolt', 'beam', 'shard', 'ember', 'scorch', 'rune', 'flame', 'halo'] as const
+export type CombatAtlas = Record<typeof combatNames[number], Texture> & { frames: Texture[] }
 export interface Animation { fps: number, width: number, height: number, textures: Texture[] }
 export interface PackedAttribute { offset: number, length: number, type: 'Float32Array' | 'Uint32Array' | 'Uint16Array' | 'Uint8Array' }
 export interface Look {
@@ -56,6 +58,7 @@ export interface Assets {
   normal: Texture
   glow: Texture
   effects: Texture[]
+  combat: CombatAtlas
   icons: Texture[]
   hudIcons: Record<string, Texture>
   surfaces: Record<string, { albedo: Texture, normal?: Texture, emissive?: Texture }>
@@ -73,6 +76,7 @@ const folder = 'img/nightward/reference/'
 let assets: Assets | undefined
 let manifest: ReferenceManifest
 let uiData: ReferenceUi
+let combatData: { frames: Record<string, Frame> }
 let geometry: ArrayBuffer
 let loading: Promise<void> | undefined
 let ready = false
@@ -88,12 +92,13 @@ function loadResource<T>(name: string, binary = false): Promise<T> {
   })
 }
 export function requestAssets(): void {
-  loading ??= Promise.all([loadResource<ReferenceManifest>('manifest.json'), loadResource<ReferenceUi>('ui.json'), loadResource<ArrayBuffer>('world.bin', true)])
-    .then(async ([world, ui, packed]) => {
+  loading ??= Promise.all([loadResource<ReferenceManifest>('manifest.json'), loadResource<ReferenceUi>('ui.json'), loadResource<ArrayBuffer>('world.bin', true), loadResource<typeof combatData>('combat-fx.json')])
+    .then(async ([world, ui, packed, combat]) => {
       manifest = world
       uiData = ui
+      combatData = combat
       geometry = await new Response(new Blob([packed]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
-      for (const name of ['actors-albedo', 'actors-normal', 'actors-glow', 'effects', 'icons', 'ui-pixels', 'ui-soft', 'sky', 'moon', 'mist', 'leaves']) ImageManager.loadBitmap(folder, name).smooth = !['actors-albedo', 'actors-normal', 'actors-glow', 'ui-pixels', 'icons', 'leaves'].includes(name)
+      for (const name of ['actors-albedo', 'actors-normal', 'actors-glow', 'effects', 'combat-fx', 'icons', 'ui-pixels', 'ui-soft', 'sky', 'moon', 'mist', 'leaves']) ImageManager.loadBitmap(folder, name).smooth = !['actors-albedo', 'actors-normal', 'actors-glow', 'ui-pixels', 'icons', 'leaves'].includes(name)
       for (const [name, surface] of Object.entries(manifest.surfaces)) {
         ImageManager.loadBitmap(folder, `${name}-albedo`).smooth = false
         if (surface.normal) ImageManager.loadBitmap(folder, `${name}-normal`).smooth = false
@@ -122,9 +127,10 @@ export function getAssets(): Assets {
   ui.vignette = texture('ui-soft', { x: 128, y: 0, width: 64, height: 64 })
   const effects = [texture('effects', { x: 1, y: 1, width: 126, height: 126 }), animations.tome!.textures[0]!, texture('effects', { x: 129, y: 1, width: 126, height: 126 }), ui.ring!, texture('effects', { x: 257, y: 1, width: 126, height: 126 }), texture('effects', { x: 1, y: 1, width: 126, height: 126 }), ui.sparkle!, animations['brazier.fire']!.textures[0]!]
   const iconBitmap = ImageManager.loadSystem('IconSet')
+  const combat = Object.fromEntries(combatNames.map(name => [name, texture('combat-fx', combatData.frames[name])])) as Record<typeof combatNames[number], Texture>
   assets = {
     actors: Object.fromEntries(actorNames.map((name, index) => [name, animations[names[index]!]!.textures])) as Assets['actors'],
-    animations, albedo: texture('actors-albedo'), normal: texture('actors-normal'), glow: texture('actors-glow'), effects,
+    animations, albedo: texture('actors-albedo'), normal: texture('actors-normal'), glow: texture('actors-glow'), effects, combat: { ...combat, frames: combatNames.map(name => combat[name]) },
     icons: Array.from({ length: 128 }, (_, index) => new Texture({ source: iconBitmap.baseTexture, frame: new Rectangle(index % 16 * 32, Math.floor(index / 16) * 32, 32, 32) })),
     hudIcons: Object.fromEntries(Object.entries(manifest.icons).map(([name, frame]) => [name, texture('icons', { x: frame.x, y: frame.y, width: frame.w, height: frame.h })])),
     surfaces: Object.fromEntries(Object.entries(manifest.surfaces).map(([name, surface]) => {

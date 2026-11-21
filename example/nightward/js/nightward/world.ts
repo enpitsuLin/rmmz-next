@@ -58,9 +58,10 @@ export class World {
   nearby(point: Point, radius: number): Enemy[] {
     return this.grid.query(point.x, point.z, radius + 2.1).filter(enemy => !enemy.dead && distance(point, enemy) < radius + enemy.radius)
   }
-  nearest(point: Point, radius: number): Enemy | undefined {
+  nearest(point: Point, radius: number, exclude = -1): Enemy | undefined {
     let best: Enemy | undefined, bestDistance = radius
     for (const enemy of this.nearby(point, radius)) {
+      if (enemy.id === exclude) continue
       const d = distance(point, enemy)
       if (d < bestDistance) { bestDistance = d; best = enemy }
     }

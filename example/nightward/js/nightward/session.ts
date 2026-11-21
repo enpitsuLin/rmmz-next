@@ -6,11 +6,11 @@ import type { DelayedCast, FirePool, Projectile, TomeState, WeaponSkill } from '
 import type { DirectorState } from './director'
 import type { Pickup, Reward } from './rewards'
 import type { RunResult } from './records'
-import { direction, distance } from './content'
+import { direction, distance, weaponKeys } from './content'
 import { World } from './world'
 import { stepContact } from './combat'
 import { stepDirector, stepEnemies } from './director'
-import { stepProjectiles, stepWeapons } from './weapons'
+import { stepFirePools, stepProjectiles, stepWeapons } from './weapons'
 import { chooseRewards, grantReward, rankOf, stepPickups } from './rewards'
 
 export type RunState = 'running' | 'choosing' | 'chest' | 'paused' | 'results'
@@ -21,6 +21,11 @@ export interface RunEvent extends Point {
   side?: number
   color?: number
   pickup?: PickupKey
+  time?: number
+  y?: number
+  weapon?: WeaponKey
+  target?: Enemy
+  projectile?: Projectile
 }
 export class RunSession {
   readonly actor: Game_Actor
@@ -42,7 +47,8 @@ export class RunSession {
   delayed: DelayedCast[] = []
   events: RunEvent[] = []
   cooldowns = new Map<WeaponKey, number>()
-  tomes: TomeState = { active: false, timer: 0, fade: 0, angle: 0, hits: new Map() }
+  tomes: TomeState = { active: false, timer: 0, fade: 0, angle: 0, count: 0, radius: 0, hits: new Map() }
+  wardPulse = 0
   director: DirectorState = { budget: 0, opening: 0, swarm: 14, elite: 35, ring: 60, boss: false }
   boss?: Enemy
   bossDefeated = false
@@ -67,7 +73,8 @@ export class RunSession {
     this.director.elite = content.formations.elite.first
     this.director.ring = content.formations.ring.first
     this.actor = this.party.members()[0]!
-    this.cooldowns.set('lash', .3)
+    for (const key of weaponKeys) this.cooldowns.set(key, content.weapons.get(key)![0]!.data.initialDelay)
+    this.tomes.timer = content.weapons.get('tomes')![0]!.data.initialDelay
     this.world = new World(content)
     this.party.onBattleStart(false)
     this.troop.onBattleStart(false)
@@ -85,7 +92,8 @@ export class RunSession {
     const rank = this.rank(key)
     return rank ? this.content.passives.get(key)![rank - 1]!.data.value : 0
   }
-  emit(event: RunEvent): void { this.events.push(event) }
+  cooldownScale(): number { return 1 - this.passiveValue('cinder') }
+  emit(event: RunEvent): void { this.events.push({ ...event, time: this.time }) }
   pause(): void { if (this.state === 'running') this.state = 'paused' }
   resume(): void { if (this.state === 'paused') this.state = 'running' }
   select(index: number): void {
@@ -130,13 +138,14 @@ export class RunSession {
     const movement = this.demo ? this.demoInput() : input, n = Math.hypot(movement.x, movement.z) > 1 ? direction(movement.x, movement.z) : movement
     this.hero.moving = Math.hypot(n.x, n.z) > .1
     if (Math.abs(n.x) > .1) this.hero.facing = n.x > 0 ? 1 : -1
-    const speed = this.content.hero.speed
+    const speed = this.content.hero.speed * (1 + this.passiveValue('haste'))
     this.world.move(this.hero, (n.x * speed + this.hero.vx) * dt, (n.z * speed + this.hero.vz) * dt, this.content.hero.radius)
     this.hero.vx *= Math.exp(-dt * 9); this.hero.vz *= Math.exp(-dt * 9)
     globals.$gamePlayer.locate(this.hero.x + 90, this.hero.z + 90)
     stepDirector(this, dt)
     stepEnemies(this, dt)
     stepWeapons(this, dt)
+    stepFirePools(this)
     stepProjectiles(this, dt)
     stepContact(this)
     stepPickups(this, dt)

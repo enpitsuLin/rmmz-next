@@ -48,9 +48,14 @@ export function grantReward(run: RunSession, reward: Reward): void {
     for (const entry of weapon) run.actor.forgetSkill(entry.id)
     run.actor.learnSkill(weapon[reward.rank - 1]!.id)
     if (reward.rank === 1) {
-      const delays = { lash: .3, wand: .4, tomes: .3, storm: .8, ward: .2, flask: .6 }
-      run.cooldowns.set(reward.key as typeof weaponKeys[number], delays[reward.key as typeof weaponKeys[number]])
-      if (reward.key === 'tomes') run.tomes.timer = .3
+      const delay = weapon[0]!.data.initialDelay
+      run.cooldowns.set(reward.key as typeof weaponKeys[number], delay)
+      if (reward.key === 'tomes') run.tomes.timer = delay
+    }
+    if (reward.key === 'tomes' && run.tomes.active) {
+      const data = weapon[reward.rank - 1]!.data
+      run.tomes.count = data.count!
+      run.tomes.radius = data.radius!
     }
   }
   else {

@@ -34,6 +34,17 @@ export interface WeaponData {
   rehit?: number
   tick?: number
   flight?: number
+  initialDelay: number
+  stagger?: number
+  backDelay?: number
+  turnRate?: number
+  height?: number
+  radiusHit?: number
+  fadeIn?: number
+  fadeOut?: number
+  pulseFade?: number
+  gravity?: number
+  throwHeight?: number
 }
 export interface PassiveData {
   key: PassiveKey
