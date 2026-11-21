@@ -1,0 +1,35 @@
+{
+  "name": "nightward",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.html",
+  "scripts": {
+    "dev:server": "vite",
+    "dev": "rmmz-next dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "rmmz-next protect"
+  },
+  "dependencies": {
+    "rmmz-next": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:types",
+    "typescript": "catalog:dev",
+    "vite": "catalog:dev"
+  },
+  "chromium-args": "--force-color-profile=srgb",
+  "node-remote": [
+    "http://localhost:*",
+    "http://127.0.0.1:*"
+  ],
+  "window": {
+    "title": "Nightward",
+    "width": 816,
+    "height": 624,
+    "position": "center",
+    "icon": "icon/icon.png"
+  }
+}

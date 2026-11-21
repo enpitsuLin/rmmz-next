@@ -70,6 +70,22 @@ importers:
         specifier: catalog:dev
         version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
 
+  example/nightward:
+    dependencies:
+      rmmz-next:
+        specifier: workspace:*
+        version: link:../../packages/rmmz-next
+    devDependencies:
+      '@types/node':
+        specifier: catalog:types
+        version: 25.3.3
+      typescript:
+        specifier: catalog:dev
+        version: 6.0.3
+      vite:
+        specifier: catalog:dev
+        version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
+
   packages/rmmz-next:
     dependencies:
       cac:
