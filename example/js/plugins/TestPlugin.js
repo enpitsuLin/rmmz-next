@@ -25,3 +25,4 @@ Scene_Boot.prototype.start = /** @this {Scene_Boot} */ function () {
   // eslint-disable-next-line no-console
   console.log('TestPlugin is loaded!')
 }
+StorageManager.saveObject('test', { value: 1 })
