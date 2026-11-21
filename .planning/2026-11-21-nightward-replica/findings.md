@@ -139,3 +139,35 @@
 2. RunSession 开局及 grantReward 完成后保存从 RMMZ 对象读出的构筑快照，finish 使用该快照；战斗状态语义保持原样，不修改引擎死亡逻辑。
 3. 非 short 横屏原先固定两列各 180 单位，加间距共 372，超过 DPR 1 下 1100 像素画面的 366 单位。统一按可用宽度限制列宽，不修改 Window 裁切或 Window.png。
 4. DevTools 实际升级后触发 RMMZ 死亡：原生被动等级变为 0，结算快照仍为 3/4/2/5，十个槽图标可见。1100×760、DPR 1 时左栏 x=24–531，右栏 x=567–1074，无运行异常。预览未写入纪录。
+
+
+## 原生装备构筑迁移（2026-11-22）
+
+1. 当前 Weapons / Armors 为空，Skills 保存六武器五阶，States 保存四被动五阶；现有实际参数与内容生成脚本一致。
+2. 原生 Database.isWeapon/isArmor 按数据库对象身份判断，装备必须保留原始数据库对象引用；不能把展开复制的记录直接交给 changeEquip。
+3. System 的装备、武器、防具类型目前均为空，迁移需补齐类型和职业装备许可；Nightward 职业单独覆盖 equipSlots，保持通用引擎不变。
+4. 官方说明确认装备的 params 会叠加到角色，独立武器伤害和冷却等保留备注；技能仅承载内部攻击效果。来源：https://rpgmakerofficial.com/product/MZ_help-en/01_08_05.html 。Context7 查询连接失败，改查官方手册。
+5. 删除死亡前构筑快照，结算直接读取不会被死亡清除的装备。按用户要求不执行自动化验证、构建或代理试玩。
+6. 调研路径不存在：src/database/types/Weapons.ts 与 src/Utils；已改读实际 database-types/index.ts 与 core/managers/Database.ts。一次计划补丁因 findings 锚点不匹配失败，改用保留内容的定点更新。
+
+7. 装备记录通过 Object.assign 保留原生数据库身份；授予奖励使用 forceChangeEquip 替换同族原槽或对应类型首个空槽，不累积旧阶库存。装备槽本身保存获得顺序。
+8. 武器备注新增 skillId，每家族一个内部动作；Game_Action 继续结算命中，基础威力从出手上下文的装备记录读取，八项原生装备参数均为零。现有数值、冷却和各类定时器未调整。
+9. 删除 rankOf、WeaponSkill、buildOrder、buildSnapshot、captureBuild 和技能学习/被动状态授予路径；HUD、暂停与结算直接读取装备。已发射弹丸和火池持有原装备记录，待发连击继续读取当前装备。
+10. 已成功执行 node scripts/generate-content.mjs，生成 30 条武器、20 条饰品、8 条内部攻击和死亡状态，同步初始装备、职业许可、敌方动作引用和类型表；Map001 / MapInfos 的存在判断继续保留手工布局。旧 --weapons-only 分支删除，内容生成统一更新关联数据库。
+11. 文档首次编辑命令误用了 Nightward 工作目录和仓库相对路径，未写入文档；随后改为绝对路径并成功完成 README、武器、UI 和架构说明更新。内容生成已成功，不重复执行。
+
+
+## 装备备注去重（2026-11-22）
+
+1. 武器备注的 name、description、icon 重复数据库原生字段；color 无运行时消费者，category 在 Weapons / Armors 中也未被读取。饰品重复保存 name、description、category。
+2. Reward 改读 entry.name / entry.description / entry.iconIndex。WeaponData 和 PassiveData 删除对应声明；生成脚本区分原生字段与专用参数，清除旧颜色配置。
+3. 现有数据库只定点删除上述备注字段，保留其他注释、原生字段与所有实际玩法参数，没有重跑全量内容生成。饰品备注仅 key / rank / value；武器保留独立伤害、内部攻击绑定与空间和时序参数。
+4. 本轮官方手册打开请求停滞，已终止只读查询；去重依据是本仓库完整字段消费者搜索，不依赖外部 API 变化。
+
+
+## 内部攻击迁入原生特性（2026-11-22）
+
+1. 用户将 Lash 1 添加 code=43、dataId=1、value=1 的“添加技能”特性。原生 Game_BattlerBase.TRAIT_SKILL_ADD=43，Game_Actor.skills 会合并装备提供的技能；不同于 code=35 的单一普通攻击技能。
+2. 六种武器各阶保留自己的添加技能特性，出手和命中从来源装备读取特性 dataId，避免从角色聚合技能选择造成六武器混淆。WeaponData、现有备注和生成脚本不再保存 skillId，没有旧字段兼容路径。
+3. Lash 1 的 wtypeId 同时被改为 0，但职业仅允许类型 1；原生 canEquipWeapon 会拒绝并在刷新时卸下。已恢复为当前 Nightward 类型 1，保留用户添加的技能特性及其他数据。
+4. 只定点迁移 Weapons，不重跑全量内容生成；现有特性不替换，其他字段、装备备注参数和地图布局保留。Context7 连接失败，依据本仓库原生常量和技能汇总实现完成适配。

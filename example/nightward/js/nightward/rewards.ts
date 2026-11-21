@@ -1,6 +1,6 @@
 import { Game_Action } from 'rmmz-next'
 import type { RunSession } from './session'
-import type { FamilyKey, PickupKey, Point } from './content'
+import type { FamilyKey, Passive, PickupKey, Point, Weapon } from './content'
 import { direction, distance, passiveKeys, weaponKeys } from './content'
 import { killEnemy } from './combat'
 
@@ -17,18 +17,13 @@ export interface Pickup extends Point {
   speed: number
 }
 export interface Reward { key: FamilyKey, rank: number, name: string, description: string, icon: number, weapon: boolean }
-export function rankOf(run: RunSession, key: FamilyKey): number {
-  const weapon = run.content.weapons.get(key as typeof weaponKeys[number])
-  if (weapon) return weapon.reduce((rank, skill) => run.actor.isLearnedSkill(skill.id) ? skill.data.rank : rank, 0)
-  return run.content.passives.get(key as typeof passiveKeys[number])!.reduce((rank, state) => run.actor.isStateAffected(state.id) ? state.data.rank : rank, 0)
-}
 export function allRewards(run: RunSession, ownedOnly = false): Reward[] {
   return [...weaponKeys, ...passiveKeys].flatMap(key => {
-    const rank = rankOf(run, key)
+    const rank = run.rank(key)
     if (rank === 5 || (ownedOnly && rank === 0)) return []
     const weapon = run.content.weapons.get(key as typeof weaponKeys[number])
     const entry = weapon ? weapon[rank]! : run.content.passives.get(key as typeof passiveKeys[number])![rank]!
-    return [{ key, rank: rank + 1, name: entry.data.name, description: entry.data.description, icon: entry.iconIndex, weapon: !!weapon }]
+    return [{ key, rank: rank + 1, name: entry.name, description: entry.description, icon: entry.iconIndex, weapon: !!weapon }]
   })
 }
 export function chooseRewards(run: RunSession): Reward[] {
@@ -42,11 +37,14 @@ export function chooseRewards(run: RunSession): Reward[] {
   return choices
 }
 export function grantReward(run: RunSession, reward: Reward): void {
-  if (!run.buildOrder.includes(reward.key)) run.buildOrder.push(reward.key)
   const weapon = run.content.weapons.get(reward.key as typeof weaponKeys[number])
+  const entry = weapon ? weapon[reward.rank - 1]! : run.content.passives.get(reward.key as typeof passiveKeys[number])![reward.rank - 1]!
+  const equips = run.actor.equips() as (Weapon | Passive | null)[]
+  const ownedSlot = equips.findIndex(item => item?.data.key === reward.key)
+  const slots = run.actor.equipSlots()
+  const slot = ownedSlot >= 0 ? ownedSlot : equips.findIndex((item, index) => !item && slots[index] === entry.etypeId)
+  run.actor.forceChangeEquip(slot, entry)
   if (weapon) {
-    for (const entry of weapon) run.actor.forgetSkill(entry.id)
-    run.actor.learnSkill(weapon[reward.rank - 1]!.id)
     if (reward.rank === 1) {
       const delay = weapon[0]!.data.initialDelay
       run.cooldowns.set(reward.key as typeof weaponKeys[number], delay)
@@ -58,12 +56,6 @@ export function grantReward(run: RunSession, reward: Reward): void {
       run.tomes.radius = data.radius!
     }
   }
-  else {
-    const states = run.content.passives.get(reward.key as typeof passiveKeys[number])!
-    for (const entry of states) run.actor.removeState(entry.id)
-    run.actor.addState(states[reward.rank - 1]!.id)
-  }
-  run.captureBuild()
   run.emit({ kind: 'upgrade', x: run.hero.x, z: run.hero.z })
 }
 export function gainExperience(run: RunSession, value: number): void {

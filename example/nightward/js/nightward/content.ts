@@ -12,11 +12,7 @@ export type Layer = 'ground' | 'air' | 'ghost'
 export interface Point { x: number, z: number }
 export interface WeaponData {
   key: WeaponKey
-  category: 'weapon'
-  name: string
-  description: string
   rank: number
-  color: string
   damage: number
   knockback: number
   cooldown?: number
@@ -48,12 +44,11 @@ export interface WeaponData {
 }
 export interface PassiveData {
   key: PassiveKey
-  category: 'passive'
-  name: string
   rank: number
-  description: string
   value: number
 }
+export type Weapon = MZ.Weapon & { data: WeaponData }
+export type Passive = MZ.Armor & { data: PassiveData }
 export interface EnemyData {
   key: EnemyKey
   speed: number
@@ -77,8 +72,8 @@ export interface Formations {
 }
 export interface Content {
   formations: Formations
-  weapons: Map<WeaponKey, (MZ.Skill & { data: WeaponData })[]>
-  passives: Map<PassiveKey, (MZ.State & { data: PassiveData })[]>
+  weapons: Map<WeaponKey, Weapon[]>
+  passives: Map<PassiveKey, Passive[]>
   enemies: Map<EnemyKey, MZ.Enemy & { data: EnemyData }>
   items: Map<PickupKey, MZ.Item & { data: { key: PickupKey, xp: number } }>
   hero: HeroData
@@ -94,17 +89,24 @@ export function readContent(): Content {
   const passives: Content['passives'] = new Map()
   const enemies: Content['enemies'] = new Map()
   const items: Content['items'] = new Map()
+  const enemySkills = new Map<string, number>()
   for (const key of weaponKeys) weapons.set(key, [])
   for (const key of passiveKeys) passives.set(key, [])
+  for (const weapon of globals.$dataWeapons.slice(1)) {
+    if (!weapon) continue
+    const data = metadata<WeaponData>(weapon)
+    // Keep database identity for Game_Item and the native equipment APIs.
+    weapons.get(data.key)!.push(Object.assign(weapon, { data }))
+  }
+  for (const armor of globals.$dataArmors.slice(1)) {
+    if (!armor) continue
+    const data = metadata<PassiveData>(armor)
+    passives.get(data.key)!.push(Object.assign(armor, { data }))
+  }
   for (const skill of globals.$dataSkills.slice(1)) {
     if (!skill) continue
-    const data = metadata<WeaponData | { category: 'enemyAttack', key: string }>(skill)
-    if (data.category === 'weapon') weapons.get(data.key)!.push({ ...skill, data })
-  }
-  for (const state of globals.$dataStates.slice(2)) {
-    if (!state) continue
-    const data = metadata<PassiveData>(state)
-    passives.get(data.key)!.push({ ...state, data })
+    const data = metadata<{ category: string, key: string }>(skill)
+    if (data.category === 'enemyAttack') enemySkills.set(data.key, skill.id)
   }
   for (const enemy of globals.$dataEnemies.slice(1)) if (enemy) enemies.set(metadata<EnemyData>(enemy).key, { ...enemy, data: metadata<EnemyData>(enemy) })
   for (const item of globals.$dataItems.slice(1)) if (item) items.set(metadata<{ key: PickupKey, xp: number }>(item).key, { ...item, data: metadata(item) })
@@ -118,8 +120,8 @@ export function readContent(): Content {
     },
     hero: metadata(globals.$dataActors[1]!),
     map: metadata(globals.$dataMap),
-    contactSkill: 31,
-    waveSkill: 32,
+    contactSkill: enemySkills.get('contact')!,
+    waveSkill: enemySkills.get('reaperWave')!,
   }
 }
 export const distance = (a: Point, b: Point): number => Math.hypot(a.x - b.x, a.z - b.z)

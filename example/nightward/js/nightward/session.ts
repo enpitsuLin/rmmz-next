@@ -1,9 +1,9 @@
 import { DataManager, GlobalMananger as globals } from 'rmmz-next'
 import type { Game_Actor, Game_Interpreter, Game_Party, Game_Troop } from 'rmmz-next'
 import type { ReferenceManifest } from './assets'
-import type { Content, FamilyKey, PassiveKey, PickupKey, Point, WeaponKey } from './content'
+import type { Content, FamilyKey, Passive, PassiveKey, PickupKey, Point, Weapon, WeaponKey } from './content'
 import type { Enemy } from './world'
-import type { DelayedCast, FirePool, Projectile, TomeState, WeaponSkill } from './weapons'
+import type { DelayedCast, FirePool, Projectile, TomeState } from './weapons'
 import type { DirectorState } from './director'
 import type { Pickup, Reward } from './rewards'
 import type { RunResult } from './records'
@@ -12,7 +12,7 @@ import { World } from './world'
 import { stepContact } from './combat'
 import { stepDirector, stepEnemies } from './director'
 import { stepFirePools, stepProjectiles, stepWeapons } from './weapons'
-import { chooseRewards, grantReward, rankOf, stepPickups } from './rewards'
+import { chooseRewards, grantReward, stepPickups } from './rewards'
 
 export type RunState = 'running' | 'choosing' | 'chest' | 'paused' | 'results'
 export interface RunEvent extends Point {
@@ -33,7 +33,6 @@ export class RunSession {
   readonly party: Game_Party
   readonly troop: Game_Troop
   readonly world: World
-  readonly buildOrder: FamilyKey[] = ['lash']
   readonly interpreter: Game_Interpreter
   state: RunState = 'running'
   isSpawnVisible?: (point: Point) => boolean
@@ -61,7 +60,6 @@ export class RunSession {
   relicAt = -1
   damage: Record<WeaponKey, number> = { lash: 0, wand: 0, tomes: 0, storm: 0, ward: 0, flask: 0 }
   result?: RunResult
-  private buildSnapshot: RunResult['build'] = []
   private turn = 0
   private ended = false
   constructor(readonly content: Content, reference: ReferenceManifest, readonly demo = false) {
@@ -82,21 +80,16 @@ export class RunSession {
     this.party.onBattleStart(false)
     this.troop.onBattleStart(false)
     if (demo) {
-      for (const key of ['wand', 'tomes', 'storm', 'ward', 'flask'] as const) this.actor.learnSkill(content.weapons.get(key)![0]!.id)
-      this.buildOrder.push('wand', 'tomes', 'storm', 'ward', 'flask')
+      for (const [index, key] of weaponKeys.entries()) this.actor.forceChangeEquip(index, content.weapons.get(key)![0]!)
     }
-    this.captureBuild()
   }
-  // Death clears RMMZ states, so keep the earned build before that happens.
-  captureBuild(): void { this.buildSnapshot = this.buildOrder.map(key => ({ key, rank: this.rank(key) })) }
-  rank(key: FamilyKey): number { return rankOf(this, key) }
-  weapon(key: WeaponKey): WeaponSkill | undefined {
-    const rank = this.rank(key)
-    return rank ? this.content.weapons.get(key)![rank - 1] : undefined
+  get build(): RunResult['build'] {
+    return (this.actor.equips() as (Weapon | Passive | null)[]).flatMap(item => item ? [{ key: item.data.key, rank: item.data.rank }] : [])
   }
+  rank(key: FamilyKey): number { return this.build.find(item => item.key === key)?.rank ?? 0 }
+  weapon(key: WeaponKey): Weapon | undefined { return (this.actor.weapons() as Weapon[]).find(weapon => weapon.data.key === key) }
   passiveValue(key: PassiveKey): number {
-    const rank = this.rank(key)
-    return rank ? this.content.passives.get(key)![rank - 1]!.data.value : 0
+    return (this.actor.armors() as Passive[]).find(armor => armor.data.key === key)?.data.value ?? 0
   }
   cooldownScale(): number { return 1 - this.passiveValue('cinder') }
   emit(event: RunEvent): void { this.events.push({ ...event, time: this.time }) }
@@ -170,7 +163,7 @@ export class RunSession {
   }
   private finish(won: boolean): void {
     this.state = 'results'
-    this.result = { won, time: this.time, level: this.actor.level, kills: this.kills, gold: this.party.gold(), build: this.buildSnapshot, damage: { ...this.damage } }
+    this.result = { won, time: this.time, level: this.actor.level, kills: this.kills, gold: this.party.gold(), build: this.build, damage: { ...this.damage } }
     this.endBattle()
   }
   private endBattle(): void {

@@ -176,7 +176,7 @@ export class Hud extends Container {
     this.screen.addChild(this.xpBack, this.xpFill, this.xpShine, this.xpEdge, this.xpGlint, this.xpFlash, this.xpFrame, this.level, ...this.xpSparkles, this.timerPlate, this.timer, this.pauseWindow, this.slotsFrame, this.build, this.counters, this.boss)
     this.stickRing.anchor.set(.5); this.stickKnob.anchor.set(.5); this.stick.addChild(this.stickRing, this.stickKnob)
     this.addChild(this.world, this.lowHp, this.screen, this.arrowGlow, this.bossArrow, this.moments, this.stick)
-    this.build.fill(run.buildOrder.map(key => ({ key, rank: run.rank(key) }))); this.layout()
+    this.build.fill(run.build); this.layout()
     Graphics.app.canvas.addEventListener('pointerdown', this.pointerSource)
   }
   setShown(to: boolean, duration = .2, delay = 0): void { this.shown = { from: this.shown.value, to: Number(to), age: 0, duration, delay, value: this.shown.value } }
@@ -227,7 +227,7 @@ export class Hud extends Container {
     if (this.hintAge >= .9 && Math.hypot(x, z) > .3) this.walked += 1 / 60
     return { x, z }
   }
-  private items(): { key: FamilyKey, rank: number }[] { return this.run.result?.build ?? this.run.buildOrder.map(key => ({ key, rank: this.run.rank(key) })) }
+  private items(): { key: FamilyKey, rank: number }[] { return this.run.result?.build ?? this.run.build }
   hold(reward: Reward): void {
     this.build.hold(reward.key, reward.rank - 1)
     this.build.fill(this.items())
@@ -362,7 +362,7 @@ export class Hud extends Container {
     this.kills.tint = mixColor(16767336, 0xffffff, out(phase(this.skullAge, 0, .4))); this.killIcon.scale.set(s * (still ? 1 : 1.5 - .5 * back(phase(this.skullAge, 0, .3), 3)))
     this.gold.text = String(run.party.gold()); this.gold.y = this.goldY - (still ? 0 : Math.round(2 * Math.sin(phase(this.goldAge, 0, .25) * Math.PI)) * u); this.coinIcon.scale.x = s * (still ? 1 : 1 - .85 * Math.sin(phase(this.goldAge, 0, .2) * Math.PI))
     this.gold.scale.set(u * (still ? 1 : 1.4 - .4 * back(phase(this.goldPopAge, 0, .3), 3)))
-    this.build.fill(run.buildOrder.map(key => ({ key, rank: run.rank(key) })), true); this.build.tick(dt)
+    this.build.fill(run.build, true); this.build.tick(dt)
     const hp = run.actor.hpRate(), on = !run.actor.isDead() && hp < .999
     this.hpAlpha = approach(this.hpAlpha, on ? 1 : 0, on ? 10 : 3, dt); this.chip = this.chip < hp ? hp : approach(this.chip, hp, 3, dt)
     const foot = view.view.worldToScreen({ x: run.hero.x, y: 0, z: run.hero.z })

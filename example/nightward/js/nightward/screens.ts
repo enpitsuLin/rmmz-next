@@ -347,7 +347,7 @@ export class PauseScreen extends UiScreen {
       const image = icon(key), value = text(values[i]!, 0, 0, i === 3 ? 1 : 0)
       this.runPanel.addChild(image, value); this.stats.push({ image, value })
     }
-    this.build.fill(run.buildOrder.map(key => ({ key, rank: run.rank(key) }))); this.runPanel.addChild(this.buildLabel, this.build)
+    this.build.fill(run.build); this.runPanel.addChild(this.buildLabel, this.build)
     this.content.addChild(this.heading, this.menu, this.runPanel, this.corner, this.hint); this.addChildAt(this.shade, 0)
     this.onBack = () => this.asking ? this.cancelAsk() : action('resume')
     this.place(); this.focus(this.menuButtons[0]!); sound('Swoosh', 40)

@@ -95,7 +95,7 @@ export class WeaponEffects {
     const pools = sim.weapons.firePools
     pools.count = run.pools.length
     for (const [slot, pool] of run.pools.entries()) {
-      pools.x[slot] = pool.x; pools.z[slot] = pool.z; pools.radius[slot] = pool.skill.data.radius!
+      pools.x[slot] = pool.x; pools.z[slot] = pool.z; pools.radius[slot] = pool.weapon.data.radius!
       // The reference remembers pools by their Float32 start time.
       pools.start[slot] = Math.fround(pool.startedAt); pools.end[slot] = Math.fround(pool.startedAt + pool.life)
     }

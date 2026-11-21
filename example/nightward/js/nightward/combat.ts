@@ -1,8 +1,8 @@
-import { Game_Action } from 'rmmz-next'
+import { Game_Action, Game_BattlerBase } from 'rmmz-next'
 import type { Game_Battler } from 'rmmz-next'
 import type { RunSession } from './session'
 import type { Enemy } from './world'
-import type { Point, WeaponKey } from './content'
+import type { Point, Weapon } from './content'
 import { direction, distance } from './content'
 import { dropPickup } from './rewards'
 
@@ -12,10 +12,14 @@ class NightwardAction extends Game_Action {
     return (this.power ?? super.evalDamageFormula(target)) * this.multiplier
   }
 }
-export function hitEnemy(run: RunSession, enemy: Enemy, skillId: number, key: WeaponKey, origin: Point, knockback: number): void {
+function weaponSkillId(weapon: Weapon): number {
+  return weapon.traits.find(trait => trait.code === Game_BattlerBase.TRAIT_SKILL_ADD)!.dataId
+}
+export function hitEnemy(run: RunSession, enemy: Enemy, weapon: Weapon, origin: Point): void {
   if (enemy.dead || enemy.state === 'rise') return
-  const action = new NightwardAction(run.actor, 1 + run.passiveValue('might'))
-  action.setSkill(skillId)
+  const { key, damage, knockback } = weapon.data
+  const action = new NightwardAction(run.actor, 1 + run.passiveValue('might'), damage)
+  action.setSkill(weaponSkillId(weapon))
   const before = enemy.battler.hp
   action.apply(enemy.battler)
   const dealt = before - enemy.battler.hp
@@ -30,9 +34,9 @@ export function hitEnemy(run: RunSession, enemy: Enemy, skillId: number, key: We
   run.emit({ kind: 'hit', x: enemy.x, y, z: enemy.z, value: power, color: key === 'flask' ? 0xffb860 : 0xf8eac8, weapon: key, target: enemy })
   if (enemy.battler.isDead()) killEnemy(run, enemy)
 }
-export function beginCast(run: RunSession, skillId: number): void {
-  const action = new NightwardAction(run.actor, 1)
-  action.setSkill(skillId)
+export function beginCast(run: RunSession, weapon: Weapon): void {
+  const action = new Game_Action(run.actor)
+  action.setSkill(weaponSkillId(weapon))
   action.applyGlobal()
 }
 export function killEnemy(run: RunSession, enemy: Enemy): void {

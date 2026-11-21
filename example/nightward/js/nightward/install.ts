@@ -16,6 +16,10 @@ export function installNightward(): void {
   Game_Actor.prototype.expForLevel = function (level) {
     return this.currentClass().note.includes('"key":"nightward"') ? 5 * (level - 1) ** 2 : expForLevel.call(this, level)
   }
+  const equipSlots = Game_Actor.prototype.equipSlots
+  Game_Actor.prototype.equipSlots = function () {
+    return this.currentClass().note.includes('"key":"nightward"') ? [1, 1, 1, 1, 1, 1, 5, 5, 5, 5] : equipSlots.call(this)
+  }
   const run = SceneManager.run
   SceneManager.run = function (scene, scenes) {
     return run.call(this, scene, scenes ? { ...scenes, Title: Scene_NightwardTitle } : undefined)
