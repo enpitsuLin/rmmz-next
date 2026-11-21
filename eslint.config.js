@@ -1,7 +1,7 @@
 import antfu from '@antfu/eslint-config'
 
 export default antfu({
-  ignores: ['example/data/**', 'example/js/libs/**', 'example/js/plugins.js', 'example/js/plugins/**', 'example/.rmmz-dev/**', '**/*.md'],
+  ignores: ['example/basic/data/**', 'example/basic/js/libs/**', 'example/basic/js/plugins.js', 'example/basic/js/plugins/**', 'example/basic/.rmmz-dev/**', '**/*.md'],
   type: 'lib',
   rules: {
     'ts/no-namespace': 'off',

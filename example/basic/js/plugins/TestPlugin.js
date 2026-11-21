@@ -9,7 +9,7 @@
  *
  * Enable it in `js/plugins.js`. The Vite virtual module imports this file as a
  * real ES module, so it imports the engine instead of relying on globals, and
- * `tsc` type checks it because `example/tsconfig.json` includes it.
+ * `tsc` type checks it because `example/basic/tsconfig.json` includes it.
  *
  * `Reflect.apply` calls the original method with the current `this`; the patch
  * is still a prototype assignment, because a built-in scene cannot be extended
