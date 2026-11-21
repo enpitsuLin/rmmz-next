@@ -94,3 +94,13 @@
 - Cinder修正为每级减少8%冷却并取消减伤；Haste修正为每级增加10%移速。Skills/States及生成器描述同步更新。
 - 已执行node scripts/generate-content.mjs --weapons-only，仅制作Skills和States内容；没有执行游戏、测试、类型检查、lint或构建。
 - 更新README、资产说明、武器说明与主方案；未新增依赖，未提交、未推送。交由用户重启游戏自行测试。
+
+
+## 地图事件驱动Prop实施完成
+- 新增props.ts和prop-view.ts：从Game_Event当前页解析propModel/propOffset/propCollider，按真实坐标更新多框碰撞和材质批次；切页、消除、无效页同步停用。
+- 角色移动与事件更新共用地图原点；接通Game_Map.update(true)，公共事件统一由原生地图解释器消费，不修改rmmz-next引擎。
+- 新增capture-reference-props.mjs及prop-layout.mjs，拆分原版局部模型、光效和碰撞；默认819个事件呈现1063个物件，资源库1135个预设保留全部单体及远景组合。
+- 已实际执行--world-only资源制作、--runtime-only战斗呈现生成和布局迁移，相关命令均成功。最终几何为15681584字节、11个静态环境网格；地图迁移输出819个事件，最高ID999。
+- 原生事件驱动火焰、余辉、蜡烛、窗光与门体，破坏粒子改用事件实际位置和高度。环境依旧合批，新增Prop也按材质合批，移动时只改对应顶点并上传相关位置缓冲。
+- 常规内容生成保留已有Map001和MapInfos，资源生成不重置手工布局。迁移保留手写事件，清理被预设替代的未改动自动碰撞标记。
+- 更新README、prop-events.md、资源说明与主方案。未执行测试、类型检查、lint、构建或代理试玩，未提交、未推送；交由用户重新打开工程并重启游戏测试。

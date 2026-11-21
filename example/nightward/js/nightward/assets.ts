@@ -19,6 +19,18 @@ const combatNames = ['glow', 'hotGlow', 'spark', 'puff', 'ring', 'crescent', 'bo
 export type CombatAtlas = Record<typeof combatNames[number], Texture> & { frames: Texture[] }
 export interface Animation { fps: number, width: number, height: number, textures: Texture[] }
 export interface PackedAttribute { offset: number, length: number, type: 'Float32Array' | 'Uint32Array' | 'Uint16Array' | 'Uint8Array' }
+export interface ModelMesh { material: string, kind?: 'door' | 'sky', offset?: { x: number, y: number, z: number }, attributes: Record<'positions' | 'normals' | 'uvs' | 'colors' | 'indices', PackedAttribute> }
+export interface LocalCollider { x: number, z: number, width: number, depth: number }
+export interface PropLight { kind: 'fire' | 'candle' | 'candle-flame' | 'window' | 'crypt', x: number, y: number, z: number, color: number, intensity: number, range: number, size?: number, lampY?: number }
+export interface PropModel {
+  kind: string
+  meshes: ModelMesh[]
+  colliders: LocalCollider[]
+  lights: PropLight[]
+  hp?: number
+  radius?: number
+  door?: { hingeX: number, y: number, z: number, width: number, height: number, thickness: number }
+}
 export interface Look {
   exposure: number, contrast: number, saturation: number, split: number, shadowTint: number, highlightTint: number, lift: number, tint: number, vignette: number, grain: number, aberration: number,
   bloomIntensity: number, bloomThreshold: number, bloomRadius: number, tilt: number, focus: number, fogColor: number, fogDensity: number, moonColor: number, moonIntensity: number,
@@ -28,7 +40,11 @@ export interface ReferenceManifest {
   animations: Record<string, { fps: number, width: number, height: number, frames: Frame[] }>
   icons: Record<string, { x: number, y: number, w: number, h: number }>
   surfaces: Record<string, { tile: number, normal: boolean, emissive: boolean }>
-  meshes: { material: string, kind?: 'door' | 'sky', attributes: Record<'positions' | 'normals' | 'uvs' | 'colors' | 'indices', PackedAttribute> }[]
+  meshes: ModelMesh[]
+  propModels: Record<string, PropModel>
+  propAliases: Record<string, string>
+  propLayout: { key: string, model: string, x: number, z: number }[]
+  propGroups: Record<string, { key: string, model: string, x: number, z: number }[]>
   details: {
     colliders: { minX: number, minZ: number, maxX: number, maxZ: number }[]
     fireY: number

@@ -191,7 +191,7 @@ export function stepProjectiles(run: RunSession, dt: number): void {
         hitEnemy(run, enemy, skill.id, 'wand', { x: enemy.x - projectile.vx, z: enemy.z - projectile.vz }, skill.data.knockback)
         if (--projectile.pierce === 0) return false
       }
-      const brazier = run.world.props.find(prop => prop.kind === 'brazier' && !prop.broken && distance(prop, projectile) <= radius + prop.radius)
+      const brazier = run.world.props.find(prop => prop.active && prop.kind === 'brazier' && !prop.broken && distance(prop, projectile) <= radius + prop.radius)
       if (brazier) { hitProps(run, projectile, radius, skill.data.damage); return false }
       if (Math.abs(projectile.x) > 100 || Math.abs(projectile.z) > 100) return false
     }

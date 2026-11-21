@@ -1,4 +1,4 @@
-import { Camera3D, DirectionalLight, FlatMaterial, Geometry3D, Material3D, Mesh3D, ParticleContainer3D, PointLight, Sprite3D, View3D } from '@pixi/3d'
+import { Camera3D, DirectionalLight, FlatMaterial, Geometry3D, Material3D, Mesh3D, PointLight, Sprite3D, View3D } from '@pixi/3d'
 import { BloomEffect, TiltShiftEffect } from '@pixi/3d/extras'
 import type { BaseMaterial3D, Pass3D } from '@pixi/3d'
 import { Container } from 'pixi.js'
@@ -7,21 +7,19 @@ import type { Assets, Look } from './assets'
 import { facingTexture } from './assets'
 import type { RunEvent, RunSession } from './session'
 import type { Point } from './content'
-import type { Prop } from './world'
 import { distance } from './content'
 import { shakeGain } from './audio'
 import { WeaponEffects } from './weapon-effects'
+import { PropView } from './prop-view'
 
 interface ActorVisual { sprite: Sprite3D, shadow: Sprite3D, material: Material3D, deathAge: number }
 interface Particle { sprite: Sprite3D, life: number, age: number, vx: number, vy: number, vz: number, size: number }
-interface BrazierVisual { prop: Prop, flame: Sprite3D, brokenAt: number, intensity: number, color: number }
 export class GraveyardView {
   readonly view: View3D
   readonly overlay = new Container()
   private geometries: Geometry3D[] = []
   private materials = new Set<BaseMaterial3D>()
   private passes: Pass3D[] = []
-  private doors: Mesh3D[] = []
   private moonDisc!: Sprite3D
   private moon!: DirectionalLight
   private look!: Look
@@ -32,8 +30,8 @@ export class GraveyardView {
   private actors = new Map<number, ActorVisual>()
   private pickups = new Map<number, Sprite3D>()
   private projectiles = new Map<number, Sprite3D>()
-  private props: BrazierVisual[] = []
-  private brazierGlows: ParticleContainer3D
+  private worldProps: PropView
+  private propMaterial!: (name: string) => BaseMaterial3D
   private hero: ActorVisual
   private weapons: WeaponEffects
   private lamps: PointLight[] = []
@@ -59,6 +57,7 @@ export class GraveyardView {
     moon.position.set(Math.sin(azimuth) * Math.cos(elevation) * 60, Math.sin(elevation) * 60, -Math.cos(azimuth) * Math.cos(elevation) * 60)
     moon.lookAt({ x: 0, y: 0, z: 0 }); this.view.root.addChild(moon)
     this.makeWorld()
+    this.worldProps = new PropView(run, assets, this.view, this.propMaterial)
     for (let index = 0; index < 48; index++) {
       const leaf = index >= 12, sprite = new Sprite3D({ texture: leaf ? assets.leaves[index % 4]! : assets.mist, height: leaf ? .12 + index % 3 * .04 : 3, width: leaf ? .2 : 10, billboardMode: 'spherical', alphaMode: leaf ? 'mask' : 'blend', tint: leaf ? 0xffffff : 0x8a9baa, alpha: leaf ? .8 : .065 })
       const phase = index * 2.39996, height = leaf ? .5 + index % 7 * .5 : 1.1
@@ -71,14 +70,6 @@ export class GraveyardView {
     this.hero = this.makeActor(heroAnimation.textures[0]!, heroAnimation.height)
     const lantern = new PointLight({ color: reference.lights.heroColor, intensity: 2.8, range: reference.lights.heroRange, radius: .5 })
     this.view.root.addChild(lantern); this.lamps.push(lantern)
-    for (let i = 0; i < 8; i++) { const light = new PointLight({ color: reference.lights.fireColor, intensity: reference.lights.fireIntensity, range: reference.lights.fireRange, radius: .8 }); this.view.root.addChild(light); this.lamps.push(light) }
-    for (const prop of run.world.props.filter(prop => prop.kind === 'brazier')) {
-      const animation = assets.animations['brazier.fire']!, flame = this.sprite(animation.textures[0]!, animation.height)
-      flame.anchor.set(.5, 1); flame.position.set(prop.x, reference.details.fireY - .08, prop.z)
-      this.props.push({ prop, flame, brokenAt: -1, intensity: reference.lights.fireIntensity, color: reference.lights.fireColor })
-    }
-    this.brazierGlows = new ParticleContainer3D({ texture: assets.effects[0]!, capacity: this.props.length * 2, billboard: 'spherical', blendMode: 'add' })
-    this.view.root.addChild(this.brazierGlows)
     for (const point of reference.details.candles) {
       const glow = this.sprite(assets.effects[0]!, .24)
       glow.tint = 0xffc477; glow.position.set(point[0]!, point[1]!, point[2]!)
@@ -100,25 +91,25 @@ export class GraveyardView {
     const reference = this.assets.manifest
     const roughness: Record<string, number> = { grass: .92, dirt: .9, cobble: .5, flagstone: .55, grave: .68, masonry: .8, bark: .95, thicket: .95, deadwood: .85, iron: .6, glass: .55 }
     const materials = new Map<string, BaseMaterial3D>()
-    for (const mesh of reference.meshes) {
-      let material = materials.get(mesh.material)
+    this.propMaterial = (name: string): BaseMaterial3D => {
+      let material = materials.get(name)
       if (!material) {
-        if (mesh.material === 'sky') material = new FlatMaterial({ baseColorTexture: this.assets.sky, alphaMode: 'blend', fog: false, baseColor: 10133680 })
+        if (name === 'sky') material = new FlatMaterial({ baseColorTexture: this.assets.sky, alphaMode: 'blend', fog: false, baseColor: 10133680 })
         else {
-          const surface = this.assets.surfaces[mesh.material]!
-          material = new Material3D({ baseColorTexture: surface.albedo, normalTexture: surface.normal, roughness: roughness[mesh.material], vertexColors: true, metallic: mesh.material === 'iron' ? .3 : 0, alphaMode: ['dirt', 'cobble', 'flagstone', 'grave', 'masonry', 'thicket', 'deadwood'].includes(mesh.material) ? 'mask' : 'opaque', flatShading: mesh.material === 'bark' || mesh.material === 'deadwood', doubleSided: mesh.material === 'thicket', ...(surface.emissive ? { emissive: { texture: surface.emissive, strength: 2.4 } } : mesh.material === 'grave' || mesh.material === 'masonry' ? { emissive: { texture: surface.albedo, color: mesh.material === 'grave' ? 6322368 : 5269680, strength: mesh.material === 'grave' ? .14 : .1 } } : {}) })
+          const surface = this.assets.surfaces[name]!
+          material = new Material3D({ baseColorTexture: surface.albedo, normalTexture: surface.normal, roughness: roughness[name], vertexColors: true, metallic: name === 'iron' ? .3 : 0, alphaMode: ['dirt', 'cobble', 'flagstone', 'grave', 'masonry', 'thicket', 'deadwood'].includes(name) ? 'mask' : 'opaque', flatShading: name === 'bark' || name === 'deadwood', doubleSided: name === 'thicket', ...(surface.emissive ? { emissive: { texture: surface.emissive, strength: 2.4 } } : name === 'grave' || name === 'masonry' ? { emissive: { texture: surface.albedo, color: name === 'grave' ? 6322368 : 5269680, strength: name === 'grave' ? .14 : .1 } } : {}) })
         }
-        materials.set(mesh.material, material); this.materials.add(material)
+        materials.set(name, material); this.materials.add(material)
       }
+      return material
+    }
+    for (const mesh of reference.meshes) {
+      const material = this.propMaterial(mesh.material)
       const attributes = mesh.attributes, binary = this.assets.geometry
       const geometry = new Geometry3D({ positions: new Float32Array(binary, attributes.positions.offset, attributes.positions.length), normals: new Float32Array(binary, attributes.normals.offset, attributes.normals.length), uvs: new Float32Array(binary, attributes.uvs.offset, attributes.uvs.length), colors: new Uint8Array(binary, attributes.colors.offset, attributes.colors.length), indices: attributes.indices.type === 'Uint32Array' ? new Uint32Array(binary, attributes.indices.offset, attributes.indices.length) : new Uint16Array(binary, attributes.indices.offset, attributes.indices.length) })
       this.geometries.push(geometry)
-      const count = mesh.kind === 'door' ? 2 : 1
-      for (let index = 0; index < count; index++) {
-        const node = new Mesh3D({ geometry, material, castShadow: !['grass', 'dirt', 'cobble', 'flagstone', 'glass', 'bark', 'thicket', 'sky'].includes(mesh.material), receiveShadow: mesh.material !== 'sky' })
-        if (mesh.kind === 'door') { const door = reference.details.door; node.position.set(reference.crypt.x + (index ? door.hingeX : -door.hingeX), door.y, door.z - .12); node.rotation.y = index ? Math.PI : 0; this.doors.push(node) }
-        this.view.root.addChild(node)
-      }
+      const node = new Mesh3D({ geometry, material, castShadow: !['grass', 'dirt', 'cobble', 'flagstone', 'glass', 'bark', 'thicket', 'sky'].includes(mesh.material), receiveShadow: mesh.material !== 'sky' })
+      this.view.root.addChild(node)
     }
   }
   private sprite(texture: Assets['effects'][number], height: number): Sprite3D {
@@ -235,8 +226,6 @@ export class GraveyardView {
     this.view.camera.position.set(this.focus.x + (Math.random() - .5) * shake, .7 + Math.sin(pitch * Math.PI / 180) * cameraDistance, this.focus.z + Math.cos(pitch * Math.PI / 180) * cameraDistance)
     this.view.camera.lookAt({ x: this.focus.x, y: .7, z: this.focus.z })
     this.moonDisc.position.set(this.focus.x - 90, 110, this.focus.z - 250)
-    const doorOpen = Math.max(0, Math.min(1, (run.time - 170) / 10)), doorAngle = doorOpen * doorOpen * (3 - 2 * doorOpen) * 1.75
-    this.doors.forEach((door, index) => { door.rotation.y = index ? Math.PI + doorAngle : -doorAngle })
     const hero = this.hero.sprite
     const heroAnimation = this.assets.animations[run.invulnerable > .5 ? 'hero.hurt' : run.hero.moving ? 'hero.walk' : 'hero.idle']!
     hero.texture = facingTexture(heroAnimation.textures[Math.floor(run.time * heroAnimation.fps) % heroAnimation.textures.length]!, run.hero.facing)
@@ -245,34 +234,7 @@ export class GraveyardView {
     this.hero.shadow.position.set(run.hero.x, .025, run.hero.z)
     this.hero.shadow.visible = !run.actor.isDead()
     this.lamps[0]!.position.set(run.hero.x + .3 * run.hero.facing, 1, run.hero.z + .2)
-    for (const [index, entry] of this.props.entries()) {
-      const animation = this.assets.animations['brazier.fire']!
-      entry.flame.visible = !entry.prop.broken
-      entry.flame.texture = animation.textures[Math.floor(this.clock * animation.fps + entry.prop.id) % animation.textures.length]!
-      if (!entry.prop.broken) continue
-      if (entry.brokenAt < 0) entry.brokenAt = this.clock
-      const flash = Math.exp(-(this.clock - entry.brokenAt) * 7)
-      const flicker = .75 + .25 * Math.sin(this.clock * 1.7 + index * 2.3)
-      const { x, z } = entry.prop
-      this.brazierGlows.setParticleAt(index * 2, x, .95, z, 1.1 + flash * 3, 0, 0xff3a10, Math.min(1, .32 * flicker + flash * .8))
-      this.brazierGlows.setParticleAt(index * 2 + 1, x, .15, z + .3, .9, 0, 0xff3a10, .22 * flicker)
-      entry.intensity = 4 * flicker + flash * 60
-      entry.color = flash > .2 ? this.assets.manifest.lights.fireColor : 0xff3a10
-    }
-    this.brazierGlows.upload()
-    const nearestBraziers = this.props.slice().sort((a, b) => distance(a.prop, run.hero) - distance(b.prop, run.hero))
-    for (let i = 1; i < this.lamps.length; i++) {
-      const entry = nearestBraziers[i - 1], lamp = this.lamps[i]!
-      lamp.visible = !!entry && distance(entry.prop, run.hero) < 24
-      if (entry) {
-        const broken = entry.prop.broken, lights = this.assets.manifest.lights
-        lamp.position.set(entry.prop.x, broken ? .9 : 1.8, entry.prop.z)
-        lamp.intensity = broken ? entry.intensity : lights.fireIntensity * (1 + Math.sin(this.clock * 12 + i) * .1)
-        lamp.color.setValue(broken ? entry.color : lights.fireColor)
-        lamp.range = broken ? 4 : lights.fireRange
-        lamp.radius = broken ? .1 : .8
-      }
-    }
+    this.worldProps.update(run.time)
     const aliveIds = new Set<number>()
     for (const enemy of run.world.enemies) {
       aliveIds.add(enemy.id)
@@ -345,6 +307,7 @@ export class GraveyardView {
     this.overlay.removeFromParent()
     this.overlay.destroy({ children: true })
     this.weapons.destroy()
+    this.worldProps.destroy()
     this.view.destroy({ children: true })
     for (const pass of this.passes) pass.destroy()
     for (const material of this.materials) material.destroy()

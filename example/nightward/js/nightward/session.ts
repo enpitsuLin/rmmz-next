@@ -1,5 +1,6 @@
-import { DataManager, Game_Interpreter, GlobalMananger as globals } from 'rmmz-next'
-import type { Game_Actor, Game_Party, Game_Troop } from 'rmmz-next'
+import { DataManager, GlobalMananger as globals } from 'rmmz-next'
+import type { Game_Actor, Game_Interpreter, Game_Party, Game_Troop } from 'rmmz-next'
+import type { ReferenceManifest } from './assets'
 import type { Content, FamilyKey, PassiveKey, PickupKey, Point, WeaponKey } from './content'
 import type { Enemy } from './world'
 import type { DelayedCast, FirePool, Projectile, TomeState, WeaponSkill } from './weapons'
@@ -33,7 +34,7 @@ export class RunSession {
   readonly troop: Game_Troop
   readonly world: World
   readonly buildOrder: FamilyKey[] = ['lash']
-  readonly interpreter = new Game_Interpreter()
+  readonly interpreter: Game_Interpreter
   state: RunState = 'running'
   isSpawnVisible?: (point: Point) => boolean
   time = 0
@@ -62,10 +63,10 @@ export class RunSession {
   result?: RunResult
   private turn = 0
   private ended = false
-  constructor(readonly content: Content, readonly demo = false) {
+  constructor(readonly content: Content, reference: ReferenceManifest, readonly demo = false) {
     DataManager.setupNewGame()
     globals.$gameMap.setup(1)
-    globals.$gamePlayer.locate(90, 96)
+    globals.$gamePlayer.locate(content.map.center, content.map.center + 6)
     globals.$gamePlayer.clearTransferInfo()
     this.party = globals.$gameParty
     this.troop = globals.$gameTroop
@@ -75,7 +76,8 @@ export class RunSession {
     this.actor = this.party.members()[0]!
     for (const key of weaponKeys) this.cooldowns.set(key, content.weapons.get(key)![0]!.data.initialDelay)
     this.tomes.timer = content.weapons.get('tomes')![0]!.data.initialDelay
-    this.world = new World(content)
+    this.interpreter = globals.$gameMap._interpreter
+    this.world = new World(content, reference)
     this.party.onBattleStart(false)
     this.troop.onBattleStart(false)
     if (demo) {
@@ -134,6 +136,8 @@ export class RunSession {
   update(input: Point, dt = 1 / 60): void {
     if (this.state !== 'running') return
     this.time += dt
+    globals.$gameMap.update(true)
+    this.world.syncProps()
     this.invulnerable = Math.max(0, this.invulnerable - dt)
     const movement = this.demo ? this.demoInput() : input, n = Math.hypot(movement.x, movement.z) > 1 ? direction(movement.x, movement.z) : movement
     this.hero.moving = Math.hypot(n.x, n.z) > .1
@@ -141,7 +145,7 @@ export class RunSession {
     const speed = this.content.hero.speed * (1 + this.passiveValue('haste'))
     this.world.move(this.hero, (n.x * speed + this.hero.vx) * dt, (n.z * speed + this.hero.vz) * dt, this.content.hero.radius)
     this.hero.vx *= Math.exp(-dt * 9); this.hero.vz *= Math.exp(-dt * 9)
-    globals.$gamePlayer.locate(this.hero.x + 90, this.hero.z + 90)
+    globals.$gamePlayer.locate(this.hero.x + this.content.map.center, this.hero.z + this.content.map.center)
     stepDirector(this, dt)
     stepEnemies(this, dt)
     stepWeapons(this, dt)
@@ -155,8 +159,6 @@ export class RunSession {
       this.actor.onTurnEnd()
       for (const enemy of this.world.enemies) if (!enemy.dead) enemy.battler.onTurnEnd()
     }
-    if (!this.interpreter.isRunning()) this.interpreter.setupReservedCommonEvent()
-    this.interpreter.update()
     if (this.actor.isDead()) this.finish(false)
     else if (this.bossDefeated) this.finish(true)
     else if (this.demo && this.chestPending) { this.chestPending = false; this.chestRewards = [] }

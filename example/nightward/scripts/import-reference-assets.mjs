@@ -5,11 +5,14 @@ import { fileURLToPath } from 'node:url'
 import vm from 'node:vm'
 import { deflateSync, gzipSync } from 'node:zlib'
 import { collectReference } from './reference-source.mjs'
+import { capturePropWorld } from './capture-reference-props.mjs'
+import { createEditorPropLayout } from './prop-layout.mjs'
 
 // Compile the public reference's procedural assets into ordinary MZ resources.
 // Only asset generators execute here; the reference game and engine never ship.
 const sourceUrl = 'https://goodstuff.pixijs.io/nightward/assets/start-DZtWMAL3.js'
 const root = fileURLToPath(new URL('../', import.meta.url))
+const worldOnly = process.argv.includes('--world-only')
 const source = process.env.NIGHTWARD_REFERENCE_SOURCE
   ? readFileSync(process.env.NIGHTWARD_REFERENCE_SOURCE, 'utf8')
   : await fetch(sourceUrl).then(response => { if (!response.ok) throw new Error(`Reference HTTP ${response.status}`); return response.text() })
@@ -57,6 +60,7 @@ function chunk(name, data) {
   return Buffer.concat([size, type, data, crc])
 }
 function png(name, canvas) {
+  if (worldOnly) return
   const { width, height, pixels } = canvas, header = Buffer.alloc(13), raw = Buffer.alloc(height * (width * 4 + 1))
   header.writeUInt32BE(width); header.writeUInt32BE(height, 4); header[8] = 8; header[9] = 6
   for (let y = 0; y < height; y++) Buffer.from(pixels.subarray(y * width * 4, (y + 1) * width * 4)).copy(raw, y * (width * 4 + 1) + 1)
@@ -124,7 +128,8 @@ for(const [tile,name] of ['grass','dirt'].entries()){
 }
 png('../../tilesets/NightwardGround',editorGround)
 const builders = Object.fromEntries(Object.entries(surfaces).map(([name, surface]) => [name, new reference.Builder(surface.tile)]))
-const details = reference.makeWorld(builders)
+const propWorld = capturePropWorld(context, builders, reference.makeWorld)
+const { details } = propWorld
 const chunks = [], meshes = []
 let offset = 0
 function pack(values) {
@@ -143,7 +148,15 @@ doorBuilder.box(door.width/2,0,0,door.width,door.height,door.thickness)
 doorBuilder.box(door.width/2,.25,door.thickness/2,door.width-.3,1,.05,{faces:{back:false}})
 doorBuilder.box(door.width/2,1.45,door.thickness/2,door.width-.3,1,.05,{faces:{back:false}})
 const doorGeometry=doorBuilder.build()
-meshes.push({material:'grave',kind:'door',attributes:Object.fromEntries(['positions','normals','uvs','colors','indices'].map(key=>[key,pack(doorGeometry[key])]))})
+propWorld.models.crypt.meshes.push({ material: 'grave', kind: 'door', ...doorGeometry })
+const propModels = Object.fromEntries(Object.entries(propWorld.models).map(([key, model]) => [key, {
+  ...model,
+  meshes: model.meshes.map(mesh => {
+    const values = { positions: new Float32Array(mesh.positions), normals: new Float32Array(mesh.normals), uvs: new Float32Array(mesh.uvs), colors: new Uint8Array(mesh.colors), indices: mesh.positions.length / 3 > 65535 ? new Uint32Array(mesh.indices) : new Uint16Array(mesh.indices) }
+    return { material: mesh.material, ...(mesh.kind ? { kind: mesh.kind } : {}), attributes: Object.fromEntries(Object.entries(values).map(([name, data]) => [name, pack(data)])) }
+  }),
+}]))
+const editorProps = createEditorPropLayout(propModels, propWorld.layout)
 const skyBuilder=new reference.Builder(1),radius=reference.skyRadius
 skyBuilder.ao=0
 for(let i=0;i<=48;i++){const angle=i/48*Math.PI*2,x=Math.cos(angle)*radius,z=Math.sin(angle)*radius;skyBuilder.vertex(x,-20,z,-Math.cos(angle),0,-Math.sin(angle),i/48*4,1);skyBuilder.vertex(x,150,z,-Math.cos(angle),0,-Math.sin(angle),i/48*4,0)}
@@ -152,8 +165,10 @@ const skyGeometry=skyBuilder.build()
 meshes.push({material:'sky',kind:'sky',attributes:Object.fromEntries(['positions','normals','uvs','colors','indices'].map(key=>[key,pack(skyGeometry[key])]))})
 // Vite HTTP-decodes .gz files; keep application-level gzip in an opaque .bin file.
 writeFileSync(`${output}/world.bin`, gzipSync(Buffer.concat(chunks)))
-writeFileSync(`${output}/manifest.json`, `${JSON.stringify({ source: { url: sourceUrl, sha256: createHash('sha256').update(source).digest('hex') }, animations, icons, surfaces, meshes, details, braziers: reference.braziers, crypt: reference.crypt, glassFrames: reference.glassFrames, look:reference.look, palette:reference.palette, skyRadius:reference.skyRadius, lights:reference.lights })}\n`)
-console.log(`Wrote original actor animations, icons, ${Object.keys(surfaces).length} surfaces and ${meshes.length} world meshes (${offset} geometry bytes).`)
+writeFileSync(`${output}/manifest.json`, `${JSON.stringify({ source: { url: sourceUrl, sha256: createHash('sha256').update(source).digest('hex') }, animations, icons, surfaces, meshes, details, propModels, propLayout: editorProps.layout, propGroups: editorProps.groups, propAliases: propWorld.aliases, braziers: reference.braziers, crypt: reference.crypt, glassFrames: reference.glassFrames, look:reference.look, palette:reference.palette, skyRadius:reference.skyRadius, lights:reference.lights })}\n`)
+console.log(`Wrote ${meshes.length} environment meshes and ${Object.keys(propModels).length} Prop presets (${editorProps.layout.length} event placements for ${propWorld.layout.length} objects, ${offset} geometry bytes).`)
 
-await bakeReferenceMedia({ root, output, code, helpersCode })
-await import('./import-reference-combat.mjs')
+if (!worldOnly) {
+  await bakeReferenceMedia({ root, output, code, helpersCode })
+  await import('./import-reference-combat.mjs')
+}

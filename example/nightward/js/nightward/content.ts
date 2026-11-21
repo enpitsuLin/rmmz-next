@@ -68,14 +68,6 @@ export interface EnemyData {
   layer: Layer
   midChance: number
 }
-export interface PropData extends Point {
-  id: number
-  kind: 'tomb' | 'cross' | 'tree' | 'crypt' | 'brazier' | 'collision'
-  width?: number
-  depth?: number
-  height?: number
-  variant?: number
-}
 export interface HeroData { radius: number, speed: number, invulnerable: number, magnet: number }
 export interface Formations {
   swarm: { first: number, every: number, baseCount: number, growth: number, maxCount: number, timeline: number[], weights: number[][] }
@@ -90,7 +82,7 @@ export interface Content {
   enemies: Map<EnemyKey, MZ.Enemy & { data: EnemyData }>
   items: Map<PickupKey, MZ.Item & { data: { key: PickupKey, xp: number } }>
   hero: HeroData
-  props: PropData[]
+  map: { center: number, bounds: number }
   contactSkill: number
   waveSkill: number
 }
@@ -125,11 +117,7 @@ export function readContent(): Content {
       reaper: metadata({ note: globals.$dataTroops[4]!.pages[0]!.list[0]!.parameters[0] as string }),
     },
     hero: metadata(globals.$dataActors[1]!),
-    props: globals.$dataMap.events.flatMap(event => {
-      if (!event) return []
-      const data = metadata<PropData>(event)
-      return [{ ...data, id: event.id, x: data.x, z: data.z }]
-    }),
+    map: metadata(globals.$dataMap),
     contactSkill: 31,
     waveSkill: 32,
   }

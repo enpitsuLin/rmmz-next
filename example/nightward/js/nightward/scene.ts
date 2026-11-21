@@ -59,7 +59,7 @@ export class Scene_Nightward extends Scene_Base {
     this.clearScreens(); this.hud?.destroy(); this.hud = undefined
     this.worldView?.destroy(); this.run?.dispose(); this.letterbox.removeFromParent()
     this.demo = demo; this.resultHandled = false; this.chestWait = this.victoryAt = -1; this.introPending = false
-    this.run = new RunSession(readContent(), demo); this.worldView = new GraveyardView(this.run, getAssets()); this.worldView.beginIntro(fromTitle)
+    this.run = new RunSession(readContent(), getAssets().manifest, demo); this.worldView = new GraveyardView(this.run, getAssets()); this.worldView.beginIntro(fromTitle)
     this.worldRoot.addChild(this.worldView.view, this.worldView.overlay, this.letterbox)
     if (demo) {
       this.base = new TitleScreen(() => { this.resetWorld(false, true); this.beginRunIntro(true) }, kind => this.openSheet(kind))

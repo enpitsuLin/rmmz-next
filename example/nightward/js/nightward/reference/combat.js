@@ -831,15 +831,14 @@ class uD {
     this._tickSparkles === 1 && e.pulses.add(t.time, a, h, 0.2, l ? 1.6 : 0.8, 0.25, i, 0.6);
   }
   _brazier(t) {
-    const e = Bt[t.subject];
-    if (!e) return;
+    const e = { x: t.x, y: t.y, z: t.z };
     const s = this._kit, i = s.rng.seed(we.brazier, Ds(t)), r = s.sparks;
     ft(r).tint(16756832, 1), r.drag = 1.2, r.heatEnd = 0.35;
     for (let o = 0; o < 30; o++) {
       const a = i.next() * Hr, h = i.range(2, 6);
-      r.x = e.x, r.y = 1, r.z = e.z, r.vx = Math.cos(a) * h, r.vy = i.range(2, 7), r.vz = Math.sin(a) * h, r.birth = t.time, r.life = i.range(0.4, 0.9), r.size = i.range(0.04, 0.07), r.sizeEnd = 0.03, r.heat = i.range(1.3, 1.7), r.emit();
+      r.x = e.x, r.y = e.y + 1, r.z = e.z, r.vx = Math.cos(a) * h, r.vy = i.range(2, 7), r.vz = Math.sin(a) * h, r.birth = t.time, r.life = i.range(0.4, 0.9), r.size = i.range(0.04, 0.07), r.sizeEnd = 0.03, r.heat = i.range(1.3, 1.7), r.emit();
     }
-    s.flashes.add(t.time, e.x, 1.2, e.z, 16752720, 30, 0.15, 7);
+    s.flashes.add(t.time, e.x, e.y + 1.2, e.z, 16752720, 30, 0.15, 7);
   }
 }
 const Vd = 6;

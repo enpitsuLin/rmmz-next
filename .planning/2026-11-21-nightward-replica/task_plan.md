@@ -4,10 +4,10 @@
 按照 example/nightward/docs/nightward-replication-plan.md 完整实现原版 Nightward 的玩法与三维呈现，尽量复用 RMMZ 数据和运行对象。
 
 ## Next Step
-六武器原版绘制、攻击节奏和被动冷却加成已接入，交由用户重启游戏测试。
+Prop事件驱动、资源拆分及布局迁移完成，交由用户重新打开工程并重启游戏测试。
 
 ## Current Phase
-Phase 13
+Phase 14
 
 ## Phases
 
@@ -112,4 +112,12 @@ Phase 13
 - [x] 移植原版武器绘制模块和生成资产，接入RMMZ模拟适配
 - [x] 对齐初始延迟、连发、法典休眠、火池与被动冷却
 - [x] 更新说明和实施记录，交由用户自行测试
+- **Status:** complete
+
+### Phase 14: 地图事件驱动Prop
+- [x] 拆分原版模型、局部碰撞和附属光效，保留环境静态几何
+- [x] 由Game_Event生效页注释和真实坐标驱动Prop状态与位置
+- [x] 接通原生地图事件更新，统一公共事件消费
+- [x] 同步批量渲染、碰撞索引、门体与附属光效
+- [x] 保留手工布局并迁移当前工程，更新说明
 - **Status:** complete

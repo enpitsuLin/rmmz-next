@@ -17,6 +17,9 @@ const external = new Set(['ce', 'yi', 'dh', 'U', 'kt', 'eu', 'gn', 'mI', 'gI'])
 let runtime = collectReference(source, ['PD', 'aR', 'lR', 'g0'], external)
 runtime = runtime.replace(/(class PD \{[\s\S]*?constructor\(t, e, s, i)\)/, '$1, atlas)')
 runtime = runtime.replace('o = mI()', 'o = atlas')
+runtime = runtime.replace('const e = Bt[t.subject];\n    if (!e) return;', 'const e = { x: t.x, y: t.y, z: t.z };')
+runtime = runtime.replace('r.x = e.x, r.y = 1, r.z = e.z', 'r.x = e.x, r.y = e.y + 1, r.z = e.z')
+runtime = runtime.replace('s.flashes.add(t.time, e.x, 1.2, e.z', 's.flashes.add(t.time, e.x, e.y + 1.2, e.z')
 const generated = `// Generated from the official Nightward combat presentation; regenerate with scripts/import-reference-combat.mjs.
 // Source: ${sourceUrl}
 // SHA-256: ${sourceHash}
@@ -30,5 +33,6 @@ export { PD as ReferenceCombat, aR as ReferenceLensPass, lR as ReferenceLensStat
 mkdirSync(`${root}js/nightward/reference`, { recursive: true })
 writeFileSync(`${root}js/nightward/reference/combat.js`, generated)
 console.log(`Compiled the original combat presentation (${runtime.length} characters).`)
+if (process.argv.includes('--runtime-only')) process.exit(0)
 const code = collectReference(source, ['yI', 'Le'], new Set(['U', 'Fe', 'kt']))
 await bakeReferenceMedia({ root, output: `${root}img/nightward/reference`, code, helpersCode: '{}', combatOnly: true, source: { url: sourceUrl, sha256: sourceHash } })

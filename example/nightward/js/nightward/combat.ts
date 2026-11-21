@@ -67,11 +67,12 @@ export function stepContact(run: RunSession): void {
 }
 export function hitProps(run: RunSession, point: Point, radius: number, damage: number, predicate?: (prop: Point) => boolean): void {
   for (const prop of run.world.props) {
-    if (prop.kind !== 'brazier' || prop.broken || distance(point, prop) > radius + prop.radius || (predicate && !predicate(prop))) continue
+    if (!prop.active || prop.kind !== 'brazier' || prop.broken || distance(point, prop) > radius + prop.radius || (predicate && !predicate(prop))) continue
     prop.hp -= damage * (1 + run.passiveValue('might'))
     if (prop.hp > 0) continue
     prop.broken = true
-    run.emit({ kind: 'break', x: prop.x, z: prop.z })
+    prop.brokenAt = run.time
+    run.emit({ kind: 'break', x: prop.x, y: prop.y, z: prop.z })
     const roll = Math.random()
     dropPickup(run, roll < .04 && run.time >= 60 ? 'relic' : roll < .14 ? 'vacuum' : roll < .4 ? 'chicken' : 'coin', { x: prop.x + (prop.x > 0 ? -.9 : .9), z: prop.z })
   }

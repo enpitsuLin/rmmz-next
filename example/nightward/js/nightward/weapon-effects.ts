@@ -48,7 +48,7 @@ export class WeaponEffects {
     events: { count: 0, at: (index: number): ReferenceEvent => this.events[index]! },
   }
   private combat: InstanceType<typeof ReferenceCombat>
-  constructor(private run: RunSession, private assets: Assets, private view: View3D) {
+  constructor(private run: RunSession, assets: Assets, private view: View3D) {
     const art = { frames: (name: string) => {
       const animation = assets.animations[name]!
       return { ...animation, count: animation.textures.length }
@@ -106,7 +106,6 @@ export class WeaponEffects {
       const target = event.target
       let subject = target ? this.enemySlots.get(target.id)! : 0
       if (event.projectile) subject = this.projectileSlots.get(event.projectile.id)!
-      if (event.kind === 'break') subject = this.assets.manifest.braziers.findIndex(point => point.x === event.x && point.z === event.z)
       this.events.push({
         kind, time: event.time!, x: event.x, y: event.y ?? 0, z: event.z, subject,
         value: event.kind === 'death' ? enemyKinds.indexOf(target!.data.key) : event.value ?? 0,
