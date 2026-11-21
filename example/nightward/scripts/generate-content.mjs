@@ -7,28 +7,29 @@ const root = fileURLToPath(new URL('../', import.meta.url))
 const save = (path, value) => writeFileSync(`${root}${path}`, value)
 const json = (name, value) => save(`data/${name}.json`, `${JSON.stringify(value, null, 2)}\n`)
 const note = value => `<nightward:${JSON.stringify(value)}>`
-// Card copy is authored in the database; regeneration preserves those note lines.
-const cardNotes = name => JSON.parse(readFileSync(`${root}data/${name}.json`, 'utf8')).map(entry => entry?.note.match(/<nightwardCard:[^>]+>/)[0])
-const weaponCards = cardNotes('Weapons'), armorCards = cardNotes('Armors')
+// Keep equipment copy authored in the native database fields.
+const equipmentText = name => JSON.parse(readFileSync(`${root}data/${name}.json`, 'utf8')).map(entry => entry && ({ name: entry.name, description: entry.description }))
+const weaponText = equipmentText('Weapons'), armorText = equipmentText('Armors')
 const families = [
-  { key: 'lash', name: 'Lash', icon: 96, description: 'A sweeping whip. Rank II also lashes behind you.', damage: [14, 17, 20, 24, 30], cooldown: [1.25, 1.2, 1.12, 1.05, .95], reach: [2.6, 2.8, 3, 3.3, 3.7], halfHeight: [.85, .9, 1, 1.1, 1.25], knockback: 4, initialDelay: .3, backDelay: .16 },
-  { key: 'wand', name: 'Wand', icon: 97, description: 'Homing magic bolts seek the nearest enemy.', damage: [10, 11, 13, 15, 18], cooldown: [1, .9, .82, .72, .6], count: [1, 2, 2, 3, 4], pierce: [1, 1, 1, 2, 2], speed: 15, turnRate: 9, life: 1.6, range: 15, height: .9, radiusHit: .25, stagger: .08, knockback: 2.5, initialDelay: .4 },
-  { key: 'tomes', name: 'Tomes', icon: 98, description: 'Ancient books orbit you, then rest before returning.', damage: [10, 12, 14, 17, 21], count: [2, 2, 3, 3, 4], radius: [2.2, 2.4, 2.7, 2.9, 3.2], duration: [3, 3.5, 4, 4.5, 5], rest: [3.5, 3.3, 3.1, 2.9, 2.6], spin: 3.4, rehit: .45, radiusHit: .5, fadeIn: .25, fadeOut: .3, knockback: 3, initialDelay: .3 },
-  { key: 'storm', name: 'Storm', icon: 99, description: 'Lightning strikes nearby enemies with a wide blast.', damage: [18, 22, 28, 34, 42], cooldown: [4.2, 4, 3.7, 3.4, 3], count: [2, 3, 3, 4, 5], radius: [1.3, 1.45, 1.6, 1.8, 2.1], range: [9, 10, 10, 11, 12], stagger: .07, knockback: 2, initialDelay: .8 },
-  { key: 'ward', name: 'Ward', icon: 100, description: 'A holy circle damages and repels enemies around you.', damage: [5, 6, 7, 9, 11], cooldown: [.62, .56, .5, .45, .4], radius: [1.6, 1.85, 2.1, 2.4, 2.7], pulseFade: .35, knockback: 3.2, initialDelay: .2 },
-  { key: 'flask', name: 'Flask', icon: 101, description: 'Thrown flasks leave pools of burning oil.', damage: [6, 8, 10, 12, 15], cooldown: [3.6, 3.3, 3, 2.8, 2.5], count: [1, 2, 2, 3, 4], radius: [1.25, 1.35, 1.5, 1.65, 1.85], duration: [2.6, 3, 3.2, 3.6, 4], tick: .35, flight: .55, gravity: 20, throwHeight: 1.3, range: 8, stagger: .09, knockback: 0, initialDelay: .6 },
+  { key: 'lash', name: 'Lash', icon: 96, damage: [14, 17, 20, 24, 30], cooldown: [1.25, 1.2, 1.12, 1.05, .95], reach: [2.6, 2.8, 3, 3.3, 3.7], halfHeight: [.85, .9, 1, 1.1, 1.25], knockback: 4, initialDelay: .3, backDelay: .16 },
+  { key: 'wand', name: 'Wand', icon: 97, damage: [10, 11, 13, 15, 18], cooldown: [1, .9, .82, .72, .6], count: [1, 2, 2, 3, 4], pierce: [1, 1, 1, 2, 2], speed: 15, turnRate: 9, life: 1.6, range: 15, height: .9, radiusHit: .25, stagger: .08, knockback: 2.5, initialDelay: .4 },
+  { key: 'tomes', name: 'Tomes', icon: 98, damage: [10, 12, 14, 17, 21], count: [2, 2, 3, 3, 4], radius: [2.2, 2.4, 2.7, 2.9, 3.2], duration: [3, 3.5, 4, 4.5, 5], rest: [3.5, 3.3, 3.1, 2.9, 2.6], spin: 3.4, rehit: .45, radiusHit: .5, fadeIn: .25, fadeOut: .3, knockback: 3, initialDelay: .3 },
+  { key: 'storm', name: 'Storm', icon: 99, damage: [18, 22, 28, 34, 42], cooldown: [4.2, 4, 3.7, 3.4, 3], count: [2, 3, 3, 4, 5], radius: [1.3, 1.45, 1.6, 1.8, 2.1], range: [9, 10, 10, 11, 12], stagger: .07, knockback: 2, initialDelay: .8 },
+  { key: 'ward', name: 'Ward', icon: 100, damage: [5, 6, 7, 9, 11], cooldown: [.62, .56, .5, .45, .4], radius: [1.6, 1.85, 2.1, 2.4, 2.7], pulseFade: .35, knockback: 3.2, initialDelay: .2 },
+  { key: 'flask', name: 'Flask', icon: 101, damage: [6, 8, 10, 12, 15], cooldown: [3.6, 3.3, 3, 2.8, 2.5], count: [1, 2, 2, 3, 4], radius: [1.25, 1.35, 1.5, 1.65, 1.85], duration: [2.6, 3, 3.2, 3.6, 4], tick: .35, flight: .55, gravity: 20, throwHeight: 1.3, range: 8, stagger: .09, knockback: 0, initialDelay: .6 },
 ]
 const skillBase = { animationId: 0, damage: { critical: false, elementId: 1, formula: '0', type: 1, variance: 0 }, effects: [], hitType: 0, message1: '', message2: '', mpCost: 0, occasion: 1, repeats: 1, requiredWtypeId1: 0, requiredWtypeId2: 0, scope: 1, speed: 0, stypeId: 1, successRate: 100, tpCost: 0, tpGain: 0, messageType: 1 }
 const skills = [null]
 const weapons = [null], armors = [null]
 const equipBase = { price: 0, params: Array(8).fill(0), traits: [] }
 for (const family of families) {
-  const { name, icon, description, ...parameters } = family
+  const { name, icon, ...parameters } = family
   const skillId = skills.length
   skills.push({ ...skillBase, id: skillId, name: `${name} Attack`, iconIndex: icon, description: '', note: note({ key: family.key, category: 'weaponAttack' }) })
   for (let rank = 1; rank <= 5; rank++) {
     const values = Object.fromEntries(Object.entries(parameters).map(([key, value]) => [key, Array.isArray(value) ? value[rank - 1] : value]))
-    weapons.push({ ...equipBase, id: weapons.length, etypeId: 1, wtypeId: 1, animationId: 0, name: `${name} ${rank}`, iconIndex: icon, description, traits: [{ code: 43, dataId: skillId, value: 1 }], note: `${note({ ...values, rank })}\n${weaponCards[weapons.length]}` })
+    const copy = weaponText[weapons.length]
+    weapons.push({ ...equipBase, id: weapons.length, etypeId: 1, wtypeId: 1, animationId: 0, name: copy.name, iconIndex: icon, description: copy.description, traits: [{ code: 43, dataId: skillId, value: 1 }], note: note({ ...values, rank }) })
   }
 }
 const contactSkillId = skills.length
@@ -36,12 +37,15 @@ for (const [key, damage] of [['contact', 1], ['reaperWave', 25]]) skills.push({ 
 json('Skills', skills)
 const states = [null, { id: 1, autoRemovalTiming: 0, chanceByDamage: 100, iconIndex: 1, maxTurns: 1, minTurns: 1, motion: 3, name: 'Death', note: '', overlay: 0, priority: 100, releaseByDamage: false, removeAtBattleEnd: false, removeByDamage: false, removeByRestriction: false, removeByWalking: false, restriction: 4, stepsToRemove: 100, traits: [], message1: '', message2: '', message3: '', message4: '', messageType: 1 }]
 json('States', states)
-for (const [i, [key, name, description, value]] of [
-  ['might', 'Might', 'Damage +10% per rank.', .1],
-  ['haste', 'Haste', 'Movement speed +10% per rank.', .1],
-  ['lodestone', 'Lodestone', 'Pickup range +35% per rank.', .35],
-  ['cinder', 'Cinder', 'Weapon cooldown -8% per rank.', .08],
-].entries()) for (let rank = 1; rank <= 5; rank++) armors.push({ ...equipBase, id: armors.length, etypeId: i + 2, atypeId: 1, name: `${name} ${rank}`, iconIndex: 102 + i, description, note: `${note({ key, rank, value: value * rank })}\n${armorCards[armors.length]}` })
+for (const [i, [key, value]] of [
+  ['might', .1],
+  ['haste', .1],
+  ['lodestone', .35],
+  ['cinder', .08],
+].entries()) for (let rank = 1; rank <= 5; rank++) {
+  const copy = armorText[armors.length]
+  armors.push({ ...equipBase, id: armors.length, etypeId: i + 2, atypeId: 1, name: copy.name, iconIndex: 102 + i, description: copy.description, note: note({ key, rank, value: value * rank }) })
+}
 json('Weapons', weapons)
 json('Armors', armors)
 json('Actors', [null, { id: 1, name: 'The Warden', nickname: '', profile: '', classId: 1, initialLevel: 1, maxLevel: 99, characterName: '$NightwardHero', characterIndex: 0, faceName: '', faceIndex: 0, battlerName: 'NightwardHero', equips: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], traits: [], note: note({ key: 'warden', radius: .34, speed: 4.5, invulnerable: .85, magnet: 1.8 }) }])

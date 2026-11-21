@@ -476,7 +476,7 @@ export class ResultsScreen extends UiScreen {
     this.damagePanel.addChild(panel(width, portrait ? chartH : panelH), text('DAMAGE', pad, pad, 1))
     const barX = iconSize + 4 + 60, barW = Math.max(12, width - 2 * pad - barX - 28 - 4)
     damage.slice(0, config.rows).forEach(([key, amount], i) => {
-      const rank = result.build.find(item => item.key === key)!.rank, name = content.weapons.get(key)![rank - 1]!.card.name
+      const rank = result.build.find(item => item.key === key)!.rank, name = content.weapons.get(key)![rank - 1]!.name
       const root = new Container(), image = icon(key), bar = new Container(), fill = sprite('dmgFill'), frame = panel(barW, 5, 'thinFrame'), value = text('', width - 2 * pad, Math.round((damageH - 1 - 7) / 2), 0, 0xffffff, 1)
       image.scale.set(ratio); image.y = Math.round((damageH - 1 - iconSize) / 2); frame.position.set(barX, Math.round((damageH - 1 - 5) / 2))
       fill.width = Math.max(1, Math.round((barW - 2) * amount / max)); fill.height = 3; bar.position.set(barX + 1, frame.y + 1); bar.addChild(fill)

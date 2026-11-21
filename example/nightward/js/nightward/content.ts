@@ -47,9 +47,8 @@ export interface PassiveData {
   rank: number
   value: number
 }
-export interface UpgradeCard { name: string, description: string }
-export type Weapon = MZ.Weapon & { data: WeaponData, card: UpgradeCard }
-export type Passive = MZ.Armor & { data: PassiveData, card: UpgradeCard }
+export type Weapon = MZ.Weapon & { data: WeaponData }
+export type Passive = MZ.Armor & { data: PassiveData }
 export interface EnemyData {
   key: EnemyKey
   speed: number
@@ -96,15 +95,13 @@ export function readContent(): Content {
   for (const weapon of globals.$dataWeapons.slice(1)) {
     if (!weapon) continue
     const data = metadata<WeaponData>(weapon)
-    const card = JSON.parse(weapon.meta.nightwardCard as string) as UpgradeCard
     // Keep database identity for Game_Item and the native equipment APIs.
-    weapons.get(data.key)!.push(Object.assign(weapon, { data, card }))
+    weapons.get(data.key)!.push(Object.assign(weapon, { data }))
   }
   for (const armor of globals.$dataArmors.slice(1)) {
     if (!armor) continue
     const data = metadata<PassiveData>(armor)
-    const card = JSON.parse(armor.meta.nightwardCard as string) as UpgradeCard
-    passives.get(data.key)!.push(Object.assign(armor, { data, card }))
+    passives.get(data.key)!.push(Object.assign(armor, { data }))
   }
   for (const skill of globals.$dataSkills.slice(1)) {
     if (!skill) continue

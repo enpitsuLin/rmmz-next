@@ -209,3 +209,12 @@
 1. 用户完成数据库配置：初始装备为 [1]，所有武器类型为 etypeId=1 / wtypeId=1，Might、Haste、Lodestone、Cinder 各五阶的 etypeId 分别为 2、3、4、5，atypeId=1，职业装备许可匹配。
 2. 插件原来的后四槽仍为 5、5、5、5，与用户新配置不匹配；现同步为 2、3、4、5。奖励发放原先已按 etypeId 选择空槽，同家族升级也按已有装备定位，继续复用即可。
 3. 内容生成的饰品 etypeId 改为 i+2，装备类型名称同步用户的 Weapon / Might / Haste / Lodestone / Cinder。既有 JSON 输出已改为两空格缩进和换行，此次没有修改或重新生成数据库。
+
+
+## 卡片文案改用原生字段（2026-11-22）
+
+1. 用户指出 description 已是原生字段，要求迁回；随后追问名称备注的用途，最终按同一原则移除名称覆盖层。每阶装备已有独立记录，可直接保存显示名称与该阶描述。
+2. 将原 nightwardCard.description 写入 description，将展示名称写入 name；保留所有其他字段、特性与玩法备注。两个数据库均按两空格缩进及文件末尾换行保存，未全量生成数据库。
+3. 删除文案备注、UpgradeCard 及 card/cardName 编译结构；Reward 读取 entry.name / entry.description，结算读取该阶 weapon.name，HUD 与宝箱沿用 Reward 文案。
+4. 内容生成只从现有数据库保留 name / description，删除装备的固定默认描述、名称备注读取和拼接逻辑。原有技能特性、装备类型与数值不变，无旧格式兼容路径。
+5. 未运行游戏、自动化验证、类型检查、lint 或构建，由用户自行测试。

@@ -4,10 +4,10 @@
 按照 example/nightward/docs/nightward-replication-plan.md 完整实现原版 Nightward 的玩法与三维呈现，尽量复用 RMMZ 数据和运行对象。
 
 ## Next Step
-用户的四类被动装备数据已与代码槽位、生成脚本同步；由用户重启游戏自行测试，未经要求不提交或推送。
+卡片名称与描述已迁回数据库原生字段，文案备注和重复解析已清理；由用户自行测试，未经要求不提交或推送。
 
 ## Current Phase
-Phase 25
+Phase 26
 
 ## Phases
 
@@ -199,4 +199,11 @@ Phase 25
 - [x] 将插件槽位同步为六武器槽加 2、3、4、5 四个被动槽
 - [x] 同步内容生成的饰品类型和类型名称，保留 JSON 换行缩进
 - [x] 更新说明，不重写用户数据库，由用户测试
+- **Status:** complete
+
+### Phase 26: 卡片文案复用原生字段
+- [x] 将现有卡片名称和逐阶描述迁回 Weapons / Armors 的 name、description
+- [x] 删除文案备注与编译结构，奖励和结算读取原生字段
+- [x] 生成脚本保留原生文案，清理失效默认描述，数据 JSON 缩进换行
+- [x] 更新说明，未运行游戏或自动化验证，交由用户测试
 - **Status:** complete
