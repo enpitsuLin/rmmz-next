@@ -4,10 +4,10 @@
 按照 example/nightward/docs/nightward-replication-plan.md 完整实现原版 Nightward 的玩法与三维呈现，尽量复用 RMMZ 数据和运行对象。
 
 ## Next Step
-Prop事件驱动、资源拆分及布局迁移完成，交由用户重新打开工程并重启游戏测试。
+Effekseer 性能与地图显示修复已完成，并经用户授权使用 pnpm dev / DevTools 实测；不提交或推送。
 
 ## Current Phase
-Phase 14
+Phase 16
 
 ## Phases
 
@@ -44,7 +44,7 @@ Phase 14
 ## Decisions Made
 | Decision | Rationale |
 |----------|-----------|
-| 不执行自动化验证、构建验证或代理试玩 | 用户明确要求自行测试 |
+| 默认不执行自动化验证、构建验证或代理试玩；本轮授权 pnpm dev / DevTools 性能调试 | 用户明确要求自行测试，随后明确允许实际运行以定位掉帧 |
 | 使用 RMMZ 原生战斗对象和数据库，三维仅负责呈现与空间模拟 | 满足系统数据复用，保持单一数值来源 |
 | 阵形元数据使用敌群第一页的事件注释 | MZ 敌群没有备注字段，注释可在编辑器修改 |
 | 原版资产通过 ESM 编译器生成，字体使用原版位图字形 | 撤销自制替代素材；保留官方生成结果、来源和输入快照 SHA |
@@ -120,4 +120,21 @@ Phase 14
 - [x] 接通原生地图事件更新，统一公共事件消费
 - [x] 同步批量渲染、碰撞索引、门体与附属光效
 - [x] 保留手工布局并迁移当前工程，更新说明
+- **Status:** complete
+
+### Phase 15: Effekseer特效迁移
+- [x] 核对现有运行时、三维通道和资源制作接口
+- [x] 制作原版贴图、轨迹和时序对应的Effekseer资源
+- [x] 接入六武器与火盆生命周期、暂停和事件跟随
+- [x] 保留Pixi3D灯光和镜头，移除旧特效绘制
+- [x] 清理旧efkefc及引用，更新说明，交由用户测试
+- **Status:** complete
+
+
+### Phase 16: Effekseer 性能与地图显示修复
+- [x] 按用户授权启动 pnpm run dev，通过本机 DevTools 录制 CPU 和调用次数
+- [x] 将逐粒子 updateHandle 改为每帧一次批量 update，释放过期实例
+- [x] 缓存未变化的颜色和自定义参数，取消光束临时数组
+- [x] 修复 Effekseer 遗留 FRONT_AND_BACK 导致地图整体被剔除
+- [x] 确认原始单面材质地图、火盆与武器同时显示，记录实际帧时间
 - **Status:** complete

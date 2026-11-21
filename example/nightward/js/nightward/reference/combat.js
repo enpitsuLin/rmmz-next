@@ -1,7 +1,8 @@
 // Generated from the official Nightward combat presentation; regenerate with scripts/import-reference-combat.mjs.
 // Source: https://goodstuff.pixijs.io/nightward/assets/start-DZtWMAL3.js
 // SHA-256: 3950f8d75033c9947932717e740a75d7370f0154ddad44d215ff3d9fd0f4e8cd
-import { Container3D as ce, ParticleContainer3D as yi, PointLight as dh, PostEffect as eu } from '@pixi/3d'
+import { Container3D as ce, PointLight as dh, PostEffect as eu } from '@pixi/3d'
+import { EffekseerParticles as yi } from '../effekseer'
 import { Texture as U, Rectangle as kt, UniformGroup as gn } from 'pixi.js'
 // Atlas textures belong to ImageManager and survive scene teardown.
 const gI = () => {}

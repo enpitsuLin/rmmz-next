@@ -1,5 +1,6 @@
-import { ImageManager } from 'rmmz-next'
+import { EffectManager, ImageManager } from 'rmmz-next'
 import { groupD8, Rectangle, Texture } from 'pixi.js'
+import { requestEffekseer } from './effekseer'
 
 export const actorNames = ['hero', 'bat', 'skeleton', 'ghoul', 'wraith', 'skull', 'reaper'] as const
 export type ActorImage = typeof actorNames[number]
@@ -108,7 +109,7 @@ function loadResource<T>(name: string, binary = false): Promise<T> {
   })
 }
 export function requestAssets(): void {
-  loading ??= Promise.all([loadResource<ReferenceManifest>('manifest.json'), loadResource<ReferenceUi>('ui.json'), loadResource<ArrayBuffer>('world.bin', true), loadResource<typeof combatData>('combat-fx.json')])
+  loading ??= Promise.all([loadResource<ReferenceManifest>('manifest.json'), loadResource<ReferenceUi>('ui.json'), loadResource<ArrayBuffer>('world.bin', true), loadResource<typeof combatData>('combat-fx.json'), requestEffekseer()])
     .then(async ([world, ui, packed, combat]) => {
       manifest = world
       uiData = ui
@@ -127,7 +128,7 @@ export function requestAssets(): void {
 }
 export function assetsReady(): boolean {
   if (failure) throw failure
-  return ready
+  return ready && EffectManager.isReady()
 }
 export function getAssets(): Assets {
   if (assets) return assets

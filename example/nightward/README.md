@@ -67,7 +67,7 @@
 
    地图事件的碰撞位置已同步原版墓园。相机、月光、火光、材质粗糙度、雾、泛光和景深参数也已按原版接入。界面使用 RMMZ `Window` / `Window_Selectable` 与原版风格的 `img/system/Window.png`，保留原版像素比例、布局和动画时序。字效、光晕与飞行图标继续使用 Pixi，选项处理由原生选择窗口管理。标题、HUD、升级/宝箱、暂停与结算的实现见 [UI 说明](docs/ui-replication.md)。
 
-   六种武器使用原版战斗绘制模块、特效图集和镜头后处理；首次出手、连发、法典休眠和火池伤害时序同步原版。Cinder 每级减少 8% 冷却，Haste 每级增加 10% 移速，见 [武器说明](docs/weapon-replication.md)。
+   六种武器和火盆特效由 RMMZ 现有 Effekseer 运行时绘制，沿用原版贴图、轨迹、粒子参数和时序；灯光、镜头与后处理继续使用 Pixi3D。首次出手、连发、法典休眠和火池伤害时序同步原版。Cinder 每级减少 8% 冷却，Haste 每级增加 10% 移速，见 [武器说明](docs/weapon-replication.md) 和 [Effekseer 说明](docs/effekseer.md)。
 
    数据和素材已经随工程提供，正常启动不需要生成。需要重新制作资产时：
 

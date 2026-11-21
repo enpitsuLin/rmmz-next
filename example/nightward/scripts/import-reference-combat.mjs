@@ -23,7 +23,8 @@ runtime = runtime.replace('s.flashes.add(t.time, e.x, 1.2, e.z', 's.flashes.add(
 const generated = `// Generated from the official Nightward combat presentation; regenerate with scripts/import-reference-combat.mjs.
 // Source: ${sourceUrl}
 // SHA-256: ${sourceHash}
-import { Container3D as ce, ParticleContainer3D as yi, PointLight as dh, PostEffect as eu } from '@pixi/3d'
+import { Container3D as ce, PointLight as dh, PostEffect as eu } from '@pixi/3d'
+import { EffekseerParticles as yi } from '../effekseer'
 import { Texture as U, Rectangle as kt, UniformGroup as gn } from 'pixi.js'
 // Atlas textures belong to ImageManager and survive scene teardown.
 const gI = () => {}

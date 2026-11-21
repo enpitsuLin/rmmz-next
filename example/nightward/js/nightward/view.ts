@@ -11,6 +11,7 @@ import { distance } from './content'
 import { shakeGain } from './audio'
 import { WeaponEffects } from './weapon-effects'
 import { PropView } from './prop-view'
+import { EffekseerPass } from './effekseer'
 
 interface ActorVisual { sprite: Sprite3D, shadow: Sprite3D, material: Material3D, deathAge: number }
 interface Particle { sprite: Sprite3D, life: number, age: number, vx: number, vy: number, vz: number, size: number }
@@ -79,7 +80,7 @@ export class GraveyardView {
       this.passes = [new TiltShiftEffect({ focalDepth: 22.25, focalNear: 24 * look.focus + 1.75, focalFar: 24 * (look.focus + .22) + 1.75, maxBlur: look.tilt }), new BloomEffect({ threshold: look.bloomThreshold, intensity: look.bloomIntensity, radius: look.bloomRadius, levels: 5 })]
     }
     this.weapons = new WeaponEffects(run, assets, this.view)
-    this.passes.push(this.weapons.pass)
+    this.passes.push(new EffekseerPass(assets, true), new EffekseerPass(assets), this.weapons.pass)
     this.view.passes = this.passes
     this.update([], 0)
     run.isSpawnVisible = point => {

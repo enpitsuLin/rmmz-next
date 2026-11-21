@@ -112,3 +112,22 @@
 - 正常生成保留已有Map001/MapInfos。一次性迁移保留原有可匹配事件的ID、坐标和页面；仅移除完全未改动的重复自动碰撞标记，组合与ID整理仅处理未改动的自动生成事件。
 - Prop位置由事件_realX/_realY及注释偏移派生；生命、破坏状态和破坏时间放在Game_Event._nightwardProp。碰撞索引、门、火焰、点光、余辉和烛光同步使用派生位置。
 - 原版战斗模块的火盆爆裂原先读取静态Bt坐标，已改为读取破坏事件的实际X/Y/Z，保留既有六武器效果和节奏。
+
+
+## Effekseer 迁移（2026-11-21）
+
+1. 复用 RMMZ 内置 1.70 WebGL/WASM、Graphics.effekseer 和 EffectManager，同一画布与深度附件。Nightward 配置 65,536 个实例和 32,768 个四边形。
+2. 原版纯呈现层继续输出轨迹、时序、确定性随机和四顶点参数；新 EffekseerParticles 保留 packed API，把 Pyro 的阻力/重力、热量、生长和拉丝公式转为 CPU 计算，交给 Effekseer 绘制。任意光束用两个三角形，保留端点渐变和深度前拉。原版容器 -3000/-2000/-1000 的 Y 位置只用于排序，不能加到世界顶点。
+3. 官方 Effekseer 1.70e 的 EffekseerCore.dll 导出 55 份 efkefc 和 5 份材质；不更换已有运行时。原版三个图集制作预乘 Alpha 副本，并在材质采样时反预乘，保留 Pixi 的边缘过滤。
+4. 原版 14 个战斗点光源、Prop 点光源、天空闪电、镜头与后处理继续在 Pixi3D。局部 GL 桥只传入曝光、裁剪与现有线性雾参数，绘制后恢复。
+5. 火盆火焰、破坏爆光与两层余辉迁移；火焰宽高、锚点、四帧 10 FPS、闪光衰减和闪烁保持原参数，继续跟随 Game_Event。未改变地图布局或玩法数据。
+6. Animations 数据无 effectName 引用，删除根 effects 目录 120 个旧 RTP efkefc，保留运行时与新 Nightward 资源。
+
+
+## Effekseer 性能与地图诊断
+
+1. 用户明确授权 pnpm run dev 和 DevTools 实测，覆盖此前本轮不运行游戏的限制。使用临时 NW.js 调试启动器和本机 CDP 9222；没有引入测试框架或修改依赖。
+2. 旧实现约 8.7 FPS：六秒内 47,815 次 updateHandle，耗时约 4.4 秒。官方 Manager::UpdateInstancesByInstanceGlobal 会扫描全部实例块，逐粒子调用造成重复扫描；隐藏实例持续存活又放大这一开销。
+3. 两个 Pass 共享每个 RenderSession 的 prepare，统一提交本帧位置与参数后只调用一次 context.update；Nightward 场景跳过模拟前的默认更新，其他场景不变。实例 speed=0，原版轨迹和 RMMZ 时钟不变。消失即 stop，复用仍存活槽，缓存颜色与动态参数，消除光束临时数组。
+4. 地图不是资源丢失：819 个事件、11 份静态几何均在。DevTools 纯色材质及剔除隔离确认 culled mode=1032（FRONT_AND_BACK）；Pixi resetState 不恢复 cullFace 模式。绘制后显式 gl.cullFace(BACK)，并恢复当前目标的绕序，地图重新显示；最终使用原始单面 PBR 材质，未保留临时诊断修改。
+5. 最后八秒采样 468 帧 / 468 次批量更新 / 0 次 updateHandle，约 58.4 FPS，P95 16.7 ms，P99 33.3 ms；实例 2,912–4,992。此段含升级选择，六武器等级 3/2/2/2/5/2，不能冒充满级持续战斗测量。无运行异常。实际指标保存在 /private/tmp/nightward-final-metrics.json，CPU profile 保存在 /private/tmp/nightward-baseline.cpuprofile 等临时文件中。

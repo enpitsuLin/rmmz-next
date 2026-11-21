@@ -1,11 +1,17 @@
 import '@pixi/3d'
 import { Game_Actor, Input, PluginManager, SceneManager } from 'rmmz-next'
 import { installConfig } from './audio'
+import { installEffekseer } from './effekseer'
 import { Scene_Nightward, startNightwardRun } from './scene'
 import { Scene_NightwardTitle } from './title-scene'
 
 export function installNightward(): void {
   installConfig()
+  installEffekseer()
+  const updateEffekseer = SceneManager.updateEffekseer
+  SceneManager.updateEffekseer = function (): void {
+    if (!(this._scene instanceof Scene_Nightward)) updateEffekseer.call(this)
+  }
   const expForLevel = Game_Actor.prototype.expForLevel
   Game_Actor.prototype.expForLevel = function (level) {
     return this.currentClass().note.includes('"key":"nightward"') ? 5 * (level - 1) ** 2 : expForLevel.call(this, level)

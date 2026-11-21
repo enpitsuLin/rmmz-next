@@ -1,12 +1,13 @@
-import { Geometry3D, Mesh3D, ParticleContainer3D, PointLight, Sprite3D } from '@pixi/3d'
+import { Geometry3D, Mesh3D, ParticleContainer3D, PointLight } from '@pixi/3d'
 import type { BaseMaterial3D, View3D } from '@pixi/3d'
 import type { Assets, ModelMesh, PropLight } from './assets'
 import type { Prop } from './props'
 import type { RunSession } from './session'
+import { EffekseerParticles } from './effekseer'
 
 interface Span { prop: Prop, local: Float32Array, offset: { x: number, y: number, z: number }, at: number, version: number }
 interface Batch { node: Mesh3D, geometry: Geometry3D, positions: Float32Array, spans: Span[] }
-interface Emitter { prop: Prop, light: PropLight, fire?: Sprite3D }
+interface Emitter { prop: Prop, light: PropLight, fire?: EffekseerParticles, afterglow?: EffekseerParticles }
 interface Door { prop: Prop, node: Mesh3D, side: number }
 export class PropView {
   private batches: Batch[] = []
@@ -34,7 +35,7 @@ export class PropView {
     for (const batch of this.batches) { batch.node.destroy(); batch.geometry.destroy() }
     for (const door of this.doors) door.node.destroy()
     for (const geometry of this.doorGeometries) geometry.destroy()
-    for (const emitter of this.emitters) emitter.fire?.destroy()
+    for (const emitter of this.emitters) { emitter.fire?.destroy(); emitter.afterglow?.destroy() }
     this.glows?.destroy(); this.glows = undefined
     this.batches = []; this.doors = []; this.doorGeometries = []; this.emitters = []
   }
@@ -57,13 +58,14 @@ export class PropView {
         }
       }
       for (const light of prop.model.lights) {
-        let fire: Sprite3D | undefined
+        let fire: EffekseerParticles | undefined, afterglow: EffekseerParticles | undefined
         if (light.kind === 'fire') {
           const animation = this.assets.animations['brazier.fire']!
-          fire = new Sprite3D({ texture: animation.textures[0]!, height: animation.height, billboardMode: 'cylindrical', anchor: { x: .5, y: 1 }, alphaMode: 'blend' })
-          this.view.root.addChild(fire)
+          fire = new EffekseerParticles({ texture: animation.textures, capacity: 1, billboard: 'cylindrical', blendMode: 'normal', aspect: animation.width / animation.height })
+          afterglow = new EffekseerParticles({ texture: this.assets.effects[0]!, capacity: 2, billboard: 'spherical', blendMode: 'add' })
+          this.view.root.addChild(fire, afterglow)
         }
-        this.emitters.push({ prop, light, fire })
+        this.emitters.push({ prop, light, fire, afterglow })
       }
     }
     for (const [name, group] of groups) {
@@ -113,21 +115,23 @@ export class PropView {
     const candidates: { x: number, y: number, z: number, color: number, intensity: number, range: number, radius: number, priority: number }[] = []
     const glow = this.glows!
     for (const [index, entry] of this.emitters.entries()) {
-      const { prop, light, fire } = entry
+      const { prop, light, fire, afterglow } = entry
       const x = prop.x + light.x, y = prop.y + light.y, z = prop.z + light.z
       glow.setParticleAt(index * 2, x, y, z, 0)
       glow.setParticleAt(index * 2 + 1, x, y, z, 0)
       if (fire) fire.visible = prop.active && !prop.broken
+      if (afterglow) afterglow.visible = prop.active && prop.broken
       if (!prop.active) continue
       let color = light.color, intensity = light.intensity, range = light.range, lampY = prop.y + (light.lampY ?? light.y), radius = .1
       if (fire) {
         const animation = this.assets.animations['brazier.fire']!
         fire.position.set(x, y, z)
-        fire.texture = animation.textures[Math.floor(time * animation.fps + prop.id) % animation.textures.length]!
+        afterglow!.position.set(x, prop.y + .95, z)
+        fire.setParticleAt(0, x, y + animation.height / 2, z, animation.height, 0, 0xffffff, 1, Math.floor(time * animation.fps + prop.id) % animation.textures.length)
         if (prop.broken) {
           const flash = Math.exp(-(time - prop.brokenAt) * 7), flicker = .75 + .25 * Math.sin(time * 1.7 + index * 2.3)
-          glow.setParticleAt(index * 2, x, prop.y + .95, z, 1.1 + flash * 3, 0, 0xff3a10, Math.min(1, .32 * flicker + flash * .8))
-          glow.setParticleAt(index * 2 + 1, x, prop.y + .15, z + .3, .9, 0, 0xff3a10, .22 * flicker)
+          afterglow!.setParticleAt(0, x, prop.y + .95, z, 1.1 + flash * 3, 0, 0xff3a10, Math.min(1, .32 * flicker + flash * .8))
+          afterglow!.setParticleAt(1, x, prop.y + .15, z + .3, .9, 0, 0xff3a10, .22 * flicker)
           intensity = 4 * flicker + flash * 60; color = flash > .2 ? light.color : 0xff3a10; range = 4; lampY = prop.y + .9
         }
         else { intensity *= 1 + Math.sin(time * 12 + index) * .1; radius = .8 }
