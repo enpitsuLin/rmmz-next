@@ -4,10 +4,10 @@
 按照 example/nightward/docs/nightward-replication-plan.md 完整实现原版 Nightward 的玩法与三维呈现，尽量复用 RMMZ 数据和运行对象。
 
 ## Next Step
-原生窗体迁移和 Window.png 制作完成，交由用户重启游戏测试。
+火盆破坏闪光和持续余辉已补齐，交由用户自行测试。
 
 ## Current Phase
-Phase 11
+Phase 12
 
 ## Phases
 
@@ -56,6 +56,7 @@ Phase 11
 | 音频生成的局部 process 名称遮蔽 Node process | 改名为 encoding 后完成所有音频产出 |
 | UI 修改时补丁上下文不匹配 | 拆分补丁，按实际声明完成修改 |
 | 查询引擎工具类时使用了错误目录 | 通过 rg --files 定位 core/primitives 下的真实文件 |
+| 更新火盆计划时补丁混入无效文档上下文 | 移除无效块，按已读取的实际段落拆分更新 |
 
 ## 约定
 - 不提交或推送。
@@ -97,4 +98,10 @@ Phase 11
 - [x] 用 Window_Selectable 管理菜单、升级卡片和系统按钮
 - [x] 保留原版布局、字效、翻牌、退场和奖励飞行
 - [x] 更新资源制作与说明，交由用户自行测试
+- **Status:** complete
+
+### Phase 12: 火盆破坏光效
+- [x] 对照原版破坏闪光、两层余辉和局部光照参数
+- [x] 接入共享光晕批次与现有点光源池
+- [x] 记录实现范围，交由用户自行测试
 - **Status:** complete

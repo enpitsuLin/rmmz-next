@@ -82,3 +82,10 @@
 - NightwardSelectable 复用原生 processCursorMove/processHandling/processTouch、索引与handlers；只适配原版不规则itemRect、按行/列移动和卡片循环选择。旧UiScreen键盘分发与按钮/卡片的Pixi激活监听已移除。
 - 逐字字形和动效内容挂在选择窗口客户端；客户端不裁切单项的溢出光晕，保留原版透明叠加。外层屏幕容器继续编排入场/退场。
 - --windowskin-only 已实际成功执行，只制作Window.png，不重烘焙其他资源，也不启动游戏。
+
+## 火盆破坏光效
+- 官方发布脚本 rU._updateBraziers 使用 exp(-age*7) 生成瞬间闪光；两层光晕分别位于 y=.95 和 y=.15、z+.3，颜色为 0xff3a10。
+- 上层尺寸为 1.1+flash*3、透明度 min(1,.32*flicker+flash*.8)，下层尺寸为 .9、透明度 .22*flicker；flicker=.75+.25*sin(time*1.7+index*2.3)，余辉持续保留。
+- 破坏后的点光源位置 y=.9、范围4、强度4*flicker+flash*60；flash>.2时保持火焰色，其后变为余烬色。
+- 使用已安装 @pixi/3d 的 ParticleContainer3D.setParticleAt/upload，每个火盆两个加法混合球形公告板，同一批次上传，不新增贴图、依赖或点光源。
+- 现有世界视图时钟在暂停、升级、宝箱时传入dt=0，光效沿用该时钟；场景重建时重置破坏时间，粒子批次随View3D子节点销毁。

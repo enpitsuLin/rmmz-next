@@ -1,4 +1,4 @@
-import { Camera3D, DirectionalLight, FlatMaterial, Geometry3D, Material3D, Mesh3D, PointLight, Sprite3D, View3D } from '@pixi/3d'
+import { Camera3D, DirectionalLight, FlatMaterial, Geometry3D, Material3D, Mesh3D, ParticleContainer3D, PointLight, Sprite3D, View3D } from '@pixi/3d'
 import { BloomEffect, TiltShiftEffect } from '@pixi/3d/extras'
 import type { BaseMaterial3D, Pass3D } from '@pixi/3d'
 import { ColorMatrixFilter, Container, Rectangle, Sprite, Texture } from 'pixi.js'
@@ -13,6 +13,7 @@ import { shakeGain } from './audio'
 
 interface ActorVisual { sprite: Sprite3D, shadow: Sprite3D, material: Material3D, deathAge: number }
 interface Particle { sprite: Sprite3D, life: number, age: number, vx: number, vy: number, vz: number, size: number }
+interface BrazierVisual { prop: Prop, flame: Sprite3D, brokenAt: number, intensity: number, color: number }
 export class GraveyardView {
   readonly view: View3D
   readonly overlay = new Container()
@@ -32,7 +33,8 @@ export class GraveyardView {
   private pickups = new Map<number, Sprite3D>()
   private projectiles = new Map<number, Sprite3D>()
   private pools = new Map<number, Sprite3D>()
-  private props: { prop: Prop, flame: Sprite3D }[] = []
+  private props: BrazierVisual[] = []
+  private brazierGlows: ParticleContainer3D
   private hero: ActorVisual
   private tomes: Sprite3D[] = []
   private ward: Sprite3D
@@ -76,8 +78,10 @@ export class GraveyardView {
     for (const prop of run.world.props.filter(prop => prop.kind === 'brazier')) {
       const animation = assets.animations['brazier.fire']!, flame = this.sprite(animation.textures[0]!, animation.height)
       flame.anchor.set(.5, 1); flame.position.set(prop.x, reference.details.fireY - .08, prop.z)
-      this.props.push({ prop, flame })
+      this.props.push({ prop, flame, brokenAt: -1, intensity: reference.lights.fireIntensity, color: reference.lights.fireColor })
     }
+    this.brazierGlows = new ParticleContainer3D({ texture: assets.effects[0]!, capacity: this.props.length * 2, billboard: 'spherical', blendMode: 'add' })
+    this.view.root.addChild(this.brazierGlows)
     for (const point of reference.details.candles) {
       const glow = this.sprite(assets.effects[0]!, .24)
       glow.tint = 0xffc477; glow.position.set(point[0]!, point[1]!, point[2]!)
@@ -264,16 +268,33 @@ export class GraveyardView {
     this.hero.shadow.position.set(run.hero.x, .025, run.hero.z)
     this.hero.shadow.visible = !run.actor.isDead()
     this.lamps[0]!.position.set(run.hero.x + .3 * run.hero.facing, 1, run.hero.z + .2)
-    const nearestBraziers = this.props.filter(entry => !entry.prop.broken).sort((a, b) => distance(a.prop, run.hero) - distance(b.prop, run.hero))
-    for (let i = 1; i < this.lamps.length; i++) {
-      const entry = nearestBraziers[i - 1], lamp = this.lamps[i]!
-      lamp.visible = !!entry && distance(entry.prop, run.hero) < 24
-      if (entry) { lamp.position.set(entry.prop.x, 1.8, entry.prop.z); lamp.intensity = this.assets.manifest.lights.fireIntensity * (1 + Math.sin(this.clock * 12 + i) * .1) }
-    }
-    for (const entry of this.props) {
+    for (const [index, entry] of this.props.entries()) {
       const animation = this.assets.animations['brazier.fire']!
       entry.flame.visible = !entry.prop.broken
       entry.flame.texture = animation.textures[Math.floor(this.clock * animation.fps + entry.prop.id) % animation.textures.length]!
+      if (!entry.prop.broken) continue
+      if (entry.brokenAt < 0) entry.brokenAt = this.clock
+      const flash = Math.exp(-(this.clock - entry.brokenAt) * 7)
+      const flicker = .75 + .25 * Math.sin(this.clock * 1.7 + index * 2.3)
+      const { x, z } = entry.prop
+      this.brazierGlows.setParticleAt(index * 2, x, .95, z, 1.1 + flash * 3, 0, 0xff3a10, Math.min(1, .32 * flicker + flash * .8))
+      this.brazierGlows.setParticleAt(index * 2 + 1, x, .15, z + .3, .9, 0, 0xff3a10, .22 * flicker)
+      entry.intensity = 4 * flicker + flash * 60
+      entry.color = flash > .2 ? this.assets.manifest.lights.fireColor : 0xff3a10
+    }
+    this.brazierGlows.upload()
+    const nearestBraziers = this.props.slice().sort((a, b) => distance(a.prop, run.hero) - distance(b.prop, run.hero))
+    for (let i = 1; i < this.lamps.length; i++) {
+      const entry = nearestBraziers[i - 1], lamp = this.lamps[i]!
+      lamp.visible = !!entry && distance(entry.prop, run.hero) < 24
+      if (entry) {
+        const broken = entry.prop.broken, lights = this.assets.manifest.lights
+        lamp.position.set(entry.prop.x, broken ? .9 : 1.8, entry.prop.z)
+        lamp.intensity = broken ? entry.intensity : lights.fireIntensity * (1 + Math.sin(this.clock * 12 + i) * .1)
+        lamp.color.setValue(broken ? entry.color : lights.fireColor)
+        lamp.range = broken ? 4 : lights.fireRange
+        lamp.radius = broken ? .1 : .8
+      }
     }
     const aliveIds = new Set<number>()
     for (const enemy of run.world.enemies) {
