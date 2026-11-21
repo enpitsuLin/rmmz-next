@@ -1,1 +1,0 @@
-// Legacy Pixi library fixture.
