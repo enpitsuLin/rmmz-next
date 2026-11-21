@@ -15,9 +15,10 @@ const introAlpha = (age: number, at = 0): number => reducedMotion() ? phase(age,
 export class TitleScreen extends UiScreen {
   private logo = new Heading('NIGHTWARD')
   private tagline = [text('', 0, 0, 0, colors.blue, .5), text('', 0, 0, 0, colors.blue, .5)]
+  private footer = new Container({ eventMode: 'none' })
   private best = text('', 0, 0, 0, colors.dim, .5)
   private wins = text('', 0, 0, 1, 0xffffff, .5)
-  private credit = text('Made with PixiJS and PixiJS 3D', 0, 0, 0, colors.dim, .5)
+  private credit = text('Made with PixiJS and PixiJS 3D', 0, 0, 0, colors.dim, 1)
   private corner = new SystemButtons()
   private sparkles = [sprite('sparkle'), sprite('sparkle'), sprite('sparkle')]
   private menu: UiButton[]
@@ -33,13 +34,12 @@ export class TitleScreen extends UiScreen {
     this.menu[0]!.onActivate = () => { this.live = false; this.playAge = 0; this.playDone = onPlay; this.menu[0]!.punch(); sound('Confirm') }
     this.menu[1]!.onActivate = () => onOpen('howto'); this.menu[2]!.onActivate = () => onOpen('options')
     this.sparkles.forEach(node => node.anchor.set(.5))
-    this.content.addChild(this.logo, ...this.sparkles, ...this.tagline, this.best, this.wins, this.credit, this.flash, this.corner)
+    this.footer.addChild(this.best, this.wins, this.credit)
+    this.content.addChild(this.logo, ...this.sparkles, ...this.tagline, this.footer, this.flash, this.corner)
     this.place(); sound('Title', 45)
   }
   protected place(): void {
     const l = this.layout, { w, h, unit: u, portrait } = l, center = Math.round(w / 2), band = Math.round(h * (portrait ? .05 : .06)), buttonH = Math.max(22, l.tap)
-    const creditY = Math.min(h - band + Math.round((band - 7) / 2), h - 10), bottom = Math.min(h - band, creditY) - 4, menuY = Math.round(h * (portrait ? .64 : .58)), gap = portrait ? 8 : 6
-    const short = l.short || !portrait && menuY + 3 * buttonH + 2 * gap > bottom
     const cornerWidth = this.corner.layout(l.tap)
     this.corner.position.set(w - 4 - cornerWidth, l.short || band < 17 ? 4 : Math.max(0, Math.round((band - 15) / 2)))
     const scale = fitScale(102, (l.short ? .5 : portrait ? .86 : .62) * l.width, 3 * u)
@@ -47,18 +47,26 @@ export class TitleScreen extends UiScreen {
     this.logoY = Math.max(band + 4, Math.round(h * (compact ? .13 : .15))); this.logo.position.set(center, this.logoY)
     const lines = wrap('Survive the night · slay the Reaper', w - 16)
     this.tagline.forEach((node, i) => { node.visible = !!lines[i]; node.text = lines[i] ?? ''; node.position.set(center, this.logoY + logoH + 8 + i * 10); this.taglineY[i] = node.y })
+    this.best.text = bestLine(); this.best.visible = records.runs > 0 && !l.short
+    this.wins.text = `Reaper slain · fastest ${clock(records.fastestWin ?? 0)}`; this.wins.visible = this.best.visible && records.wins > 0
+    const footerLines = [this.best, this.wins, this.credit].filter(node => node.visible)
+    const footerScale = fitScale(Math.max(...footerLines.map(node => node.textWidth)), l.width - l.margin * 2, l.icon) / u
+    const recordRows = Number(this.best.visible) + Number(this.wins.visible)
+    this.best.position.set(0, 0); this.wins.position.set(0, 12)
+    this.credit.position.set(Math.floor((w - 8 - center) / footerScale), recordRows ? (recordRows - 1) * 12 + 17 : 0)
+    const footerHeight = Math.ceil((this.credit.y + 9) * footerScale)
+    this.footer.scale.set(footerScale); this.footer.position.set(center, h - 8 - footerHeight)
+    // Reserve the footer before placing controls so records cannot run into credits.
+    const gap = portrait ? 8 : 6, menuHeight = 3 * buttonH + 2 * gap
+    const menuY = Math.min(Math.round(h * (portrait ? .64 : .58)), this.footer.y - 12 - menuHeight)
+    const short = l.short || !portrait && menuY < this.logoY + logoH + 8 + lines.length * 10 + 14
     this.menu.forEach((button, i) => {
       const width = short ? 104 : portrait ? Math.min(160, w - 40) : 120
       button.setSize(width, buttonH, l.tap); button.showCursor = !short || i === 0
-      button.position.set(short ? center - 164 + i * 112 : center - Math.round(width / 2), short ? Math.min(h - band - 8, creditY - 4) - buttonH : menuY + i * (buttonH + gap))
+      button.position.set(short ? center - 164 + i * 112 : center - Math.round(width / 2), short ? this.footer.y - 12 - buttonH : menuY + i * (buttonH + gap))
     })
     const play = this.menu[0]!
     this.flash.position.set(play.x + 2, play.y + 2); this.flash.width = play.size.width - 4; this.flash.height = play.size.height - 4
-    const last = this.menu[2]!
-    this.best.position.set(center, last.y + buttonH + 10); this.wins.position.set(center, last.y + buttonH + 21)
-    this.best.text = bestLine(); this.best.visible = records.runs > 0 && !short
-    this.wins.text = `Reaper slain · fastest ${clock(records.fastestWin ?? 0)}`; this.wins.visible = this.best.visible && records.wins > 0
-    this.credit.position.set(center, creditY)
     const positions = [1, 8, 2]
     this.sparkles.forEach((node, i) => {
       const glyph = this.logo.title.glyphs[positions[i]!]!, k = this.logo.title.scale.x, width = glyph.texture.frame.width
@@ -76,7 +84,7 @@ export class TitleScreen extends UiScreen {
     this.logo.y = this.logoY
     this.tagline.forEach((node, i) => { node.y = this.taglineY[i]! + (still ? 0 : Math.round(4 * (1 - out(phase(age, .7, .4))))); node.alpha = out(phase(age, .7, .4)) })
     this.menu.forEach((button, i) => { button.motion.y = still ? 0 : Math.round(10 * (1 - back(phase(age, .85 + i * .07, .3)))); button.motion.alpha = out(phase(age, .85 + i * .07, .3), 2) })
-    for (const node of [this.best, this.wins, this.credit]) node.alpha = out(phase(age, 1.1, .5), 2)
+    this.footer.alpha = out(phase(age, 1.1, .5), 2)
     this.corner.tick(dt, this.live && !this.inputBlocked && !this.dimmed && this.playAge < 0, age - 1.2)
     this.sparkles.forEach((node, i) => { const p = (this.age - 2) % (.9 + 2.1 + i * .7) / .9; node.scale.set(!still && this.age >= 2 && p < 1 ? Math.sin(p * Math.PI) : 0); node.rotation = p * Math.PI / 4 })
     if (!this.focused && age >= 1.1) this.focus(this.menu[0]!)
@@ -85,7 +93,7 @@ export class TitleScreen extends UiScreen {
       const t = this.playAge
       this.flash.alpha = .85 * (1 - out(phase(t, 0, .3)))
       this.menu.slice(1).forEach((button, i) => { const p = phase(t, .05 + i * .04, .22); button.motion.alpha *= 1 - p ** 3; button.motion.x = Math.round(-16 * p ** 3) })
-      for (const node of [this.logo, ...this.tagline, this.best, this.wins, this.credit, this.corner]) node.alpha = 1 - phase(t, .1, .35) ** 3
+      for (const node of [this.logo, ...this.tagline, this.footer, this.corner]) node.alpha = 1 - phase(t, .1, .35) ** 3
       this.logo.y -= Math.round(16 * phase(t, .1, .35) ** 3); this.menu[0]!.motion.alpha *= 1 - phase(t, .2, .25) ** 3
       if (t >= (still ? .15 : .3)) { const done = this.playDone; this.playDone = undefined; done?.() }
     }

@@ -246,7 +246,8 @@ export class UiButton extends Container implements WindowChoice {
   get size(): { width: number, height: number } { return { width: this.buttonWidth, height: this.buttonHeight } }
 }
 export abstract class UiScreen extends Container {
-  readonly content = new Container()
+  // Scene start can render before the first tick applies animation states.
+  readonly content = new Container({ alpha: 0 })
   readonly buttons: UiButton[] = []
   readonly nativeWindow: NightwardSelectable
   age = 0

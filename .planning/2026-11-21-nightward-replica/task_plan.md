@@ -4,10 +4,10 @@
 按照 example/nightward/docs/nightward-replication-plan.md 完整实现原版 Nightward 的玩法与三维呈现，尽量复用 RMMZ 数据和运行对象。
 
 ## Next Step
-已修复 Might 1 类型为零导致升级装备找不到槽位的错误；由用户重启游戏自行测试，未经要求不提交或推送。
+已修复标题菜单启动时先闪现再淡入的初始化顺序问题，保留底部排版改动；由用户自行测试，未经要求不提交或推送。
 
 ## Current Phase
-Phase 21
+Phase 23
 
 ## Phases
 
@@ -172,4 +172,17 @@ Phase 21
 - [x] 对照截图和原生装备调用链定位 setObject undefined
 - [x] 修复 Might 1 的装备类型与防具类型，保留其他装备数据
 - [x] 补充编辑器类型说明，不运行自动化验证，交由用户测试
+- **Status:** complete
+
+### Phase 22: 标题底部排版
+- [x] 对照截图定位菜单后纪录与固定署名重叠、胜利纪录越界
+- [x] 按用户要求将署名右对齐放在右下角，纪录保持居中
+- [x] 按内容预留底部空间，使用整数像素字号，保持淡入和退出动画
+- [x] 更新说明，交由用户测试，不运行自动化验证
+- **Status:** complete
+
+### Phase 23: 界面首次渲染闪现
+- [x] 核对 SceneManager 的 start 与 update 顺序及界面动画状态
+- [x] 界面内容初始透明，首次 tick 后按现有时间线显示
+- [x] 更新说明，保留底部排版改动，交由用户测试
 - **Status:** complete

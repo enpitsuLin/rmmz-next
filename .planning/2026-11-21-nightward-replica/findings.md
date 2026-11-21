@@ -178,3 +178,18 @@
 1. 用户截图为升级选择后 Cannot read property setObject of undefined。grantReward 按 entry.etypeId 寻找空槽，Might 1 当前 etypeId=0，而 Nightward 装备槽仅有 1 和 5，查找返回 -1，forceChangeEquip 访问 _equips[-1] 导致错误。
 2. Might 1 的 atypeId 也为 0，职业只许可 Nightward 防具类型 1；即使只修槽类型，该饰品也会被原生 releaseUnequippableItems 卸下。已同时修正 etypeId=5、atypeId=1。
 3. 其余 29 条武器与 19 条饰品的对应类型均符合当前配置，内容生成脚本原本也使用正确类型。本轮只定点修复 Armors[1]，不修改原生引擎、奖励节奏或其他数据库内容。
+
+
+## 标题底部排版（2026-11-22）
+
+1. 用户截图中底部 Best、胜利纪录和署名挤在一起。原布局按菜单末项加固定偏移排列两行纪录，却独立将署名固定在底边；菜单可用高度未计入纪录，导致重叠和越界。
+2. 将三条文字归入统一 footer，纪录居中、署名按用户补充要求右对齐放在右下角。字号使用已有 icon 单位和 fitScale，保持整数物理像素，不替换字形或引入字体。
+3. 先按可见纪录行数、行间距、分组间距和底边距计算 footer 高度，再限制菜单位置；低高度横排菜单也使用同一底部边界。淡入和 PLAY 退出统一作用于 footer，保留现有时序。
+4. 本轮仅修改标题布局与说明，没有运行游戏、自动化验证或构建；由用户测试。使用 better-layout、better-typography 的分组间距与字阶原则，不添加未要求的设备、语言或代理试玩检查。
+
+
+## 启动菜单闪现（2026-11-22）
+
+1. 用户报告开局菜单先出现、消失后再淡入。SceneManager.updateScene 的未启动分支调用 start 后本帧不会再执行 update；TitleScreen 在 start 阶段创建并加入场景，此时 UiScreen.content 与子节点仍为默认 alpha=1。下一次 tick 才调用 animate，将未到入场时间的标题、菜单和 footer 设为透明，形成闪现。
+2. 共享 UiScreen.content 初始 alpha 改为 0；第一次 tick 先设置内容透明度并完成子节点动画和按钮状态，再由渲染显示本帧结果。无需提前推进时钟、调用未完成构造的子类动画或改变 SceneManager。
+3. 该入口涵盖当前标题、面板、暂停、结算和奖励界面，保留原有淡入、减少动态效果设置和底部排版。未运行游戏或自动化验证。
