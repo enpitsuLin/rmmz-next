@@ -28,11 +28,9 @@ export class Sprite extends PIXI.Sprite {
   _blendColor: RGBA = [0, 0, 0, 0]
   _colorTone: RGBA = [0, 0, 0, 0]
   _colorFilter: ColorFilter | null = null
-  _blendMode: number = PIXI.BLEND_MODES.NORMAL
   _hidden: boolean = false
   _refreshFrame!: boolean
 
-  static _emptyBaseTexture: PIXI.BaseTexture | null = null
   static _counter: number = 0
 
   override children!: PIXI.Sprite[]
@@ -40,12 +38,12 @@ export class Sprite extends PIXI.Sprite {
   constructor(bitmap?: Bitmap | null) {
     super()
 
-    if (!Sprite._emptyBaseTexture) {
-      Sprite._emptyBaseTexture = new PIXI.BaseTexture()
-      Sprite._emptyBaseTexture.setSize(1, 1)
-    }
-
-    const texture = new PIXI.Texture(Sprite._emptyBaseTexture, this._frame)
+    this.allowChildren = true
+    const texture = new PIXI.Texture({
+      source: PIXI.Texture.EMPTY.source,
+      frame: this._frame,
+      dynamic: true,
+    })
     this.texture = texture
     this.spriteId = Sprite._counter++
     this._bitmap = bitmap ?? null
@@ -89,25 +87,21 @@ export class Sprite extends PIXI.Sprite {
     this.alpha = value.clamp(0, 255) / 255
   }
 
-  // PIXI.Sprite has blendMode as property; we override with accessor for ColorFilter sync
-  // @ts-expect-error - overriding parent property with accessor is intentional
-  get blendMode(): number {
+  get blendMode(): PIXI.BLEND_MODES {
+    return super.blendMode
+  }
+
+  set blendMode(value: number | PIXI.BLEND_MODES) {
+    const mode = typeof value === 'number'
+      ? (['normal', 'add', 'multiply', 'screen'] as const)[value]
+      : value
+    super.blendMode = mode
     if (this._colorFilter) {
-      return this._colorFilter.blendMode
-    }
-    else {
-      return this._blendMode
+      this._colorFilter.blendMode = mode
     }
   }
 
-  set blendMode(value: number) {
-    this._blendMode = value
-    if (this._colorFilter) {
-      this._colorFilter.blendMode = value
-    }
-  }
-
-  destroy(options: PIXI.IDestroyOptions = { children: true, texture: true }): void {
+  destroy(options: PIXI.DestroyOptions = { children: true, texture: true }): void {
     super.destroy(options)
   }
 
@@ -197,7 +191,8 @@ export class Sprite extends PIXI.Sprite {
     }
     else {
       this._refreshFrame = false
-      this.texture.frame = new Rectangle()
+      this.texture.frame.copyFrom(new Rectangle())
+      this.texture.update()
     }
   }
 
@@ -230,25 +225,23 @@ export class Sprite extends PIXI.Sprite {
       this.pivot.x = frameX - realX
       this.pivot.y = frameY - realY
       if (baseTexture) {
-        texture.baseTexture = baseTexture
+        texture.source = baseTexture
         try {
-          texture.frame = frame
+          texture.frame.copyFrom(frame)
         }
         catch (e) {
           console.error(e)
-          texture.frame = new Rectangle()
+          texture.frame.copyFrom(new Rectangle())
         }
       }
-      texture._updateID++
+      texture.update()
     }
   }
 
   _createColorFilter(): void {
     this._colorFilter = new ColorFilter()
-    if (!this.filters) {
-      this.filters = []
-    }
-    this.filters.push(this._colorFilter)
+    this._colorFilter.blendMode = this.blendMode
+    this.filters = [...(this.filters ?? []), this._colorFilter]
   }
 
   _updateColorFilter(): void {

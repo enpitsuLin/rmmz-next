@@ -39,7 +39,7 @@ export class Sprite_Gauge extends Sprite {
     this._flashingCount = 0
   }
 
-  destroy(options?: PIXI.IDestroyOptions): void {
+  destroy(options?: PIXI.DestroyOptions): void {
     this.bitmap?.destroy()
     super.destroy(options)
   }
@@ -214,7 +214,7 @@ export class Sprite_Gauge extends Sprite {
     return Number.NaN
   }
 
-  label(): string {
+  gaugeLabel(): string {
     switch (this._statusType) {
       case 'hp':
         return TextManager.hpA
@@ -339,7 +339,7 @@ export class Sprite_Gauge extends Sprite {
   }
 
   drawLabel(): void {
-    const label = this.label()
+    const label = this.gaugeLabel()
     const x = this.labelOutlineWidth() / 2
     const y = this.labelY()
     const width = this.bitmapWidth()

@@ -45,7 +45,7 @@ export class Tilemap extends PIXI.Container {
    *
    * @type Point
    */
-  origin: Point
+  scrollOrigin: Point
   /**
    * The tileset flags.
    *
@@ -84,12 +84,13 @@ export class Tilemap extends PIXI.Container {
 
     this.tileWidth = 48
     this.tileHeight = 48
-    this.origin = new Point()
+    this.scrollOrigin = new Point()
     this.flags = []
     this.animationCount = 0
     this.horizontalWrap = false
     this.verticalWrap = false
     this.animationFrame = 0
+    this.onRender = this._prepareRender.bind(this)
     this._createLayers()
     this.refresh()
   }
@@ -119,7 +120,7 @@ export class Tilemap extends PIXI.Container {
   /**
    * Destroys the tilemap.
    */
-  destroy(options: PIXI.IDestroyOptions = { children: true, texture: true }): void {
+  destroy(options: PIXI.DestroyOptions = { children: true, texture: true }): void {
     super.destroy(options)
   }
 
@@ -195,9 +196,9 @@ export class Tilemap extends PIXI.Container {
   /**
    * Updates the transform on all children of this container for rendering.
    */
-  updateTransform(): void {
-    const ox = Math.ceil(this.origin.x)
-    const oy = Math.ceil(this.origin.y)
+  _prepareRender(): void {
+    const ox = Math.ceil(this.scrollOrigin.x)
+    const oy = Math.ceil(this.scrollOrigin.y)
     const startX = Math.floor((ox - this._margin) / this.tileWidth)
     const startY = Math.floor((oy - this._margin) / this.tileHeight)
     this._lowerLayer.x = startX * this.tileWidth - ox
@@ -217,7 +218,6 @@ export class Tilemap extends PIXI.Container {
       this._needsRepaint = false
     }
     this._sortChildren()
-    super.updateTransform()
   }
 
   protected _createLayers(): void {
@@ -476,7 +476,15 @@ export class Tilemap extends PIXI.Container {
   }
 
   protected _sortChildren(): void {
-    this.children.sort(this._compareChildOrder.bind(this))
+    for (let i = 1; i < this.children.length; i++) {
+      if (this._compareChildOrder(this.children[i - 1], this.children[i]) > 0) {
+        this.children.sort(this._compareChildOrder.bind(this))
+        if (this.parentRenderGroup) {
+          this.parentRenderGroup.structureDidChange = true
+        }
+        break
+      }
+    }
   }
 
   protected _compareChildOrder(a: { z?: number, y?: number, spriteId?: number }, b: { z?: number, y?: number, spriteId?: number }): number {
@@ -736,7 +744,7 @@ export namespace Tilemap {
       }
     }
 
-    destroy(options: PIXI.IDestroyOptions = { children: true, texture: true }): void {
+    destroy(options: PIXI.DestroyOptions = { children: true, texture: true }): void {
       super.destroy(options)
     }
 

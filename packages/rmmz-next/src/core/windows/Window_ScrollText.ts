@@ -51,7 +51,7 @@ export class Window_ScrollText extends Window_Base {
       this._allTextHeight = this.textSizeEx(this._text).height
       this._blockHeight = this._maxBitmapHeight - this.height
       this._blockIndex = 0
-      this.origin.y = this._scrollY = -this.height
+      this.scrollOrigin.y = this._scrollY = -this.height
       this.createContents()
       this.refresh()
       this.show()
@@ -93,7 +93,7 @@ export class Window_ScrollText extends Window_Base {
         this._blockIndex = blockIndex
         this.refresh()
       }
-      this.origin.y = this._scrollY % this._blockHeight
+      this.scrollOrigin.y = this._scrollY % this._blockHeight
     }
   }
 

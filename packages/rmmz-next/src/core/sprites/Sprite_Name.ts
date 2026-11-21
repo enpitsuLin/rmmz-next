@@ -27,7 +27,7 @@ export class Sprite_Name extends Sprite {
     this._textColor = ''
   }
 
-  destroy(options: PIXI.IDestroyOptions = { children: true, texture: true }): void {
+  destroy(options: PIXI.DestroyOptions = { children: true, texture: true }): void {
     this.bitmap?.destroy()
     super.destroy(options)
   }

@@ -13,6 +13,8 @@ import { TilingSprite } from './TilingSprite'
  * @extends PIXI.Container
  */
 export class Window extends PIXI.Container<PIXI.Container> {
+  _width: number
+  _height: number
   _isWindow: true
   _windowskin: Bitmap | null
   _cursorRect: Rectangle
@@ -38,7 +40,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
   /**
    * The origin point of the window for scrolling.
    */
-  origin: Point
+  scrollOrigin: Point
 
   /**
    * The active state for the window.
@@ -76,6 +78,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
   constructor() {
     super()
 
+    this.onRender = this._prepareRender.bind(this)
     this._isWindow = true
     this._windowskin = null
     this._width = 0
@@ -106,7 +109,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
      *
      * @type Point
      */
-    this.origin = new Point()
+    this.scrollOrigin = new Point()
 
     /**
      * The active state for the window.
@@ -357,7 +360,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
   /**
    * Destroys the window.
    */
-  destroy(options: PIXI.IDestroyOptions = { children: true, texture: true }): void {
+  destroy(options: PIXI.DestroyOptions = { children: true, texture: true }): void {
     super.destroy(options)
   }
 
@@ -496,7 +499,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
   /**
    * Updates the transform on all children of this container for rendering.
    */
-  updateTransform(): void {
+  _prepareRender(): void {
     this._updateClientArea()
     this._updateFrame()
     this._updateContentsBack()
@@ -504,7 +507,6 @@ export class Window extends PIXI.Container<PIXI.Container> {
     this._updateContents()
     this._updateArrows()
     this._updatePauseSign()
-    super.updateTransform()
     this._updateFilterArea()
   }
 
@@ -517,9 +519,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
       const height = (this.height * this._openness) / 255
       const x = this.x
       const y = this.y + (this.height - height) / 2
-      graphics.beginFill(0xFFFFFF)
-      graphics.drawRoundedRect(x, y, width, height, 0)
-      graphics.endFill()
+      graphics.rect(x, y, width, height).fill(0xFFFFFF)
     }
   }
 
@@ -609,7 +609,7 @@ export class Window extends PIXI.Container<PIXI.Container> {
     const w = Math.max(0, this._width - m * 2)
     const h = Math.max(0, this._height - m * 2)
     const sprite = this._backSprite!
-    const tilingSprite = sprite.children[0] as TilingSprite
+    const tilingSprite = sprite.children[0] as unknown as TilingSprite
     // [Note] We use 95 instead of 96 here to avoid blurring edges.
     sprite.bitmap = this._windowskin!
     sprite.setFrame(0, 0, 95, 95)
@@ -728,8 +728,8 @@ export class Window extends PIXI.Container<PIXI.Container> {
   _updateClientArea(): void {
     const pad = this._padding
     this._clientArea!.move(pad, pad)
-    this._clientArea!.x = pad - this.origin.x
-    this._clientArea!.y = pad - this.origin.y
+    this._clientArea!.x = pad - this.scrollOrigin.x
+    this._clientArea!.y = pad - this.scrollOrigin.y
     if (this.innerWidth > 0 && this.innerHeight > 0) {
       this._clientArea!.visible = this.isOpen()
     }
@@ -800,10 +800,9 @@ export class Window extends PIXI.Container<PIXI.Container> {
   }
 
   _updateFilterArea(): void {
-    const pos = this._clientArea!.worldTransform.apply(new Point(0, 0))
-    const filterArea = this._clientArea!.filterArea
-    filterArea.x = pos.x + this.origin.x
-    filterArea.y = pos.y + this.origin.y
+    const filterArea = this._clientArea!.filterArea!
+    filterArea.x = this.scrollOrigin.x
+    filterArea.y = this.scrollOrigin.y
     filterArea.width = this.innerWidth
     filterArea.height = this.innerHeight
   }

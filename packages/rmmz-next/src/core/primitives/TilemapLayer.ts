@@ -7,20 +7,25 @@ import * as PIXI from 'pixi.js'
  * @class
  * @extends PIXI.Container
  */
-export class TilemapLayer extends PIXI.Container {
+export class TilemapLayer extends PIXI.RenderContainer {
   _elements: [setNumber: number, sx: number, sy: number, dx: number, dy: number, w: number, h: number][] = []
   _indexBuffer: PIXI.Buffer | null = null
-  _indexArray: Float32Array | Uint16Array | Uint32Array = new Float32Array(0)
+  _indexArray: Uint16Array | Uint32Array = new Uint16Array(0)
   _vertexBuffer: PIXI.Buffer | null = null
   _vertexArray = new Float32Array(0)
   _vao: PIXI.Geometry | null = null
   _needsTexturesUpdate = false
   _needsVertexUpdate = false
-  _images: PIXI.ImageSource[] = []
+  _images: (HTMLImageElement | HTMLCanvasElement)[] = []
   _state = PIXI.State.for2d()
 
   constructor() {
-    super()
+    super({})
+    this.addBounds = (bounds) => {
+      for (const [, , , x, y, width, height] of this._elements) {
+        bounds.addFrame(x, y, x + width, y + height)
+      }
+    }
     this._createVao()
   }
 
@@ -28,15 +33,12 @@ export class TilemapLayer extends PIXI.Container {
   static VERTEX_STRIDE = 9 * 4
   static MAX_SIZE = 16000
 
-  destroy(): void {
-    if (this._vao) {
-      this._vao.destroy()
-      this._indexBuffer!.destroy()
-      this._vertexBuffer!.destroy()
-    }
+  destroy(options?: PIXI.DestroyOptions): void {
+    this._vao?.destroy(true)
     this._indexBuffer = null
     this._vertexBuffer = null
     this._vao = null
+    super.destroy(options)
   }
 
   setBitmaps(bitmaps: Bitmap[]): void {
@@ -47,6 +49,7 @@ export class TilemapLayer extends PIXI.Container {
   clear(): void {
     this._elements.length = 0
     this._needsVertexUpdate = true
+    this.onViewUpdate()
   }
 
   size(): number {
@@ -57,72 +60,68 @@ export class TilemapLayer extends PIXI.Container {
     this._elements.push([setNumber, sx, sy, dx, dy, w, h])
   }
 
-  render(renderer: PIXI.Renderer): void {
-    const gl = renderer.gl
-    const tilemapRenderer = renderer.plugins.rpgtilemap
+  render(renderer: PIXI.WebGLRenderer): void {
+    const tilemapRenderer = renderer.rpgtilemap
     const shader = tilemapRenderer.getShader()
-    const matrix = shader.uniforms.uProjectionMatrix
-
-    renderer.batch.setObjectRenderer(tilemapRenderer)
-    renderer.projection.projectionMatrix.copyTo(matrix)
-    matrix.append(this.worldTransform)
-    renderer.shader.bind(shader)
+    const matrix = shader.resources.tilemapUniforms.uniforms.uProjectionMatrix
+    const globals = renderer.globalUniforms.globalUniformData
+    matrix.copyFrom(globals.projectionMatrix)
+      .append(globals.worldTransformMatrix)
+      .append(this.groupTransform)
 
     if (this._needsTexturesUpdate) {
       tilemapRenderer.updateTextures(renderer, this._images)
       this._needsTexturesUpdate = false
     }
     tilemapRenderer.bindTextures(renderer)
-    renderer.geometry.bind(this._vao!, shader)
     this._updateIndexBuffer()
     if (this._needsVertexUpdate) {
       this._updateVertexBuffer()
       this._needsVertexUpdate = false
     }
-    renderer.geometry.updateBuffers()
 
-    const numElements = this._elements.length
-    if (numElements > 0) {
-      renderer.state.set(this._state)
-      renderer.geometry.draw(gl.TRIANGLES, numElements * 6, 0)
+    if (this._elements.length > 0) {
+      renderer.encoder.draw({
+        geometry: this._vao!,
+        shader,
+        state: this._state,
+        size: this._elements.length * 6,
+      })
     }
   }
 
   isReady(): boolean {
-    if (this._images.length === 0) {
-      return false
-    }
-    for (const texture of this._images) {
-      // @ts-expect-error to fix this
-      if (!texture || !texture.valid) {
-        return false
-      }
-    }
-    return true
+    return this._images.length > 0
+      && this._images.every(image => image.width > 0 && image.height > 0)
   }
 
   _createVao(): void {
-    const ib = new PIXI.Buffer(undefined, true, true)
-    const vb = new PIXI.Buffer(undefined, true, false)
+    this._indexBuffer = new PIXI.Buffer({
+      data: new Uint16Array(0),
+      usage: PIXI.BufferUsage.INDEX | PIXI.BufferUsage.COPY_DST,
+    })
+    this._vertexBuffer = new PIXI.Buffer({
+      data: new Float32Array(0),
+      usage: PIXI.BufferUsage.VERTEX | PIXI.BufferUsage.COPY_DST,
+    })
+    const buffer = this._vertexBuffer
     const stride = TilemapLayer.VERTEX_STRIDE
-    const type = PIXI.TYPES.FLOAT
-    const geometry = new PIXI.Geometry()
-    this._indexBuffer = ib
-    this._vertexBuffer = vb
-    this._vao = geometry
-      .addIndex(this._indexBuffer)
-      .addAttribute('aTextureId', vb, 1, false, type, stride, 0)
-      .addAttribute('aFrame', vb, 4, false, type, stride, 1 * 4)
-      .addAttribute('aSource', vb, 2, false, type, stride, 5 * 4)
-      .addAttribute('aDest', vb, 2, false, type, stride, 7 * 4)
+    this._vao = new PIXI.Geometry({
+      indexBuffer: this._indexBuffer,
+      attributes: {
+        aTextureId: { buffer, format: 'float32', stride, offset: 0 },
+        aFrame: { buffer, format: 'float32x4', stride, offset: 4 },
+        aSource: { buffer, format: 'float32x2', stride, offset: 5 * 4 },
+        aDest: { buffer, format: 'float32x2', stride, offset: 7 * 4 },
+      },
+    })
   }
 
   _updateIndexBuffer(): void {
     const numElements = this._elements.length
-    if (this._indexArray.length < numElements * 6 * 2) {
-      this._indexArray = PIXI.utils.createIndicesForQuads(numElements * 2)
-      // @ts-expect-error to fix this
-      this._indexBuffer!.update(this._indexArray)
+    if (this._indexArray.length < numElements * 6) {
+      this._indexArray = PIXI.createIndicesForQuads(numElements)
+      this._indexBuffer!.data = this._indexArray
     }
   }
 
@@ -186,7 +185,7 @@ export class TilemapLayer extends PIXI.Container {
       vertexArray[index++] = dx
       vertexArray[index++] = dy + h
     }
-    // @ts-expect-error to fix this
-    this._vertexBuffer!.update(vertexArray)
+    this._vertexBuffer!.data = vertexArray
+    this._vertexBuffer!.update()
   }
 }

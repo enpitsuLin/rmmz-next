@@ -1,6 +1,6 @@
-import type * as PIXI from 'pixi.js'
 import type { MZ } from '../../database-types'
 import type { RGBA } from '../types'
+import * as PIXI from 'pixi.js'
 import { AudioManager } from '../managers/AudioManager'
 import { EffectManager } from '../managers/EffectManager'
 import { Graphics } from '../primitives/Graphics'
@@ -33,6 +33,9 @@ export class Sprite_Animation extends Sprite {
   constructor() {
     super()
     this.initMembers()
+    this.addChild(new PIXI.RenderContainer({
+      render: renderer => this._render(renderer as PIXI.WebGLRenderer),
+    }))
   }
 
   initMembers(): void {
@@ -53,7 +56,7 @@ export class Sprite_Animation extends Sprite {
     this.z = 8
   }
 
-  destroy(options?: PIXI.IDestroyOptions): void {
+  destroy(options?: PIXI.DestroyOptions): void {
     super.destroy(options)
     if (this._handle) {
       this._handle.stop()
@@ -197,7 +200,7 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  _render(renderer: PIXI.Renderer): void {
+  _render(renderer: PIXI.WebGLRenderer): void {
     if (this._targets.length > 0 && this._handle && this._handle.exists) {
       this.onBeforeRender(renderer)
       this.setProjectionMatrix(renderer)
@@ -211,10 +214,10 @@ export class Sprite_Animation extends Sprite {
     }
   }
 
-  setProjectionMatrix(renderer: PIXI.Renderer): void {
+  setProjectionMatrix(renderer: PIXI.WebGLRenderer): void {
     const x = this._mirror ? -1 : 1
     const y = -1
-    const p = -(this._viewportSize / renderer.view.height)
+    const p = -(this._viewportSize / renderer.height)
 
     Graphics.effekseer.setProjectionMatrix([
       x,
@@ -236,11 +239,11 @@ export class Sprite_Animation extends Sprite {
     ])
   }
 
-  setCameraMatrix(_renderer: PIXI.Renderer): void {
+  setCameraMatrix(_renderer: PIXI.WebGLRenderer): void {
     Graphics.effekseer.setCameraMatrix([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -10, 1])
   }
 
-  setViewport(renderer: PIXI.Renderer): void {
+  setViewport(renderer: PIXI.WebGLRenderer): void {
     const vw = this._viewportSize
     const vh = this._viewportSize
     const vx = this._animation!.offsetX - vw / 2
@@ -249,11 +252,11 @@ export class Sprite_Animation extends Sprite {
     renderer.gl.viewport(vx + pos.x, vy + pos.y, vw, vh)
   }
 
-  targetPosition(renderer: PIXI.Renderer): Point {
+  targetPosition(renderer: PIXI.WebGLRenderer): Point {
     const pos = new Point()
     if (this._animation!.displayType === 2) {
-      pos.x = renderer.view.width / 2
-      pos.y = renderer.view.height / 2
+      pos.x = renderer.width / 2
+      pos.y = renderer.height / 2
     }
     else {
       for (const target of this._targets) {
@@ -272,24 +275,18 @@ export class Sprite_Animation extends Sprite {
     if (this._animation!.alignBottom) {
       point.y = 0
     }
-    sprite.updateTransform()
-    return sprite.worldTransform.apply(point)
+    return sprite.toGlobal(point)
   }
 
-  resetViewport(renderer: PIXI.Renderer): void {
-    renderer.gl.viewport(0, 0, renderer.view.width, renderer.view.height)
+  resetViewport(renderer: PIXI.WebGLRenderer): void {
+    renderer.gl.viewport(0, 0, renderer.width, renderer.height)
   }
 
-  onBeforeRender(renderer: PIXI.Renderer): void {
-    renderer.batch.flush()
-    renderer.geometry.reset()
+  onBeforeRender(renderer: PIXI.WebGLRenderer): void {
+    renderer.resetState()
   }
 
-  onAfterRender(renderer: PIXI.Renderer): void {
-    renderer.texture.reset()
-    renderer.geometry.reset()
-    renderer.state.reset()
-    renderer.shader.reset()
-    renderer.framebuffer.reset()
+  onAfterRender(renderer: PIXI.WebGLRenderer): void {
+    renderer.resetState()
   }
 }

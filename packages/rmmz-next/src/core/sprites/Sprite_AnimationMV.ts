@@ -117,7 +117,7 @@ export class Sprite_AnimationMV extends Sprite {
   absoluteX(): number {
     let x = 0
     // eslint-disable-next-line ts/no-this-alias
-    let object: PIXI.DisplayObject = this
+    let object: PIXI.Container | null = this
     while (object) {
       x += object.x
       object = object.parent
@@ -128,7 +128,7 @@ export class Sprite_AnimationMV extends Sprite {
   absoluteY(): number {
     let y = 0
     // eslint-disable-next-line ts/no-this-alias
-    let object: PIXI.DisplayObject = this
+    let object: PIXI.Container | null = this
     while (object) {
       y += object.y
       object = object.parent
@@ -205,8 +205,8 @@ export class Sprite_AnimationMV extends Sprite {
 
   updatePosition(): void {
     if (this._animation?.position === 3) {
-      this.x = this.parent.width / 2
-      this.y = this.parent.height / 2
+      this.x = this.parent!.width / 2
+      this.y = this.parent!.height / 2
     }
     else if (this._targets.length > 0) {
       const target = this._targets[0]
@@ -215,8 +215,8 @@ export class Sprite_AnimationMV extends Sprite {
       this.x = target.x
       this.y = target.y
       if (this.parent === grandparent) {
-        this.x += parent.x
-        this.y += parent.y
+        this.x += parent!.x
+        this.y += parent!.y
       }
       if (this._animation?.position === 0) {
         this.y -= target.height

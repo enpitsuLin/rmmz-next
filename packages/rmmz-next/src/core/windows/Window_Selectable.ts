@@ -418,8 +418,8 @@ export class Window_Selectable<Item extends MZ.GeneralItem = MZ.GeneralItem>
 
   hitTest(x: number, y: number): number {
     if (this.innerRect.contains(x, y)) {
-      const cx = this.origin.x + x - this.padding
-      const cy = this.origin.y + y - this.padding
+      const cx = this.scrollOrigin.x + x - this.padding
+      const cy = this.scrollOrigin.y + y - this.padding
       const topIndex = this.topIndex()
       for (let i = 0; i < this.maxVisibleItems(); i++) {
         const index = topIndex + i

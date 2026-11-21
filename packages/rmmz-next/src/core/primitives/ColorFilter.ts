@@ -10,11 +10,33 @@ import * as PIXI from 'pixi.js'
 export class ColorFilter extends PIXI.Filter {
   constructor() {
     const _fragmentSrc = ColorFilter.prototype._fragmentSrc()
-    super(undefined, _fragmentSrc)
-    this.uniforms.hue = 0
-    this.uniforms.colorTone = [0, 0, 0, 0]
-    this.uniforms.blendColor = [0, 0, 0, 0]
-    this.uniforms.brightness = 255
+    super({
+      glProgram: PIXI.GlProgram.from({
+        vertex: `
+          in vec2 aPosition;
+          out vec2 vTextureCoord;
+          uniform vec4 uInputSize;
+          uniform vec4 uOutputFrame;
+          uniform vec4 uOutputTexture;
+          void main() {
+            vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+            position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+            position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+            gl_Position = vec4(position, 0.0, 1.0);
+            vTextureCoord = aPosition * (uOutputFrame.zw * uInputSize.zw);
+          }
+        `,
+        fragment: _fragmentSrc,
+      }),
+      resources: {
+        colorUniforms: new PIXI.UniformGroup({
+          hue: { value: 0, type: 'f32' },
+          colorTone: { value: [0, 0, 0, 0], type: 'vec4<f32>' },
+          blendColor: { value: [0, 0, 0, 0], type: 'vec4<f32>' },
+          brightness: { value: 255, type: 'f32' },
+        }),
+      },
+    })
   }
 
   /**
@@ -23,7 +45,7 @@ export class ColorFilter extends PIXI.Filter {
    * @param {number} hue - The hue value (-360, 360).
    */
   setHue(hue: number): void {
-    this.uniforms.hue = Number(hue)
+    this.resources.colorUniforms.uniforms.hue = Number(hue)
   }
 
   /**
@@ -35,7 +57,7 @@ export class ColorFilter extends PIXI.Filter {
     if (!(Array.isArray(tone))) {
       throw new TypeError('Argument must be an array')
     }
-    this.uniforms.colorTone = tone.clone()
+    this.resources.colorUniforms.uniforms.colorTone = tone.clone()
   }
 
   /**
@@ -47,7 +69,7 @@ export class ColorFilter extends PIXI.Filter {
     if (!(Array.isArray(color))) {
       throw new TypeError('Argument must be an array')
     }
-    this.uniforms.blendColor = color.clone()
+    this.resources.colorUniforms.uniforms.blendColor = color.clone()
   }
 
   /**
@@ -56,13 +78,14 @@ export class ColorFilter extends PIXI.Filter {
    * @param {number} brightness - The brightness (0 to 255).
    */
   setBrightness(brightness: number): void {
-    this.uniforms.brightness = Number(brightness)
+    this.resources.colorUniforms.uniforms.brightness = Number(brightness)
   }
 
   _fragmentSrc(): string {
     const src
-      = 'varying vec2 vTextureCoord;'
-        + 'uniform sampler2D uSampler;'
+      = 'in vec2 vTextureCoord;'
+        + 'out vec4 finalColor;'
+        + 'uniform sampler2D uTexture;'
         + 'uniform float hue;'
         + 'uniform vec4 colorTone;'
         + 'uniform vec4 blendColor;'
@@ -115,7 +138,7 @@ export class ColorFilter extends PIXI.Filter {
         + '  }'
         + '}'
         + 'void main() {'
-        + '  vec4 sample = texture2D(uSampler, vTextureCoord);'
+        + '  vec4 sample = texture(uTexture, vTextureCoord);'
         + '  float a = sample.a;'
         + '  vec3 hsl = rgbToHsl(sample.rgb);'
         + '  hsl.x = mod(hsl.x + hue / 360.0, 1.0);'
@@ -141,7 +164,7 @@ export class ColorFilter extends PIXI.Filter {
         + '  r = r * brightness / 255.0;'
         + '  g = g * brightness / 255.0;'
         + '  b = b * brightness / 255.0;'
-        + '  gl_FragColor = vec4(r, g, b, a);'
+        + '  finalColor = vec4(r, g, b, a);'
         + '}'
     return src
   }

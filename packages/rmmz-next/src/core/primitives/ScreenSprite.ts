@@ -79,8 +79,8 @@ export class ScreenSprite extends PIXI.Container {
       this._blue = blue
       const graphics = this._graphics
       graphics.clear()
-      graphics.beginFill((red << 16) | (green << 8) | blue, 1)
-      graphics.drawRect(-50000, -50000, 100000, 100000)
+      graphics.rect(-50000, -50000, 100000, 100000)
+        .fill((red << 16) | (green << 8) | blue)
     }
   }
 }

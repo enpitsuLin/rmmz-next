@@ -36,7 +36,7 @@ export class Window_Base extends Window {
     this._dimmerSprite = null
   }
 
-  destroy(options: PIXI.IDestroyOptions): void {
+  destroy(options: PIXI.DestroyOptions): void {
     this.destroyContents()
     if (this._dimmerSprite) {
       this._dimmerSprite.bitmap!.destroy()

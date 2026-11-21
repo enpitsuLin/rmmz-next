@@ -167,11 +167,11 @@ export class Sprite_Battler extends Sprite_Clickable {
     }
     sprite.setup(this._battler!)
     this._damages.push(sprite)
-    this.parent.addChild(sprite)
+    this.parent!.addChild(sprite)
   }
 
   destroyDamageSprite(sprite: Sprite_Damage): void {
-    this.parent.removeChild(sprite)
+    this.parent!.removeChild(sprite)
     this._damages.splice(this._damages.indexOf(sprite), 1)
     sprite.destroy()
   }

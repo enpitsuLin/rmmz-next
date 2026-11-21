@@ -197,7 +197,7 @@ export class Main {
       this.printError(error.name, error.message)
       return
     }
-    this.startGame()
+    await this.startGame()
   }
 
   private onWindowError(event: ErrorEvent): void {
@@ -218,9 +218,9 @@ export class Main {
     return filename?.includes('/AppTranslocation/') ?? false
   }
 
-  private startGame(): void {
+  private async startGame(): Promise<void> {
     this.eraseLoadingSpinner()
-    SceneManager.run('Boot', builtInScenes)
+    await SceneManager.run('Boot', builtInScenes)
   }
 
   private printError(name: string, message: string): void {

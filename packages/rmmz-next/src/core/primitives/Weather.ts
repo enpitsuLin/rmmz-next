@@ -30,7 +30,7 @@ export class Weather extends PIXI.Container<Sprite | ScreenSprite> {
   /**
    * The origin point of the weather for scrolling.
    */
-  origin: Point
+  scrollOrigin: Point
 
   _rainBitmap!: Bitmap
   _stormBitmap!: Bitmap
@@ -52,13 +52,13 @@ export class Weather extends PIXI.Container<Sprite | ScreenSprite> {
      *
      * @type Point
      */
-    this.origin = new Point()
+    this.scrollOrigin = new Point()
   }
 
   /**
    * Destroys the weather.
    */
-  destroy(options: PIXI.IDestroyOptions = { children: true, texture: true }): void {
+  destroy(options: PIXI.DestroyOptions = { children: true, texture: true }): void {
     super.destroy(options)
     this._rainBitmap.destroy()
     this._stormBitmap.destroy()
@@ -102,8 +102,8 @@ export class Weather extends PIXI.Container<Sprite | ScreenSprite> {
     }
     for (const sprite of this._sprites) {
       this._updateSprite(sprite)
-      sprite.x = sprite.ax! - this.origin.x
-      sprite.y = sprite.ay! - this.origin.y
+      sprite.x = sprite.ax! - this.scrollOrigin.x
+      sprite.y = sprite.ay! - this.scrollOrigin.y
     }
   }
 
@@ -160,8 +160,8 @@ export class Weather extends PIXI.Container<Sprite | ScreenSprite> {
   }
 
   _rebornSprite(sprite: Sprite): void {
-    sprite.ax = Math.randomInt(Graphics.width + 100) - 100 + this.origin.x
-    sprite.ay = Math.randomInt(Graphics.height + 200) - 200 + this.origin.y
+    sprite.ax = Math.randomInt(Graphics.width + 100) - 100 + this.scrollOrigin.x
+    sprite.ay = Math.randomInt(Graphics.height + 200) - 200 + this.scrollOrigin.y
     sprite.opacity = 160 + Math.randomInt(60)
   }
 }

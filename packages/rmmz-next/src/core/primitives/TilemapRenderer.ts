@@ -5,22 +5,26 @@ import { TilemapLayer } from './TilemapLayer'
  * Internal class for the tilemap renderer.
  *
  * @class
- * @extends PIXI.ObjectRenderer
+ * @implements PIXI.System
  */
-export class TilemapRenderer extends PIXI.ObjectRenderer {
+export class TilemapRenderer implements PIXI.System {
+  static extension = {
+    type: PIXI.ExtensionType.WebGLSystem,
+    name: 'rpgtilemap',
+  } as const
+
   _shader: PIXI.Shader | null = null
-  // TODO: unused property
-  _images: PIXI.Texture[] = []
-  _internalTextures: PIXI.BaseRenderTexture[] = []
+  _images: (HTMLImageElement | HTMLCanvasElement)[] = []
+  _needsTexturesUpdate = false
+  _internalTextures: PIXI.TextureSource[] = []
   _clearBuffer: Uint8Array = new Uint8Array(1024 * 1024 * 4)
 
-  constructor(renderer: PIXI.Renderer) {
-    super(renderer)
-    this.contextChange()
+  constructor() {
+    this._createInternalTextures()
+    this._shader = this._createShader()
   }
 
   destroy(): void {
-    super.destroy()
     this._destroyInternalTextures()
     this._shader?.destroy()
     this._shader = null
@@ -31,9 +35,7 @@ export class TilemapRenderer extends PIXI.ObjectRenderer {
   }
 
   contextChange(): void {
-    this._shader = this._createShader()
-    this._images = []
-    this._createInternalTextures()
+    this._needsTexturesUpdate = true
   }
 
   _createShader(): PIXI.Shader {
@@ -76,21 +78,29 @@ export class TilemapRenderer extends PIXI.ObjectRenderer {
         + '  gl_FragColor = color;'
         + '}'
 
-    return new PIXI.Shader(PIXI.Program.from(vertexSrc, fragmentSrc), {
-      uSampler0: 0,
-      uSampler1: 0,
-      uSampler2: 0,
-      uProjectionMatrix: new PIXI.Matrix(),
+    return PIXI.Shader.from({
+      gl: { vertex: vertexSrc, fragment: fragmentSrc },
+      resources: {
+        uSampler0: this._internalTextures[0],
+        uSampler1: this._internalTextures[1],
+        uSampler2: this._internalTextures[2],
+        tilemapUniforms: new PIXI.UniformGroup({
+          uProjectionMatrix: { value: new PIXI.Matrix(), type: 'mat3x3<f32>' },
+        }),
+      },
     })
   }
 
   _createInternalTextures(): void {
     this._destroyInternalTextures()
     for (let i = 0; i < TilemapLayer.MAX_GL_TEXTURES; i++) {
-      const baseTexture = new PIXI.BaseRenderTexture()
-      baseTexture.resize(2048, 2048)
-      baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST
-      this._internalTextures.push(baseTexture)
+      const source = new PIXI.TextureSource({
+        width: 2048,
+        height: 2048,
+        scaleMode: 'nearest',
+        autoGarbageCollect: false,
+      })
+      this._internalTextures.push(source)
     }
   }
 
@@ -101,11 +111,14 @@ export class TilemapRenderer extends PIXI.ObjectRenderer {
     this._internalTextures = []
   }
 
-  updateTextures(renderer: PIXI.Renderer, images: PIXI.ImageSource[]): void {
+  updateTextures(renderer: PIXI.WebGLRenderer, images: (HTMLImageElement | HTMLCanvasElement)[]): void {
+    this._images = images
+    this._needsTexturesUpdate = false
+    const gl = renderer.gl
+    const premultiplyAlpha = gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL)
     for (let i = 0; i < images.length; i++) {
       const internalTexture = this._internalTextures[i >> 2]
-      renderer.texture.bind(internalTexture, 0)
-      const gl = renderer.gl
+      renderer.texture.bindSource(internalTexture, 0)
       const x = 1024 * (i % 2)
       const y = 1024 * ((i >> 1) % 2)
       const format = gl.RGBA
@@ -116,11 +129,12 @@ export class TilemapRenderer extends PIXI.ObjectRenderer {
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1)
       gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, format, type, images[i])
     }
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha)
   }
 
-  bindTextures(renderer: PIXI.Renderer): void {
-    for (let ti = 0; ti < TilemapLayer.MAX_GL_TEXTURES; ti++) {
-      renderer.texture.bind(this._internalTextures[ti], ti)
+  bindTextures(renderer: PIXI.WebGLRenderer): void {
+    if (this._needsTexturesUpdate) {
+      this.updateTextures(renderer, this._images)
     }
   }
 }

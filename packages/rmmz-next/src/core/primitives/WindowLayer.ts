@@ -1,78 +1,58 @@
 import type { Window } from './Window'
 import * as PIXI from 'pixi.js'
 
-/**
- * The layer which contains game windows.
- *
- * @class
- * @extends PIXI.Container
- */
+/** The layer which contains game windows. */
 export class WindowLayer extends PIXI.Container {
   children!: Window[]
+  _windowMasks = new Map<Window, PIXI.Graphics>()
 
   constructor() {
     super()
+    this.onRender = this._prepareRender.bind(this)
   }
 
-  /**
-   * Updates the window layer for each frame.
-   */
   update(): void {
     for (const child of this.children) {
-      if (child.update) {
-        child.update()
-      }
+      child.update?.()
     }
   }
 
-  /**
-   * Renders the object using the WebGL renderer.
-   *
-   * @param {PIXI.Renderer} renderer - The renderer.
-   */
-  render(renderer: PIXI.Renderer): void {
-    if (!this.visible) {
-      return
-    }
-
-    const graphics = new PIXI.Graphics()
-    const gl = renderer.gl
-    const children = [...this.children]
-
-    renderer.framebuffer.forceStencil()
-    graphics.transform = this.transform
-    renderer.batch.flush()
-    gl.enable(gl.STENCIL_TEST)
-
-    while (children.length > 0) {
-      const win = children.pop()
-      if (win && win._isWindow && win.visible && win.openness > 0) {
-        gl.stencilFunc(gl.EQUAL, 0, ~0)
-        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP)
-        win.render(renderer)
-        renderer.batch.flush()
-        graphics.clear()
-        win.drawShape(graphics)
-        gl.stencilFunc(gl.ALWAYS, 1, ~0)
-        gl.stencilOp(gl.REPLACE, gl.REPLACE, gl.REPLACE)
-        gl.blendFunc(gl.ZERO, gl.ONE)
-        graphics.render(renderer)
-        renderer.batch.flush()
-        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+  _prepareRender(): void {
+    const windows = this.children.filter(child => child._isWindow)
+    for (const [win, mask] of this._windowMasks) {
+      if (win.parent !== this) {
+        if (!win.destroyed) {
+          win.mask = null
+        }
+        mask.destroy()
+        this._windowMasks.delete(win)
       }
     }
 
-    gl.disable(gl.STENCIL_TEST)
-    gl.clear(gl.STENCIL_BUFFER_BIT)
-    gl.clearStencil(0)
-    renderer.batch.flush()
-
-    for (const child of this.children) {
-      if (!child._isWindow && child.visible) {
-        child.render(renderer)
+    for (let i = 0; i < windows.length; i++) {
+      const win = windows[i]
+      const occluders = windows.slice(i + 1)
+        .filter(child => child.visible && child.openness > 0)
+      let mask = this._windowMasks.get(win)
+      if (occluders.length === 0) {
+        win.mask = null
+        if (mask) {
+          mask.clear()
+          mask.visible = false
+        }
+        continue
       }
+      if (!mask) {
+        mask = new PIXI.Graphics()
+        this._windowMasks.set(win, mask)
+        this.addChild(mask)
+      }
+      mask.visible = true
+      mask.clear()
+      for (const occluder of occluders) {
+        occluder.drawShape(mask)
+      }
+      win.setMask({ mask, inverse: true })
     }
-
-    renderer.batch.flush()
   }
 }

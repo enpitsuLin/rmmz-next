@@ -19,27 +19,21 @@ export class TilingSprite extends PIXI.TilingSprite {
   /**
    * The origin point of the tiling sprite for scrolling.
    */
-  origin: Point
+  scrollOrigin: Point
 
   constructor(bitmap?: Bitmap) {
-    if (!TilingSprite._emptyBaseTexture) {
-      TilingSprite._emptyBaseTexture = new PIXI.BaseTexture()
-      TilingSprite._emptyBaseTexture.setSize(1, 1)
-    }
     const frame = new Rectangle()
-    const texture = new PIXI.Texture(TilingSprite._emptyBaseTexture, frame)
-    super(texture)
+    const texture = new PIXI.Texture({ source: PIXI.Texture.EMPTY.source, frame, dynamic: true })
+    super({ texture, width: 0, height: 0 })
+    this.allowChildren = true
+    this.onRender = this._prepareRender.bind(this)
     this._bitmap = bitmap
-    this._width = 0
-    this._height = 0
     this._frame = frame
 
-    this.origin = new Point()
+    this.scrollOrigin = new Point()
 
     this._onBitmapChange()
   }
-
-  static _emptyBaseTexture: PIXI.BaseTexture | null = null
 
   /**
    * The image for the tiling sprite.
@@ -97,8 +91,8 @@ export class TilingSprite extends PIXI.TilingSprite {
   move(x = 0, y = 0, width = 0, height = 0): void {
     this.x = x
     this.y = y
-    this._width = width
-    this._height = height
+    this.width = width
+    this.height = height
   }
 
   /**
@@ -115,10 +109,9 @@ export class TilingSprite extends PIXI.TilingSprite {
   /**
    * Updates the transform on all children of this container for rendering.
    */
-  updateTransform(): void {
-    this.tilePosition.x = Math.round(-this.origin.x)
-    this.tilePosition.y = Math.round(-this.origin.y)
-    super.updateTransform()
+  _prepareRender(): void {
+    this.tilePosition.x = Math.round(-this.scrollOrigin.x)
+    this.tilePosition.y = Math.round(-this.scrollOrigin.y)
   }
 
   _onBitmapChange(): void {
@@ -126,12 +119,13 @@ export class TilingSprite extends PIXI.TilingSprite {
       this._bitmap.addLoadListener(this._onBitmapLoad.bind(this))
     }
     else {
-      this.texture.frame = new Rectangle()
+      this.texture.frame.copyFrom(new Rectangle())
+      this.texture.update()
     }
   }
 
   _onBitmapLoad(): void {
-    this.texture.baseTexture = this._bitmap!.baseTexture
+    this.texture.source = this._bitmap!.baseTexture
     this._refresh()
   }
 
@@ -143,16 +137,16 @@ export class TilingSprite extends PIXI.TilingSprite {
       frame.height = this._bitmap.height
     }
     if (texture) {
-      if (texture.baseTexture) {
+      if (texture.source) {
         try {
-          texture.frame = frame
+          texture.frame.copyFrom(frame)
         }
         catch (e) {
           console.error(e)
-          texture.frame = new Rectangle()
+          texture.frame.copyFrom(new Rectangle())
         }
       }
-      texture._updateID++
+      texture.update()
     }
   }
 }

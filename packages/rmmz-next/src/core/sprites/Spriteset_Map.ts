@@ -35,7 +35,7 @@ export class Spriteset_Map extends Spriteset_Base<Game_Character> {
     this._balloonSprites = []
   }
 
-  destroy(options: PIXI.IDestroyOptions): void {
+  destroy(options: PIXI.DestroyOptions): void {
     this.removeAllBalloons()
     super.destroy(options)
   }
@@ -157,14 +157,14 @@ export class Spriteset_Map extends Spriteset_Base<Game_Character> {
     }
     if (this._parallax.bitmap) {
       const bitmap = this._parallax.bitmap
-      this._parallax.origin.x = GlobalMananger.$gameMap.parallaxOx() % bitmap.width
-      this._parallax.origin.y = GlobalMananger.$gameMap.parallaxOy() % bitmap.height
+      this._parallax.scrollOrigin.x = GlobalMananger.$gameMap.parallaxOx() % bitmap.width
+      this._parallax.scrollOrigin.y = GlobalMananger.$gameMap.parallaxOy() % bitmap.height
     }
   }
 
   updateTilemap(): void {
-    this._tilemap.origin.x = GlobalMananger.$gameMap.displayX() * GlobalMananger.$gameMap.tileWidth()
-    this._tilemap.origin.y = GlobalMananger.$gameMap.displayY() * GlobalMananger.$gameMap.tileHeight()
+    this._tilemap.scrollOrigin.x = GlobalMananger.$gameMap.displayX() * GlobalMananger.$gameMap.tileWidth()
+    this._tilemap.scrollOrigin.y = GlobalMananger.$gameMap.displayY() * GlobalMananger.$gameMap.tileHeight()
   }
 
   updateShadow(): void {
@@ -177,8 +177,8 @@ export class Spriteset_Map extends Spriteset_Base<Game_Character> {
   updateWeather(): void {
     this._weather.type = GlobalMananger.$gameScreen.weatherType() as Weather.WeatherType
     this._weather.power = GlobalMananger.$gameScreen.weatherPower()
-    this._weather.origin.x = GlobalMananger.$gameMap.displayX() * GlobalMananger.$gameMap.tileWidth()
-    this._weather.origin.y = GlobalMananger.$gameMap.displayY() * GlobalMananger.$gameMap.tileHeight()
+    this._weather.scrollOrigin.x = GlobalMananger.$gameMap.displayX() * GlobalMananger.$gameMap.tileWidth()
+    this._weather.scrollOrigin.y = GlobalMananger.$gameMap.displayY() * GlobalMananger.$gameMap.tileHeight()
   }
 
   updateBalloons(): void {

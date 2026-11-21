@@ -19,7 +19,7 @@ export class Sprite_Timer extends Sprite {
     this.update()
   }
 
-  destroy(options?: PIXI.IDestroyOptions): void {
+  destroy(options?: PIXI.DestroyOptions): void {
     this.bitmap?.destroy()
     super.destroy(options)
   }

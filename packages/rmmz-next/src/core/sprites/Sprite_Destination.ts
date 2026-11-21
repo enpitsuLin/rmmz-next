@@ -16,7 +16,7 @@ export class Sprite_Destination extends Sprite {
     this._frameCount = 0
   }
 
-  destroy(options?: PIXI.IDestroyOptions): void {
+  destroy(options?: PIXI.DestroyOptions): void {
     if (this.bitmap) {
       this.bitmap.destroy()
     }

@@ -54,14 +54,14 @@ export class SceneManager {
     return typeof scene === 'string' ? this._getConstructor(scene) : scene
   }
 
-  static run(scene: SceneManager.SceneTarget, scenes?: Record<SceneName, SceneManager.SceneConstructor>): void {
+  static async run(scene: SceneManager.SceneTarget, scenes?: Record<SceneName, SceneManager.SceneConstructor>): Promise<void> {
     if (scenes) {
       for (const name of Object.keys(scenes) as SceneName[]) {
         this._scenes.set(name, scenes[name])
       }
     }
     try {
-      this.initialize()
+      await this.initialize()
       this.goto(scene)
       Graphics.startGameLoop()
     }
@@ -70,9 +70,9 @@ export class SceneManager {
     }
   }
 
-  static initialize(): void {
+  static async initialize(): Promise<void> {
     this.checkBrowser()
-    this.initGraphics()
+    await this.initGraphics()
     this.initAudio()
     this.initVideo()
     this.initInput()
@@ -90,8 +90,8 @@ export class SceneManager {
       throw new Error('Your browser does not support IndexedDB.')
   }
 
-  static initGraphics(): void {
-    if (!Graphics.initialize())
+  static async initGraphics(): Promise<void> {
+    if (!await Graphics.initialize())
       throw new Error('Failed to initialize graphics.')
     Graphics.setTickHandler(this.update.bind(this))
   }

@@ -26,7 +26,7 @@ export class Sprite_Damage extends Sprite {
     this._colorType = 0
   }
 
-  destroy(options?: PIXI.IDestroyOptions): void {
+  destroy(options?: PIXI.DestroyOptions): void {
     for (const child of this.children) {
       if (child.bitmap) {
         child.bitmap.destroy()

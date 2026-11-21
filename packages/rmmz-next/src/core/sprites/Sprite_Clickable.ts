@@ -1,3 +1,4 @@
+import type { Container } from 'pixi.js'
 import { Point } from '../primitives/Point'
 import { Rectangle } from '../primitives/Rectangle'
 import { Sprite } from '../primitives/Sprite'
@@ -57,12 +58,20 @@ export class Sprite_Clickable extends Sprite {
   }
 
   isClickEnabled(): boolean {
-    return this.worldVisible
+    if (!this.visible) {
+      return false
+    }
+    for (let object: Container | null = this.parent; object; object = object.parent) {
+      if (!object.visible) {
+        return false
+      }
+    }
+    return true
   }
 
   isBeingTouched(): boolean {
     const touchPos = new Point(TouchInput.x, TouchInput.y)
-    const localPos = this.worldTransform.applyInverse(touchPos)
+    const localPos = this.toLocal(touchPos)
     return this.hitTest(localPos.x, localPos.y)
   }
 

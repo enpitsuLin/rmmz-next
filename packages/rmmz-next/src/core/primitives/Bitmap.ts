@@ -44,7 +44,7 @@ export class Bitmap {
 
   _canvas: HTMLCanvasElement | null = null
   _context: CanvasRenderingContext2D | null = null
-  _baseTexture: PIXI.BaseTexture | null = null
+  _baseTexture: PIXI.TextureSource | null = null
   _image: HTMLImageElement | null = null
   _url: string = ''
   _paintOpacity: number = 255
@@ -88,10 +88,9 @@ export class Bitmap {
     const renderTexture = PIXI.RenderTexture.create({ width, height })
     if (stage) {
       const renderer = Graphics.app.renderer
-      renderer.render(stage, { renderTexture })
-      stage.worldTransform.identity()
+      renderer.render({ container: stage, target: renderTexture })
       const canvas = renderer.extract.canvas(renderTexture)
-      bitmap.context.drawImage(canvas, 0, 0)
+      bitmap.context.drawImage(canvas as HTMLCanvasElement, 0, 0)
       canvas.width = 0
       canvas.height = 0
     }
@@ -132,9 +131,9 @@ export class Bitmap {
    * The base texture that holds the image.
    *
    * @readonly
-   * @type PIXI.BaseTexture
+   * @type PIXI.TextureSource
    */
-  get baseTexture(): PIXI.BaseTexture {
+  get baseTexture(): PIXI.TextureSource {
     return this._baseTexture!
   }
 
@@ -162,7 +161,7 @@ export class Bitmap {
   /**
    * The 2d context of the bitmap canvas.
    */
-  get context(): PIXI.ICanvasRenderingContext2D {
+  get context(): CanvasRenderingContext2D {
     this._ensureCanvas()
     return this._context!
   }
@@ -253,8 +252,7 @@ export class Bitmap {
     height = Math.max(height || 0, 1)
     this.canvas.width = width
     this.canvas.height = height
-    this.baseTexture.width = width
-    this.baseTexture.height = height
+    this.baseTexture.resize(width, height)
   }
 
   /**
@@ -546,18 +544,17 @@ export class Bitmap {
   }
 
   _createBaseTexture(source: HTMLCanvasElement | HTMLImageElement): void {
-    this._baseTexture = new PIXI.BaseTexture(source)
-    this._baseTexture.mipmap = PIXI.MIPMAP_MODES.OFF
-    this._baseTexture.width = source.width
-    this._baseTexture.height = source.height
+    this._baseTexture = source instanceof HTMLCanvasElement
+      ? new PIXI.CanvasSource({ resource: source })
+      : new PIXI.ImageSource({ resource: source })
     this._updateScaleMode()
   }
 
   _updateScaleMode(): void {
     if (this._baseTexture) {
       this._baseTexture.scaleMode = this._smooth
-        ? PIXI.SCALE_MODES.LINEAR
-        : PIXI.SCALE_MODES.NEAREST
+        ? 'linear'
+        : 'nearest'
     }
   }
 

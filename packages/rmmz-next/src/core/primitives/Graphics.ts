@@ -23,7 +23,7 @@ export class Graphics {
   static _fpsCounter: FPSCounter | null = null
   static _loadingSpinner: HTMLDivElement | null = null
   static _stretchEnabled = false
-  static _app: PIXI.Application | null = null
+  static _app: PIXI.Application<PIXI.WebGLRenderer> | null = null
   static _effekseer: null | ReturnType<typeof effekseer.createContext> = null
   static _wasLoading = false
   /**
@@ -43,7 +43,7 @@ export class Graphics {
   /**
    * The PIXI.Application object.
    */
-  static get app(): PIXI.Application {
+  static get app(): PIXI.Application<PIXI.WebGLRenderer> {
     return this._app!
   }
 
@@ -92,7 +92,7 @@ export class Graphics {
    *
    * @returns True if the graphics system is available.
    */
-  static initialize(): boolean {
+  static async initialize(): Promise<boolean> {
     this._width = 0
     this._height = 0
     this._defaultScale = 1
@@ -115,7 +115,7 @@ export class Graphics {
     this._createAllElements()
     this._disableContextMenu()
     this._setupEventHandlers()
-    this._createPixiApp()
+    await this._createPixiApp()
     this._createEffekseerContext()
     Video.setVisibilityHandler((visible) => {
       if (visible) {
@@ -255,10 +255,10 @@ export class Graphics {
     this._updateVideo()
   }
 
-  static _onTick(deltaTime: number): void {
+  static _onTick(ticker: PIXI.Ticker): void {
     this._fpsCounter!.startTick()
     if (this._tickHandler) {
-      this._tickHandler(deltaTime)
+      this._tickHandler(ticker.deltaTime)
     }
     if (this._canRender()) {
       this._app!.render()
@@ -484,11 +484,13 @@ export class Graphics {
     }
   }
 
-  static _createPixiApp(): void {
+  static async _createPixiApp(): Promise<void> {
     try {
-      this._setupPixi()
-      this._app = new PIXI.Application({
-        view: this._canvas!,
+      this._app = new PIXI.Application<PIXI.WebGLRenderer>()
+      await this._app.init({
+        canvas: this._canvas!,
+        preference: 'webgl',
+        gcMaxUnusedTime: 10000,
         autoStart: false,
       })
       this._app.ticker.remove(this._app.render, this._app)
@@ -500,17 +502,12 @@ export class Graphics {
     }
   }
 
-  static _setupPixi(): void {
-    PIXI.utils.skipHello()
-    PIXI.TextureGCSystem.defaultMaxIdle = 600
-  }
-
   static _createEffekseerContext(): void {
     if (this._app && window.effekseer) {
       try {
         this._effekseer = effekseer.createContext()
         if (this._effekseer) {
-          this._effekseer.init((this._app.renderer as any).gl)
+          this._effekseer.init(this._app.renderer.gl)
           this._effekseer.setRestorationOfStatesFlag(false)
         }
       }

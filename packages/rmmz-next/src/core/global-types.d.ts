@@ -225,15 +225,15 @@ interface VorbisDecoderConstructor {
 
 declare var VorbisDecoder: VorbisDecoderConstructor
 
-declare namespace GlobalMixins {
+declare namespace PixiMixins {
 
-  interface IRendererPlugins {
+  interface WebGLSystems {
     rpgtilemap: import('.').TilemapRenderer
   }
 
-  interface Sprite {
+  interface Container<C extends import('pixi.js').ContainerChild> {
     // eslint-disable-next-line ts/method-signature-style
-    update(): void
+    update?(): void
     ax?: number
     ay?: number
   }

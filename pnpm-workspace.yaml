@@ -9,7 +9,7 @@ catalog:
   cac: ^7.0.0
   fflate: ^0.8.3
   localforage: ^1.10.0
-  pixi.js: 7.4.3
+  pixi.js: ^8.23.0
 
 catalogs:
   build:

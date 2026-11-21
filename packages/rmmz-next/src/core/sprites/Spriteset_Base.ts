@@ -41,7 +41,7 @@ export abstract class Spriteset_Base<
     this._animationSprites = []
   }
 
-  destroy(options: PIXI.IDestroyOptions): void {
+  destroy(options: PIXI.DestroyOptions): void {
     this.removeAllAnimations()
     super.destroy(options)
   }
@@ -78,9 +78,8 @@ export abstract class Spriteset_Base<
   }
 
   createBaseFilters(): void {
-    this._baseSprite.filters = []
     this._baseColorFilter = new ColorFilter()
-    this._baseSprite.filters.push(this._baseColorFilter)
+    this._baseSprite.filters = [this._baseColorFilter]
   }
 
   createPictures(): void {
@@ -103,9 +102,8 @@ export abstract class Spriteset_Base<
   }
 
   createOverallFilters(): void {
-    this.filters = []
     this._overallColorFilter = new ColorFilter()
-    this.filters.push(this._overallColorFilter)
+    this.filters = [this._overallColorFilter]
   }
 
   updateBaseFilters(): void {

@@ -242,8 +242,8 @@ export class Window_Scrollable extends Window_Base {
       this.updateScrollBase(baseX, baseY)
       this.paint()
     }
-    this.origin.x = this._scrollX % blockWidth
-    this.origin.y = this._scrollY % blockHeight
+    this.scrollOrigin.x = this._scrollX % blockWidth
+    this.scrollOrigin.y = this._scrollY % blockHeight
   }
 
   updateScrollBase(baseX: number, baseY: number): void {
