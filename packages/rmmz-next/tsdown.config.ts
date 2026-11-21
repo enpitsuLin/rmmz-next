@@ -26,7 +26,6 @@ export default defineConfig({
   platform: 'neutral',
   copy: [
     { from: 'src/core/*.d.ts', to: 'dist' },
-    { from: 'src/core/vendor', to: 'dist' },
     { from: 'src/vite/*.d.ts', to: 'dist/vite' },
   ],
   inputOptions: {

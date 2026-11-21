@@ -1,13 +1,11 @@
 /**
- * Effekseer and the Vorbis decoder are classic scripts: they publish globals and
- * `vorbisdecoder.js` even spawns its worker from `document.currentScript.src`.
- * They therefore cannot be imported as ES modules, but they are still owned by
- * core and shipped inside the package.
+ * Libraries load as classic scripts from the project's js/libs. The editor
+ * reads Effekseer there, and Vorbis spawns its worker from document.currentScript.src.
  */
 export const libUrls = {
-  effekseer: new URL('./vendor/effekseer.min.js', import.meta.url).href,
-  vorbisDecoder: new URL('./vendor/vorbisdecoder.js', import.meta.url).href,
-  effekseerWasm: new URL('./vendor/effekseer.wasm', import.meta.url).href,
+  effekseer: 'js/libs/effekseer.min.js',
+  vorbisDecoder: 'js/libs/vorbisdecoder.js',
+  effekseerWasm: 'js/libs/effekseer.wasm',
 }
 
 function loadClassicScript(url: string): Promise<void> {
@@ -24,7 +22,7 @@ function loadClassicScript(url: string): Promise<void> {
 let externalLibsPromise: Promise<void> | null = null
 
 /**
- * Injects the bundled Effekseer and Vorbis decoder scripts. Safe to call more
+ * Injects the Effekseer and Vorbis decoder scripts. Safe to call more
  * than once; the scripts are only loaded on the first call.
  */
 export function loadExternalLibs(): Promise<void> {
@@ -36,7 +34,7 @@ export function loadExternalLibs(): Promise<void> {
 }
 
 /**
- * Boots the Effekseer runtime from the wasm binary bundled with core.
+ * Boots the Effekseer runtime from the project's js/libs wasm binary.
  */
 export function initEffekseerRuntime(): Promise<void> {
   return new Promise((resolve, reject) => {
