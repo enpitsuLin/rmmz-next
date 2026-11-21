@@ -26,11 +26,13 @@
   },
   "files": [
     "bin",
-    "dist"
+    "dist",
+    "templates"
   ],
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
+    "test": "node --test test/*.test.js",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build"
   },

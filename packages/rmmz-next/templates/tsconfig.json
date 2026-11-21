@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "es2021",
+    // Load DOM through types so engine constructors are declared first.
+    "lib": [],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": [
+      "vite/client",
+      "node",
+      "rmmz-next/client",
+      "rmmz-next/types",
+      "rmmz-next/globals",
+      "typescript/lib/lib.es2021",
+      "typescript/lib/lib.dom",
+      "typescript/lib/lib.dom.iterable",
+      "typescript/lib/lib.dom.asynciterable"
+    ],
+    "allowJs": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "declaration": true,
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "js"
+  ],
+  "exclude": [
+    "js/libs"
+  ]
+}

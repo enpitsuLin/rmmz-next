@@ -15,6 +15,7 @@ export const ASSET_DIRS = [
   'fonts',
   'icon',
   'img',
+  'js/libs',
   'movies',
   'save',
 ]

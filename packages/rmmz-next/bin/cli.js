@@ -6,6 +6,7 @@ import { homedir, platform } from 'node:os'
 import { join, resolve } from 'node:path'
 import process from 'node:process'
 import cac from 'cac'
+import { commandInit } from './init.js'
 
 const isWindows = platform() === 'win32'
 const isLinux = platform() === 'linux'
@@ -416,6 +417,10 @@ async function commandDev() {
 // ============================================================================
 
 const cli = cac('rmmz-next')
+
+cli
+  .command('init [dir]', '将原版 RPG Maker MZ 工程迁移为 rmmz-next 工程（默认：当前目录）')
+  .action(commandInit)
 
 cli
   .command('protect', 'Protect package.json from being overwritten by the MZ editor')
