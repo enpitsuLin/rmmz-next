@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   base: './',
   plugins: [
-    rmmz(),
+    rmmz({ extraAssetDirs: ['models'] }),
   ],
   esbuild: {
     target: 'es2021',

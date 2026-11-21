@@ -1,5 +1,6 @@
 import '@pixi/3d'
-import { Game_Actor, Input, PluginManager, SceneManager } from 'rmmz-next'
+import { Game_Actor, GlobalMananger as globals, Input, PluginManager, SceneManager } from 'rmmz-next'
+import type { Game_Interpreter } from 'rmmz-next'
 import { installConfig } from './audio'
 import { installEffekseer } from './effekseer'
 import { Scene_Nightward, startNightwardRun } from './scene'
@@ -31,4 +32,24 @@ export function installNightward(): void {
     const scene = SceneManager._scene
     if (scene instanceof Scene_Nightward) scene.pause()
   })
+  for (const command of ['PropMove', 'PropVisible', 'PropBreak', 'PropDoor', 'PropCommonEvent', 'PropContext']) {
+    PluginManager.registerCommand('Nightward', command, function (this: Game_Interpreter, args) {
+      const scene = SceneManager._scene
+      if (!(scene instanceof Scene_Nightward)) return
+      const run = scene.run
+      const context = run.propContext(this)
+      if (command === 'PropContext') { Reflect.apply(globals.$gameVariables.setValue, globals.$gameVariables, [Number(args.variable), context ?? '']); return }
+      for (const prop of run.props.select(args.target === '@context' ? context ?? '' : args.target ?? '')) {
+        if (command === 'PropMove') {
+          const relative = args.relative === 'true'
+          run.props.move(prop, Number(args.x) + (relative ? prop.x : 0), Number(args.y) + (relative ? prop.y : 0), Number(args.z) + (relative ? prop.z : 0))
+        }
+        else if (command === 'PropVisible') run.props.show(prop, args.visible === 'true')
+        else if (command === 'PropBreak') run.breakProp(prop)
+        else if (command === 'PropDoor') run.props.open(prop, Number(args.amount))
+        else if (command === 'PropCommonEvent') run.queuePropEvent(Number(args.commonEvent), prop.id)
+      }
+      run.world.syncProps()
+    })
+  }
 }

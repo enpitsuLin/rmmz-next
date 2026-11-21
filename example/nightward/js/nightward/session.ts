@@ -1,6 +1,8 @@
 import { DataManager, GlobalMananger as globals } from 'rmmz-next'
 import type { Game_Actor, Game_Interpreter, Game_Party, Game_Troop } from 'rmmz-next'
-import type { ReferenceManifest } from './assets'
+import type { PropScene } from './prop-scene'
+import { PropManager } from './props'
+import type { Prop } from './props'
 import type { Content, FamilyKey, Passive, PassiveKey, PickupKey, Point, Weapon, WeaponKey } from './content'
 import type { Enemy } from './world'
 import type { DelayedCast, FirePool, Projectile, TomeState } from './weapons'
@@ -9,7 +11,7 @@ import type { Pickup, Reward } from './rewards'
 import type { RunResult } from './records'
 import { direction, distance, weaponKeys } from './content'
 import { World } from './world'
-import { stepContact } from './combat'
+import { breakProp, stepContact } from './combat'
 import { stepDirector, stepEnemies } from './director'
 import { stepFirePools, stepProjectiles, stepWeapons } from './weapons'
 import { chooseRewards, grantReward, stepPickups } from './rewards'
@@ -32,6 +34,7 @@ export class RunSession {
   readonly actor: Game_Actor
   readonly party: Game_Party
   readonly troop: Game_Troop
+  readonly props: PropManager
   readonly world: World
   readonly interpreter: Game_Interpreter
   state: RunState = 'running'
@@ -62,7 +65,9 @@ export class RunSession {
   result?: RunResult
   private turn = 0
   private ended = false
-  constructor(readonly content: Content, reference: ReferenceManifest, readonly demo = false) {
+  propEventId?: string
+  private propEvents: { id: number, prop: string }[] = []
+  constructor(readonly content: Content, readonly propScene: PropScene, readonly demo = false) {
     DataManager.setupNewGame()
     globals.$gameMap.setup(1)
     globals.$gamePlayer.locate(content.map.center, content.map.center + 6)
@@ -76,7 +81,13 @@ export class RunSession {
     for (const key of weaponKeys) this.cooldowns.set(key, content.weapons.get(key)![0]!.data.initialDelay)
     this.tomes.timer = content.weapons.get('tomes')![0]!.data.initialDelay
     this.interpreter = globals.$gameMap._interpreter
-    this.world = new World(content, reference)
+    const setup = this.interpreter.setup
+    this.interpreter.setup = (list, eventId) => {
+      this.propEventId = undefined
+      setup.call(this.interpreter, list, eventId)
+    }
+    this.props = new PropManager(propScene, globals.$gameMap.events(), content.map.center)
+    this.world = new World(content, this.props)
     this.party.onBattleStart(false)
     this.troop.onBattleStart(false)
     if (demo) {
@@ -93,6 +104,13 @@ export class RunSession {
   }
   cooldownScale(): number { return 1 - this.passiveValue('cinder') }
   emit(event: RunEvent): void { this.events.push({ ...event, time: this.time }) }
+  breakProp(prop: Prop): void { breakProp(this, prop) }
+  queuePropEvent(id: number, prop: string): void { this.propEvents.push({ id, prop }) }
+  propContext(interpreter: Game_Interpreter): string | undefined {
+    for (let current: Game_Interpreter | null = this.interpreter; current; current = Reflect.get(current, '_childInterpreter') as Game_Interpreter | null) {
+      if (current === interpreter) return this.propEventId
+    }
+  }
   pause(): void { if (this.state === 'running') this.state = 'paused' }
   resume(): void { if (this.state === 'paused') this.state = 'running' }
   select(index: number): void {
@@ -134,6 +152,15 @@ export class RunSession {
     if (this.state !== 'running') return
     this.time += dt
     globals.$gameMap.update(true)
+    if (!this.interpreter.isRunning()) {
+      this.propEventId = undefined
+      const next = this.propEvents.shift()
+      if (next) {
+        this.interpreter.setup(globals.$dataCommonEvents[next.id]!.list, 0)
+        this.propEventId = next.prop
+      }
+    }
+    this.props.updateEvents()
     this.world.syncProps()
     this.invulnerable = Math.max(0, this.invulnerable - dt)
     const movement = this.demo ? this.demoInput() : input, n = Math.hypot(movement.x, movement.z) > 1 ? direction(movement.x, movement.z) : movement
@@ -175,6 +202,7 @@ export class RunSession {
   }
   dispose(): void {
     this.endBattle()
+    this.props.dispose()
     this.world.enemies.length = 0
     this.pickups.length = 0
     this.projectiles.length = 0
@@ -182,5 +210,7 @@ export class RunSession {
     this.delayed.length = 0
     this.events.length = 0
     this.interpreter.clear()
+    this.propEvents.length = 0
+    this.propEventId = undefined
   }
 }

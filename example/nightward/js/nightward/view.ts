@@ -1,4 +1,4 @@
-import { Camera3D, DirectionalLight, FlatMaterial, Geometry3D, Material3D, Mesh3D, PointLight, Sprite3D, View3D } from '@pixi/3d'
+import { Camera3D, DirectionalLight, Material3D, Mesh3D, PointLight, Sprite3D, View3D } from '@pixi/3d'
 import { BloomEffect, TiltShiftEffect } from '@pixi/3d/extras'
 import type { BaseMaterial3D, Pass3D } from '@pixi/3d'
 import { Container } from 'pixi.js'
@@ -18,7 +18,6 @@ interface Particle { sprite: Sprite3D, life: number, age: number, vx: number, vy
 export class GraveyardView {
   readonly view: View3D
   readonly overlay = new Container()
-  private geometries: Geometry3D[] = []
   private materials = new Set<BaseMaterial3D>()
   private passes: Pass3D[] = []
   private moonDisc!: Sprite3D
@@ -89,30 +88,15 @@ export class GraveyardView {
     }
   }
   private makeWorld(): void {
-    const reference = this.assets.manifest
-    const roughness: Record<string, number> = { grass: .92, dirt: .9, cobble: .5, flagstone: .55, grave: .68, masonry: .8, bark: .95, thicket: .95, deadwood: .85, iron: .6, glass: .55 }
-    const materials = new Map<string, BaseMaterial3D>()
-    this.propMaterial = (name: string): BaseMaterial3D => {
-      let material = materials.get(name)
-      if (!material) {
-        if (name === 'sky') material = new FlatMaterial({ baseColorTexture: this.assets.sky, alphaMode: 'blend', fog: false, baseColor: 10133680 })
-        else {
-          const surface = this.assets.surfaces[name]!
-          material = new Material3D({ baseColorTexture: surface.albedo, normalTexture: surface.normal, roughness: roughness[name], vertexColors: true, metallic: name === 'iron' ? .3 : 0, alphaMode: ['dirt', 'cobble', 'flagstone', 'grave', 'masonry', 'thicket', 'deadwood'].includes(name) ? 'mask' : 'opaque', flatShading: name === 'bark' || name === 'deadwood', doubleSided: name === 'thicket', ...(surface.emissive ? { emissive: { texture: surface.emissive, strength: 2.4 } } : name === 'grave' || name === 'masonry' ? { emissive: { texture: surface.albedo, color: name === 'grave' ? 6322368 : 5269680, strength: name === 'grave' ? .14 : .1 } } : {}) })
-        }
-        materials.set(name, material); this.materials.add(material)
-      }
-      return material
-    }
-    for (const mesh of reference.meshes) {
-      const material = this.propMaterial(mesh.material)
-      const attributes = mesh.attributes, binary = this.assets.geometry
-      const geometry = new Geometry3D({ positions: new Float32Array(binary, attributes.positions.offset, attributes.positions.length), normals: new Float32Array(binary, attributes.normals.offset, attributes.normals.length), uvs: new Float32Array(binary, attributes.uvs.offset, attributes.uvs.length), colors: new Uint8Array(binary, attributes.colors.offset, attributes.colors.length), indices: attributes.indices.type === 'Uint32Array' ? new Uint32Array(binary, attributes.indices.offset, attributes.indices.length) : new Uint16Array(binary, attributes.indices.offset, attributes.indices.length) })
-      this.geometries.push(geometry)
-      const node = new Mesh3D({ geometry, material, castShadow: !['grass', 'dirt', 'cobble', 'flagstone', 'glass', 'bark', 'thicket', 'sky'].includes(mesh.material), receiveShadow: mesh.material !== 'sky' })
+    const scene = this.run.propScene
+    this.propMaterial = name => scene.materials.get(name)!
+    for (const mesh of scene.environment) {
+      const node = new Mesh3D({ geometry: mesh.geometry, material: this.propMaterial(mesh.material), castShadow: !['grass', 'dirt', 'cobble', 'flagstone', 'glass', 'bark', 'thicket', 'sky'].includes(mesh.material), receiveShadow: mesh.material !== 'sky' })
+      mesh.matrix.decompose(node.position, node.quaternion, node.scale)
       this.view.root.addChild(node)
     }
   }
+
   private sprite(texture: Assets['effects'][number], height: number): Sprite3D {
     const sprite = new Sprite3D({ texture, height, billboardMode: 'cylindrical', anchor: .5, alphaMode: 'blend' })
     this.view.root.addChild(sprite)
@@ -312,6 +296,5 @@ export class GraveyardView {
     this.view.destroy({ children: true })
     for (const pass of this.passes) pass.destroy()
     for (const material of this.materials) material.destroy()
-    for (const geometry of this.geometries) geometry.destroy()
   }
 }

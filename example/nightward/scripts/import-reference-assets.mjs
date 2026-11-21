@@ -1,12 +1,12 @@
 import { createHash } from 'node:crypto'
 import { bakeReferenceMedia } from './bake-reference-media.mjs'
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import vm from 'node:vm'
-import { deflateSync, gzipSync } from 'node:zlib'
+import { deflateSync } from 'node:zlib'
 import { collectReference } from './reference-source.mjs'
 import { capturePropWorld } from './capture-reference-props.mjs'
-import { createEditorPropLayout } from './prop-layout.mjs'
+import { writePropAssets } from './prop-scene.mjs'
 
 // Compile the public reference's procedural assets into ordinary MZ resources.
 // Only asset generators execute here; the reference game and engine never ship.
@@ -50,6 +50,7 @@ vm.runInContext(`${code}\n globalThis.reference = { actors: _P({upscale:1}), ico
 const reference = context.reference
 const output = `${root}img/nightward/reference`
 mkdirSync(output, { recursive: true })
+const previousReference = existsSync(`${output}/manifest.json`) ? JSON.parse(readFileSync(`${output}/manifest.json`, 'utf8')) : {}
 const crcTable = Array.from({ length: 256 }, (_, value) => { for (let i = 0; i < 8; i++) value = value & 1 ? 0xedb88320 ^ value >>> 1 : value >>> 1; return value >>> 0 })
 function chunk(name, data) {
   const type = Buffer.from(name), size = Buffer.alloc(4), crc = Buffer.alloc(4)
@@ -130,17 +131,10 @@ png('../../tilesets/NightwardGround',editorGround)
 const builders = Object.fromEntries(Object.entries(surfaces).map(([name, surface]) => [name, new reference.Builder(surface.tile)]))
 const propWorld = capturePropWorld(context, builders, reference.makeWorld)
 const { details } = propWorld
-const chunks = [], meshes = []
-let offset = 0
-function pack(values) {
-  const data = Buffer.from(values.buffer, values.byteOffset, values.byteLength), descriptor = { offset, length: values.length, type: values.constructor.name }
-  chunks.push(data); offset += data.length
-  if (offset % 4) { const padding = Buffer.alloc(4 - offset % 4); chunks.push(padding); offset += padding.length }
-  return descriptor
-}
+const meshes = []
 for (const [material, builder] of Object.entries(builders)) {
   const geometry = builder.build()
-  if (geometry) meshes.push({ material, attributes: Object.fromEntries(['positions', 'normals', 'uvs', 'colors', 'indices'].map(key => [key, pack(geometry[key])])) })
+  if (geometry) meshes.push({ material, ...geometry })
 }
 const door=details.door,doorBuilder=new reference.Builder(surfaces.grave.tile)
 doorBuilder.ao=.3;doorBuilder.color=7762558
@@ -149,24 +143,15 @@ doorBuilder.box(door.width/2,.25,door.thickness/2,door.width-.3,1,.05,{faces:{ba
 doorBuilder.box(door.width/2,1.45,door.thickness/2,door.width-.3,1,.05,{faces:{back:false}})
 const doorGeometry=doorBuilder.build()
 propWorld.models.crypt.meshes.push({ material: 'grave', kind: 'door', ...doorGeometry })
-const propModels = Object.fromEntries(Object.entries(propWorld.models).map(([key, model]) => [key, {
-  ...model,
-  meshes: model.meshes.map(mesh => {
-    const values = { positions: new Float32Array(mesh.positions), normals: new Float32Array(mesh.normals), uvs: new Float32Array(mesh.uvs), colors: new Uint8Array(mesh.colors), indices: mesh.positions.length / 3 > 65535 ? new Uint32Array(mesh.indices) : new Uint16Array(mesh.indices) }
-    return { material: mesh.material, ...(mesh.kind ? { kind: mesh.kind } : {}), attributes: Object.fromEntries(Object.entries(values).map(([name, data]) => [name, pack(data)])) }
-  }),
-}]))
-const editorProps = createEditorPropLayout(propModels, propWorld.layout)
 const skyBuilder=new reference.Builder(1),radius=reference.skyRadius
 skyBuilder.ao=0
 for(let i=0;i<=48;i++){const angle=i/48*Math.PI*2,x=Math.cos(angle)*radius,z=Math.sin(angle)*radius;skyBuilder.vertex(x,-20,z,-Math.cos(angle),0,-Math.sin(angle),i/48*4,1);skyBuilder.vertex(x,150,z,-Math.cos(angle),0,-Math.sin(angle),i/48*4,0)}
 for(let i=0;i<48;i++){const at=i*2;skyBuilder.triangle(at,at+3,at+1);skyBuilder.triangle(at,at+2,at+3)}
 const skyGeometry=skyBuilder.build()
-meshes.push({material:'sky',kind:'sky',attributes:Object.fromEntries(['positions','normals','uvs','colors','indices'].map(key=>[key,pack(skyGeometry[key])]))})
-// Vite HTTP-decodes .gz files; keep application-level gzip in an opaque .bin file.
-writeFileSync(`${output}/world.bin`, gzipSync(Buffer.concat(chunks)))
-writeFileSync(`${output}/manifest.json`, `${JSON.stringify({ source: { url: sourceUrl, sha256: createHash('sha256').update(source).digest('hex') }, animations, icons, surfaces, meshes, details, propModels, propLayout: editorProps.layout, propGroups: editorProps.groups, propAliases: propWorld.aliases, braziers: reference.braziers, crypt: reference.crypt, glassFrames: reference.glassFrames, look:reference.look, palette:reference.palette, skyRadius:reference.skyRadius, lights:reference.lights })}\n`)
-console.log(`Wrote ${meshes.length} environment meshes and ${Object.keys(propModels).length} Prop presets (${editorProps.layout.length} event placements for ${propWorld.layout.length} objects, ${offset} geometry bytes).`)
+meshes.push({ material: 'sky', kind: 'sky', ...skyGeometry })
+writePropAssets({ root, surfaces, environment: meshes, models: propWorld.models, layout: propWorld.layout, aliases: propWorld.aliases, previousReference, resetLayout: process.argv.includes('--reset-layout') })
+writeFileSync(`${output}/manifest.json`, `${JSON.stringify({ source: { url: sourceUrl, sha256: createHash('sha256').update(source).digest('hex') }, animations, icons, surfaces, details, braziers: reference.braziers, crypt: reference.crypt, glassFrames: reference.glassFrames, look:reference.look, palette:reference.palette, skyRadius:reference.skyRadius, lights:reference.lights })}\n`)
+console.log(`Wrote ${meshes.length} environment meshes and ${Object.keys(propWorld.models).length} standard GLB Prop models.`)
 
 if (!worldOnly) {
   await bakeReferenceMedia({ root, output, code, helpersCode })

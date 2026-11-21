@@ -1,7 +1,7 @@
 import { Game_Action, Game_BattlerBase } from 'rmmz-next'
 import type { Game_Battler } from 'rmmz-next'
 import type { RunSession } from './session'
-import type { Enemy } from './world'
+import type { Enemy, Prop } from './world'
 import type { Point, Weapon } from './content'
 import { direction, distance } from './content'
 import { dropPickup } from './rewards'
@@ -74,10 +74,14 @@ export function hitProps(run: RunSession, point: Point, radius: number, damage: 
     if (!prop.active || prop.kind !== 'brazier' || prop.broken || distance(point, prop) > radius + prop.radius || (predicate && !predicate(prop))) continue
     prop.hp -= damage * (1 + run.passiveValue('might'))
     if (prop.hp > 0) continue
-    prop.broken = true
-    prop.brokenAt = run.time
-    run.emit({ kind: 'break', x: prop.x, y: prop.y, z: prop.z })
-    const roll = Math.random()
-    dropPickup(run, roll < .04 && run.time >= 60 ? 'relic' : roll < .14 ? 'vacuum' : roll < .4 ? 'chicken' : 'coin', { x: prop.x + (prop.x > 0 ? -.9 : .9), z: prop.z })
+    breakProp(run, prop)
   }
+}
+export function breakProp(run: RunSession, prop: Prop): void {
+  if (!run.props.break(prop, run.time)) return
+  run.emit({ kind: 'break', x: prop.x, y: prop.y, z: prop.z })
+  if (prop.model.onBreak) run.queuePropEvent(prop.model.onBreak, prop.id)
+  if (prop.kind !== 'brazier') return
+  const roll = Math.random()
+  dropPickup(run, roll < .04 && run.time >= 60 ? 'relic' : roll < .14 ? 'vacuum' : roll < .4 ? 'chicken' : 'coin', { x: prop.x + (prop.x > 0 ? -.9 : .9), z: prop.z })
 }

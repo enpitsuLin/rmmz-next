@@ -1,5 +1,6 @@
 import { EffectManager, ImageManager } from 'rmmz-next'
 import { groupD8, Rectangle, Texture } from 'pixi.js'
+import type { Geometry3D, Matrix4 } from '@pixi/3d'
 import { requestEffekseer } from './effekseer'
 
 export const actorNames = ['hero', 'bat', 'skeleton', 'ghoul', 'wraith', 'skull', 'reaper'] as const
@@ -19,8 +20,8 @@ export interface Frame { x: number, y: number, width: number, height: number }
 const combatNames = ['glow', 'hotGlow', 'spark', 'puff', 'ring', 'crescent', 'bolt', 'beam', 'shard', 'ember', 'scorch', 'rune', 'flame', 'halo'] as const
 export type CombatAtlas = Record<typeof combatNames[number], Texture> & { frames: Texture[] }
 export interface Animation { fps: number, width: number, height: number, textures: Texture[] }
-export interface PackedAttribute { offset: number, length: number, type: 'Float32Array' | 'Uint32Array' | 'Uint16Array' | 'Uint8Array' }
-export interface ModelMesh { material: string, kind?: 'door' | 'sky', offset?: { x: number, y: number, z: number }, attributes: Record<'positions' | 'normals' | 'uvs' | 'colors' | 'indices', PackedAttribute> }
+export interface MeshValues { positions: Float32Array, normals: Float32Array, uvs: Float32Array, colors: Uint8Array, indices: Uint16Array | Uint32Array }
+export interface ModelMesh { material: string, geometry: Geometry3D, values: MeshValues, matrix: Matrix4, doorSide?: number }
 export interface LocalCollider { x: number, z: number, width: number, depth: number }
 export interface PropLight { kind: 'fire' | 'candle' | 'candle-flame' | 'window' | 'crypt', x: number, y: number, z: number, color: number, intensity: number, range: number, size?: number, lampY?: number }
 export interface PropModel {
@@ -30,6 +31,9 @@ export interface PropModel {
   lights: PropLight[]
   hp?: number
   radius?: number
+  tags?: string[]
+  active?: boolean
+  onBreak?: number
   door?: { hingeX: number, y: number, z: number, width: number, height: number, thickness: number }
 }
 export interface Look {
@@ -41,11 +45,6 @@ export interface ReferenceManifest {
   animations: Record<string, { fps: number, width: number, height: number, frames: Frame[] }>
   icons: Record<string, { x: number, y: number, w: number, h: number }>
   surfaces: Record<string, { tile: number, normal: boolean, emissive: boolean }>
-  meshes: ModelMesh[]
-  propModels: Record<string, PropModel>
-  propAliases: Record<string, string>
-  propLayout: { key: string, model: string, x: number, z: number }[]
-  propGroups: Record<string, { key: string, model: string, x: number, z: number }[]>
   details: {
     colliders: { minX: number, minZ: number, maxX: number, maxZ: number }[]
     fireY: number
@@ -78,7 +77,6 @@ export interface Assets {
   combat: CombatAtlas
   icons: Texture[]
   hudIcons: Record<string, Texture>
-  surfaces: Record<string, { albedo: Texture, normal?: Texture, emissive?: Texture }>
   ui: Record<string, Texture>
   glyphs: Map<string, { advance: number, small: Texture[], big: Texture[] }>
   uiData: ReferenceUi
@@ -87,40 +85,32 @@ export interface Assets {
   mist: Texture
   leaves: Texture[]
   manifest: ReferenceManifest
-  geometry: ArrayBuffer
 }
 const folder = 'img/nightward/reference/'
 let assets: Assets | undefined
 let manifest: ReferenceManifest
 let uiData: ReferenceUi
 let combatData: { frames: Record<string, Frame> }
-let geometry: ArrayBuffer
 let loading: Promise<void> | undefined
 let ready = false
 let failure: unknown
-function loadResource<T>(name: string, binary = false): Promise<T> {
+function loadResource<T>(name: string): Promise<T> {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest()
     request.open('GET', `${folder}${name}`)
-    request.responseType = binary ? 'arraybuffer' : 'json'
+    request.responseType = 'json'
     request.onload = () => request.status < 400 ? resolve(request.response as T) : reject(new Error(`Nightward asset: ${name} (${request.status})`))
     request.onerror = () => reject(new Error(`Nightward asset: ${name}`))
     request.send()
   })
 }
 export function requestAssets(): void {
-  loading ??= Promise.all([loadResource<ReferenceManifest>('manifest.json'), loadResource<ReferenceUi>('ui.json'), loadResource<ArrayBuffer>('world.bin', true), loadResource<typeof combatData>('combat-fx.json'), requestEffekseer()])
-    .then(async ([world, ui, packed, combat]) => {
+  loading ??= Promise.all([loadResource<ReferenceManifest>('manifest.json'), loadResource<ReferenceUi>('ui.json'), loadResource<typeof combatData>('combat-fx.json'), requestEffekseer()])
+    .then(([world, ui, combat]) => {
       manifest = world
       uiData = ui
       combatData = combat
-      geometry = await new Response(new Blob([packed]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
       for (const name of ['actors-albedo', 'actors-normal', 'actors-glow', 'effects', 'combat-fx', 'icons', 'ui-pixels', 'ui-soft', 'sky', 'moon', 'mist', 'leaves']) ImageManager.loadBitmap(folder, name).smooth = !['actors-albedo', 'actors-normal', 'actors-glow', 'ui-pixels', 'icons', 'leaves'].includes(name)
-      for (const [name, surface] of Object.entries(manifest.surfaces)) {
-        ImageManager.loadBitmap(folder, `${name}-albedo`).smooth = false
-        if (surface.normal) ImageManager.loadBitmap(folder, `${name}-normal`).smooth = false
-        if (surface.emissive) ImageManager.loadBitmap(folder, `${name}-emissive`).smooth = false
-      }
       ImageManager.loadSystem('IconSet').smooth = false
       ImageManager.loadSystem('Window').smooth = false
       ready = true
@@ -150,13 +140,8 @@ export function getAssets(): Assets {
     animations, albedo: texture('actors-albedo'), normal: texture('actors-normal'), glow: texture('actors-glow'), effects, combat: { ...combat, frames: combatNames.map(name => combat[name]) },
     icons: Array.from({ length: 128 }, (_, index) => new Texture({ source: iconBitmap.baseTexture, frame: new Rectangle(index % 16 * 32, Math.floor(index / 16) * 32, 32, 32) })),
     hudIcons: Object.fromEntries(Object.entries(manifest.icons).map(([name, frame]) => [name, texture('icons', { x: frame.x, y: frame.y, width: frame.w, height: frame.h })])),
-    surfaces: Object.fromEntries(Object.entries(manifest.surfaces).map(([name, surface]) => {
-      const albedo = texture(`${name}-albedo`), normal = surface.normal ? texture(`${name}-normal`) : undefined, emissive = surface.emissive ? texture(`${name}-emissive`) : undefined
-      for (const map of [albedo, normal, emissive]) if (map) { map.source.addressMode = 'repeat'; map.source.style.magFilter = 'nearest'; map.source.style.minFilter = 'linear' }
-      return [name, { albedo, normal, emissive }]
-    })),
     ui, glyphs: new Map(uiData.glyphs.map(glyph => [glyph.char, { advance: glyph.advance, small: glyph.frames.map(frame => texture('ui-pixels', frame)), big: glyph.bigFrames.map(frame => texture('ui-pixels', frame)) }])), uiData, sky: texture('sky'), moon: texture('moon'), mist: texture('mist'),
-    leaves: Array.from({ length: 4 }, (_, index) => texture('leaves', { x: index * 36, y: 0, width: 36, height: 36 })), manifest, geometry,
+    leaves: Array.from({ length: 4 }, (_, index) => texture('leaves', { x: index * 36, y: 0, width: 36, height: 36 })), manifest,
   }
   assets.sky.source.addressMode = 'repeat'
   return assets

@@ -1,9 +1,6 @@
-import { GlobalMananger as globals } from 'rmmz-next'
-import type { Game_Enemy, Game_Event } from 'rmmz-next'
-import type { ReferenceManifest } from './assets'
+import type { Game_Enemy } from 'rmmz-next'
 import type { Content, EnemyData, Layer, Point } from './content'
-import type { Prop, PropBinding, PropEvent } from './props'
-import { createProp, readPropBinding } from './props'
+import type { Prop, PropManager } from './props'
 import { direction, distance } from './content'
 
 export interface Enemy extends Point {
@@ -49,58 +46,22 @@ export class SpatialGrid<T extends Point> {
   }
 }
 export class World {
-  props: Prop[] = []
+  get props(): Prop[] { return this.propManager.props }
+  get propsRevision(): number { return this.propManager.structureRevision }
   obstacles: Obstacle[] = []
-  propsRevision = 0
   enemies: Enemy[] = []
   grid = new SpatialGrid<Enemy>()
   private staticGrid = new SpatialGrid<Obstacle>(8)
-  private pages = new Map<Game_Event, { page: ReturnType<Game_Event['page']> | undefined, binding?: PropBinding }>()
-  private byEvent = new Map<Game_Event, Prop>()
+  private collisionRevision = -1
   private obstacleReach = 0
-  constructor(private content: Content, private reference: ReferenceManifest) { this.syncProps() }
+  constructor(private content: Content, readonly propManager: PropManager) { this.syncProps() }
   syncProps(): void {
-    let dirty = false
-    for (const event of globals.$gameMap.events() as PropEvent[]) {
-      const page = event._erased || event._pageIndex < 0 ? undefined : event.page()
-      let cached = this.pages.get(event)
-      if (!cached || cached.page !== page) {
-        cached = { page, binding: readPropBinding(event) }
-        this.pages.set(event, cached)
-        dirty = true
-      }
-      const binding = cached.binding
-      let prop = this.byEvent.get(event)
-      if (binding) {
-        const key = this.reference.propAliases[binding.model] ?? binding.model
-        const model = this.reference.propModels[key]
-        if (!model) throw new Error(`Event ${event.eventId()}: unknown Prop model ${binding.model}`)
-        if (!event._nightwardProp || event._nightwardProp.model !== key) event._nightwardProp = { model: key, hp: model.hp ?? Infinity, broken: false, brokenAt: -1 }
-        if (!prop) {
-          prop = createProp(event, binding, key, model)
-          this.props.push(prop); this.byEvent.set(event, prop); this.propsRevision++
-        }
-        else if (prop.modelKey !== key) {
-          prop.modelKey = key; prop.model = model; prop.kind = model.kind; prop.radius = model.radius ?? .45
-          this.propsRevision++
-        }
-        prop.binding = binding
-      }
-      if (!prop) continue
-      const active = !!binding
-      const x = event._realX - this.content.map.center + (binding?.offset.x ?? 0)
-      const y = binding?.offset.y ?? 0
-      const z = event._realY - this.content.map.center + (binding?.offset.z ?? 0)
-      if (prop.active !== active || prop.x !== x || prop.y !== y || prop.z !== z) {
-        prop.x = x; prop.y = y; prop.z = z; prop.active = active; prop.revision++; dirty = true
-      }
-    }
-    if (dirty) {
-      this.obstacles = this.props.flatMap(prop => !prop.active ? [] : (prop.binding.colliders === 'model' ? prop.model.colliders : prop.binding.colliders).map(box => ({ ...box, x: prop.x + box.x, z: prop.z + box.z, prop })))
-      this.obstacleReach = 0
-      for (const box of this.obstacles) this.obstacleReach = Math.max(this.obstacleReach, box.width / 2, box.depth / 2)
-      this.staticGrid.rebuild(this.obstacles)
-    }
+    if (this.collisionRevision === this.propManager.revision) return
+    this.obstacles = this.propManager.obstacles()
+    this.obstacleReach = 0
+    for (const box of this.obstacles) this.obstacleReach = Math.max(this.obstacleReach, box.width / 2, box.depth / 2)
+    this.staticGrid.rebuild(this.obstacles)
+    this.collisionRevision = this.propManager.revision
   }
   nearby(point: Point, radius: number): Enemy[] {
     return this.grid.query(point.x, point.z, radius + 2.1).filter(enemy => !enemy.dead && distance(point, enemy) < radius + enemy.radius)

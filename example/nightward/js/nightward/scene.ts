@@ -1,3 +1,4 @@
+import { getPropScene, propSceneReady, propSceneUrl } from './prop-scene'
 import { Container, Graphics as Draw } from 'pixi.js'
 import type { Sprite } from 'pixi.js'
 import { AudioManager, ConfigManager, DataManager, GlobalMananger as globals, Graphics, Input, Scene_Base, SceneManager, TouchInput } from 'rmmz-next'
@@ -46,7 +47,7 @@ export class Scene_Nightward extends Scene_Base {
     super.create(); requestAssets(); DataManager.loadMapData(1)
     void loadRecords().then(() => { this.readyRecords = true })
   }
-  override isReady(): boolean { return super.isReady() && assetsReady() && DataManager.isMapLoaded() && this.readyRecords }
+  override isReady(): boolean { return super.isReady() && assetsReady() && DataManager.isMapLoaded() && propSceneReady(propSceneUrl(globals.$dataMap.note)) && this.readyRecords }
   override start(): void {
     super.start()
     this.sheetShade = box(Graphics.width, Graphics.height, colors.night, 0); this.uiRoot.addChild(this.sheetShade)
@@ -59,7 +60,7 @@ export class Scene_Nightward extends Scene_Base {
     this.clearScreens(); this.hud?.destroy(); this.hud = undefined
     this.worldView?.destroy(); this.run?.dispose(); this.letterbox.removeFromParent()
     this.demo = demo; this.resultHandled = false; this.chestWait = this.victoryAt = -1; this.introPending = false
-    this.run = new RunSession(readContent(), getAssets().manifest, demo); this.worldView = new GraveyardView(this.run, getAssets()); this.worldView.beginIntro(fromTitle)
+    this.run = new RunSession(readContent(), getPropScene(propSceneUrl(globals.$dataMap.note)), demo); this.worldView = new GraveyardView(this.run, getAssets()); this.worldView.beginIntro(fromTitle)
     this.worldRoot.addChild(this.worldView.view, this.worldView.overlay, this.letterbox)
     if (demo) {
       this.base = new TitleScreen(() => { this.resetWorld(false, true); this.beginRunIntro(true) }, kind => this.openSheet(kind))

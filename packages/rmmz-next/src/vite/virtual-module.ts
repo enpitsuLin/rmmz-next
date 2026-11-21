@@ -118,22 +118,22 @@ export async function loadPlugins() {
       })
     },
     // 生产构建：把游戏资源复制到输出目录，与生成的 index.html 同级
-    async writeBundle(options: Rollup.OutputOptions) {
-      if (!options.dir) {
+    async writeBundle(output: Rollup.OutputOptions) {
+      if (!output.dir) {
         return
       }
 
-      for (const dir of ASSET_DIRS) {
+      for (const dir of new Set([...ASSET_DIRS, ...(options.extraAssetDirs ?? [])])) {
         const source = join(projectRoot, dir)
         if (!(await isDirectory(source))) {
           continue
         }
-        await copyDirectory(source, join(options.dir, dir))
+        await copyDirectory(source, join(output.dir, dir))
       }
 
       for (const file of ROOT_FILES) {
         try {
-          await copyFile(join(projectRoot, file), join(options.dir, file))
+          await copyFile(join(projectRoot, file), join(output.dir, file))
         }
         catch (error) {
           if ((error as { code?: string }).code !== 'ENOENT') {
@@ -142,7 +142,7 @@ export async function loadPlugins() {
         }
       }
 
-      log(`已复制游戏资源到: ${options.dir}`)
+      log(`已复制游戏资源到: ${output.dir}`)
     },
   }
 }

@@ -4,6 +4,13 @@ export interface RMMZPluginOptions {
    * @default false
    */
   debug?: boolean
+  /**
+   * Additional resource directories, relative to the game project root.
+   * Copied into the build output with the same relative paths.
+   * Standard RPG Maker resource directories are always included.
+   * @default []
+   */
+  extraAssetDirs?: string[]
 }
 
 /**
