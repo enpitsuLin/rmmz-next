@@ -4,7 +4,7 @@ import { ConfigManager, Graphics, Input, TouchInput } from 'rmmz-next'
 import type { Assets } from './assets'
 import { getAssets } from './assets'
 import { settings, sound } from './audio'
-import { BuildSlots, upgradeNames } from './build-ui'
+import { BuildSlots } from './build-ui'
 import type { FamilyKey, Point } from './content'
 import type { Reward } from './rewards'
 import type { RunEvent, RunSession } from './session'
@@ -135,7 +135,7 @@ export class Hud extends Container {
   private numbers: DamageNumber[] = []
   private numberBudget = 6
   private callouts: Callout[] = []
-  private toastQueue: { key: FamilyKey, rank: number }[] = []
+  private toastQueue: Pick<Reward, 'key' | 'rank' | 'name'>[] = []
   private toasts: Toast[] = []
   private banner?: Banner
   private minute?: { node: Container, age: number }
@@ -231,7 +231,7 @@ export class Hud extends Container {
   hold(reward: Reward): void {
     this.build.hold(reward.key, reward.rank - 1)
     this.build.fill(this.items())
-    if (reward.weapon && (reward.rank === 1 || reward.rank === 5)) this.toastQueue.push({ key: reward.key, rank: reward.rank })
+    if (reward.weapon && (reward.rank === 1 || reward.rank === 5)) this.toastQueue.push(reward)
   }
   fly(reward: Reward, from: IconPoint): void {
     this.build.fill(this.items())
@@ -305,8 +305,8 @@ export class Hud extends Container {
     if (heart) { const image = icon('heart'); image.scale.set(Math.max(1, Math.round(l.unit * .55)) / l.unit); image.position.set(-Math.round((line.textWidth + image.width + 2) / 2), -Math.round(line.capHeight / 2 + image.height / 2)); line.x = Math.round((image.width + 2) / 2); node.addChild(image) }
     node.addChild(line); node.scale.set(l.unit); this.world.addChild(node); this.callouts.push({ node, age: 0, big })
   }
-  private showToast(key: FamilyKey, rank: number): void {
-    const l = uiLayout(), node = new Container(), well = sprite('slot', 4, 6), image = icon(key), title = text(rank === 5 ? 'MAXED!' : 'NEW WEAPON', 24, 5, rank === 5 ? 1 : 3), name = text(upgradeNames[key], 24, 15), glint = text(title.text, 24, 5, 0, 16773312), sparkles = Array.from({ length: 3 }, () => sprite('sparkle'))
+  private showToast({ key, rank, name: label }: Pick<Reward, 'key' | 'rank' | 'name'>): void {
+    const l = uiLayout(), node = new Container(), well = sprite('slot', 4, 6), image = icon(key), title = text(rank === 5 ? 'MAXED!' : 'NEW WEAPON', 24, 5, rank === 5 ? 1 : 3), name = text(label, 24, 15), glint = text(title.text, 24, 5, 0, 16773312), sparkles = Array.from({ length: 3 }, () => sprite('sparkle'))
     well.scale.set(l.icon / l.unit); image.anchor.set(.5); image.position.set(4 + 10 * l.icon / l.unit, 6 + 10 * l.icon / l.unit)
     sparkles.forEach((spark, i) => { spark.anchor.set(.5); spark.position.set(32 + i * 18, i === 1 ? 3 : 8); spark.visible = rank === 5 })
     glint.visible = rank === 5
@@ -457,7 +457,7 @@ export class Hud extends Container {
   }
   private updateToasts(dt: number, active: boolean): void {
     const l = uiLayout(), u = l.unit, still = reducedMotion()
-    if (active && this.toasts.length < 2 && this.toastQueue.length) { const next = this.toastQueue.shift()!; this.showToast(next.key, next.rank) }
+    if (active && this.toasts.length < 2 && this.toastQueue.length) this.showToast(this.toastQueue.shift()!)
     this.toasts = this.toasts.filter((toast, i) => {
       toast.age += dt; const age = toast.age
       toast.y = still ? i * 30 * u : approach(toast.y, i * 30 * u, 20, dt)

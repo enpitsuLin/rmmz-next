@@ -193,3 +193,12 @@
 1. 用户报告开局菜单先出现、消失后再淡入。SceneManager.updateScene 的未启动分支调用 start 后本帧不会再执行 update；TitleScreen 在 start 阶段创建并加入场景，此时 UiScreen.content 与子节点仍为默认 alpha=1。下一次 tick 才调用 animate，将未到入场时间的标题、菜单和 footer 设为透明，形成闪现。
 2. 共享 UiScreen.content 初始 alpha 改为 0；第一次 tick 先设置内容透明度并完成子节点动画和按钮状态，再由渲染显示本帧结果。无需提前推进时钟、调用未完成构造的子类动画或改变 SceneManager。
 3. 该入口涵盖当前标题、面板、暂停、结算和奖励界面，保留原有淡入、减少动态效果设置和底部排版。未运行游戏或自动化验证。
+
+
+## 数据库备注驱动升级文案（2026-11-22）
+
+1. 原 Reward 虽读取原生 name / description，RewardScreen 实际却忽略它们，分别使用 build-ui.ts 的 upgradeNames 与 upgradeDescription。用户要求独立一行备注，因此使用 nightwardCard JSON 存储展示名称和该阶描述，保留已有玩法备注。
+2. 默认文案从原固定表提取后写入全部 30 条武器和 20 条饰品，随后删除升级名称表、描述表和描述查找函数。备注通过原生 DataManager.extractMetadata 提供的 meta.nightwardCard 在 readContent 中解析一次，保存到装备 card 字段，保留数据库对象身份。
+3. RewardScreen 使用 reward.name 与 reward.description；HUD 提示队列保存奖励名称，结算按对应武器阶级读取同一 card.name。ResultsScreen 的唯一调用点同步传入 Content，消除其他名称表消费者。
+4. 内容生成按现有数据库记录 ID 读取并保留 nightwardCard 整行，不再在代码或额外数据文件维护重复卡片文案。此次直接更新两份装备数据库，没有执行全量生成，其他原生字段、特性、数值与地图布局保留。
+5. 未运行游戏、自动化验证、类型检查、lint 或构建；按用户要求由用户测试。

@@ -4,20 +4,6 @@ import { passiveKeys, weaponKeys } from './content'
 import { getAssets } from './assets'
 import { back, box, colors, mixColor, phase, reducedMotion, sprite } from './ui'
 
-export const upgradeNames: Record<FamilyKey, string> = { lash: 'Lash', wand: 'Wisp Wand', tomes: 'Holy Tomes', storm: 'Storm Ring', ward: 'Ward', flask: 'Flame Flask', might: 'Might', haste: 'Haste', lodestone: 'Lodestone', cinder: 'Cinder' }
-const upgradeLines: Record<FamilyKey, string[]> = {
-  lash: ['Cleaves the foes at your side.', 'Also strikes behind you.', 'More reach and +10 damage.', 'Strikes 20% faster.', '+20 damage, wider arc.'],
-  wand: ['Fires at the nearest foe.', 'Fires one more wisp.', 'Cooldown reduced by 20%.', 'Fires one more wisp.', '+10 damage, wisps pierce.'],
-  tomes: ['Holy books circle you.', 'Adds one more tome.', 'Wider orbit, longer spin.', 'Adds one more tome.', 'Tomes never rest.'],
-  storm: ['Lightning strikes nearby foes.', 'One more strike.', 'Strikes over a wider ring.', 'One more strike.', 'Two more strikes, +damage.'],
-  ward: ['An aura that burns and repels.', 'Aura grows 20% wider.', '+5 damage per pulse.', 'Aura grows 20% wider.', 'Pulses twice as often.'],
-  flask: ['Hurls flasks of burning oil.', 'Throws one more flask.', 'Fire burns 50% longer.', 'Throws one more flask.', 'Bigger, hotter fire pools.'],
-  might: ['Raises all damage by 10%.'], haste: ['Move 10% faster.'], lodestone: ['Pull gems from 30% farther.'], cinder: ['Weapons recharge 8% faster.'],
-}
-export function upgradeDescription(key: FamilyKey, rank: number): string {
-  const lines = upgradeLines[key]
-  return lines[Math.min(lines.length - 1, Math.max(0, rank - 1))]!
-}
 export interface BuildItem { key: FamilyKey, rank: number }
 interface Slot { root: Container, frame: Sprite, icon: Sprite, flash: Sprite, sparkle: Sprite, pips: Sprite[], pipFlashes: Sprite[], rank: number, age: number, reveal: number, key?: FamilyKey }
 export class BuildSlots extends Container {

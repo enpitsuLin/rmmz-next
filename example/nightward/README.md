@@ -57,6 +57,8 @@
 
    自定义内容使用 `<nightward:JSON>`。武器、被动饰品、敌人和物品使用备注；地图物件从当前生效事件页的注释绑定模型、碰撞和偏移；敌群模板使用战斗事件注释。生命、伤害、经验、装备、状态和金币由 RMMZ 游戏对象管理。Nightward 角色使用六个武器槽和四个饰品槽；升级替换同系列装备，HUD、暂停和结算直接读取角色装备。技能不表示武器持有，被动不使用状态保存。
 
+   升级卡片文案在每阶武器、饰品的备注中单独编辑一行，例如 `<nightwardCard:{"name":"Lash","description":"Cleaves the foes at your side."}>`。`name` 为卡片名称，`description` 为该阶描述；宝箱、武器提示和结算名称共用此来源。重新生成数据库会保留这行文案，详见 [UI 说明](docs/ui-replication.md)。
+
    地图中心格 `(90, 90)` 对应三维世界 `(0, 0)`。连续碰撞和空间查询位于 `js/nightward/world.ts`；战斗、刷怪与奖励分别位于同目录的对应模块。
 
    例如在事件注释中填写 `<propModel:brazier>`、`<propOffset:0.4,0,-0.2>`、`<propCollider:model>`。拖动事件或用原生移动路线移动事件，模型、碰撞和附属光效会一起移动；生成资源时保留已有地图布局，见 [Prop 事件说明](docs/prop-events.md)。
@@ -80,7 +82,7 @@
 
    资产编译需要访问官方发布脚本、可用的 Chrome 和 FFmpeg。可用 `NIGHTWARD_CHROME`、`NIGHTWARD_FFMPEG` 指定其路径；已有脚本快照可通过 `NIGHTWARD_REFERENCE_SOURCE`、`NIGHTWARD_REFERENCE_LOADER` 指定。独立 Chrome 只用于生成 UI、战斗特效图集和离线音频，不运行游戏。
 
-   `generate:content` 只重建 RMMZ 数据，不再生成替代图像或音乐。**重新生成会覆盖对应数据库或资产的手动修改。** [资产来源说明](docs/reference-assets.md) 记录来源与转换方式。
+   `generate:content` 只重建 RMMZ 数据，不再生成替代图像或音乐。**重新生成会覆盖对应数据库或资产的手动修改，但保留现有地图布局和卡片文案备注。** [资产来源说明](docs/reference-assets.md) 记录来源与转换方式。
 
 6. **打包与存储**
 

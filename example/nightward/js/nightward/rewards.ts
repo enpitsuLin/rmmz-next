@@ -23,7 +23,7 @@ export function allRewards(run: RunSession, ownedOnly = false): Reward[] {
     if (rank === 5 || (ownedOnly && rank === 0)) return []
     const weapon = run.content.weapons.get(key as typeof weaponKeys[number])
     const entry = weapon ? weapon[rank]! : run.content.passives.get(key as typeof passiveKeys[number])![rank]!
-    return [{ key, rank: rank + 1, name: entry.name, description: entry.description, icon: entry.iconIndex, weapon: !!weapon }]
+    return [{ key, rank: rank + 1, name: entry.card.name, description: entry.card.description, icon: entry.iconIndex, weapon: !!weapon }]
   })
 }
 export function chooseRewards(run: RunSession): Reward[] {

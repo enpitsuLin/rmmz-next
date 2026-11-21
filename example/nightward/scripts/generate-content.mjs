@@ -7,6 +7,9 @@ const root = fileURLToPath(new URL('../', import.meta.url))
 const save = (path, value) => writeFileSync(`${root}${path}`, value)
 const json = (name, value) => save(`data/${name}.json`, `${JSON.stringify(value)}\n`)
 const note = value => `<nightward:${JSON.stringify(value)}>`
+// Card copy is authored in the database; regeneration preserves those note lines.
+const cardNotes = name => JSON.parse(readFileSync(`${root}data/${name}.json`, 'utf8')).map(entry => entry?.note.match(/<nightwardCard:[^>]+>/)[0])
+const weaponCards = cardNotes('Weapons'), armorCards = cardNotes('Armors')
 const families = [
   { key: 'lash', name: 'Lash', icon: 96, description: 'A sweeping whip. Rank II also lashes behind you.', damage: [14, 17, 20, 24, 30], cooldown: [1.25, 1.2, 1.12, 1.05, .95], reach: [2.6, 2.8, 3, 3.3, 3.7], halfHeight: [.85, .9, 1, 1.1, 1.25], knockback: 4, initialDelay: .3, backDelay: .16 },
   { key: 'wand', name: 'Wand', icon: 97, description: 'Homing magic bolts seek the nearest enemy.', damage: [10, 11, 13, 15, 18], cooldown: [1, .9, .82, .72, .6], count: [1, 2, 2, 3, 4], pierce: [1, 1, 1, 2, 2], speed: 15, turnRate: 9, life: 1.6, range: 15, height: .9, radiusHit: .25, stagger: .08, knockback: 2.5, initialDelay: .4 },
@@ -25,7 +28,7 @@ for (const family of families) {
   skills.push({ ...skillBase, id: skillId, name: `${name} Attack`, iconIndex: icon, description: '', note: note({ key: family.key, category: 'weaponAttack' }) })
   for (let rank = 1; rank <= 5; rank++) {
     const values = Object.fromEntries(Object.entries(parameters).map(([key, value]) => [key, Array.isArray(value) ? value[rank - 1] : value]))
-    weapons.push({ ...equipBase, id: weapons.length, etypeId: 1, wtypeId: 1, animationId: 0, name: `${name} ${rank}`, iconIndex: icon, description, traits: [{ code: 43, dataId: skillId, value: 1 }], note: note({ ...values, rank }) })
+    weapons.push({ ...equipBase, id: weapons.length, etypeId: 1, wtypeId: 1, animationId: 0, name: `${name} ${rank}`, iconIndex: icon, description, traits: [{ code: 43, dataId: skillId, value: 1 }], note: `${note({ ...values, rank })}\n${weaponCards[weapons.length]}` })
   }
 }
 const contactSkillId = skills.length
@@ -38,7 +41,7 @@ for (const [i, [key, name, description, value]] of [
   ['haste', 'Haste', 'Movement speed +10% per rank.', .1],
   ['lodestone', 'Lodestone', 'Pickup range +35% per rank.', .35],
   ['cinder', 'Cinder', 'Weapon cooldown -8% per rank.', .08],
-].entries()) for (let rank = 1; rank <= 5; rank++) armors.push({ ...equipBase, id: armors.length, etypeId: 5, atypeId: 1, name: `${name} ${rank}`, iconIndex: 102 + i, description, note: note({ key, rank, value: value * rank }) })
+].entries()) for (let rank = 1; rank <= 5; rank++) armors.push({ ...equipBase, id: armors.length, etypeId: 5, atypeId: 1, name: `${name} ${rank}`, iconIndex: 102 + i, description, note: `${note({ key, rank, value: value * rank })}\n${armorCards[armors.length]}` })
 json('Weapons', weapons)
 json('Armors', armors)
 json('Actors', [null, { id: 1, name: 'The Warden', nickname: '', profile: '', classId: 1, initialLevel: 1, maxLevel: 99, characterName: '$NightwardHero', characterIndex: 0, faceName: '', faceIndex: 0, battlerName: 'NightwardHero', equips: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], traits: [], note: note({ key: 'warden', radius: .34, speed: 4.5, invulnerable: .85, magnet: 1.8 }) }])

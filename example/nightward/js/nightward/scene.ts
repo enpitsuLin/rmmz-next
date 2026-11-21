@@ -177,7 +177,7 @@ export class Scene_Nightward extends Scene_Base {
     duckMusic(false); AudioManager.stopBgm()
     if (result.won) { this.victoryAt = 0; this.worldView.beginDawn() }
     else { AudioManager.playMe(globals.$dataSystem.defeatMe); this.hud!.setShown(false, .6) }
-    const screen = new ResultsScreen(result, before, () => this.wipeTo(false), () => this.wipeTo(true))
+    const screen = new ResultsScreen(result, before, this.run.content, () => this.wipeTo(false), () => this.wipeTo(true))
     this.base = screen; this.uiRoot.addChildAt(screen, 0)
     void saveResult(result).then(() => { if (!this.disposed && !screen.destroyed) screen.setSaved() }).catch(error => { console.error(error); if (!this.disposed && !screen.destroyed) screen.setSaved(true) })
     this.clearInput()

@@ -2,11 +2,11 @@ import { Container, Sprite } from 'pixi.js'
 import { ConfigManager, Input, TouchInput } from 'rmmz-next'
 import { getAssets } from './assets'
 import { settings, sound } from './audio'
-import { BuildSlots, upgradeNames } from './build-ui'
+import { BuildSlots } from './build-ui'
 import type { RunSession } from './session'
 import { records } from './records'
 import type { Records, RunResult } from './records'
-import type { WeaponKey } from './content'
+import type { Content, WeaponKey } from './content'
 import { back, box, clock, colors, consumeInput, fitScale, fullscreen, Heading, icon, largeScale, out, panel, phase, reducedMotion, sprite, SystemButtons, text, UiButton, UiScreen, UiText, wrap } from './ui'
 
 export const bestLine = (): string => `Best ${clock(records.bestTime)} · Lv ${records.bestLevel} · ${records.bestKills} kills`
@@ -434,7 +434,7 @@ export class ResultsScreen extends UiScreen {
   private previous = 0
   private tickAt = 0
   private waiting = true
-  constructor(private result: RunResult, before: Records, retry: () => void, title: () => void) {
+  constructor(private result: RunResult, before: Records, content: Content, retry: () => void, title: () => void) {
     super()
     const won = result.won, l = this.layout, ratio = l.icon / l.unit, portrait = l.portrait && !l.short, width = portrait ? Math.min(240, l.w - 16) : Math.min(180, Math.floor((l.w - 28) / 2)), pad = l.short ? 6 : 10, gap = l.short ? 3 : 5, iconSize = Math.ceil(16 * ratio)
     const damage = Object.entries(result.damage).filter(([, value]) => value > 0).sort((a, b) => b[1] - a[1]) as [WeaponKey, number][], max = damage[0]?.[1] ?? 1
@@ -476,10 +476,11 @@ export class ResultsScreen extends UiScreen {
     this.damagePanel.addChild(panel(width, portrait ? chartH : panelH), text('DAMAGE', pad, pad, 1))
     const barX = iconSize + 4 + 60, barW = Math.max(12, width - 2 * pad - barX - 28 - 4)
     damage.slice(0, config.rows).forEach(([key, amount], i) => {
+      const rank = result.build.find(item => item.key === key)!.rank, name = content.weapons.get(key)![rank - 1]!.card.name
       const root = new Container(), image = icon(key), bar = new Container(), fill = sprite('dmgFill'), frame = panel(barW, 5, 'thinFrame'), value = text('', width - 2 * pad, Math.round((damageH - 1 - 7) / 2), 0, 0xffffff, 1)
       image.scale.set(ratio); image.y = Math.round((damageH - 1 - iconSize) / 2); frame.position.set(barX, Math.round((damageH - 1 - 5) / 2))
       fill.width = Math.max(1, Math.round((barW - 2) * amount / max)); fill.height = 3; bar.position.set(barX + 1, frame.y + 1); bar.addChild(fill)
-      root.addChild(image, text(upgradeNames[key], iconSize + 4, value.y, 0, colors.label), bar, frame, value); root.position.set(pad, pad + 7 + gap + i * damageH)
+      root.addChild(image, text(name, iconSize + 4, value.y, 0, colors.label), bar, frame, value); root.position.set(pad, pad + 7 + gap + i * damageH)
       this.damagePanel.addChild(root); this.damageRows.push({ root, bar, value, target: amount })
     })
     if (!damage.length) this.damagePanel.addChild(text('No damage dealt', pad, pad + 7 + gap + 2, 0, colors.dim))

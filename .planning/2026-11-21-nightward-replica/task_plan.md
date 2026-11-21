@@ -4,10 +4,10 @@
 按照 example/nightward/docs/nightward-replication-plan.md 完整实现原版 Nightward 的玩法与三维呈现，尽量复用 RMMZ 数据和运行对象。
 
 ## Next Step
-已修复标题菜单启动时先闪现再淡入的初始化顺序问题，保留底部排版改动；由用户自行测试，未经要求不提交或推送。
+升级与宝箱卡片文案已迁入每阶装备的独立备注，固定文案表已清理；由用户自行测试，未经要求不提交或推送。
 
 ## Current Phase
-Phase 23
+Phase 24
 
 ## Phases
 
@@ -185,4 +185,11 @@ Phase 23
 - [x] 核对 SceneManager 的 start 与 update 顺序及界面动画状态
 - [x] 界面内容初始透明，首次 tick 后按现有时间线显示
 - [x] 更新说明，保留底部排版改动，交由用户测试
+- **Status:** complete
+
+### Phase 24: 数据库备注驱动卡片文案
+- [x] 将 50 条武器与饰品阶级的卡片名称、描述迁入单行备注
+- [x] 内容加载解析原生元数据，升级与宝箱读取 Reward 文案
+- [x] 统一新武器提示和结算名称，删除固定名称与说明表
+- [x] 生成内容保留数据库文案，补充编辑说明，由用户测试
 - **Status:** complete

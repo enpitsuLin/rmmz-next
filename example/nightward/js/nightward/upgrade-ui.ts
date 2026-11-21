@@ -3,7 +3,6 @@ import type { NineSliceSprite } from 'pixi.js'
 import { Input } from 'rmmz-next'
 import { getAssets } from './assets'
 import { sound } from './audio'
-import { upgradeDescription, upgradeNames } from './build-ui'
 import type { Reward } from './rewards'
 import { back, box, colors, Heading, largeScale, out, panel, phase, reducedMotion, sprite, text, UiScreen, wrap } from './ui'
 import type { UiText } from './ui'
@@ -34,7 +33,7 @@ export class RewardScreen extends UiScreen {
     this.cursorSprite.anchor.set(1, .5)
     this.content.addChild(this.dimmer, this.heading)
     rewards.forEach((reward) => {
-      const root = new Container({ eventMode: 'static', cursor: treasure ? 'default' : 'pointer' }), body = new Container(), glow = panel(1, 1, 'softRect'), frame = panel(1, 1), well = sprite('slot'), image = new Sprite(getAssets().hudIcons[reward.key]!), name = text(upgradeNames[reward.key], 0, 0), tag = text(reward.rank <= 1 ? 'NEW!' : `Lv ${reward.rank}`, 0, 0, reward.rank <= 1 ? 3 : 0, reward.rank <= 1 ? 0xffffff : 10275071, 1), lines = [text('', 0, 0, 0, colors.blue), text('', 0, 0, 0, colors.blue)], flash = box(1, 1, 0xffffff, 0, 3, 3)
+      const root = new Container({ eventMode: 'static', cursor: treasure ? 'default' : 'pointer' }), body = new Container(), glow = panel(1, 1, 'softRect'), frame = panel(1, 1), well = sprite('slot'), image = new Sprite(getAssets().hudIcons[reward.key]!), name = text(reward.name, 0, 0), tag = text(reward.rank <= 1 ? 'NEW!' : `Lv ${reward.rank}`, 0, 0, reward.rank <= 1 ? 3 : 0, reward.rank <= 1 ? 0xffffff : 10275071, 1), lines = [text('', 0, 0, 0, colors.blue), text('', 0, 0, 0, colors.blue)], flash = box(1, 1, 0xffffff, 0, 3, 3)
       glow.position.set(-10, -10); glow.tint = colors.lantern; image.anchor.set(.5)
       body.addChild(glow, frame, well, image, name, tag, ...lines, flash); root.addChild(body); this.content.addChild(root)
       const card: Card = { root, body, glow, frame, well, icon: image, name, tag, lines, flash, x: 0, y: 0, focus: treasure ? 1 : 0, focusFrom: treasure ? 1 : 0, focusTarget: treasure ? 1 : 0, focusAge: 1, press: 0, pressFrom: 0, pressTarget: 0, pressAge: 1, pressed: false, iconAge: 1, sent: false }
@@ -75,7 +74,7 @@ export class RewardScreen extends UiScreen {
       card.body.pivot.set(Math.round(this.cardWidth / 2), Math.round(this.cardHeight / 2)); card.body.position.copyFrom(card.body.pivot)
       card.frame.width = this.cardWidth; card.frame.height = this.cardHeight; card.glow.width = this.cardWidth + 20; card.glow.height = this.cardHeight + 20; card.flash.width = this.cardWidth - 6; card.flash.height = this.cardHeight - 6
       card.well.position.set(this.row ? 6 : 8, this.row ? 6 : 10); card.icon.position.set(card.well.x + 10, card.well.y + 10)
-      const left = this.row ? 6 : 35, available = this.row ? this.cardWidth - 12 : this.cardWidth - 40, lines = wrap(upgradeDescription(this.rewards[i]!.key, this.rewards[i]!.rank), available, true), two = lines.length > 1
+      const left = this.row ? 6 : 35, available = this.row ? this.cardWidth - 12 : this.cardWidth - 40, lines = wrap(this.rewards[i]!.description, available, true), two = lines.length > 1
       card.lines.forEach((line, n) => { line.text = lines[n] ?? ''; line.position.set(left, this.row ? 32 + n * 11 : n === 0 ? two ? 17 : 23 : 26) })
       card.name.position.set(this.row ? 30 : 35, this.row ? 7 : two ? 6 : 9)
       card.tag.align = this.row ? 0 : 1; card.tag.relayout()
