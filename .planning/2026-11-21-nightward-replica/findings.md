@@ -202,3 +202,10 @@
 3. RewardScreen 使用 reward.name 与 reward.description；HUD 提示队列保存奖励名称，结算按对应武器阶级读取同一 card.name。ResultsScreen 的唯一调用点同步传入 Content，消除其他名称表消费者。
 4. 内容生成按现有数据库记录 ID 读取并保留 nightwardCard 整行，不再在代码或额外数据文件维护重复卡片文案。此次直接更新两份装备数据库，没有执行全量生成，其他原生字段、特性、数值与地图布局保留。
 5. 未运行游戏、自动化验证、类型检查、lint 或构建；按用户要求由用户测试。
+
+
+## 专属被动装备类型（2026-11-22）
+
+1. 用户完成数据库配置：初始装备为 [1]，所有武器类型为 etypeId=1 / wtypeId=1，Might、Haste、Lodestone、Cinder 各五阶的 etypeId 分别为 2、3、4、5，atypeId=1，职业装备许可匹配。
+2. 插件原来的后四槽仍为 5、5、5、5，与用户新配置不匹配；现同步为 2、3、4、5。奖励发放原先已按 etypeId 选择空槽，同家族升级也按已有装备定位，继续复用即可。
+3. 内容生成的饰品 etypeId 改为 i+2，装备类型名称同步用户的 Weapon / Might / Haste / Lodestone / Cinder。既有 JSON 输出已改为两空格缩进和换行，此次没有修改或重新生成数据库。

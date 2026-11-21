@@ -18,7 +18,7 @@ export function installNightward(): void {
   }
   const equipSlots = Game_Actor.prototype.equipSlots
   Game_Actor.prototype.equipSlots = function () {
-    return this.currentClass().note.includes('"key":"nightward"') ? [1, 1, 1, 1, 1, 1, 5, 5, 5, 5] : equipSlots.call(this)
+    return this.currentClass().note.includes('"key":"nightward"') ? [1, 1, 1, 1, 1, 1, 2, 3, 4, 5] : equipSlots.call(this)
   }
   const run = SceneManager.run
   SceneManager.run = function (scene, scenes) {

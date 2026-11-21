@@ -5,7 +5,7 @@ import { createPropEvents } from './prop-layout.mjs'
 // Gameplay data stays in MZ; the reference importer owns visual/audio assets.
 const root = fileURLToPath(new URL('../', import.meta.url))
 const save = (path, value) => writeFileSync(`${root}${path}`, value)
-const json = (name, value) => save(`data/${name}.json`, `${JSON.stringify(value)}\n`)
+const json = (name, value) => save(`data/${name}.json`, `${JSON.stringify(value, null, 2)}\n`)
 const note = value => `<nightward:${JSON.stringify(value)}>`
 // Card copy is authored in the database; regeneration preserves those note lines.
 const cardNotes = name => JSON.parse(readFileSync(`${root}data/${name}.json`, 'utf8')).map(entry => entry?.note.match(/<nightwardCard:[^>]+>/)[0])
@@ -41,7 +41,7 @@ for (const [i, [key, name, description, value]] of [
   ['haste', 'Haste', 'Movement speed +10% per rank.', .1],
   ['lodestone', 'Lodestone', 'Pickup range +35% per rank.', .35],
   ['cinder', 'Cinder', 'Weapon cooldown -8% per rank.', .08],
-].entries()) for (let rank = 1; rank <= 5; rank++) armors.push({ ...equipBase, id: armors.length, etypeId: 5, atypeId: 1, name: `${name} ${rank}`, iconIndex: 102 + i, description, note: `${note({ key, rank, value: value * rank })}\n${armorCards[armors.length]}` })
+].entries()) for (let rank = 1; rank <= 5; rank++) armors.push({ ...equipBase, id: armors.length, etypeId: i + 2, atypeId: 1, name: `${name} ${rank}`, iconIndex: 102 + i, description, note: `${note({ key, rank, value: value * rank })}\n${armorCards[armors.length]}` })
 json('Weapons', weapons)
 json('Armors', armors)
 json('Actors', [null, { id: 1, name: 'The Warden', nickname: '', profile: '', classId: 1, initialLevel: 1, maxLevel: 99, characterName: '$NightwardHero', characterIndex: 0, faceName: '', faceIndex: 0, battlerName: 'NightwardHero', equips: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], traits: [], note: note({ key: 'warden', radius: .34, speed: 4.5, invulnerable: .85, magnet: 1.8 }) }])
@@ -77,7 +77,7 @@ if (!existsSync(`${root}data/Map001.json`)) json('Map001', { autoplayBgm: true, 
 if (!existsSync(`${root}data/MapInfos.json`)) json('MapInfos', [null, { id: 1, expanded: true, name: 'Graveyard', order: 1, parentId: 0, scrollX: 816, scrollY: 624 }])
 json('Tilesets', [null, { id: 1, name: 'Nightward', mode: 1, note: '', tilesetNames: ['', '', '', '', 'NightwardGround', '', '', '', ''], flags: Array(8192).fill(0) }])
 const system = JSON.parse(readFileSync(`${root}data/System.json`, 'utf8'))
-system.equipTypes = ['', 'Weapon', 'Shield', 'Head', 'Body', 'Accessory']
+system.equipTypes = ['', 'Weapon', 'Might', 'Haste', 'Lodestone', 'Cinder']
 system.weaponTypes = ['', 'Nightward']
 system.armorTypes = ['', 'Nightward']
 Object.assign(system, { gameTitle: 'Nightward', partyMembers: [1], startMapId: 1, startX: 90, startY: 96, title1Name: '', title2Name: '', optDrawTitle: false, titleBgm: { name: 'Nightward', volume: 65, pitch: 100, pan: 0 }, battleBgm: { name: 'Nightward', volume: 65, pitch: 100, pan: 0 }, victoryMe: { name: 'Victory', volume: 70, pitch: 100, pan: 0 }, defeatMe: { name: 'Defeat', volume: 70, pitch: 100, pan: 0 }, gameoverMe: { name: 'Defeat', volume: 70, pitch: 100, pan: 0 } })
