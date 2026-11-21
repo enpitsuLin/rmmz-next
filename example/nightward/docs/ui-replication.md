@@ -48,17 +48,24 @@
 
    | 文件 | 职责 |
    | --- | --- |
-   | `js/nightward/ui.ts` | 字形、像素比例、标题、按钮、输入边沿与擦屏 |
+   | `js/nightward/window-ui.ts` | RMMZ Window 皮肤与 Window_Selectable 选择处理 |
+   | `js/nightward/ui.ts` | 字形、像素比例、标题、窗口动画、输入边沿与擦屏 |
    | `js/nightward/build-ui.ts` | 构筑槽、等级点、升级名称与说明 |
    | `js/nightward/hud.ts` | HUD、世界投影提示、奖励飞行与触摸摇杆 |
    | `js/nightward/upgrade-ui.ts` | 升级与宝箱的入场、聚焦、选择和退场 |
    | `js/nightward/screens.ts` | 标题、暂停、设置、说明与结算 |
    | `js/nightward/scene.ts` | 场景编排、冻结/恢复、纪录与生命周期 |
 
-   RMMZ 继续管理输入、游戏对象、配置、音频和纪录。UI 使用 Pixi 原生显示对象；旧的窗口绘字适配已删除，没有新增运行时依赖。
+   RMMZ 的 `Window` 负责菜单按钮、升级卡片、设置/说明、暂停、HUD 面板与结算面板的背景和边框。`Window_Selectable` 负责索引、选项移动、确认、取消、悬停与触摸确认，使用原版不规则排版对应的 `itemRect`。标题、暂停页的系统按钮及 HUD 暂停按钮也使用原生选择窗口。
+
+   字形、扫光、光晕、强调和飞行图标继续使用 Pixi 显示对象，放在原生窗口的内容层中。原有布局、缓动和时间线保持不变。
+
+   `img/system/Window.png` 使用标准192×192分区：背景、普通边框、选中皮肤、箭头、暂停符号和文字调色板。Nightward 的 `Window` 子类读取相同分区并使用原版5像素边角；普通面板和选中面板都来自该文件。调色板与原生箭头/暂停符号保留，面板像素来自原版 UI 生成器。
+
+   只有光晕、细血条、键帽等图形部件继续使用九宫格图集。窗口按原版透明度直接叠加，不使用 WindowLayer 的不透明遮挡规则。RMMZ 继续管理游戏对象、配置、音频和纪录；没有修改引擎或新增依赖。
 
 8. **制作与测试约定**
 
-   资源已经随工程提供。仅重新制作 UI、字形元数据和界面音效时，可执行 `node scripts/import-reference-assets.mjs --ui-only`，环境要求与完整资产生成相同。
+   资源已经随工程提供。仅重新制作 UI、字形元数据和界面音效时，可执行 `node scripts/import-reference-assets.mjs --ui-only`，环境要求与完整资产生成相同。单独重建原生窗口皮肤时，在 Nightward 目录执行 `node scripts/import-reference-assets.mjs --windowskin-only`；此模式不重建角色、场景或音频。
 
    本次只执行了离线资产制作；按用户要求，没有执行测试、类型检查、lint、构建验证或代理试玩。最终画面与操作由用户在游戏中测试。

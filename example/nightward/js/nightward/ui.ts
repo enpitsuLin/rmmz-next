@@ -3,6 +3,8 @@ import type { Texture } from 'pixi.js'
 import { Graphics, Input, TouchInput } from 'rmmz-next'
 import { getAssets } from './assets'
 import { settings, sound, toggleMute } from './audio'
+import { NightwardSelectable, NightwardWindow } from './window-ui'
+import type { WindowChoice } from './window-ui'
 
 export const colors = { lantern: 16761944, lanternDeep: 16754744, text: 16773330, blue: 11845602, label: 12897258, edge: 6054008, dim: 9081784, rule: 14858336, gold: 16177288, night: 132108, death: 918023, dawn: 658456, page: 329231 }
 export const clamp = (n: number): number => Math.max(0, Math.min(1, n))
@@ -42,8 +44,11 @@ export function box(width: number, height: number, color: number, alpha = 1, x =
   node.width = width; node.height = height; node.tint = color; node.alpha = alpha
   return node
 }
-export function panel(width: number, height: number, part = 'panel'): NineSliceSprite {
-  const border = part === 'softRect' ? 18 : part === 'thinFrame' ? 1 : part === 'barFrame' || part === 'keycap' ? 3 : 5
+export function panel(width: number, height: number, part?: 'panel' | 'panelHot'): NightwardWindow
+export function panel(width: number, height: number, part: 'softRect' | 'thinFrame' | 'barFrame' | 'keycap'): NineSliceSprite
+export function panel(width: number, height: number, part = 'panel'): NightwardWindow | NineSliceSprite {
+  if (part === 'panel' || part === 'panelHot') { const node = new NightwardWindow(width, height); node.highlighted = part === 'panelHot'; return node }
+  const border = part === 'softRect' ? 18 : part === 'thinFrame' ? 1 : 3
   return new NineSliceSprite({ texture: getAssets().ui[part]!, leftWidth: border, rightWidth: border, topHeight: border, bottomHeight: part === 'keycap' ? 4 : border, width, height })
 }
 export function icon(key: string): Sprite { return new Sprite(getAssets().hudIcons[key]!) }
@@ -161,7 +166,7 @@ export class Heading extends Container {
     for (const node of this.diamonds) node.scale.set(back(phase(time, o.diamondsAt, o.diamondSeconds), 3))
   }
 }
-export class UiButton extends Container {
+export class UiButton extends Container implements WindowChoice {
   readonly motion = new Container()
   readonly body = new Container()
   readonly caption?: UiText
@@ -178,7 +183,6 @@ export class UiButton extends Container {
   col = 0
   onActivate?: () => void
   onFocus?: () => void
-  onPointerFocus?: () => void
   step?: (direction: number) => void
   private pressed = false
   private pressScale = 1
@@ -199,10 +203,7 @@ export class UiButton extends Container {
     if (this.glyph) this.body.addChild(this.glyph)
     this.motion.addChild(this.cursorSprite, this.body); this.addChild(this.motion)
     this.setSize(width, height)
-    this.on('pointerover', event => { if (this.enabled && event.pointerType === 'mouse') this.onPointerFocus?.() })
-    this.on('pointerdown', () => { if (this.enabled) { this.onPointerFocus?.(); this.pressed = true } })
-    this.on('pointerup', () => { if (this.pressed) { this.pressed = false; this.activate() } })
-    this.on('pointerupoutside', () => { this.pressed = false })
+
   }
   setSize(width: number, height: number, tap = 0): void {
     this.buttonWidth = width; this.buttonHeight = height
@@ -214,6 +215,9 @@ export class UiButton extends Container {
     this.cursorSprite.y = Math.round(height / 2)
     this.hitArea = new Rectangle((width - Math.max(width, tap)) / 2, (height - Math.max(height, tap)) / 2, Math.max(width, tap), Math.max(height, tap))
   }
+  get node(): Container { return this }
+  get rect(): Rectangle { return this.hitArea as Rectangle }
+  setPressed(pressed: boolean): void { this.pressed = pressed }
   activate(): void { if (this.enabled) { if (this.cue) sound(this.cue); this.onActivate?.() } }
   focus(focused: boolean, keyed = true): void {
     if (focused && !this.focused) { this.time = 0; this.onFocus?.() }
@@ -224,7 +228,7 @@ export class UiButton extends Container {
     this.time += dt; this.punchAge += dt
     this.eventMode = live && this.enabled ? 'static' : 'none'
     const focused = this.focused && this.enabled, still = reducedMotion()
-    this.frame.texture = getAssets().ui[focused || this.pressed || this.selected ? 'panelHot' : 'panel']!
+    this.frame.highlighted = focused || this.pressed || this.selected
     this.glow.visible = focused; this.glow.alpha = still ? .5 : .475 - .125 * Math.cos(this.time * Math.PI / 1.3)
     this.cursorSprite.visible = focused && this.keyed && this.showCursor
     this.cursorSprite.x = still ? -5 : Math.round(-6 + Math.cos(this.time * Math.PI / .45))
@@ -244,6 +248,7 @@ export class UiButton extends Container {
 export abstract class UiScreen extends Container {
   readonly content = new Container()
   readonly buttons: UiButton[] = []
+  readonly nativeWindow: NightwardSelectable
   age = 0
   live = true
   inputBlocked = false
@@ -255,36 +260,26 @@ export abstract class UiScreen extends Container {
   private closeDone?: () => void
   private dim = 1
   dimmed = false
-  constructor() { super({ eventMode: 'passive' }); this.addChild(this.content); this.scale.set(this.layout.unit) }
+  constructor() {
+    super({ eventMode: 'passive' })
+    this.nativeWindow = new NightwardSelectable(this.layout.w, this.layout.h)
+    this.nativeWindow.choices = this.buttons
+    this.nativeWindow.onSelection = choice => { this.focused = choice as UiButton | undefined }
+    this.nativeWindow._clientArea!.addChild(this.content)
+    this.addChild(this.nativeWindow); this.scale.set(this.layout.unit)
+  }
   protected addButton(button: UiButton, row = this.buttons.length, col = 0, parent = this.content): UiButton {
     button.row = row; button.col = col; parent.addChild(button); this.buttons.push(button)
-    button.onPointerFocus = () => this.focus(button, true, false)
     return button
   }
   focus(button: UiButton, audible = false, keyed = true): void {
-    if (button === this.focused && button.keyed === keyed) return
-    if (audible && this.focused !== button) sound('Cursor')
-    this.focused?.focus(false); this.focused = button; button.focus(true, keyed)
+    const index = this.buttons.indexOf(button)
+    if (audible && this.nativeWindow.index() !== index) this.nativeWindow.playCursorSound()
+    this.nativeWindow.focusChoice(index, keyed)
   }
   protected handle(): void {
-    if (Input.isTriggered('cancel') || Input.isTriggered('pause') || TouchInput.isCancelled()) { this.onBack?.(); return }
-    const y = Input.isRepeated('down') ? 1 : Input.isRepeated('up') ? -1 : 0
-    const x = Input.isRepeated('right') ? 1 : Input.isRepeated('left') ? -1 : 0
-    const enabled = this.buttons.filter(button => button.enabled && button.visible)
-    const rows = [...new Set(enabled.map(button => button.row))].sort((a, b) => a - b)
-    const current = this.focused
-    if (y && rows.length) {
-      const index = current ? rows.indexOf(current.row) : -1
-      const row = rows[(index + y + rows.length) % rows.length]!
-      const candidates = enabled.filter(button => button.row === row)
-      this.focus(candidates.find(button => button.selected) ?? candidates.reduce((best, button) => Math.abs(button.col - (current?.col ?? 0)) < Math.abs(best.col - (current?.col ?? 0)) ? button : best), true)
-    }
-    else if (x && current) {
-      const row = enabled.filter(button => button.row === current.row).sort((a, b) => a.col - b.col), index = row.indexOf(current)
-      if (row.length > 1) this.focus(row[Math.max(0, Math.min(row.length - 1, index + x))]!, true)
-      else current.step?.(x)
-    }
-    else if (Input.isTriggered('ok')) this.focused?.activate()
+    if (Input.isTriggered('pause') && this.onBack) { this.nativeWindow.processCancel(); return }
+    this.nativeWindow.update()
   }
   tick(dt: number): void {
     this.age += dt
@@ -300,6 +295,8 @@ export abstract class UiScreen extends Container {
     if (this.destroyed) return
     const live = this.live && !this.inputBlocked && !this.dimmed && this.closing < 0 && this.accepting
     for (const button of this.buttons) button.tick(dt, live)
+    this.nativeWindow.onCancel = this.onBack
+    this.nativeWindow.setLive(live)
     if (live) this.handle()
   }
   get accepting(): boolean { return this.age >= .15 }
@@ -312,18 +309,25 @@ export function fullscreen(): void {
 }
 export class SystemButtons extends Container {
   readonly buttons: UiButton[]
+  private nativeWindow: NightwardSelectable
   constructor() {
     super()
     const mute = new UiButton(getAssets().ui.speakerOn!, 15, 15, null)
     mute.onActivate = toggleMute
     this.buttons = [mute]
     if (document.fullscreenEnabled) { const full = new UiButton(getAssets().ui.fullscreenEnter!, 15, 15, 'Cursor'); full.onActivate = fullscreen; this.buttons.push(full) }
-    this.addChild(...this.buttons)
+    this.nativeWindow = new NightwardSelectable(34, 15); this.nativeWindow.pointerOnly = true; this.nativeWindow.choices = this.buttons
+    this.nativeWindow._clientArea!.addChild(...this.buttons); this.addChild(this.nativeWindow)
   }
-  layout(tap: number): number { this.buttons.forEach((button, i) => { button.x = i * Math.max(19, tap); button.setSize(15, 15, tap) }); return 15 + (this.buttons.length - 1) * Math.max(19, tap) }
+  layout(tap: number): number {
+    this.buttons.forEach((button, i) => { button.x = i * Math.max(19, tap); button.setSize(15, 15, tap) })
+    const width = 15 + (this.buttons.length - 1) * Math.max(19, tap)
+    this.nativeWindow.move(0, 0, width, 15); return width
+  }
   tick(dt: number, live: boolean, age = Infinity): void {
     this.buttons[0]!.glyph!.texture = getAssets().ui[settings.muted ? 'speakerOff' : 'speakerOn']!
     if (this.buttons[1]) this.buttons[1].glyph!.texture = getAssets().ui[document.fullscreenElement ? 'fullscreenExit' : 'fullscreenEnter']!
+    this.nativeWindow.setLive(live && age >= 0); this.nativeWindow.update()
     this.buttons.forEach((button, i) => { button.tick(dt, live && age >= 0); button.motion.pivot.set(7.5); button.motion.position.set(7.5); button.motion.alpha = phase(age, i * .06, .3); button.motion.scale.set(reducedMotion() ? 1 : .6 + .4 * back(phase(age, i * .06, .3), 3)) })
   }
 }

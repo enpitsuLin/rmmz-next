@@ -100,6 +100,7 @@ export function requestAssets(): void {
         if (surface.emissive) ImageManager.loadBitmap(folder, `${name}-emissive`).smooth = false
       }
       ImageManager.loadSystem('IconSet').smooth = false
+      ImageManager.loadSystem('Window').smooth = false
       ready = true
     }).catch(error => { failure = error })
 }

@@ -7,9 +7,10 @@ import { upgradeDescription, upgradeNames } from './build-ui'
 import type { Reward } from './rewards'
 import { back, box, colors, Heading, largeScale, out, panel, phase, reducedMotion, sprite, text, UiScreen, wrap } from './ui'
 import type { UiText } from './ui'
+import type { NightwardWindow } from './window-ui'
 
 interface Card {
-  root: Container, body: Container, glow: NineSliceSprite, frame: NineSliceSprite, well: Sprite, icon: Sprite, name: UiText, tag: UiText, lines: UiText[], flash: Sprite,
+  root: Container, body: Container, glow: NineSliceSprite, frame: NightwardWindow, well: Sprite, icon: Sprite, name: UiText, tag: UiText, lines: UiText[], flash: Sprite,
   x: number, y: number, focus: number, focusFrom: number, focusTarget: number, focusAge: number, press: number, pressFrom: number, pressTarget: number, pressAge: number, pressed: boolean, iconAge: number, sent: boolean,
 }
 export interface IconPoint { x: number, y: number, scale: number }
@@ -32,19 +33,24 @@ export class RewardScreen extends UiScreen {
     this.heading.configure({ drop: 18, strength: 1.7 })
     this.cursorSprite.anchor.set(1, .5)
     this.content.addChild(this.dimmer, this.heading)
-    rewards.forEach((reward, index) => {
+    rewards.forEach((reward) => {
       const root = new Container({ eventMode: 'static', cursor: treasure ? 'default' : 'pointer' }), body = new Container(), glow = panel(1, 1, 'softRect'), frame = panel(1, 1), well = sprite('slot'), image = new Sprite(getAssets().hudIcons[reward.key]!), name = text(upgradeNames[reward.key], 0, 0), tag = text(reward.rank <= 1 ? 'NEW!' : `Lv ${reward.rank}`, 0, 0, reward.rank <= 1 ? 3 : 0, reward.rank <= 1 ? 0xffffff : 10275071, 1), lines = [text('', 0, 0, 0, colors.blue), text('', 0, 0, 0, colors.blue)], flash = box(1, 1, 0xffffff, 0, 3, 3)
       glow.position.set(-10, -10); glow.tint = colors.lantern; image.anchor.set(.5)
       body.addChild(glow, frame, well, image, name, tag, ...lines, flash); root.addChild(body); this.content.addChild(root)
       const card: Card = { root, body, glow, frame, well, icon: image, name, tag, lines, flash, x: 0, y: 0, focus: treasure ? 1 : 0, focusFrom: treasure ? 1 : 0, focusTarget: treasure ? 1 : 0, focusAge: 1, press: 0, pressFrom: 0, pressTarget: 0, pressAge: 1, pressed: false, iconAge: 1, sent: false }
       this.cards.push(card)
-      root.on('pointerover', event => { if (event.pointerType === 'mouse' && this.accepting) this.select(index) })
-      root.on('pointerdown', () => { if (this.accepting) { this.select(index); card.pressed = true } })
-      root.on('pointerup', () => { if (card.pressed) { card.pressed = false; this.choose(index) } })
-      root.on('pointerupoutside', () => { card.pressed = false })
     })
+    this.nativeWindow.cycle = true
+    this.nativeWindow.onSelection = undefined
+    this.nativeWindow.choices = this.cards.map((card, index) => ({
+      node: card.root, get rect() { return card.root.hitArea as Rectangle }, enabled: !treasure, selected: false, row: index, col: 0,
+      focus: (focused: boolean) => { if (focused) this.select(index) },
+      setPressed: (pressed: boolean) => { card.pressed = pressed },
+      activate: () => this.choose(index),
+    }))
     this.content.addChild(this.cursorSprite)
     this.place(bandBottom)
+    this.nativeWindow.focusChoice(0)
   }
   override get accepting(): boolean { return !this.treasure && this.age >= .45 && this.exitAge < 0 }
   private place(bandBottom: number): void {
@@ -79,7 +85,7 @@ export class RewardScreen extends UiScreen {
   }
   private select(index: number): void {
     if (!this.accepting || index === this.selected) return
-    this.selected = index; this.cards[index]!.iconAge = 0; sound('Cursor')
+    this.selected = index; this.cards[index]!.iconAge = 0
   }
   private choose(index: number): void {
     if (!this.accepting) return
@@ -89,10 +95,8 @@ export class RewardScreen extends UiScreen {
     this.callbacks.pick(index)
   }
   protected override handle(): void {
-    const direction = Input.isRepeated('down') || Input.isRepeated('right') ? 1 : Input.isRepeated('up') || Input.isRepeated('left') ? -1 : 0
-    if (direction) this.select((this.selected + this.cards.length + direction) % this.cards.length)
     for (let i = 0; i < this.cards.length; i++) if (Input.isTriggered(`choice${i + 1}`)) { this.choose(i); return }
-    if (Input.isTriggered('ok')) this.choose(this.selected)
+    super.handle()
   }
   private send(card: Card, index: number): void {
     if (card.sent) return
@@ -122,7 +126,7 @@ export class RewardScreen extends UiScreen {
       const focus = still ? 0 : card.focus, away = exit >= 0 && !this.treasure && i !== this.chosen ? phase(exit, 0, .26) ** 4 : 0, punch = exit >= 0 && i === this.chosen ? Math.sin(phase(exit, 0, .3) * Math.PI) : 0
       card.body.position.set(card.body.pivot.x + Math.round(this.row ? 0 : 110 * (1 - slide) + 4 * focus - 70 * away), card.body.pivot.y + Math.round(this.row ? 40 * (1 - slide) - 3 * focus + 30 * away : 0))
       const scale = (1 + .02 * focus) * (1 - .03 * card.press) * (1 + .05 * punch)
-      card.body.scale.set(scale * flip, scale); card.body.alpha = fade * (1 - away); card.glow.alpha = card.focus * (.5 + .15 * Math.sin(age * Math.PI / .65)); card.frame.texture = getAssets().ui[card.focus > .5 ? 'panelHot' : 'panel']!
+      card.body.scale.set(scale * flip, scale); card.body.alpha = fade * (1 - away); card.glow.alpha = card.focus * (.5 + .15 * Math.sin(age * Math.PI / .65)); card.frame.highlighted = card.focus > .5
       card.icon.scale.set(16 / card.icon.texture.frame.width * (1 + (still ? 0 : .25 * Math.sin(phase(card.iconAge, 0, .2) * Math.PI))))
       const tagAt = this.treasure ? .3 + i * .15 : .45 + i * .07, tag = still ? 1 : back(phase(age, tagAt, .25), 3)
       card.tag.scale.set(tag); card.tag.rotation = -.25 * (1 - tag); card.flash.alpha = exit >= 0 && i === this.chosen ? .85 * (1 - out(phase(exit, 0, .3))) : 0

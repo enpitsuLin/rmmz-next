@@ -6,14 +6,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pipeline } from 'node:stream/promises'
 
-export async function bakeReferenceMedia({ root, output, code, helpersCode, uiOnly = false }) {
+export async function bakeReferenceMedia({ root, output, code, helpersCode, uiOnly = false, skinOnly = false }) {
   const temporary = await mkdtemp(join(tmpdir(), 'nightward-media-'))
   const chrome = process.env.NIGHTWARD_CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
   const encoder = process.env.NIGHTWARD_FFMPEG || 'ffmpeg'
   let finish, reject
   const completed = new Promise((resolve, fail) => { finish = resolve; reject = fail })
   const uiCues = { Tick: 'tick', Stamp: 'stamp', Swoosh: 'swoosh' }
-  const cueFiles = uiOnly ? uiCues : { ...uiCues, Cursor: 'select', Confirm: 'confirm', Cancel: 'back', Hit: 'hit', Pickup: 'gem', Level: 'levelUp', Chest: 'chest', Hurt: 'hurt', Lightning: 'storm', Flask: 'flask', Reaper: 'roar', Relic: 'boom', Lash: 'lash', Wand: 'wand', Tomes: 'tomes', Ward: 'ward', Title: 'title', Warn: 'warn', Victory: 'victory', Defeat: 'death' }
+  const cueFiles = skinOnly ? {} : uiOnly ? uiCues : { ...uiCues, Cursor: 'select', Confirm: 'confirm', Cancel: 'back', Hit: 'hit', Pickup: 'gem', Level: 'levelUp', Chest: 'chest', Hurt: 'hurt', Lightning: 'storm', Flask: 'flask', Reaper: 'roar', Relic: 'boom', Lash: 'lash', Wand: 'wand', Tomes: 'tomes', Ward: 'ward', Title: 'title', Warn: 'warn', Victory: 'victory', Defeat: 'death' }
+  const skinSeed = readFileSync(`${root}img/system/Window.png`).toString('base64')
   const script = `
 const helpers = ${helpersCode};
 const {y5,x5,w5,d_,f_,Ts,hn,Mx} = helpers;
@@ -26,8 +27,25 @@ ${code}
 const post=(name,body)=>fetch('/file/'+name,{method:'POST',body}).then(response=>{if(!response.ok)throw new Error(name+': '+response.status)});
 const frame=texture=>({x:texture.frame.x,y:texture.frame.y,width:texture.frame.width,height:texture.frame.height});
 async function png(name,canvas){ const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));await post(name+'.png',blob); }
+async function windowskin(ui){
+  const previous=new Image();previous.src=${JSON.stringify(`data:image/png;base64,${skinSeed}`)};await previous.decode();
+  const canvas=document.createElement('canvas');canvas.width=canvas.height=192;
+  const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(previous,0,0);
+  function nine(texture,dx,dy,width,height,center){
+    const f=frame(texture),border=5,sx=[f.x,f.x+border,f.x+f.width-border,f.x+f.width],sy=[f.y,f.y+border,f.y+f.height-border,f.y+f.height],x=[dx,dx+border,dx+width-border,dx+width],y=[dy,dy+border,dy+height-border,dy+height];
+    ctx.clearRect(dx,dy,width,height);
+    for(let row=0;row<3;row++)for(let col=0;col<3;col++)if(center||row!==1||col!==1)ctx.drawImage(ui._canvas,sx[col],sy[row],sx[col+1]-sx[col],sy[row+1]-sy[row],x[col],y[row],x[col+1]-x[col],y[row+1]-y[row]);
+  }
+  const normal=frame(ui.panel);
+  ctx.clearRect(0,0,96,192);ctx.drawImage(ui._canvas,normal.x+5,normal.y+5,6,6,0,0,96,96);
+  nine(ui.panel,96,0,96,96,false);nine(ui.panelHot,96,96,48,48,true);
+  for(const y of [24,60])ctx.drawImage(previous,132,y,24,12,132,y,24,12);
+  await png('Window',canvas);
+}
 async function main(){
   const ui = new Y();
+  await windowskin(ui);
+  if(${skinOnly}){await fetch('/done',{method:'POST'});return;}
   await png('ui-pixels',ui._canvas);await png('ui-soft',ui._softCanvas);await png('moon',gR().source.resource);
   const glyphs=w5().map((glyph,index)=>({char:glyph.char,advance:ui.advance[index],frames:ui.glyphs.map(style=>frame(style[index])),bigFrames:ui.bigGlyphs.map(style=>frame(style[index]))}));
   const parts=Object.fromEntries(['white','panel','panelHot','barFrame','thinFrame','xpFill','hpFill','slot','pipOn','pipOff','cursor','diamond','sparkle','ring','knob','pauseBars','speakerOn','speakerOff','fullscreenEnter','fullscreenExit','keycap','dmgFill'].map(name=>[name,frame(ui[name])]));
@@ -67,7 +85,7 @@ main().catch(error=>fetch('/error',{method:'POST',body:error.stack||String(error
       if (request.url === '/error') { let message = ''; for await (const part of request) message += part; response.end(); reject(new Error(message)); return }
       const filename = request.url?.slice('/file/'.length)
       if (!request.url?.startsWith('/file/') || !/^[\w-]+\.(png|json|wav)$/.test(filename)) { response.statusCode = 404; response.end(); return }
-      const destination = filename.endsWith('.wav') ? join(temporary, filename) : join(output, filename)
+      const destination = filename === 'Window.png' ? `${root}img/system/Window.png` : filename.endsWith('.wav') ? join(temporary, filename) : join(output, filename)
       await pipeline(request, createWriteStream(destination))
       response.end('ok')
     }
@@ -88,7 +106,7 @@ main().catch(error=>fetch('/error',{method:'POST',body:error.stack||String(error
       if (encoding.status !== 0) throw new Error(`Encoding failed: ${name}`)
     }
     if (!uiOnly) writeFileSync(`${root}audio/bgm/Dawn.ogg`, readFileSync(`${root}audio/bgm/Nightward.ogg`))
-    console.log(uiOnly ? 'Baked the reference UI, both glyph sizes, and UI sound cues.' : 'Baked the reference UI atlas, glyphs, moon, two music scores, and all sound cues.')
+    console.log(skinOnly ? 'Packed the reference panels into the native MZ Window.png skin.' : uiOnly ? 'Baked the reference UI, both glyph sizes, and UI sound cues.' : 'Baked the reference UI atlas, glyphs, moon, two music scores, and all sound cues.')
   }
   finally {
     if (browser.pid) { browser.kill(); await exited }

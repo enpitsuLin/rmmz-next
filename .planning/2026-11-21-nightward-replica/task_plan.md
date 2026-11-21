@@ -4,10 +4,10 @@
 按照 example/nightward/docs/nightward-replication-plan.md 完整实现原版 Nightward 的玩法与三维呈现，尽量复用 RMMZ 数据和运行对象。
 
 ## Next Step
-UI 实现与离线资产制作已完成；交由用户重启 Nightward 测试。
+原生窗体迁移和 Window.png 制作完成，交由用户重启游戏测试。
 
 ## Current Phase
-Phase 10
+Phase 11
 
 ## Phases
 
@@ -89,4 +89,12 @@ Phase 10
 - [x] 对齐标题、HUD、升级/宝箱、暂停/设置和结算
 - [x] 对接场景生命周期、输入、纪录与资源生成说明
 - [x] 按约定交由用户测试，不运行自动化验证
+- **Status:** complete
+
+### Phase 11: 复用 RMMZ 原生窗体
+- [x] 核对本仓库 Window、Window_Selectable 与现有 UI 调用
+- [x] 用 Window.png 和 Window 子类承载面板
+- [x] 用 Window_Selectable 管理菜单、升级卡片和系统按钮
+- [x] 保留原版布局、字效、翻牌、退场和奖励飞行
+- [x] 更新资源制作与说明，交由用户自行测试
 - **Status:** complete

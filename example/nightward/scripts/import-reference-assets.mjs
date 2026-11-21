@@ -52,8 +52,8 @@ const helpersCode = `(()=>{${loaderCode};return {y5:y,x5:J,w5:x,d_:A,f_:T,Ts:S,h
 const roots = ['_P', 'gP', 'NO', 'x9', 'hs', 'Bt', 'pe', 'hh', 'xs', 'cR', 'uR', 'dR', 'rt', 'xx', 'Y', 'gR', 'pz', 'qP', 'BP', 'X8', '$8', 'gx', '_f', 'j9', 'K9']
 const code = collect(source, roots, external)
 console.log(`Compiling original asset generators (${code.length} characters).`)
-if (process.argv.includes('--ui-only')) {
-  await bakeReferenceMedia({ root, output: `${root}img/nightward/reference`, code, helpersCode, uiOnly: true })
+if (process.argv.includes('--ui-only') || process.argv.includes('--windowskin-only')) {
+  await bakeReferenceMedia({ root, output: `${root}img/nightward/reference`, code, helpersCode, uiOnly: true, skinOnly: process.argv.includes('--windowskin-only') })
   process.exit(0)
 }
 

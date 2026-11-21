@@ -10,6 +10,7 @@ import type { Reward } from './rewards'
 import type { RunEvent, RunSession } from './session'
 import type { GraveyardView } from './view'
 import type { IconPoint } from './upgrade-ui'
+import { NightwardSelectable } from './window-ui'
 import { approach, back, box, clamp, clock, colors, fitScale, Heading, icon, largeScale, mixColor, out, panel, phase, reducedMotion, sine, snap, sprite, text, UiButton, uiLayout, UiText } from './ui'
 
 interface Flight { image: Sprite, from: IconPoint, to: IconPoint, age: number, key: FamilyKey }
@@ -74,6 +75,7 @@ export class Hud extends Container {
   private timer = text('00:00', 0, 0, 0, 0xffffff, .5, true)
   private timerPlate = panel(1, 1, 'softRect')
   private pauseButton = new UiButton(getAssets().ui.pauseBars!, 15, 15, null)
+  private pauseWindow = new NightwardSelectable(15, 15)
   private slotsFrame = panel(135, 62)
   private counterFrame = panel(1, 44)
   private counters = new Container()
@@ -157,6 +159,8 @@ export class Hud extends Container {
   constructor(private run: RunSession, private assets: Assets, pause: () => void) {
     super({ eventMode: 'passive' })
     this.pauseButton.onActivate = pause
+    this.pauseWindow.pointerOnly = true; this.pauseWindow.choices = [this.pauseButton]
+    this.pauseWindow._clientArea!.addChild(this.pauseButton)
     this.timerPlate.tint = 0; this.timerPlate.alpha = .42
     this.xpGlint.anchor.set(.5); this.xpGlint.tint = 10147583
     this.hpFill.height = 3
@@ -169,7 +173,7 @@ export class Hud extends Container {
     this.boss.addChild(...this.bossHalves, this.bossBox, this.bossName)
     this.bossArrow.anchor.set(.5); this.bossArrow.tint = 16729654; this.arrowGlow.anchor.set(.5); this.arrowGlow.tint = 16722460; this.arrowGlow.blendMode = 'add'
     this.xpSparkles.forEach(node => node.anchor.set(.5))
-    this.screen.addChild(this.xpBack, this.xpFill, this.xpShine, this.xpEdge, this.xpGlint, this.xpFlash, this.xpFrame, this.level, ...this.xpSparkles, this.timerPlate, this.timer, this.pauseButton, this.slotsFrame, this.build, this.counters, this.boss)
+    this.screen.addChild(this.xpBack, this.xpFill, this.xpShine, this.xpEdge, this.xpGlint, this.xpFlash, this.xpFrame, this.level, ...this.xpSparkles, this.timerPlate, this.timer, this.pauseWindow, this.slotsFrame, this.build, this.counters, this.boss)
     this.stickRing.anchor.set(.5); this.stickKnob.anchor.set(.5); this.stick.addChild(this.stickRing, this.stickKnob)
     this.addChild(this.world, this.lowHp, this.screen, this.arrowGlow, this.bossArrow, this.moments, this.stick)
     this.build.fill(run.buildOrder.map(key => ({ key, rank: run.rank(key) }))); this.layout()
@@ -256,7 +260,7 @@ export class Hud extends Container {
     const f = m + 13 * s + 3 * u, timerTop = f + (l.portrait ? 2 : 3) * u, timerHeight = 14 * u, timerWidth = this.timer.textWidth * u
     this.timer.scale.set(u); this.timer.pivot.y = 7; this.timer.position.set(Math.round(w / 2), timerTop + 7 * u); this.timerBottom = timerTop + timerHeight
     this.timerPlate.width = Math.round((timerWidth + 36 * u) / u); this.timerPlate.height = 36; this.timerPlate.scale.set(u); this.timerPlate.position.set(Math.round(w / 2 - (timerWidth + 36 * u) / 2), timerTop - 11 * u)
-    this.pauseButton.scale.set(u); this.pauseButton.setSize(15, 15, Math.max(27, Math.ceil(44 / u))); this.pauseButton.position.set(Math.round(w / 2 + timerWidth / 2 + 10 * u), Math.round(timerTop + timerHeight / 2 - 7.5 * u))
+    this.pauseButton.setSize(15, 15, Math.max(27, Math.ceil(44 / u))); this.pauseWindow.scale.set(u); this.pauseWindow.position.set(Math.round(w / 2 + timerWidth / 2 + 10 * u), Math.round(timerTop + timerHeight / 2 - 7.5 * u))
     const slotY = l.portrait ? timerTop + timerHeight + 6 * u : f
     this.slotsFrame.position.set(m, slotY); this.slotsFrame.scale.set(s); this.build.layout(s, 1, Infinity, true); this.build.position.set(m, slotY); this.slotBottom = slotY + 62 * s
     const counterWidth = 31 + Math.ceil(36 * u / s), counterX = w - m - counterWidth * s, stacked = l.portrait && counterX < m + 135 * s + m
@@ -314,7 +318,8 @@ export class Hud extends Container {
     this.uiTime += dt; this.shown.age += dt
     this.shown.value = this.shown.from + (this.shown.to - this.shown.from) * out(phase(this.shown.age, this.shown.delay, Math.max(.001, this.shown.duration)), 2)
     this.screen.alpha = this.world.alpha = this.moments.alpha = this.shown.value
-    this.moments.visible = !this.modal; this.pauseButton.visible = !this.modal; this.pauseButton.tick(dt, active && this.shown.to > 0)
+    this.moments.visible = !this.modal; this.pauseWindow.visible = !this.modal; this.pauseButton.tick(dt, active && this.shown.to > 0)
+    this.pauseWindow.setLive(active && this.shown.to > 0); this.pauseWindow.update()
     for (const event of events) {
       if (event.kind === 'pickup') {
         if (event.pickup?.startsWith('gem')) this.xpAge = 0

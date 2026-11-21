@@ -69,3 +69,16 @@
 - 官方启动代码把 UI 布局密度上限设为1.5，布局器使用该密度计算物理像素单位。此前“1100×760单位3”的结论仅适用于DPR1；高分屏须先按密度换算，再映射到RMMZ游戏坐标。
 - 本次按原版密度计算UI，不修改引擎或提高三维渲染分辨率。
 - RMMZ手柄B映射为cancel；菜单通过cancel读取返回，Esc仍由RMMZ别名支持。消费菜单触发边沿时保留移动键按住状态，避免选升级后移动中断。
+
+## 原生窗体迁移
+- 本仓库 Window 是 Pixi 8 显示对象，Windowskin 默认使用192×192协议；Window_Selectable 已包含键盘、手柄、悬停、触摸确认和取消处理。
+- 原版面板边角为5像素，默认Window边角为24像素；在 Nightward 的Window子类中使用相同skin分区与5像素边角，保留原版外观，不改引擎。
+- 使用Window承载面板，Window_Selectable承载选项和原版任意布局；屏幕的动画容器及逐字字形/光晕/飞行图标仍为Pixi。
+- Window.png属于已有程序生成UI的引擎图集，沿用Canvas资产制作管线打包同源像素，不引入新绘制风格或AI生成贴图。
+- 官方RMMZ文档支持自定义windowskin、padding、cursorRect和窗口子类；实际API以本仓库源码为准。
+
+### 原生窗体实现决策
+- NightwardWindow 读取 Window.png 的普通96×96边框和选中48×48皮肤，以5像素边角调用引擎 _setRectPartsGeometry；背景使用同一皮肤的填充区域，避免混入原生箭头。
+- NightwardSelectable 复用原生 processCursorMove/processHandling/processTouch、索引与handlers；只适配原版不规则itemRect、按行/列移动和卡片循环选择。旧UiScreen键盘分发与按钮/卡片的Pixi激活监听已移除。
+- 逐字字形和动效内容挂在选择窗口客户端；客户端不裁切单项的溢出光晕，保留原版透明叠加。外层屏幕容器继续编排入场/退场。
+- --windowskin-only 已实际成功执行，只制作Window.png，不重烘焙其他资源，也不启动游戏。
