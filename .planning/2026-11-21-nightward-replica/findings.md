@@ -171,3 +171,10 @@
 2. 六种武器各阶保留自己的添加技能特性，出手和命中从来源装备读取特性 dataId，避免从角色聚合技能选择造成六武器混淆。WeaponData、现有备注和生成脚本不再保存 skillId，没有旧字段兼容路径。
 3. Lash 1 的 wtypeId 同时被改为 0，但职业仅允许类型 1；原生 canEquipWeapon 会拒绝并在刷新时卸下。已恢复为当前 Nightward 类型 1，保留用户添加的技能特性及其他数据。
 4. 只定点迁移 Weapons，不重跑全量内容生成；现有特性不替换，其他字段、装备备注参数和地图布局保留。Context7 连接失败，依据本仓库原生常量和技能汇总实现完成适配。
+
+
+## Might 1 升级崩溃（2026-11-22）
+
+1. 用户截图为升级选择后 Cannot read property setObject of undefined。grantReward 按 entry.etypeId 寻找空槽，Might 1 当前 etypeId=0，而 Nightward 装备槽仅有 1 和 5，查找返回 -1，forceChangeEquip 访问 _equips[-1] 导致错误。
+2. Might 1 的 atypeId 也为 0，职业只许可 Nightward 防具类型 1；即使只修槽类型，该饰品也会被原生 releaseUnequippableItems 卸下。已同时修正 etypeId=5、atypeId=1。
+3. 其余 29 条武器与 19 条饰品的对应类型均符合当前配置，内容生成脚本原本也使用正确类型。本轮只定点修复 Armors[1]，不修改原生引擎、奖励节奏或其他数据库内容。

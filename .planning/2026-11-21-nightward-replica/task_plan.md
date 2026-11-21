@@ -4,10 +4,10 @@
 按照 example/nightward/docs/nightward-replication-plan.md 完整实现原版 Nightward 的玩法与三维呈现，尽量复用 RMMZ 数据和运行对象。
 
 ## Next Step
-武器内部攻击已迁入原生“添加技能”特性，备注 skillId 已清理；由用户自行测试，未经要求不提交或推送。
+已修复 Might 1 类型为零导致升级装备找不到槽位的错误；由用户重启游戏自行测试，未经要求不提交或推送。
 
 ## Current Phase
-Phase 20
+Phase 21
 
 ## Phases
 
@@ -166,4 +166,10 @@ Phase 20
 - [x] 六种五阶武器通过添加技能特性绑定攻击，出手与命中逐件读取
 - [x] 删除备注 skillId，同步生成脚本和现有数据库，保留用户特性
 - [x] 恢复 Lash 1 的有效武器类型，更新说明，交由用户测试
+- **Status:** complete
+
+### Phase 21: Might 一阶升级错误
+- [x] 对照截图和原生装备调用链定位 setObject undefined
+- [x] 修复 Might 1 的装备类型与防具类型，保留其他装备数据
+- [x] 补充编辑器类型说明，不运行自动化验证，交由用户测试
 - **Status:** complete
