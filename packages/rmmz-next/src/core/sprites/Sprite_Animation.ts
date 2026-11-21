@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import type { RGBA } from '../types'
+import type { RGBA } from '../types/utils'
 import * as PIXI from 'pixi.js'
 import { AudioManager } from '../managers/AudioManager'
 import { EffectManager } from '../managers/EffectManager'

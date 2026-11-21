@@ -1,6 +1,6 @@
 import type * as PIXI from 'pixi.js'
 import type { Sprite } from '../primitives/Sprite'
-import type { RGBA } from '../types'
+import type { RGBA } from '../types/utils'
 import { AudioManager } from '../managers/AudioManager'
 import { Database } from '../managers/Database'
 import { EffectManager } from '../managers/EffectManager'

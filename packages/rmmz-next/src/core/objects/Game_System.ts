@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import type { RGBA } from '../types'
+import type { RGBA } from '../types/utils'
 import { AudioManager } from '../managers/AudioManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { Graphics } from '../primitives/Graphics'

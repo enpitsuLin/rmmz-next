@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import type { VehicleType } from '../types'
+import type { VehicleType } from '../types/utils'
 import { AudioManager } from '../managers/AudioManager'
 import { GlobalMananger } from '../managers/GlobalManager'
 import { ImageManager } from '../managers/ImageManager'

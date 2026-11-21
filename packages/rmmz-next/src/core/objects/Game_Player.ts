@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import type { VehicleType } from '../types'
+import type { VehicleType } from '../types/utils'
 import type { Game_CharacterBase } from './Game_CharacterBase'
 import type { Game_Vehicle } from './Game_Vehicle'
 import { BattleManager } from '../managers/BattleManager'

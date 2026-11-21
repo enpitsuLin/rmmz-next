@@ -1,4 +1,4 @@
-import type { RGBA } from '../types'
+import type { RGBA } from '../types/utils'
 import { AudioManager } from '../managers/AudioManager'
 import { BattleManager } from '../managers/BattleManager'
 import { ConfigManager } from '../managers/ConfigManager'

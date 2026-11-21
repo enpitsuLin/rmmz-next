@@ -1,5 +1,5 @@
 import type { MZ } from '../../database-types'
-import type { RGBA, VehicleType } from '../types'
+import type { RGBA, VehicleType } from '../types/utils'
 import type { Window_ShopBuy } from '../windows/Window_ShopBuy'
 import type { Game_Actor } from './Game_Actor'
 import type { Game_Battler } from './Game_Battler'

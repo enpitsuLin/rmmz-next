@@ -1,4 +1,4 @@
-import type { RGBA } from '../types'
+import type { RGBA } from '../types/utils'
 import type { Bitmap } from './Bitmap'
 import * as PIXI from 'pixi.js'
 import { ColorFilter } from './ColorFilter'

@@ -15,6 +15,60 @@
  * and do not need this one.
  */
 
-import { installGlobals } from 'rmmz-next'
+import * as Rmmz from 'rmmz-next'
 
-installGlobals()
+const {
+  builtInScenes: _builtInScenes,
+  initEffekseerRuntime: _initEffekseerRuntime,
+  libUrls: _libUrls,
+  loadExternalLibs: _loadExternalLibs,
+  ...globals
+} = Rmmz
+
+Object.assign(globalThis, globals)
+
+/** @satisfies {readonly Rmmz.GlobalMananger.GlobalStateName[]} */
+const stateNames = /** @type {const} */ ([
+  '$dataActors',
+  '$dataClasses',
+  '$dataSkills',
+  '$dataItems',
+  '$dataWeapons',
+  '$dataArmors',
+  '$dataEnemies',
+  '$dataTroops',
+  '$dataStates',
+  '$dataAnimations',
+  '$dataTilesets',
+  '$dataCommonEvents',
+  '$dataSystem',
+  '$dataMapInfos',
+  '$dataMap',
+  '$gameTemp',
+  '$gameSystem',
+  '$gameScreen',
+  '$gameTimer',
+  '$gameMessage',
+  '$gameSwitches',
+  '$gameVariables',
+  '$gameSelfSwitches',
+  '$gameActors',
+  '$gameParty',
+  '$gameTroop',
+  '$gameMap',
+  '$gamePlayer',
+  '$testEvent',
+])
+
+const globalState = /** @type {Record<string, unknown>} */ (/** @type {unknown} */ (Rmmz.GlobalMananger))
+
+// Accessors keep globals in sync when a game is created or loaded.
+for (const name of stateNames) {
+  Object.defineProperty(globalThis, name, {
+    configurable: true,
+    get: () => globalState[name],
+    set: (value) => {
+      globalState[name] = value
+    },
+  })
+}

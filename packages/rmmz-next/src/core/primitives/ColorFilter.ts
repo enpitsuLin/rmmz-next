@@ -1,4 +1,4 @@
-import type { RGBA } from '../types'
+import type { RGBA } from '../types/utils'
 import * as PIXI from 'pixi.js'
 
 /**

@@ -1,19 +1,14 @@
 {
   "compilerOptions": {
     "target": "es2021",
-    "lib": [
-      "DOM",
-      "DOM.AsyncIterable",
-      "DOM.Iterable",
-      "ES2021"
-    ],
     "module": "esnext",
     "moduleResolution": "bundler",
     "types": [
       "vite/client",
       "node",
       "rmmz-next/client",
-      "rmmz-next/global-types"
+      "rmmz-next/types",
+      "rmmz-next/globals"
     ],
     "allowJs": true,
     "strict": true,
@@ -24,7 +19,6 @@
   },
   "include": [
     "js/main.ts",
-    "js/plugins/RmmzGlobals.js",
-    "js/plugins/TestPlugin.js"
+    "js/plugins"
   ]
 }

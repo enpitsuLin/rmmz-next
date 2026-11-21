@@ -1,4 +1,4 @@
-import type { RGBA } from '../types'
+import type { RGBA } from '../types/utils'
 
 /**
  * The game object class for a picture.

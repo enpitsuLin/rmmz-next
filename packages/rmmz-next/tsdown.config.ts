@@ -16,7 +16,10 @@ export default defineConfig({
       const base = context.isPublish ? './dist' : './src'
       exports['./client'] = { types: `${base}/vite/client.d.ts` }
       exports['./types'] = {
-        types: context.isPublish ? './dist/types.d.ts' : './src/core/global-types.d.ts',
+        types: context.isPublish ? './dist/types.d.ts' : './src/core/types.d.ts',
+      }
+      exports['./globals'] = {
+        types: context.isPublish ? './dist/globals.d.ts' : './src/core/globals.d.ts',
       }
       return exports
     },

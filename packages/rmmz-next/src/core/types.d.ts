@@ -15,8 +15,6 @@ interface Nw {
 
 declare let nw: Nw
 
-/* eslint-disable ts/no-redeclare */
-/* eslint-disable no-var */
 /* eslint-disable vars-on-top */
 
 interface HTMLScriptElement {
@@ -115,7 +113,7 @@ interface String {
    * Replaces %1, %2 and so on in the string to the arguments.
    *
    * @memberof JsExtensions
-   * @param {any} ...args The objects to format.
+   * @param args - The objects to format.
    * @returns {string} A formatted string.
    */
   format: (...args: any[]) => string
@@ -223,6 +221,7 @@ interface VorbisDecoderConstructor {
   ): VorbisDecoder
 }
 
+// eslint-disable-next-line no-var, ts/no-redeclare
 declare var VorbisDecoder: VorbisDecoderConstructor
 
 declare namespace PixiMixins {
