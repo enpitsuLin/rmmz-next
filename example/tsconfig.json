@@ -24,7 +24,9 @@
     "skipLibCheck": true
   },
   "include": [
-    "js/main.ts",
-    "js/plugins"
+    "js",
+  ],
+  "exclude": [
+    "js/libs"
   ]
 }
