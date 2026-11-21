@@ -131,3 +131,11 @@
 3. 两个 Pass 共享每个 RenderSession 的 prepare，统一提交本帧位置与参数后只调用一次 context.update；Nightward 场景跳过模拟前的默认更新，其他场景不变。实例 speed=0，原版轨迹和 RMMZ 时钟不变。消失即 stop，复用仍存活槽，缓存颜色与动态参数，消除光束临时数组。
 4. 地图不是资源丢失：819 个事件、11 份静态几何均在。DevTools 纯色材质及剔除隔离确认 culled mode=1032（FRONT_AND_BACK）；Pixi resetState 不恢复 cullFace 模式。绘制后显式 gl.cullFace(BACK)，并恢复当前目标的绕序，地图重新显示；最终使用原始单面 PBR 材质，未保留临时诊断修改。
 5. 最后八秒采样 468 帧 / 468 次批量更新 / 0 次 updateHandle，约 58.4 FPS，P95 16.7 ms，P99 33.3 ms；实例 2,912–4,992。此段含升级选择，六武器等级 3/2/2/2/5/2，不能冒充满级持续战斗测量。无运行异常。实际指标保存在 /private/tmp/nightward-final-metrics.json，CPU profile 保存在 /private/tmp/nightward-baseline.cpuprofile 等临时文件中。
+
+
+## 结算 BUILD 与双栏裁切
+
+1. 后四格为被动升级；Game_BattlerBase.die 会 clearStates，旧结算在死亡后调用 rankOf 时读到 0，所以图标与等级点隐藏。
+2. RunSession 开局及 grantReward 完成后保存从 RMMZ 对象读出的构筑快照，finish 使用该快照；战斗状态语义保持原样，不修改引擎死亡逻辑。
+3. 非 short 横屏原先固定两列各 180 单位，加间距共 372，超过 DPR 1 下 1100 像素画面的 366 单位。统一按可用宽度限制列宽，不修改 Window 裁切或 Window.png。
+4. DevTools 实际升级后触发 RMMZ 死亡：原生被动等级变为 0，结算快照仍为 3/4/2/5，十个槽图标可见。1100×760、DPR 1 时左栏 x=24–531，右栏 x=567–1074，无运行异常。预览未写入纪录。

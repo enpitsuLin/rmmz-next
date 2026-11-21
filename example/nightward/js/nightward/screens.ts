@@ -428,7 +428,7 @@ export class ResultsScreen extends UiScreen {
   private waiting = true
   constructor(private result: RunResult, before: Records, retry: () => void, title: () => void) {
     super()
-    const won = result.won, l = this.layout, ratio = l.icon / l.unit, portrait = l.portrait && !l.short, width = portrait ? Math.min(240, l.w - 16) : l.short ? Math.min(180, Math.floor((l.w - 28) / 2)) : 180, pad = l.short ? 6 : 10, gap = l.short ? 3 : 5, iconSize = Math.ceil(16 * ratio)
+    const won = result.won, l = this.layout, ratio = l.icon / l.unit, portrait = l.portrait && !l.short, width = portrait ? Math.min(240, l.w - 16) : Math.min(180, Math.floor((l.w - 28) / 2)), pad = l.short ? 6 : 10, gap = l.short ? 3 : 5, iconSize = Math.ceil(16 * ratio)
     const damage = Object.entries(result.damage).filter(([, value]) => value > 0).sort((a, b) => b[1] - a[1]) as [WeaponKey, number][], max = damage[0]?.[1] ?? 1
     const titleWidth = new UiText(won ? 'VICTORY!' : 'YOU FELL', won ? 1 : 2, .5, true).textWidth, large = fitScale(titleWidth, l.width - l.margin * 2, 2 * l.unit), buildHeight = (215 * ratio <= width - 2 * pad ? 25 : 52) * ratio
     const candidates = l.short ? [{ stat: 12, damage: 11, best: false, scale: l.unit, rows: 4 }] : [{ stat: 16, damage: 13, best: true, scale: large, rows: 6 }, { stat: 13, damage: 11, best: true, scale: large, rows: 6 }, { stat: 13, damage: 11, best: false, scale: large, rows: 6 }, { stat: 13, damage: 11, best: false, scale: l.unit, rows: 6 }, { stat: 13, damage: 11, best: false, scale: l.unit, rows: 4 }]

@@ -4,10 +4,10 @@
 按照 example/nightward/docs/nightward-replication-plan.md 完整实现原版 Nightward 的玩法与三维呈现，尽量复用 RMMZ 数据和运行对象。
 
 ## Next Step
-Effekseer 性能与地图显示修复已完成，并经用户授权使用 pnpm dev / DevTools 实测；不提交或推送。
+结算 BUILD 与双栏裁切已修复，并通过开发窗口核对；未经用户要求不提交或推送。
 
 ## Current Phase
-Phase 16
+Phase 17
 
 ## Phases
 
@@ -137,4 +137,12 @@ Phase 16
 - [x] 缓存未变化的颜色和自定义参数，取消光束临时数组
 - [x] 修复 Effekseer 遗留 FRONT_AND_BACK 导致地图整体被剔除
 - [x] 确认原始单面材质地图、火盆与武器同时显示，记录实际帧时间
+- **Status:** complete
+
+
+### Phase 17: 结算构筑与横屏裁切修复
+- [x] 确认 RMMZ 死亡清空状态导致结算被动等级归零
+- [x] 开局及升级后保存构筑快照，结算使用快照
+- [x] 横屏双栏按画面宽度保留两侧边距
+- [x] 开发窗口核对死亡后四个被动图标、等级及 1100×760 面板边界
 - **Status:** complete

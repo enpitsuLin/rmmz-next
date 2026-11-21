@@ -61,6 +61,7 @@ export class RunSession {
   relicAt = -1
   damage: Record<WeaponKey, number> = { lash: 0, wand: 0, tomes: 0, storm: 0, ward: 0, flask: 0 }
   result?: RunResult
+  private buildSnapshot: RunResult['build'] = []
   private turn = 0
   private ended = false
   constructor(readonly content: Content, reference: ReferenceManifest, readonly demo = false) {
@@ -84,7 +85,10 @@ export class RunSession {
       for (const key of ['wand', 'tomes', 'storm', 'ward', 'flask'] as const) this.actor.learnSkill(content.weapons.get(key)![0]!.id)
       this.buildOrder.push('wand', 'tomes', 'storm', 'ward', 'flask')
     }
+    this.captureBuild()
   }
+  // Death clears RMMZ states, so keep the earned build before that happens.
+  captureBuild(): void { this.buildSnapshot = this.buildOrder.map(key => ({ key, rank: this.rank(key) })) }
   rank(key: FamilyKey): number { return rankOf(this, key) }
   weapon(key: WeaponKey): WeaponSkill | undefined {
     const rank = this.rank(key)
@@ -166,7 +170,7 @@ export class RunSession {
   }
   private finish(won: boolean): void {
     this.state = 'results'
-    this.result = { won, time: this.time, level: this.actor.level, kills: this.kills, gold: this.party.gold(), build: this.buildOrder.map(key => ({ key, rank: this.rank(key) })), damage: { ...this.damage } }
+    this.result = { won, time: this.time, level: this.actor.level, kills: this.kills, gold: this.party.gold(), build: this.buildSnapshot, damage: { ...this.damage } }
     this.endBattle()
   }
   private endBattle(): void {

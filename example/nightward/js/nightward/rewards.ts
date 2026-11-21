@@ -63,6 +63,7 @@ export function grantReward(run: RunSession, reward: Reward): void {
     for (const entry of states) run.actor.removeState(entry.id)
     run.actor.addState(states[reward.rank - 1]!.id)
   }
+  run.captureBuild()
   run.emit({ kind: 'upgrade', x: run.hero.x, z: run.hero.z })
 }
 export function gainExperience(run: RunSession, value: number): void {
