@@ -13,8 +13,8 @@
     "./client": {
       "types": "./src/vite/client.d.ts"
     },
-    "./global-types": {
-      "types": "./src/core/global-types.d.ts"
+    "./types": {
+      "types": "./src/core/types.d.ts"
     }
   },
   "types": "./dist/index.d.ts",
@@ -61,8 +61,8 @@
       "./client": {
         "types": "./dist/vite/client.d.ts"
       },
-      "./global-types": {
-        "types": "./dist/global-types.d.ts"
+      "./types": {
+        "types": "./dist/types.d.ts"
       }
     }
   }

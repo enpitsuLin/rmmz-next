@@ -15,8 +15,8 @@ export default defineConfig({
     async customExports(exports, context) {
       const base = context.isPublish ? './dist' : './src'
       exports['./client'] = { types: `${base}/vite/client.d.ts` }
-      exports['./global-types'] = {
-        types: context.isPublish ? './dist/global-types.d.ts' : './src/core/global-types.d.ts',
+      exports['./types'] = {
+        types: context.isPublish ? './dist/types.d.ts' : './src/core/global-types.d.ts',
       }
       return exports
     },
