@@ -10,9 +10,13 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "postinstall": "rmmz-next protect"
+    "postinstall": "rmmz-next protect",
+    "generate:content": "node scripts/generate-content.mjs",
+    "generate:assets": "node scripts/import-reference-assets.mjs"
   },
   "dependencies": {
+    "@pixi/3d": "catalog:",
+    "pixi.js": "catalog:",
     "rmmz-next": "workspace:*"
   },
   "devDependencies": {
@@ -27,8 +31,8 @@
   ],
   "window": {
     "title": "Nightward",
-    "width": 816,
-    "height": 624,
+    "width": 1100,
+    "height": 760,
     "position": "center",
     "icon": "icon/icon.png"
   }
