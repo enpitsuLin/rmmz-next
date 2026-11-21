@@ -9,6 +9,10 @@ Array.prototype.clone = function () {
   return this.slice(0)
 }
 
+Object.defineProperty(Array.prototype, 'clone', {
+  enumerable: false,
+})
+
 /**
  * Checks whether the array contains a given element.
  *
@@ -20,6 +24,10 @@ Array.prototype.clone = function () {
 Array.prototype.contains = function (element) {
   return this.includes(element)
 }
+
+Object.defineProperty(Array.prototype, 'contains', {
+  enumerable: false,
+})
 
 /**
  * Checks whether the two arrays are the same.
