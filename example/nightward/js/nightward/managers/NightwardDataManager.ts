@@ -152,9 +152,23 @@ function optionalMetadata<T>(entry: { meta?: MZ.Meta }): T | undefined {
 }
 
 // Troop tuning lives in a battle event comment, which DataManager does not extract.
-function formation<T>(troopId: number): T {
-  const comment = globals.$dataTroops[troopId]!.pages[0]!.list[0]!.parameters[0] as string
-  return JSON.parse(comment.match(/<nightward:([^>]+)>/)![1]!) as T
+function readFormations(): Formations {
+  const map = new Map<string, unknown>()
+  for (const troop of globals.$dataTroops.slice(1)) {
+    const comment = troop?.pages[0]?.list.find(command => command.code === 108)?.parameters[0]
+    const match = typeof comment === 'string' ? comment.match(/<nightward:([^>]+)>/) : null
+    if (!match)
+      continue
+    const data = JSON.parse(match[1]!) as { key?: string }
+    if (data.key)
+      map.set(data.key, data)
+  }
+  return {
+    swarm: map.get('swarm') as Formations['swarm'],
+    ring: map.get('ring') as Formations['ring'],
+    elite: map.get('elite') as Formations['elite'],
+    reaper: map.get('reaper') as Formations['reaper'],
+  }
 }
 
 function readSpawnPoint(tag: string, center: number, fallback: Point): Point {
@@ -204,35 +218,34 @@ function readStaticDatabase(): StaticDatabase {
   for (const key of weaponKeys) weapons.set(key, [])
   for (const key of passiveKeys) passives.set(key, [])
   for (const weapon of globals.$dataWeapons.slice(1)) {
-    if (!weapon)
+    const data = weapon ? optionalMetadata<WeaponData>(weapon) : undefined
+    if (!weapon || !data)
       continue
-    const data = metadata<WeaponData>(weapon)
     // Keep database identity for Game_Item and the native equipment APIs.
-    weapons.get(data.key)!.push(Object.assign(weapon, { data }))
+    weapons.get(data.key)?.push(Object.assign(weapon, { data }))
   }
   for (const armor of globals.$dataArmors.slice(1)) {
-    if (!armor)
+    const data = armor ? optionalMetadata<PassiveData>(armor) : undefined
+    if (!armor || !data)
       continue
-    const data = metadata<PassiveData>(armor)
-    passives.get(data.key)!.push(Object.assign(armor, { data }))
+    passives.get(data.key)?.push(Object.assign(armor, { data }))
   }
   for (const skill of globals.$dataSkills.slice(1)) {
-    if (!skill)
-      continue
-    const data = metadata<{ category: string, key: string }>(skill)
-    if (data.category === 'enemyAttack')
+    const data = skill ? optionalMetadata<{ key?: string }>(skill) : undefined
+    if (skill && data?.key)
       enemySkills.set(data.key, skill.id)
   }
   for (const enemy of globals.$dataEnemies.slice(1)) {
-    if (enemy)
-      enemies.set(metadata<EnemyData>(enemy).key, { ...enemy, data: metadata<EnemyData>(enemy) })
+    const data = enemy ? optionalMetadata<EnemyData>(enemy) : undefined
+    if (enemy && data)
+      enemies.set(data.key, { ...enemy, data })
   }
   for (const item of globals.$dataItems.slice(1)) {
-    if (!item)
+    const data = item ? optionalMetadata<{ key: PickupKey }>(item) : undefined
+    if (!item || !data)
       continue
-    const key = metadata<{ key: PickupKey }>(item).key
-    items.set(key, item)
-    itemKeyById.set(item.id, key)
+    items.set(data.key, item)
+    itemKeyById.set(item.id, data.key)
   }
   const db: StaticDatabase = {
     source: globals.$dataWeapons,
@@ -241,12 +254,7 @@ function readStaticDatabase(): StaticDatabase {
     enemies,
     items,
     itemKeyById,
-    formations: {
-      swarm: formation(1),
-      ring: formation(2),
-      elite: formation(3),
-      reaper: formation(4),
-    },
+    formations: readFormations(),
     hero: metadata(globals.$dataActors[1]!),
     contactSkill: enemySkills.get('contact')!,
     waveSkill: enemySkills.get('reaperWave')!,

@@ -27,7 +27,7 @@ const equipBase = { price: 0, params: Array(8).fill(0), traits: [] }
 for (const family of families) {
   const { name, icon, ...parameters } = family
   const skillId = skills.length
-  skills.push({ ...skillBase, id: skillId, name: `${name} Attack`, iconIndex: icon, description: '', note: note({ key: family.key, category: 'weaponAttack' }) })
+  skills.push({ ...skillBase, id: skillId, name: `${name} Attack`, iconIndex: icon, description: '', note: '' })
   for (let rank = 1; rank <= 5; rank++) {
     const values = Object.fromEntries(Object.entries(parameters).map(([key, value]) => [key, Array.isArray(value) ? value[rank - 1] : value]))
     const weapon = weaponData[weapons.length]
@@ -35,7 +35,7 @@ for (const family of families) {
   }
 }
 const contactSkillId = skills.length
-skills.push({ ...skillBase, id: contactSkillId, name: 'contact', iconIndex: 0, description: '', note: note({ key: 'contact', category: 'enemyAttack' }) })
+skills.push({ ...skillBase, id: contactSkillId, name: 'contact', iconIndex: 0, description: '', note: note({ key: 'contact' }) })
 // Keep the Reaper's wave skill authored in the database.
 skills.push(readData('Skills')[skills.length])
 json('Skills', skills)
@@ -54,7 +54,7 @@ for (const [i, [key, value, paramId]] of [
 }
 json('Weapons', weapons)
 json('Armors', armors)
-json('Actors', [null, { id: 1, name: 'The Warden', nickname: '', profile: '', classId: 1, initialLevel: 1, maxLevel: 99, characterName: '$NightwardHero', characterIndex: 0, faceName: '', faceIndex: 0, battlerName: 'NightwardHero', equips: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], traits: [], note: note({ key: 'warden', radius: .34, speed: 4.5, invulnerable: .85, magnet: 1.8 }) }])
+json('Actors', [null, { id: 1, name: 'The Warden', nickname: '', profile: '', classId: 1, initialLevel: 1, maxLevel: 99, characterName: '$NightwardHero', characterIndex: 0, faceName: '', faceIndex: 0, battlerName: 'NightwardHero', equips: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], traits: [], note: note({ radius: .34, speed: 4.5, invulnerable: .85, magnet: 1.8 }) }])
 json('Classes', [null, { id: 1, name: 'Night Warden', expParams: [5, 10, 0, 0], params: [100, 0, 0, 0, 1, 0, 1, 1].map(value => Array(100).fill(value)), learnings: [], traits: [{ code: 22, dataId: 0, value: 1 }, { code: 22, dataId: 7, value: .01 }, { code: 51, dataId: 1, value: 1 }, { code: 52, dataId: 1, value: 1 }], note: note({ key: 'nightward' }) }])
 const existingEnemies = existsSync(`${root}data/Enemies.json`) ? readData('Enemies') : []
 const enemyValues = [
