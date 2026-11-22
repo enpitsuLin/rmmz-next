@@ -1,5 +1,5 @@
-import { DataManager, GlobalMananger as globals } from 'rmmz-next'
-import type { Game_Actor, Game_Interpreter, Game_Party, Game_Troop } from 'rmmz-next'
+import { DataManager, Game_Interpreter, GlobalMananger as globals } from 'rmmz-next'
+import type { Game_Action, Game_Actor, Game_Party, Game_Troop } from 'rmmz-next'
 import type { PropScene } from './prop-scene'
 import { PropManager } from './props'
 import type { Prop } from './props'
@@ -67,6 +67,8 @@ export class RunSession {
   private ended = false
   propEventId?: string
   private propEvents: { id: number, prop: string }[] = []
+  private pickupInterpreter = new Game_Interpreter()
+  private pickupEvents: number[] = []
   constructor(readonly content: Content, readonly propScene: PropScene, readonly demo = false) {
     DataManager.setupNewGame()
     const player = globals.$gamePlayer
@@ -111,6 +113,33 @@ export class RunSession {
       if (current === interpreter) return this.propEventId
     }
   }
+
+  applyPickupEffects(action: Game_Action): void {
+    const queue = globals.$gameTemp._commonEventQueue
+    const start = queue.length
+    action.applyGlobal()
+    if (queue.length === start)
+      return
+    // Settle pickup rewards before checking upgrades, even if the map interpreter is waiting.
+    this.pickupEvents.push(...queue.splice(start))
+    if (!this.pickupInterpreter.isRunning())
+      this.updatePickupEvents()
+  }
+
+  private updatePickupEvents(): void {
+    const interpreter = this.pickupInterpreter
+    if (!interpreter.isRunning() && !this.pickupEvents.length)
+      return
+    const previousLevel = this.actor.level
+    interpreter.update()
+    if (!interpreter.isRunning() && this.pickupEvents.length) {
+      const commands = this.pickupEvents.splice(0).map(id => ({ code: 117, indent: 0, parameters: [id] }))
+      interpreter.setup(commands)
+      interpreter.update()
+    }
+    this.pendingLevels = Math.max(0, this.pendingLevels + this.actor.level - previousLevel)
+  }
+
   pause(): void { if (this.state === 'running') this.state = 'paused' }
   resume(): void { if (this.state === 'paused') this.state = 'running' }
   select(index: number): void {
@@ -176,6 +205,7 @@ export class RunSession {
     stepFirePools(this)
     stepProjectiles(this, dt)
     stepContact(this)
+    this.updatePickupEvents()
     stepPickups(this, dt)
     this.turn += dt
     if (this.turn >= 1) {
@@ -210,6 +240,8 @@ export class RunSession {
     this.delayed.length = 0
     this.events.length = 0
     this.interpreter.clear()
+    this.pickupInterpreter.clear()
+    this.pickupEvents.length = 0
     this.propEvents.length = 0
     this.propEventId = undefined
   }

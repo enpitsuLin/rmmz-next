@@ -74,7 +74,7 @@ export interface Content {
   weapons: Map<WeaponKey, Weapon[]>
   passives: Map<PassiveKey, Passive[]>
   enemies: Map<EnemyKey, MZ.Enemy & { data: EnemyData }>
-  items: Map<PickupKey, MZ.Item & { data: { key: PickupKey, xp: number } }>
+  items: Map<PickupKey, MZ.Item>
   hero: HeroData
   map: { center: number, bounds: number }
   contactSkill: number
@@ -108,7 +108,10 @@ export function readContent(): Content {
     if (data.category === 'enemyAttack') enemySkills.set(data.key, skill.id)
   }
   for (const enemy of globals.$dataEnemies.slice(1)) if (enemy) enemies.set(metadata<EnemyData>(enemy).key, { ...enemy, data: metadata<EnemyData>(enemy) })
-  for (const item of globals.$dataItems.slice(1)) if (item) items.set(metadata<{ key: PickupKey, xp: number }>(item).key, { ...item, data: metadata(item) })
+  for (const item of globals.$dataItems.slice(1)) {
+    if (item)
+      items.set(metadata<{ key: PickupKey }>(item).key, item)
+  }
   return {
     weapons, passives, enemies, items,
     formations: {

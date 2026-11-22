@@ -58,11 +58,6 @@ export function grantReward(run: RunSession, reward: Reward): void {
   }
   run.emit({ kind: 'upgrade', x: run.hero.x, z: run.hero.z })
 }
-export function gainExperience(run: RunSession, value: number): void {
-  const before = run.actor.level
-  run.actor.changeExp(run.actor.currentExp() + value, false)
-  run.pendingLevels += run.actor.level - before
-}
 export function dropPickup(run: RunSession, key: PickupKey, point: Point): void {
   const angle = Math.random() * Math.PI * 2
   run.pickups.push({ id: run.nextId++, key, x: point.x, z: point.z, age: 0, y: .3, vy: 4, vx: Math.cos(angle) * 1.3, vz: Math.sin(angle) * 1.3, attracted: false, vacuum: false, speed: -3 })
@@ -88,14 +83,12 @@ function collect(run: RunSession, pickup: Pickup): void {
   const item = run.content.items.get(pickup.key)!
   const action = new Game_Action(run.actor)
   action.setItem(item.id)
-  action.applyGlobal()
-  if (item.data.xp) gainExperience(run, item.data.xp)
-  else if (pickup.key === 'coin') run.party.gainGold(10)
-  else if (pickup.key === 'chicken') action.apply(run.actor)
+  run.applyPickupEffects(action)
+  if (pickup.key === 'chicken') action.apply(run.actor)
   else if (pickup.key === 'vacuum') for (const gem of run.pickups) { if (gem.key.startsWith('gem')) { gem.attracted = true; gem.vacuum = true } }
   else if (pickup.key === 'relic') run.relicAt = run.time + .4
   else if (pickup.key === 'chest') openChest(run)
-  run.emit({ kind: 'pickup', x: pickup.x, z: pickup.z, value: item.data.xp, pickup: pickup.key })
+  run.emit({ kind: 'pickup', x: pickup.x, z: pickup.z, pickup: pickup.key })
 }
 export function stepPickups(run: RunSession, dt: number): void {
   const magnet = run.content.hero.magnet * (1 + run.passiveValue('lodestone'))

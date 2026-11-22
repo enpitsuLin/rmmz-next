@@ -70,10 +70,46 @@ const formations = [
 ]
 // Troop event comments remain editable in the standard RPG Maker database.
 json('Troops', [null, ...formations.map((data, i) => ({ id: i + 1, name: ['Bat Swarms', 'Encirclement', 'Elites', 'The Reaper'][i], members: [{ enemyId: i === 3 ? 6 : i === 2 ? 2 : 1, x: 400, y: 300, hidden: false }], pages: [{ conditions: { turnEnding: false, turnValid: false, enemyValid: false, actorValid: false, switchValid: false, turnA: 0, turnB: 0, enemyIndex: 0, enemyHp: 50, actorId: 1, actorHp: 50, switchId: 1 }, span: 0, list: [{ code: 108, indent: 0, parameters: [note(data)] }, { code: 0, indent: 0, parameters: [] }] }] }))])
-const itemValues = [
-  ['gemSmall', 'Sapphire', 'Gain 1 experience.', 1], ['gemMedium', 'Emerald', 'Gain 5 experience.', 5], ['gemBig', 'Ruby', 'Gain 25 experience.', 25], ['coin', 'Gold', 'Gain 10 gold.', 0], ['chicken', 'Roast Chicken', 'Restore 30 health.', 0], ['vacuum', 'Vacuum', 'Collect every experience gem.', 0], ['relic', 'Relic', 'Purge everything in a wide radius.', 0], ['chest', 'Treasure', 'Upgrade your current equipment.', 0],
-]
-json('Items', [null, ...itemValues.map(([key, name, description, xp], i) => ({ id: i + 1, name, description, iconIndex: 106 + i, consumable: true, itypeId: 1, occasion: 0, price: 0, scope: key === 'chicken' ? 7 : 0, speed: 0, successRate: 100, repeats: 1, tpGain: 0, hitType: 0, animationId: 0, damage: { critical: false, elementId: 0, formula: '0', type: 0, variance: 0 }, effects: key === 'chicken' ? [{ code: 11, dataId: 0, value1: 0, value2: 30 }] : [], note: note({ key, xp }) }))])
+if (!existsSync(`${root}data/Items.json`)) {
+  const itemValues = [
+    ['gemSmall', 'Sapphire', 'Gain 1 experience.', 12],
+    ['gemMedium', 'Emerald', 'Gain 5 experience.', 13],
+    ['gemBig', 'Ruby', 'Gain 25 experience.', 14],
+    ['coin', 'Gold', 'Gain 10 gold.', 15],
+    ['chicken', 'Roast Chicken', 'Restore 30 health.'],
+    ['vacuum', 'Vacuum', 'Collect every experience gem.'],
+    ['relic', 'Relic', 'Purge everything in a wide radius.'],
+    ['chest', 'Treasure', 'Upgrade your current equipment.'],
+  ]
+  const items = itemValues.map(([key, name, description, commonEventId], i) => {
+    const effects = []
+    if (commonEventId)
+      effects.push({ code: 44, dataId: commonEventId, value1: 0, value2: 0 })
+    else if (key === 'chicken')
+      effects.push({ code: 11, dataId: 0, value1: 0, value2: 30 })
+    return {
+      id: i + 1,
+      name,
+      description,
+      iconIndex: 106 + i,
+      consumable: true,
+      itypeId: 1,
+      occasion: 0,
+      price: 0,
+      scope: key === 'chicken' ? 7 : 0,
+      speed: 0,
+      successRate: 100,
+      repeats: 1,
+      tpGain: 0,
+      hitType: 0,
+      animationId: 0,
+      damage: { critical: false, elementId: 0, formula: '0', type: 0, variance: 0 },
+      effects,
+      note: note({ key }),
+    }
+  })
+  json('Items', [null, ...items])
+}
 if (!existsSync(`${root}data/CommonEvents.json`)) {
   const command = (code, ...parameters) => ({ code, indent: 0, parameters })
   const event = (id, name, list) => ({ id, name, trigger: 0, switchId: 1, list: [...list, command(0)] })
@@ -110,6 +146,10 @@ if (!existsSync(`${root}data/CommonEvents.json`)) {
     event(9, 'Crypt Warning', [phase(170), ...banner('THE CRYPT STIRS', 'Ready yourself', '2', '2.6'), se('Swoosh', 40), ...countdown, ...warning('false')]),
     event(10, 'Countdown Tick', [...warning('true'), se('Tick', 20)]),
     event(11, 'Reaper Defeated', [phase('bossDeath'), se('Relic', 75)]),
+    event(12, 'Sapphire EXP', [command(315, 0, 1, 0, 0, 1, false)]),
+    event(13, 'Emerald EXP', [command(315, 0, 1, 0, 0, 5, false)]),
+    event(14, 'Ruby EXP', [command(315, 0, 1, 0, 0, 25, false)]),
+    event(15, 'Gold Pickup', [command(125, 0, 0, 10)]),
   ])
 }
 json('Animations', [null])
@@ -130,4 +170,4 @@ Object.assign(system, { gameTitle: 'Nightward', partyMembers: [1], title1Name: '
 system.advanced.screenWidth = 1100; system.advanced.screenHeight = 760; system.advanced.uiAreaWidth = 1100; system.advanced.uiAreaHeight = 760
 json('System', system)
 
-console.log('Generated RMMZ content and preserved editor-authored map, audio, common events, equipment fields, and Reaper wave skill.')
+console.log('Generated RMMZ content and preserved editor-authored map, audio, items, common events, equipment fields, and Reaper wave skill.')
