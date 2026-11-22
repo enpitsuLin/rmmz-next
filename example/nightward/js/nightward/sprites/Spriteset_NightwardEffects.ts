@@ -1,26 +1,21 @@
 import type { View3D } from '@pixi/3d'
 import type { Assets, Look } from '../managers/NightwardAssetManager'
-import type { EnemyKey } from '../managers/NightwardDataManager'
 import type { Game_NightwardRun, RunEvent } from '../objects/Game_NightwardRun'
-import { DirectionalLight } from '@pixi/3d'
-import { NightwardDataManager, weaponKeys } from '../managers/NightwardDataManager'
+import type { CombatFxKit, CombatFxPresenter } from './effects/NightwardFxPools'
+import { Container3D, DirectionalLight } from '@pixi/3d'
 import { NightwardConfig } from '../patches/ConfigManager'
-import { lensNoise, ReferenceCombat, ReferenceLensPass, ReferenceLensState } from '../reference/combat.js'
+import { FxArtPool, FxBeamPool, FxFlashPool, FxLightPool, FxPulsePool, FxPyroPool, FxRng, FxSpritePool } from './effects/NightwardFxPools'
+import { ImpactFx } from './effects/NightwardImpactFx'
+import { lensNoise, NightwardLensPass, NightwardLensState } from './effects/NightwardLens'
+import { FlaskFx, LashFx, StormFx, TomesFx, WandFx, WardFx } from './effects/NightwardWeaponFx'
 
-const enemyKinds: EnemyKey[] = ['bat', 'skeleton', 'ghoul', 'wraith', 'skull', 'reaper']
-const eventKinds: Partial<Record<RunEvent['kind'], string>> = {
-  lash: 'lashSwing',
-  wand: 'wandFire',
-  tomes: 'tomesStart',
-  lightning: 'lightning',
-  ward: 'wardPulse',
-  flask: 'flaskBurst',
-  hit: 'hit',
-  death: 'kill',
-  break: 'brazierBreak',
-  relic: 'relicBlast',
-}
-const titleParticleBudget = {
+const FX_LIGHT_COUNT = 14
+const SHUTTER_BASE = 1 / 40
+const DECAL_SORT_Y = -3000
+const DEBRIS_SORT_Y = -2000
+const FLAME_SORT_Y = -1000
+
+const TITLE_PARTICLE_BUDGET = {
   flames: 448,
   sparks: 256,
   glows: 224,
@@ -31,148 +26,166 @@ const titleParticleBudget = {
   firePoolsAtFullDensity: 3,
 }
 
-interface ReferenceEvent {
-  kind: string
-  time: number
-  x: number
-  y: number
-  z: number
-  subject: number
-  value: number
-  extra: number
-  dirX: number
-  dirZ: number
-}
-
+/**
+ * Orchestrates all 3D combat particle pools, weapon/impact visual presenters,
+ * dynamic combat point lights, and full-screen lens post-processing.
+ */
 export class Spriteset_NightwardEffects {
-  readonly pass = new ReferenceLensPass()
-  private lens = new ReferenceLensState()
+  readonly pass = new NightwardLensPass()
+  private lens = new NightwardLensState()
+  private root = new Container3D({ label: 'combat-fx' })
   private strike = new DirectionalLight({ color: 0xC8C2FF, intensity: 0 })
-  private events: ReferenceEvent[] = []
-  private enemySlots = new Map<number, number>()
-  private projectileSlots = new Map<number, number>()
-  private simulation = {
-    tick: 0,
-    hero: { x: 0, z: 0, prevX: 0, prevZ: 0 },
-    enemies: { count: 0, x: [] as number[], y: [] as number[], z: [] as number[], kind: [] as number[], scale: [] as number[] },
-    projectiles: { count: 0, active: [] as number[], kind: [] as number[], x: [] as number[], y: [] as number[], z: [] as number[], prevX: [] as number[], prevY: [] as number[], prevZ: [] as number[], vx: [] as number[], vy: [] as number[], vz: [] as number[], age: [] as number[] },
-    pickups: { count: 0 },
-    weapons: {
-      tomes: { active: 0, count: 0, radius: 0, angle: 0 },
-      ward: { radius: 0, pulse: 0 },
-      firePools: { count: 0, x: [] as number[], z: [] as number[], radius: [] as number[], start: [] as number[], end: [] as number[] },
-    },
-  }
-
-  private frame = {
-    worldTime: 0,
-    realTime: 0,
-    alpha: 1,
-    warp: 1,
-    restarted: false,
-    events: { count: 0, at: (index: number): ReferenceEvent => this.events[index]! },
-  }
-
-  private combat: InstanceType<typeof ReferenceCombat>
+  private kit: CombatFxKit
+  private pyroPools: FxPyroPool[]
+  private spritePools: FxSpritePool[]
+  private presenters: CombatFxPresenter[]
+  private impacts: ImpactFx
+  private prevWorldTime = 0
+  private destroyed = false
 
   constructor(private run: Game_NightwardRun, assets: Assets, private view: View3D) {
-    const art = {
-      frames: (name: string) => {
-        const animation = assets.animations[name]!
-        return { ...animation, count: animation.textures.length }
-      },
+    const budget = run.demo ? TITLE_PARTICLE_BUDGET : undefined
+    const root = this.root
+    const atlasFrames = assets.combat.frames
+    const tomeAnim = assets.animations.tome!
+    const flaskAnim = assets.animations.flask!
+
+    const lights = new FxLightPool(root, FX_LIGHT_COUNT)
+    const sparks = new FxPyroPool(root, {
+      label: 'combat-sparks',
+      texture: assets.combat.hotGlow,
+      capacity: budget?.sparks ?? 3072,
+      blendMode: 'add',
+      streak: true,
+      gravity: [0, -14, 0],
+      fadeOut: 3,
+      streakFade: 0.35,
+      nearFade: 1.5,
+    })
+    const glows = new FxPyroPool(root, {
+      label: 'combat-glows',
+      texture: atlasFrames,
+      capacity: budget?.glows ?? 4096,
+      blendMode: 'add',
+      gravity: [0, 2.5, 0],
+      fadeIn: 0.02,
+      fadeOut: 1.6,
+      nearFade: 1,
+    })
+    const flames = new FxPyroPool(root, {
+      label: 'combat-flames',
+      texture: atlasFrames,
+      capacity: budget?.flames ?? 2048,
+      blendMode: 'add',
+      gravity: [0.2, 4, 0],
+      growth: 3,
+      fadeIn: 0.03,
+      fadeOut: 1.4,
+      nearFade: 0.9,
+      cooling: 1.6,
+    })
+    const debris = new FxPyroPool(root, {
+      label: 'combat-debris',
+      texture: atlasFrames,
+      capacity: budget?.debris ?? 3072,
+      blendMode: 'normal',
+      gravity: [0, -16, 0],
+      fadeOut: 6,
+      nearFade: 1,
+    })
+    debris.container.position.y = DEBRIS_SORT_Y
+    flames.container.position.y = FLAME_SORT_Y
+
+    const decals = new FxSpritePool(root, 'combat-decals', atlasFrames, 96, 'horizontal', 'multiply')
+    decals.container.position.y = DECAL_SORT_Y
+
+    const beams = new FxBeamPool(root, 'combat-beams', assets.combat.beam, budget?.beams ?? 2048)
+    const sprites = new FxSpritePool(root, 'combat-sprites', atlasFrames, budget?.sprites ?? 1536, 'spherical')
+    const ground = new FxSpritePool(root, 'combat-ground', atlasFrames, budget?.ground ?? 384, 'horizontal')
+    const art = new FxArtPool(root, [tomeAnim, flaskAnim], 64)
+    const pulses = new FxPulsePool()
+    const flashes = new FxFlashPool()
+
+    this.kit = {
+      view,
+      run,
+      lens: this.lens,
+      lights,
+      rng: new FxRng(),
+      firePoolsAtFullDensity: budget?.firePoolsAtFullDensity,
+      sparks,
+      glows,
+      flames,
+      debris,
+      beams,
+      sprites,
+      ground,
+      decals,
+      art,
+      pulses,
+      flashes,
     }
-    this.combat = new ReferenceCombat(view, this.simulation, this.lens, art, assets.combat, run.demo ? titleParticleBudget : undefined)
+
+    this.pyroPools = [sparks, glows, flames, debris]
+    this.spritePools = [sprites, ground, decals]
+    this.impacts = new ImpactFx(this.kit)
+    this.presenters = [
+      new StormFx(this.kit),
+      new FlaskFx(this.kit, flaskAnim, 1),
+      new LashFx(this.kit),
+      new WandFx(this.kit),
+      new TomesFx(this.kit, tomeAnim, 0),
+      new WardFx(this.kit),
+      this.impacts,
+    ]
+
+    view.root.addChild(root)
     this.strike.position.set(-8, 60, -20)
     this.strike.lookAt({ x: 0, y: 0, z: 0 })
     this.strike.visible = false
     view.root.addChild(this.strike)
   }
 
-  private sync(events: RunEvent[]): void {
-    const run = this.run
-    const sim = this.simulation
-    sim.tick = Math.round(run.time * 60)
-    Object.assign(sim.hero, { x: run.hero.x, z: run.hero.z, prevX: run.hero.x, prevZ: run.hero.z })
-    this.enemySlots.clear()
-    sim.enemies.count = run.world.enemies.length
-    for (const [index, enemy] of run.world.enemies.entries()) {
-      this.enemySlots.set(enemy.id, index)
-      sim.enemies.x[index] = enemy.x
-      sim.enemies.z[index] = enemy.z
-      sim.enemies.y[index] = enemy.hoverY()
-      sim.enemies.kind[index] = enemyKinds.indexOf(enemy.data.key)
-      sim.enemies.scale[index] = enemy.visualScale(run.content.config.eliteScale)
-    }
-    this.projectileSlots.clear()
-    const projectiles = sim.projectiles
-    let index = 0
-    const write = (projectile: Game_NightwardRun['projectiles'][number], active: number): void => {
-      this.projectileSlots.set(projectile.id, index)
-      projectiles.active[index] = active
-      projectiles.kind[index] = projectile.kind === 'bolt' ? 0 : projectile.kind === 'flask' ? 1 : 2
-      projectiles.x[index] = projectiles.prevX[index] = projectile.x
-      projectiles.y[index] = projectiles.prevY[index] = projectile.y
-      projectiles.z[index] = projectiles.prevZ[index] = projectile.z
-      projectiles.vx[index] = projectile.vx
-      projectiles.vy[index] = projectile.vy
-      projectiles.vz[index] = projectile.vz
-      projectiles.age[index] = projectile.age
-      index++
-    }
-    for (const projectile of run.projectiles)
-      write(projectile, 1)
+  update(events: RunEvent[], dt: number, look: Look, aim: { x: number, y: number, z: number }): number {
+    const worldTime = this.run.time
+    const prevTime = this.prevWorldTime
+    const warp = dt > 0 ? 1 : 0
+    this.prevWorldTime = worldTime
+
+    this.lens.shakeGain = NightwardConfig.nightwardShake
+    this.impacts.beginFrame()
+
+    // Notify relic blast before death events in the same tick so enemies dissolve radially.
     for (const event of events) {
-      if (event.projectile && !this.projectileSlots.has(event.projectile.id))
-        write(event.projectile, 0)
+      if (event.kind === 'relic')
+        this.impacts.onEvent(event)
     }
-    projectiles.count = index
-    Object.assign(sim.weapons.tomes, { active: run.tomes.fade, count: run.tomes.count, radius: run.tomes.radius, angle: run.tomes.angle })
-    const wardWeapon = run.weapon('ward')
-    Object.assign(sim.weapons.ward, { radius: wardWeapon ? NightwardDataManager.weaponData(wardWeapon).radius ?? 0 : 0, pulse: run.wardPulse })
-    const pools = sim.weapons.firePools
-    pools.count = run.pools.length
-    for (const [slot, pool] of run.pools.entries()) {
-      pools.x[slot] = pool.x
-      pools.z[slot] = pool.z
-      pools.radius[slot] = NightwardDataManager.weaponData(pool.weapon).radius!
-      pools.start[slot] = Math.fround(pool.startedAt)
-      pools.end[slot] = Math.fround(pool.startedAt + pool.life)
-    }
-    this.events.length = 0
     for (const event of events) {
-      const kind = eventKinds[event.kind]
-      if (!kind)
+      if (event.kind === 'relic')
         continue
-      const target = event.target
-      let subject = target ? this.enemySlots.get(target.id)! : 0
-      if (event.projectile)
-        subject = this.projectileSlots.get(event.projectile.id)!
-      this.events.push({
-        kind,
-        time: event.time!,
-        x: event.x,
-        y: event.y ?? 0,
-        z: event.z,
-        subject,
-        value: event.kind === 'death' ? enemyKinds.indexOf(target!.data.key) : event.value ?? 0,
-        extra: event.kind === 'hit' ? weaponKeys.indexOf(event.weapon!) : event.kind === 'death' ? Number(target!.elite) : event.extra ?? 0,
-        dirX: event.side ?? 0,
-        dirZ: 0,
-      })
+      for (const presenter of this.presenters)
+        presenter.onEvent(event)
     }
-    this.frame.worldTime = this.frame.realTime = run.time
-    this.frame.events.count = this.events.length
+    for (const presenter of this.presenters)
+      presenter.update(worldTime, prevTime, warp)
+
+    const kit = this.kit
+    kit.pulses.update(kit.ground, this.lens, worldTime)
+    kit.flashes.update(kit.lights, worldTime)
+    const shutter = SHUTTER_BASE * warp
+    for (const pool of this.pyroPools)
+      pool.update(worldTime, shutter, true)
+    for (const pool of this.spritePools)
+      pool.flush(true, true)
+    kit.beams.flush(true, true)
+    kit.art.flush(true)
+    kit.lights.flush(true)
+
+    return this.updateLens(worldTime, dt, look, aim)
   }
 
-  update(events: RunEvent[], dt: number, look: Look, aim: { x: number, y: number, z: number }): number {
-    this.sync(events)
-    this.frame.warp = dt > 0 ? 1 : 0
-    this.lens.shakeGain = NightwardConfig.nightwardShake
-    this.combat.update(this.frame)
-    this.combat.lights.flush(true)
+  private updateLens(time: number, dt: number, look: Look, aim: { x: number, y: number, z: number }): number {
     const lens = this.lens
-    const time = this.run.time
     lens.advance(time, dt)
     const camera = this.view.camera
     const eye = camera.position
@@ -187,13 +200,17 @@ export class Spriteset_NightwardEffects {
     const trauma = lens.trauma * lens.trauma
     if (trauma > 0) {
       const amplitude = trauma * (0.15 + dist * 0.012)
-      const x = amplitude * lensNoise(time, 1.3)
-      const y = amplitude * lensNoise(time, 2.9)
+      const ox = amplitude * lensNoise(time, 1.3)
+      const oy = amplitude * lensNoise(time, 2.9)
       const roll = trauma * 0.035 * lensNoise(time, 4.7)
-      const offset = { x: right.x * x + up.x * y, y: up.y * y, z: right.z * x + up.z * y }
+      const offset = { x: right.x * ox + up.x * oy, y: up.y * oy, z: right.z * ox + up.z * oy }
       eye.set(eye.x + offset.x, eye.y + offset.y, eye.z + offset.z)
-      camera.lookAt({ x: aim.x + offset.x, y: aim.y + offset.y, z: aim.z + offset.z }, { x: up.x * Math.cos(roll) - right.x * Math.sin(roll), y: up.y * Math.cos(roll), z: up.z * Math.cos(roll) - right.z * Math.sin(roll) })
+      camera.lookAt(
+        { x: aim.x + offset.x, y: aim.y + offset.y, z: aim.z + offset.z },
+        { x: up.x * Math.cos(roll) - right.x * Math.sin(roll), y: up.y * Math.cos(roll), z: up.z * Math.cos(roll) - right.z * Math.sin(roll) },
+      )
     }
+
     const width = this.view.width
     const height = this.view.height
     const project = (x: number, y: number, z: number): { u: number, v: number, depth: number } | undefined => {
@@ -204,6 +221,7 @@ export class Spriteset_NightwardEffects {
       if (point)
         return { u: point.x / width, v: point.y / height, depth }
     }
+
     const pass = this.pass
     const aberration = lens.extraAberration
     pass.setLens(look.aberration + aberration * (0.009 + 0.036 * aberration * aberration), look.vignette, width / height, look.grain)
@@ -212,6 +230,7 @@ export class Spriteset_NightwardEffects {
     pass.setFlash(lens.flashColor, lens.flashAt(time))
     const zoom = lens.zoom > 0 ? project(lens.zoomAt.x, lens.zoomAt.y, lens.zoomAt.z) : undefined
     pass.setZoom(zoom?.u ?? 0.5, zoom?.v ?? 0.5, zoom ? lens.zoom * 0.14 : 0, 0.1)
+
     const focal = camera.zoom / Math.tan(camera.fov * Math.PI / 360)
     for (let index = 0; index < 4; index++) {
       const at = index * 5
@@ -219,7 +238,8 @@ export class Spriteset_NightwardEffects {
       const point = index < lens.shockCount ? project(values[at]!, values[at + 1]!, values[at + 2]!) : undefined
       if (point)
         pass.setShock(index, point.u, point.v, Math.min(1.6, values[at + 3]! * focal * 0.5 / point.depth), Math.min(1.5, values[at + 4]!))
-      else pass.setShock(index, 0, 0, 0, 0)
+      else
+        pass.setShock(index, 0, 0, 0, 0)
     }
     for (let index = 0; index < 8; index++) {
       const at = index * 5
@@ -234,6 +254,7 @@ export class Spriteset_NightwardEffects {
         pass.setFlare(index, 0, 0, 0, 0xFFFFFF, 1)
       }
     }
+
     const strike = lens.strike
     this.strike.visible = strike > 0.01
     this.strike.intensity = strike * 6
@@ -242,6 +263,16 @@ export class Spriteset_NightwardEffects {
   }
 
   destroy(): void {
-    this.combat.destroy()
+    if (this.destroyed)
+      return
+    this.destroyed = true
+    for (const pool of this.pyroPools)
+      pool.destroy()
+    for (const pool of this.spritePools)
+      pool.destroy()
+    this.kit.beams.destroy()
+    this.kit.art.destroy()
+    this.kit.lights.destroy()
+    this.root.destroy()
   }
 }

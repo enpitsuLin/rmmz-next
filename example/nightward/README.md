@@ -118,6 +118,5 @@
 | [`managers/`](js/nightward/managers) | RMMZ 静态管理器（对局协调、数据库索引、资产、GLB、特效、纪录） |
 | [`objects/`](js/nightward/objects) | 面向对象 `Game_Nightward*` 领域模型（对局、敌人、战斗、导演、武器、奖励、地图物件、阶段事件） |
 | [`scenes/`](js/nightward/scenes) | 场景基类、标题、正式对局与 `SceneManager.push` 菜单场景（设置/说明） |
-| [`sprites/`](js/nightward/sprites) | `Spriteset_Nightward` 模板、角色/地面/物件/特效子层、HUD 与界面精灵 |
+| [`sprites/`](js/nightward/sprites) | `Spriteset_Nightward` 模板、角色/地面/物件/武器与受击特效子层、HUD 与界面精灵 |
 | [`windows/`](js/nightward/windows) | 基于 `Window_Selectable` / `Window_Command` 的窗口皮肤与各界面窗口 |
-| [`reference/`](js/nightward/reference) | 生成的战斗呈现模块 |
