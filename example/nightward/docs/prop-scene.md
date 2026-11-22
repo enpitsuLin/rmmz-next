@@ -2,7 +2,15 @@
 
 1. **资源与地图绑定**
 
-   `models/maps/graveyard.glb` 是标准 glTF 2.0 二进制场景，内含原版几何、材质、PNG 贴图、Prop 布局、碰撞和光效挂点。`models/props/` 提供火盆、墓穴、墓碑、树木、围栏等可复用模型。地图场景自身完整，不在运行时拼接外部 GLB，也没有 Prop JSON 清单。
+   `models/maps/graveyard.glb` 是标准 glTF 2.0 二进制场景，内含原版装饰几何、材质、PNG 贴图、Prop 布局、碰撞和光效挂点。`models/props/` 提供火盆、墓穴、墓碑、树木、围栏等可复用模型。不在运行时拼接外部 GLB，也没有 Prop JSON 清单。
+
+   地面直接使用 RMMZ 的 `Map001.json`、`Tilesets.json` 和 `img/tilesets/`。原生 `Tilemap` 将地图的四个图块层、自动图块和地图阴影绘制到 `RenderTexture`，再将结果贴到世界 `Y=0` 的水平面，参与当前三维光照、阴影和雾。图块动画随世界暂停冻结。只缓存相机可见区域，避免为整张地图分配巨型贴图；编辑器中修改铺地后，重新进入场景即可显示。GLB 不再包含草地、泥地网格及对应材质和贴图；石路等原版装饰仍由 GLB 叠加。原版道路、泥斑和墓碑脚下的泥地轮廓已转为地图图块，之后不随 Prop 移动。
+
+   `NightwardGround.png` 使用标准 384×768 的 A5 布局：前八行是完整的 8×8 草地图案，第 9–12 行前四列是 4×4 泥地图案。每格 48 像素对应一世界单位，保留原版草地每八单位、泥地每四单位重复的比例。第一图块层铺草地，第二图块层画泥地轮廓，其余层用于装饰；大块铺设时选择整组图块。
+
+   `NightwardDirtEdgesB/C/D.png` 是原生 B–D 图块页，保存泥地边缘的透明渐变。进入场景时按第二图块层的八邻域补齐外边缘、转角和内凹角，内部保留 A5 图块；在编辑器中用 A5 泥地绘制或擦除轮廓即可。边缘在半格内平滑渐隐，颜色与法线使用同一透明度，因此无需额外的三维泥地网格或每帧计算渐变。B 页左上角保持空白。
+
+   Tileset 备注 `<normalTilesets:{"4":"NightwardGround-normal","5":"NightwardDirtEdgesB-normal","6":"NightwardDirtEdgesC-normal","7":"NightwardDirtEdgesD-normal"}>` 按原生 tileset 槽位绑定法线图。运行时使用同一份地图图块位置绘制，地图阴影只作用于颜色；未配置法线的图块使用平面法线。
 
    Map001 备注：
 

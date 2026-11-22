@@ -12,6 +12,7 @@ import { shakeGain } from './audio'
 import { WeaponEffects } from './weapon-effects'
 import { PropView } from './prop-view'
 import { EffekseerPass } from './effekseer'
+import { MapGround } from './map-ground'
 
 interface ActorVisual { sprite: Sprite3D, shadow: Sprite3D, material: Material3D, deathAge: number }
 interface Particle { sprite: Sprite3D, life: number, age: number, vx: number, vy: number, vz: number, size: number }
@@ -31,6 +32,7 @@ export class GraveyardView {
   private pickups = new Map<number, Sprite3D>()
   private projectiles = new Map<number, Sprite3D>()
   private worldProps: PropView
+  private ground: MapGround
   private propMaterial!: (name: string) => BaseMaterial3D
   private hero: ActorVisual
   private weapons: WeaponEffects
@@ -56,6 +58,7 @@ export class GraveyardView {
     const azimuth = -24 * Math.PI / 180, elevation = 31 * Math.PI / 180
     moon.position.set(Math.sin(azimuth) * Math.cos(elevation) * 60, Math.sin(elevation) * 60, -Math.cos(azimuth) * Math.cos(elevation) * 60)
     moon.lookAt({ x: 0, y: 0, z: 0 }); this.view.root.addChild(moon)
+    this.ground = new MapGround(this.view, run.content.map.center)
     this.makeWorld()
     this.worldProps = new PropView(run, assets, this.view, this.propMaterial)
     for (let index = 0; index < 48; index++) {
@@ -210,6 +213,7 @@ export class GraveyardView {
     const shake = shakeGain() * this.shake * .25 * (run.demo ? .3 : 1), { pitch, distance: cameraDistance } = this.framing
     this.view.camera.position.set(this.focus.x + (Math.random() - .5) * shake, .7 + Math.sin(pitch * Math.PI / 180) * cameraDistance, this.focus.z + Math.cos(pitch * Math.PI / 180) * cameraDistance)
     this.view.camera.lookAt({ x: this.focus.x, y: .7, z: this.focus.z })
+    this.ground.update(dt > 0)
     this.moonDisc.position.set(this.focus.x - 90, 110, this.focus.z - 250)
     const hero = this.hero.sprite
     const heroAnimation = this.assets.animations[run.invulnerable > .5 ? 'hero.hurt' : run.hero.moving ? 'hero.walk' : 'hero.idle']!
@@ -293,6 +297,7 @@ export class GraveyardView {
     this.overlay.destroy({ children: true })
     this.weapons.destroy()
     this.worldProps.destroy()
+    this.ground.destroy()
     this.view.destroy({ children: true })
     for (const pass of this.passes) pass.destroy()
     for (const material of this.materials) material.destroy()

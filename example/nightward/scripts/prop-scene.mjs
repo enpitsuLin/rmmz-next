@@ -94,7 +94,8 @@ export function migrateLayout(map, reference, models, placements, aliases) {
     map.note += '\n<propScene:models/maps/graveyard.glb>'
   return instances
 }
-const roughness = { grass: 0.92, dirt: 0.9, cobble: 0.5, flagstone: 0.55, grave: 0.68, masonry: 0.8, bark: 0.95, thicket: 0.95, deadwood: 0.85, iron: 0.6, glass: 0.55 }
+const mapGroundMaterials = new Set(['grass', 'dirt'])
+const roughness = { cobble: 0.5, flagstone: 0.55, grave: 0.68, masonry: 0.8, bark: 0.95, thicket: 0.95, deadwood: 0.85, iron: 0.6, glass: 0.55 }
 const linear = value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
 const rgb = color => [16, 8, 0].map(shift => linear((color >> shift & 255) / 255))
 export function buildGlb({ root, surfaces, environment = [], models, instances, previous, library = false }) {
@@ -170,6 +171,8 @@ export function buildGlb({ root, surfaces, environment = [], models, instances, 
     return json.accessors.push(result) - 1
   }
   const addMesh = (key, mesh) => {
+    if (mapGroundMaterials.has(mesh.material))
+      return
     if (meshes.has(key))
       return meshes.get(key)
     const attributes = Object.fromEntries([['POSITION', 'positions', 3], ['NORMAL', 'normals', 3], ['TEXCOORD_0', 'uvs', 2], ['COLOR_0', 'colors', 4]].map(([semantic, field, count]) => [semantic, accessor(mesh[field], count, field)]))
@@ -181,13 +184,17 @@ export function buildGlb({ root, surfaces, environment = [], models, instances, 
     for (const [index, mesh] of model.meshes.entries())
       addMesh(`${key}/${index}`, mesh)
   }
-  for (const [index, mesh] of environment.entries())
-    addMesh(`environment/${index}`, mesh)
+  for (const [index, mesh] of environment.entries()) {
+    if (!mapGroundMaterials.has(mesh.material))
+      addMesh(`environment/${index}`, mesh)
+  }
   const addNode = node => json.nodes.push(node) - 1
   const children = (key) => {
     const model = models[key]
     const nodes = []
     for (const [index, mesh] of model.meshes.entries()) {
+      if (mapGroundMaterials.has(mesh.material))
+        continue
       if (mesh.kind === 'door') {
         for (const side of [-1, 1])
           nodes.push(addNode({ name: `door-${side < 0 ? 'left' : 'right'}`, translation: [side * model.door.hingeX, model.door.y, model.door.z - 0.12], rotation: [0, side > 0 ? 1 : 0, 0, side > 0 ? 0 : 1], mesh: meshes.get(`${key}/${index}`), extras: { nightward: { doorSide: side } } }))
@@ -296,10 +303,21 @@ export function buildGlb({ root, surfaces, environment = [], models, instances, 
       oldMeshes.set(index, id)
       return id
     }
-    json.nodes = structuredClone(previous.nodes)
+    const nodeIndices = new Map()
+    for (const [index, node] of previous.nodes.entries()) {
+      if (node.mesh !== undefined && previous.meshes[node.mesh].primitives.every(primitive => mapGroundMaterials.has(previous.materials[primitive.material]?.name)))
+        continue
+      nodeIndices.set(index, json.nodes.length)
+      json.nodes.push(structuredClone(node))
+    }
+    const retainedNodes = indices => indices.filter(index => nodeIndices.has(index)).map(index => nodeIndices.get(index))
     json.scenes = structuredClone(previous.scenes)
+    for (const scene of json.scenes)
+      scene.nodes = retainedNodes(scene.nodes ?? [])
     json.scene = previous.scene ?? 0
     for (const node of json.nodes) {
+      if (node.children)
+        node.children = retainedNodes(node.children)
       if (node.mesh !== undefined) {
         const old = previous.meshes[node.mesh]
         const key = old.extras?.nightward?.key ?? old.name
@@ -308,8 +326,10 @@ export function buildGlb({ root, surfaces, environment = [], models, instances, 
     }
   }
   else {
-    for (const [index, mesh] of environment.entries())
-      json.scenes[0].nodes.push(addNode({ name: `environment-${mesh.material}`, mesh: meshes.get(`environment/${index}`) }))
+    for (const [index, mesh] of environment.entries()) {
+      if (!mapGroundMaterials.has(mesh.material))
+        json.scenes[0].nodes.push(addNode({ name: `environment-${mesh.material}`, mesh: meshes.get(`environment/${index}`) }))
+    }
     for (const instance of instances)
       json.scenes[0].nodes.push(addNode({ ...instance, children: children(instance.extras.nightward.model) }))
   }

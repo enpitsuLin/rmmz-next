@@ -15,6 +15,7 @@ import { RewardScreen } from './upgrade-ui'
 import { box, colors, consumeInput, fullscreen, out, phase, PixelWipe, reducedMotion, uiLayout } from './ui'
 import type { UiScreen } from './ui'
 import { GraveyardView } from './view'
+import { groundBitmaps } from './map-ground'
 
 export function startNightwardRun(): void { SceneManager.goto(Scene_Nightward) }
 export class Scene_Nightward extends Scene_Base {
@@ -47,7 +48,11 @@ export class Scene_Nightward extends Scene_Base {
     super.create(); requestAssets(); DataManager.loadMapData(1)
     void loadRecords().then(() => { this.readyRecords = true })
   }
-  override isReady(): boolean { return super.isReady() && assetsReady() && DataManager.isMapLoaded() && propSceneReady(propSceneUrl(globals.$dataMap.note)) && this.readyRecords }
+  override isReady(): boolean {
+    if (!DataManager.isMapLoaded()) return false
+    groundBitmaps(globals.$dataTilesets[globals.$dataMap.tilesetId]!)
+    return super.isReady() && assetsReady() && propSceneReady(propSceneUrl(globals.$dataMap.note)) && this.readyRecords
+  }
   override start(): void {
     super.start()
     this.sheetShade = box(Graphics.width, Graphics.height, colors.night, 0); this.uiRoot.addChild(this.sheetShade)

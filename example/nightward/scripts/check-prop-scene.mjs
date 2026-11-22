@@ -47,6 +47,10 @@ assert.equal(requests, 1, 'geometry and metadata share a single XHR')
 assert(scene.props.length > 999, 'the layout is independent of the map event capacity')
 assert.equal(new Set(scene.props.map(prop => prop.id)).size, scene.props.length)
 assert(scene.environment.length > 0)
+assert(!scene.environment.some(mesh => mesh.material === 'grass'))
+assert(!scene.materials.has('grass'))
+assert(!scene.materials.has('dirt'))
+assert(!scene.props.some(prop => prop.model.meshes.some(mesh => mesh.material === 'dirt')))
 const manager = new PropManager(scene, [], 90)
 const prop = manager.props.find(prop => prop.kind === 'brazier')
 assert(prop && prop.model.meshes.length && prop.model.lights.length && prop.model.colliders.length)
@@ -122,6 +126,23 @@ saved.nodes.find(node => node.extras?.nightward?.id).extras.nightward.hp = 99
 const rebuilt = buildGlb({ root, surfaces: {}, models, previous: saved })
 const refreshed = glbToGltf(rebuilt.buffer.slice(rebuilt.byteOffset, rebuilt.byteOffset + rebuilt.byteLength)).json
 assert.deepEqual(refreshed.nodes, saved.nodes, 'refresh keeps transforms, hierarchy, IDs and manual metadata')
+for (const material of ['grass', 'dirt']) {
+  const withGround = structuredClone(saved)
+  withGround.materials.push({ name: material })
+  withGround.meshes.push({ name: 'environment/0', primitives: [{ material: withGround.materials.length - 1 }] })
+  withGround.nodes.unshift({ name: `environment-${material}`, mesh: withGround.meshes.length - 1 })
+  for (const node of withGround.nodes) {
+    if (node.children)
+      node.children = node.children.map(index => index + 1)
+  }
+  for (const scene of withGround.scenes)
+    scene.nodes = [0, ...scene.nodes.map(index => index + 1)]
+  const groundRemoved = buildGlb({ root, surfaces: {}, models, environment: [{ ...triangle, material }], previous: withGround })
+  const cleaned = glbToGltf(groundRemoved.buffer.slice(groundRemoved.byteOffset, groundRemoved.byteOffset + groundRemoved.byteLength)).json
+  assert.deepEqual(cleaned.nodes, saved.nodes, 'removing ground preserves the remaining node hierarchy')
+  assert.deepEqual(cleaned.scenes, saved.scenes)
+  assert(!cleaned.materials.some(entry => entry.name === material))
+}
 const custom = glbToGltf(encoded.buffer.slice(encoded.byteOffset, encoded.byteOffset + encoded.byteLength))
 custom.json.binary = new Uint8Array(custom.buffers[0])
 custom.json.meshes[0].name = 'custom/0'
@@ -133,7 +154,11 @@ const retained = glbToGltf(customData.buffer.slice(customData.byteOffset, custom
 const customMesh = retained.json.meshes.find(mesh => mesh.name === 'custom/0')
 assert.deepEqual(Array.from(getBuffer(retained.json, retained.buffers, customMesh.primitives[0].attributes.POSITION)), triangle.positions, 'custom geometry survives resource refresh')
 assert(retained.json.materials.some(material => material.name === 'custom-grave'))
-for (const image of readGlb(`${root}models/maps/graveyard.glb`).images)
+const mapGlb = readGlb(`${root}models/maps/graveyard.glb`)
+assert(!mapGlb.images.some(image => image.name.startsWith('grass-')))
+assert(!mapGlb.images.some(image => image.name.startsWith('dirt-')))
+assert(!readGlb(`${root}models/props/tombs.glb`).materials.some(material => material.name === 'dirt'))
+for (const image of mapGlb.images)
   assert(image.bufferView !== undefined, 'map textures are embedded')
 PixiAssets.loader.load = originalLoad
 console.log(`GLB/Prop checks passed: ${scene.props.length} Props, native parser, one-read loading, migration, layout retention, transforms, collision, event pages and session reset.`)
@@ -141,6 +166,11 @@ console.log(`GLB/Prop checks passed: ${scene.props.length} Props, native parser,
 if (process.argv.includes('--built')) {
   const deployed = readGlb(`${root}dist/models/maps/graveyard.glb`)
   assert.equal(deployed.asset.version, '2.0')
+  assert(!deployed.materials.some(material => ['grass', 'dirt'].includes(material.name)))
+  for (const suffix of ['B', 'C', 'D']) {
+    assert(existsSync(`${root}dist/img/tilesets/NightwardDirtEdges${suffix}.png`))
+    assert(existsSync(`${root}dist/img/tilesets/NightwardDirtEdges${suffix}-normal.png`))
+  }
   assert(existsSync(`${root}dist/models/props/brazier.glb`))
   assert(!existsSync(`${root}dist/img/nightward/reference/world.bin`))
   console.log('Production model directory and scene binding are included.')

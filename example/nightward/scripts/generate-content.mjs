@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { groundTileId, refreshDirtEdges } from './ground-tileset.mjs'
 
 // Gameplay data stays in MZ; the reference importer owns visual/audio assets.
 const root = fileURLToPath(new URL('../', import.meta.url))
@@ -73,10 +74,14 @@ json('Items', [null, ...itemValues.map(([key, name, description, xp], i) => ({ i
 json('CommonEvents', [null, ...['Night Begins', 'The Reaper Arrives', 'Dawn', 'Fallen'].map((name, i) => ({ id: i + 1, name, trigger: 0, switchId: 1, list: [{ code: 241, indent: 0, parameters: [{ name: ['Nightward', 'Reaper', 'Dawn', 'Nightward'][i], volume: 65, pitch: 100, pan: 0 }] }, { code: 0, indent: 0, parameters: [] }] }))])
 json('Animations', [null])
 const tiles = new Array(181 * 181 * 6).fill(0)
-for (let y = 0; y < 181; y++) for (let x = 0; x < 181; x++) tiles[y * 181 + x] = Math.abs(x - 90) <= 1 && y > 97 && y < 135 ? 1537 : 1536
+for (let y = 0; y < 181; y++) for (let x = 0; x < 181; x++) {
+  tiles[y * 181 + x] = groundTileId('grass', x - 90, y - 90)
+  if (Math.abs(x - 90) <= 1 && y > 97 && y < 135) tiles[181 * 181 + y * 181 + x] = groundTileId('dirt', x - 90, y - 90)
+}
+refreshDirtEdges({ width: 181, height: 181, data: tiles }, 90)
 if (!existsSync(`${root}data/Map001.json`)) json('Map001', { autoplayBgm: true, autoplayBgs: false, battleback1Name: '', battleback2Name: '', bgm: { name: 'Nightward', volume: 65, pitch: 100, pan: 0 }, bgs: { name: '', volume: 90, pitch: 100, pan: 0 }, disableDashing: true, displayName: 'The Graveyard', encounterList: [], encounterStep: 30, height: 181, width: 181, note: note({ center: 90, bounds: 90, path: { start: 9, end: 44, width: 3.2 } }) + '\n<propScene:models/maps/graveyard.glb>', parallaxLoopX: false, parallaxLoopY: false, parallaxName: '', parallaxShow: false, parallaxSx: 0, parallaxSy: 0, scrollType: 0, specifyBattleback: false, tilesetId: 1, data: tiles, events: [null] })
 if (!existsSync(`${root}data/MapInfos.json`)) json('MapInfos', [null, { id: 1, expanded: true, name: 'Graveyard', order: 1, parentId: 0, scrollX: 816, scrollY: 624 }])
-json('Tilesets', [null, { id: 1, name: 'Nightward', mode: 1, note: '', tilesetNames: ['', '', '', '', 'NightwardGround', '', '', '', ''], flags: Array(8192).fill(0) }])
+json('Tilesets', [null, { id: 1, name: 'Nightward', mode: 1, note: '<normalTilesets:{"4":"NightwardGround-normal","5":"NightwardDirtEdgesB-normal","6":"NightwardDirtEdgesC-normal","7":"NightwardDirtEdgesD-normal"}>', tilesetNames: ['', '', '', '', 'NightwardGround', 'NightwardDirtEdgesB', 'NightwardDirtEdgesC', 'NightwardDirtEdgesD', ''], flags: Array(8192).fill(0) }])
 const system = JSON.parse(readFileSync(`${root}data/System.json`, 'utf8'))
 system.equipTypes = ['', 'Weapon', 'Might', 'Haste', 'Lodestone', 'Cinder']
 system.weaponTypes = ['', 'Nightward']

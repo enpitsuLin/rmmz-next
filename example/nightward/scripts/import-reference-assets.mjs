@@ -7,6 +7,7 @@ import { deflateSync } from 'node:zlib'
 import { collectReference } from './reference-source.mjs'
 import { capturePropWorld } from './capture-reference-props.mjs'
 import { writePropAssets } from './prop-scene.mjs'
+import { createDirtEdgeTilesets, createGroundTileset } from './ground-tileset.mjs'
 
 // Compile the public reference's procedural assets into ordinary MZ resources.
 // Only asset generators execute here; the reference game and engine never ship.
@@ -67,6 +68,21 @@ function png(name, canvas) {
   for (let y = 0; y < height; y++) Buffer.from(pixels.subarray(y * width * 4, (y + 1) * width * 4)).copy(raw, y * (width * 4 + 1) + 1)
   writeFileSync(`${output}/${name}.png`, Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', header), chunk('IDAT', deflateSync(raw)), chunk('IEND', Buffer.alloc(0))]))
 }
+function writeGroundTileset() {
+  const ground = createGroundTileset(reference.world)
+  png('../../tilesets/NightwardGround', ground.albedo)
+  png('../../tilesets/NightwardGround-normal', ground.normal)
+  for (const [index, sheet] of createDirtEdgeTilesets(ground).entries()) {
+    const name = `../../tilesets/NightwardDirtEdges${String.fromCharCode(66 + index)}`
+    png(name, sheet.albedo)
+    png(`${name}-normal`, sheet.normal)
+  }
+}
+if (process.argv.includes('--ground-only')) {
+  writeGroundTileset()
+  console.log('Wrote the native A5 ground tileset and matching normals at the original world scale.')
+  process.exit(0)
+}
 const frame = texture => ({ x: texture.frame.x, y: texture.frame.y, width: texture.frame.width, height: texture.frame.height })
 const animations = {}
 for (const name of Object.keys(reference.definitions)) {
@@ -109,25 +125,18 @@ for(let row=0;row<4;row++)for(let column=0;column<3;column++){
 png('../../characters/$NightwardHero',hero)
 const surfaces = {}
 for (const [name, surface] of Object.entries(reference.world)) if (surface.albedo) {
-  png(`${name}-albedo`, surface.albedo.source.resource)
-  if (surface.normal) png(`${name}-normal`, surface.normal.source.resource)
-  if (surface.emissive) png(`${name}-emissive`, surface.emissive.source.resource)
+  if (!['grass', 'dirt'].includes(name)) {
+    png(`${name}-albedo`, surface.albedo.source.resource)
+    if (surface.normal) png(`${name}-normal`, surface.normal.source.resource)
+    if (surface.emissive) png(`${name}-emissive`, surface.emissive.source.resource)
+  }
   surfaces[name] = { tile: surface.tile ?? 1, normal: !!surface.normal, emissive: !!surface.emissive }
 }
 png('sky', reference.world.sky.source.resource)
 png('effects', reference.world.sprites[0].source.resource)
 png('leaves', reference.world.leaves[0].source.resource)
 png('mist', reference.world.mist.source.resource)
-const editorGround=new Canvas()
-editorGround.width=96;editorGround.height=48;editorGround.pixels=new Uint8ClampedArray(96*48*4)
-for(const [tile,name] of ['grass','dirt'].entries()){
-  const canvas=reference.world[name].albedo.source.resource
-  for(let y=0;y<48;y++)for(let x=0;x<48;x++){
-    const from=(y*2*canvas.width+x*2)*4,to=(y*96+tile*48+x)*4
-    editorGround.pixels.set(canvas.pixels.subarray(from,from+4),to)
-  }
-}
-png('../../tilesets/NightwardGround',editorGround)
+writeGroundTileset()
 const builders = Object.fromEntries(Object.entries(surfaces).map(([name, surface]) => [name, new reference.Builder(surface.tile)]))
 const propWorld = capturePropWorld(context, builders, reference.makeWorld)
 const { details } = propWorld
@@ -150,7 +159,7 @@ for(let i=0;i<48;i++){const at=i*2;skyBuilder.triangle(at,at+3,at+1);skyBuilder.
 const skyGeometry=skyBuilder.build()
 meshes.push({ material: 'sky', kind: 'sky', ...skyGeometry })
 writePropAssets({ root, surfaces, environment: meshes, models: propWorld.models, layout: propWorld.layout, aliases: propWorld.aliases, previousReference, resetLayout: process.argv.includes('--reset-layout') })
-writeFileSync(`${output}/manifest.json`, `${JSON.stringify({ source: { url: sourceUrl, sha256: createHash('sha256').update(source).digest('hex') }, animations, icons, surfaces, details, braziers: reference.braziers, crypt: reference.crypt, glassFrames: reference.glassFrames, look:reference.look, palette:reference.palette, skyRadius:reference.skyRadius, lights:reference.lights })}\n`)
+writeFileSync(`${output}/manifest.json`, `${JSON.stringify({ source: { url: sourceUrl, sha256: createHash('sha256').update(source).digest('hex') }, animations, icons, surfaces: Object.fromEntries(Object.entries(surfaces).filter(([name]) => !['grass', 'dirt'].includes(name))), details, braziers: reference.braziers, crypt: reference.crypt, glassFrames: reference.glassFrames, look:reference.look, palette:reference.palette, skyRadius:reference.skyRadius, lights:reference.lights })}\n`)
 console.log(`Wrote ${meshes.length} environment meshes and ${Object.keys(propWorld.models).length} standard GLB Prop models.`)
 
 if (!worldOnly) {
