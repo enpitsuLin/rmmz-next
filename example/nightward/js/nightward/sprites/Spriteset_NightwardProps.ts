@@ -19,6 +19,9 @@ export class Spriteset_NightwardProps {
   private glows?: ParticleContainer3D
   private revision = -1
   private geometryRevision = -1
+  private tempMatrix = new Matrix4()
+  private tempRotation = new Matrix4()
+  private tempNormal = new Matrix3()
   constructor(private run: Game_NightwardRun, private assets: Assets, private view: View3D, private material: (name: string) => BaseMaterial3D) {
     for (let index = 0; index < 8; index++) {
       const light = new PointLight({ intensity: 0, range: 1 })
@@ -106,8 +109,8 @@ export class Spriteset_NightwardProps {
     if (this.revision !== this.run.world.propsRevision)
       this.rebuild()
     if (this.geometryRevision !== this.run.props.revision) {
-      const matrix = new Matrix4()
-      const normal = new Matrix3()
+      const matrix = this.tempMatrix
+      const normal = this.tempNormal
       for (const batch of this.batches) {
         let dirty = false
         for (const span of batch.spans) {
@@ -148,8 +151,8 @@ export class Spriteset_NightwardProps {
       }
       this.geometryRevision = this.run.props.revision
     }
-    const matrix = new Matrix4()
-    const rotation = new Matrix4()
+    const matrix = this.tempMatrix
+    const rotation = this.tempRotation
     for (const { prop, node, mesh } of this.doors) {
       const open = this.run.props.doorAmount(prop, this.run.time)
       const angle = open * open * (3 - 2 * open) * 1.75

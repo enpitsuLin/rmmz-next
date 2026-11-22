@@ -1,4 +1,4 @@
-import type { Game_Action, Game_Actor, Game_Party, Game_Troop } from 'rmmz-next'
+import type { Game_Action, Game_Actor, Game_Interpreter, Game_Party, Game_Troop } from 'rmmz-next'
 import type { Content, FamilyKey, Passive, PassiveKey, PickupKey, Weapon, WeaponKey } from '../managers/NightwardDataManager'
 import type { PropScene } from '../managers/NightwardPropSceneManager'
 import type { RunResult } from '../managers/NightwardRecordManager'
@@ -8,11 +8,12 @@ import type { Prop } from './Game_NightwardProps'
 import type { Enemy } from './Game_NightwardWorld'
 import type { Pickup, Reward } from './rewards'
 import type { DelayedCast, FirePool, Projectile, TomeState } from './weapons'
-import { DataManager, Game_Interpreter, GlobalMananger as globals } from 'rmmz-next'
+import { DataManager, GlobalMananger as globals } from 'rmmz-next'
 import { weaponKeys } from '../managers/NightwardDataManager'
 import { direction, distance } from '../primitives/geometry'
 import { breakProp, stepContact } from './combat'
 import { stepDirector, stepEnemies } from './director'
+import { Game_NightwardEvents } from './Game_NightwardEvents'
 import { Game_NightwardProps } from './Game_NightwardProps'
 import { Game_NightwardWorld } from './Game_NightwardWorld'
 import { activateVacuum, chooseRewards, grantReward, openChest, stepPickups } from './rewards'
@@ -38,7 +39,7 @@ export class Game_NightwardRun {
   readonly troop: Game_Troop
   readonly props: Game_NightwardProps
   readonly world: Game_NightwardWorld
-  readonly interpreter: Game_Interpreter
+  readonly commonEvents: Game_NightwardEvents
   state: RunState = 'running'
   isSpawnVisible?: (point: Point) => boolean
   time = 0
@@ -68,10 +69,6 @@ export class Game_NightwardRun {
   result?: RunResult
   private turn = 0
   private ended = false
-  propEventId?: string
-  private propEvents: { id: number, prop: string }[] = []
-  private pickupInterpreter = new Game_Interpreter()
-  private pickupEvents: number[] = []
   constructor(readonly content: Content, readonly propScene: PropScene, readonly demo = false) {
     DataManager.setupNewGame()
     const player = globals.$gamePlayer
@@ -85,12 +82,7 @@ export class Game_NightwardRun {
     this.actor = this.party.members()[0]!
     for (const key of weaponKeys) this.cooldowns.set(key, content.weapons.get(key)![0]!.data.initialDelay)
     this.tomes.timer = content.weapons.get('tomes')![0]!.data.initialDelay
-    this.interpreter = globals.$gameMap._interpreter
-    const setup = this.interpreter.setup
-    this.interpreter.setup = (list, eventId) => {
-      this.propEventId = undefined
-      setup.call(this.interpreter, list, eventId)
-    }
+    this.commonEvents = new Game_NightwardEvents(demo)
     this.props = new Game_NightwardProps(propScene, globals.$gameMap.events(), content.map.center)
     this.world = new Game_NightwardWorld(content, this.props)
     this.party.onBattleStart(false)
@@ -104,7 +96,10 @@ export class Game_NightwardRun {
     return (this.actor.equips() as (Weapon | Passive | null)[]).flatMap(item => item ? [{ key: item.data.key, rank: item.data.rank }] : [])
   }
 
-  rank(key: FamilyKey): number { return this.build.find(item => item.key === key)?.rank ?? 0 }
+  rank(key: FamilyKey): number {
+    return (this.actor.equips() as (Weapon | Passive | null)[]).find(item => item?.data.key === key)?.data.rank ?? 0
+  }
+
   weapon(key: WeaponKey): Weapon | undefined { return (this.actor.weapons() as Weapon[]).find(weapon => weapon.data.key === key) }
   passiveValue(key: PassiveKey): number {
     return (this.actor.armors() as Passive[]).find(armor => armor.data.key === key)?.data.value ?? 0
@@ -120,37 +115,21 @@ export class Game_NightwardRun {
   }
 
   triggerChest(): void { openChest(this) }
-  queuePropEvent(id: number, prop: string): void { this.propEvents.push({ id, prop }) }
+  queuePropEvent(id: number, prop: string): void {
+    this.trackLevels(() => this.commonEvents.run(id, prop))
+  }
+
   propContext(interpreter: Game_Interpreter): string | undefined {
-    for (let current: Game_Interpreter | null = this.interpreter; current; current = Reflect.get(current, '_childInterpreter') as Game_Interpreter | null) {
-      if (current === interpreter)
-        return this.propEventId
-    }
+    return this.commonEvents.propContext(interpreter)
   }
 
-  applyPickupEffects(action: Game_Action): void {
-    const queue = globals.$gameTemp._commonEventQueue
-    const start = queue.length
-    action.applyGlobal()
-    if (queue.length === start)
-      return
-    // Settle pickup rewards before checking upgrades, even if the map interpreter is waiting.
-    this.pickupEvents.push(...queue.splice(start))
-    if (!this.pickupInterpreter.isRunning())
-      this.updatePickupEvents()
+  applyActionEvents(action: Game_Action): void {
+    this.trackLevels(() => this.commonEvents.applyAction(action))
   }
 
-  private updatePickupEvents(): void {
-    const interpreter = this.pickupInterpreter
-    if (!interpreter.isRunning() && !this.pickupEvents.length)
-      return
+  private trackLevels(fn: () => void): void {
     const previousLevel = this.actor.level
-    interpreter.update()
-    if (!interpreter.isRunning() && this.pickupEvents.length) {
-      const commands = this.pickupEvents.splice(0).map(id => ({ code: 117, indent: 0, parameters: [id] }))
-      interpreter.setup(commands)
-      interpreter.update()
-    }
+    fn()
     this.pendingLevels = Math.max(0, this.pendingLevels + this.actor.level - previousLevel)
   }
 
@@ -231,14 +210,6 @@ export class Game_NightwardRun {
       return
     this.time += dt
     globals.$gameMap.update(true)
-    if (!this.interpreter.isRunning()) {
-      this.propEventId = undefined
-      const next = this.propEvents.shift()
-      if (next) {
-        this.interpreter.setup(globals.$dataCommonEvents[next.id]!.list, 0)
-        this.propEventId = next.prop
-      }
-    }
     this.props.updateEvents()
     this.world.syncProps()
     this.invulnerable = Math.max(0, this.invulnerable - dt)
@@ -252,14 +223,22 @@ export class Game_NightwardRun {
     this.hero.vx *= Math.exp(-dt * 9)
     this.hero.vz *= Math.exp(-dt * 9)
     globals.$gamePlayer.locate(this.hero.x + this.content.map.center, this.hero.z + this.content.map.center)
+    const eventStart = this.events.length
     stepDirector(this, dt)
     stepEnemies(this, dt)
     stepWeapons(this, dt)
     stepFirePools(this)
     stepProjectiles(this, dt)
     stepContact(this)
-    this.updatePickupEvents()
     stepPickups(this, dt)
+    this.trackLevels(() => {
+      this.commonEvents.update(this.time)
+      for (let i = eventStart; i < this.events.length; i++) {
+        const { kind } = this.events[i]!
+        if (kind === 'boss' || kind === 'bossDeath')
+          this.commonEvents.queue(kind)
+      }
+    })
     this.turn += dt
     if (this.turn >= 1) {
       this.turn -= 1
@@ -308,10 +287,6 @@ export class Game_NightwardRun {
     this.pools.length = 0
     this.delayed.length = 0
     this.events.length = 0
-    this.interpreter.clear()
-    this.pickupInterpreter.clear()
-    this.pickupEvents.length = 0
-    this.propEvents.length = 0
-    this.propEventId = undefined
+    this.commonEvents.clear()
   }
 }

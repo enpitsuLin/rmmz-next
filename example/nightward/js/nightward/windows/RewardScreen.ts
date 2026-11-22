@@ -9,7 +9,7 @@ import { sound } from '../managers/NightwardAudioManager'
 import { back, colors, largeScale, out, phase, reducedMotion } from '../primitives/ui'
 import { Sprite_NightwardHeading } from '../sprites/Sprite_NightwardHeading'
 import { text, wrap } from '../sprites/Sprite_NightwardText'
-import { box, icon, sprite } from '../sprites/uiSprites'
+import { box, icon, iconScale, sprite } from '../sprites/uiSprites'
 import { panel } from './panel'
 import { UiScreen } from './UiScreen'
 
@@ -248,7 +248,7 @@ export class RewardScreen extends UiScreen {
       card.body.alpha = fade * (1 - away)
       card.glow.alpha = card.focus * (0.5 + 0.15 * Math.sin(age * Math.PI / 0.65))
       card.frame.highlighted = card.focus > 0.5
-      card.icon.scale.set(16 / card.icon.texture.frame.width * (1 + (still ? 0 : 0.25 * Math.sin(phase(card.iconAge, 0, 0.2) * Math.PI))))
+      card.icon.scale.set(iconScale(card.icon, 1 + (still ? 0 : 0.25 * Math.sin(phase(card.iconAge, 0, 0.2) * Math.PI))))
       const tagAt = this.treasure ? 0.3 + i * 0.15 : 0.45 + i * 0.07
       const tag = still ? 1 : back(phase(age, tagAt, 0.25), 3)
       card.tag.scale.set(tag)

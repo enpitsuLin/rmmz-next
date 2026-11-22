@@ -5,7 +5,7 @@ import { sound } from '../managers/NightwardAudioManager'
 import { colors, introAlpha, out, phase, reducedMotion } from '../primitives/ui'
 import { Sprite_NightwardButton } from '../sprites/Sprite_NightwardButton'
 import { text, wrap } from '../sprites/Sprite_NightwardText'
-import { icon, sprite } from '../sprites/uiSprites'
+import { icon, iconScale, keycap, sprite, touchHintArt } from '../sprites/uiSprites'
 import { panel } from './panel'
 import { SheetScreen } from './SheetScreen'
 
@@ -98,10 +98,7 @@ export class HowToScreen extends SheetScreen {
     if (this.pageIndex === 1) {
       interface Part { node: Container, width: number, height: number, cap?: boolean }
       const cap = (value: string): Part => {
-        const node = new Container()
-        const line = text(value, 3, 2)
-        const width = line.textWidth + 6
-        node.addChild(panel(width, 11, 'keycap'), line)
+        const { node, width } = keycap(value)
         return { node, width, height: 11, cap: true }
       }
       const word = (value: string, tint = 0xFFFFFF): Part => {
@@ -120,16 +117,7 @@ export class HowToScreen extends SheetScreen {
         node.addChild(frame, image)
         return { node, width: 13, height: 11 }
       }
-      const touchArt = new Container()
-      const ring = sprite('ring')
-      const knob = sprite('knob')
-      ring.anchor.set(0.5)
-      knob.anchor.set(0.5)
-      ring.scale.set(0.5)
-      knob.scale.set(0.5)
-      ring.position.set(12, 12)
-      knob.position.set(18, 12)
-      touchArt.addChild(ring, knob)
+      const { node: touchArt, knob } = touchHintArt()
       const rows: [string, Part[]][] = this.scheme === 0
         ? [
             ['Move', [cap('W'), cap('A'), cap('S'), cap('D'), or(), word('arrows')]],
@@ -180,7 +168,7 @@ export class HowToScreen extends SheetScreen {
         const image = icon(iconIndex)
         const lines = wrap(value, inner - iconSize - 6)
         row.y = y
-        image.scale.set(16 / image.texture.frame.width * ratio)
+        image.scale.set(iconScale(image, ratio))
         row.addChild(image)
         lines.forEach((line, i) => row.addChild(text(line, iconSize + 6, i * 10 + Math.max(0, Math.round((iconSize - 7) / 2) - (lines.length > 1 ? 4 : 0)))))
         this.page.addChild(row)

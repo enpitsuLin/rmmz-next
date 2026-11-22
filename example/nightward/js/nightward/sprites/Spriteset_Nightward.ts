@@ -1,5 +1,6 @@
 import type { BaseMaterial3D, Pass3D } from '@pixi/3d'
 import type { Assets, Look } from '../managers/NightwardAssetManager'
+import type { EnemyKey, PickupKey } from '../managers/NightwardDataManager'
 import type { Game_NightwardRun, RunEvent } from '../objects/Game_NightwardRun'
 import type { Point } from '../primitives/geometry'
 import { Camera3D, DirectionalLight, Material3D, Mesh3D, PointLight, Sprite3D, View3D } from '@pixi/3d'
@@ -13,6 +14,17 @@ import { EffekseerPass } from './Effekseer'
 import { Spriteset_NightwardEffects } from './Spriteset_NightwardEffects'
 import { Spriteset_NightwardGround } from './Spriteset_NightwardGround'
 import { Spriteset_NightwardProps } from './Spriteset_NightwardProps'
+
+const lookColorKeys = new Set<keyof Look>(['shadowTint', 'highlightTint', 'tint', 'fogColor', 'moonColor', 'skyColor', 'groundColor', 'skyTop', 'skyHorizon'])
+const enemyAnimations: Record<Exclude<EnemyKey, 'reaper'>, string> = {
+  bat: 'bat.fly',
+  skeleton: 'skeleton.walk',
+  ghoul: 'ghoul.walk',
+  wraith: 'wraith.float',
+  skull: 'skull.fly',
+}
+const pickupScale: Record<PickupKey, number> = { gemSmall: 1.35, gemMedium: 1.4, gemBig: 1.5, coin: 1.25, chicken: 1, vacuum: 1.45, relic: 1.7, chest: 1.05 }
+const pickupNames: Record<PickupKey, string> = { gemSmall: 'gem.small', gemMedium: 'gem.mid', gemBig: 'gem.big', coin: 'coin', chicken: 'chicken', vacuum: 'vacuum', relic: 'relic', chest: 'chest' }
 
 const mirroredTextures = new WeakMap<Texture, Texture>()
 function facingTexture(texture: Texture, facing: number): Texture {
@@ -215,7 +227,6 @@ export class Spriteset_Nightward {
 
   private updateLook(dt: number): void {
     const target = this.assets.manifest.look[this.run.demo ? 'title' : this.run.bossDefeated ? 'dawn' : this.run.boss ? 'boss' : 'play']
-    const colorKeys = new Set(['shadowTint', 'highlightTint', 'tint', 'fogColor', 'moonColor', 'skyColor', 'groundColor', 'skyTop', 'skyHorizon'])
     const amount = Math.min(1, dt * 2)
     if (this.introAge >= 0) {
       this.introAge = Math.min(1, this.introAge + dt)
@@ -230,7 +241,7 @@ export class Spriteset_Nightward {
       const b = target[key]
       const dawn = Math.max(0, Math.min(1, (this.dawnAge - 0.6) / 2.4))
       const blend = this.dawnAge >= 0 ? 0.5 - 0.5 * Math.cos(Math.PI * dawn) : this.introAge >= 0 ? this.introAge < 0.5 ? 4 * this.introAge ** 3 : 1 - (-2 * this.introAge + 2) ** 3 / 2 : amount
-      if (colorKeys.has(key)) {
+      if (lookColorKeys.has(key)) {
         this.look[key] = mixColor(a, b, blend)
       }
       else {
@@ -311,7 +322,7 @@ export class Spriteset_Nightward {
     for (const enemy of run.world.enemies) {
       aliveIds.add(enemy.id)
       let visual = this.actors.get(enemy.id)
-      const animationName = enemy.data.key === 'reaper' ? enemy.state === 'rise' ? 'reaper.rise' : enemy.state === 'windup' || enemy.state === 'recover' ? 'reaper.swing' : 'reaper.walk' : { bat: 'bat.fly', skeleton: 'skeleton.walk', ghoul: 'ghoul.walk', wraith: 'wraith.float', skull: 'skull.fly' }[enemy.data.key]
+      const animationName = enemy.data.key === 'reaper' ? enemy.state === 'rise' ? 'reaper.rise' : enemy.state === 'windup' || enemy.state === 'recover' ? 'reaper.swing' : 'reaper.walk' : enemyAnimations[enemy.data.key]
       const animation = this.assets.animations[animationName]!
       if (!visual) {
         visual = this.makeActor(animation.textures[0]!, animation.height * (enemy.elite ? run.content.config.eliteScale : 1))
@@ -340,8 +351,6 @@ export class Spriteset_Nightward {
         this.actors.delete(id)
       }
     }
-    const pickupScale = { gemSmall: 1.35, gemMedium: 1.4, gemBig: 1.5, coin: 1.25, chicken: 1, vacuum: 1.45, relic: 1.7, chest: 1.05 }
-    const pickupNames = { gemSmall: 'gem.small', gemMedium: 'gem.mid', gemBig: 'gem.big', coin: 'coin', chicken: 'chicken', vacuum: 'vacuum', relic: 'relic', chest: 'chest' }
     this.syncObjects(run.pickups, this.pickups, (pickup) => {
       const animation = this.assets.animations[pickupNames[pickup.key]]!
       const sprite = this.sprite(animation.textures[0]!, animation.height * pickupScale[pickup.key])

@@ -74,7 +74,7 @@ export function hitEnemy(run: Game_NightwardRun, enemy: Enemy, weapon: Weapon, o
 export function beginCast(run: Game_NightwardRun, weapon: Weapon): void {
   const action = new Game_Action(run.actor)
   action.setSkill(weaponSkillId(weapon))
-  action.applyGlobal()
+  run.applyActionEvents(action)
 }
 
 export function killEnemy(run: Game_NightwardRun, enemy: Enemy): void {
@@ -117,7 +117,7 @@ export function hurtHero(run: Game_NightwardRun, enemy: Enemy, origin: Point, co
   const action = isContact && contactScale !== 1 ? new ScaledAction(enemy.battler, contactScale) : new Game_Action(enemy.battler)
   action.setSkill(isContact ? run.content.contactSkill : run.content.waveSkill)
   action.apply(run.actor)
-  action.applyGlobal()
+  run.applyActionEvents(action)
   run.invulnerable = run.content.hero.invulnerable
   const n = direction(run.hero.x - origin.x, run.hero.z - origin.z)
   run.hero.vx += n.x * 4

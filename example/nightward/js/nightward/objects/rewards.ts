@@ -107,7 +107,7 @@ function collect(run: Game_NightwardRun, pickup: Pickup): void {
     if (amount > 0)
       healed = amount
   }
-  run.applyPickupEffects(action)
+  run.applyActionEvents(action)
   run.emit({ kind: 'pickup', x: pickup.x, z: pickup.z, pickup: pickup.key, value: healed })
 }
 export function stepPickups(run: Game_NightwardRun, dt: number): void {

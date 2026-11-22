@@ -9,7 +9,7 @@ import { Sprite_NightwardBuild } from '../sprites/Sprite_NightwardBuild'
 import { Sprite_NightwardButton } from '../sprites/Sprite_NightwardButton'
 import { Sprite_NightwardHeading } from '../sprites/Sprite_NightwardHeading'
 import { Sprite_NightwardText, text } from '../sprites/Sprite_NightwardText'
-import { box, icon, sprite } from '../sprites/uiSprites'
+import { box, icon, iconScale, sprite } from '../sprites/uiSprites'
 import { panel } from './panel'
 import { bestLine } from './recordText'
 import { UiScreen } from './UiScreen'
@@ -83,7 +83,7 @@ export class ResultsScreen extends UiScreen {
       const image = icon(icons[i]!)
       const value = text('', valueX, Math.round((rowH - 7) / 2), i === 3 ? 1 : 0, 0xFFFFFF, 1)
       const stamp = new Container()
-      image.scale.set(16 / image.texture.frame.width * ratio)
+      image.scale.set(iconScale(image, ratio))
       image.y = Math.round((rowH - iconSize) / 2)
       const stampHeight = Math.min(13, rowH - 1)
       const frame = panel(stampWidth, stampHeight, 'barFrame')
@@ -131,7 +131,7 @@ export class ResultsScreen extends UiScreen {
       const fill = sprite('dmgFill')
       const frame = panel(barW, 5, 'thinFrame')
       const value = text('', width - 2 * pad, Math.round((damageH - 1 - 7) / 2), 0, 0xFFFFFF, 1)
-      image.scale.set(16 / image.texture.frame.width * ratio)
+      image.scale.set(iconScale(image, ratio))
       image.y = Math.round((damageH - 1 - iconSize) / 2)
       frame.position.set(barX, Math.round((damageH - 1 - 5) / 2))
       fill.width = Math.max(1, Math.round((barW - 2) * amount / max))

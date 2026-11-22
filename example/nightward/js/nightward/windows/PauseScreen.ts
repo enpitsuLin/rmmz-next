@@ -10,7 +10,7 @@ import { Sprite_NightwardButton } from '../sprites/Sprite_NightwardButton'
 import { Sprite_NightwardHeading } from '../sprites/Sprite_NightwardHeading'
 import { Sprite_NightwardSystemButtons } from '../sprites/Sprite_NightwardSystemButtons'
 import { text } from '../sprites/Sprite_NightwardText'
-import { box, icon } from '../sprites/uiSprites'
+import { box, icon, iconScale } from '../sprites/uiSprites'
 import { panel } from './panel'
 import { UiScreen } from './UiScreen'
 
@@ -123,7 +123,7 @@ export class PauseScreen extends UiScreen {
     this.stats.forEach(({ image, value }, i) => {
       const x = 10 + i % 2 * colWidth
       const y = 10 + Math.floor(i / 2) * statH
-      image.scale.set(16 / image.texture.frame.width * l.icon / l.unit)
+      image.scale.set(iconScale(image, l.icon / l.unit))
       image.position.set(x, y)
       value.position.set(x + iconSize + 5, y + Math.round((iconSize - 7) / 2))
     })

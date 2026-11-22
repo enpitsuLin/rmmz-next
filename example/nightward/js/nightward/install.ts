@@ -1,9 +1,10 @@
 import type { Game_Interpreter } from 'rmmz-next'
-import { Game_Actor, Game_BattlerBase, GlobalMananger as globals, Input, PluginManager, SceneManager } from 'rmmz-next'
+import { Game_Actor, Game_BattlerBase, GlobalMananger as globals, Graphics, Input, PluginManager, SceneManager } from 'rmmz-next'
 import { installConfig } from './managers/NightwardConfigManager'
 import { readPluginConfig } from './managers/NightwardDataManager'
 import { installEffekseer } from './managers/NightwardEffectManager'
 import { activeWeapon } from './objects/combat'
+import { fullscreen } from './primitives/ui'
 import { Scene_Nightward } from './scenes/Scene_Nightward'
 import { Scene_NightwardTitle } from './scenes/Scene_NightwardTitle'
 import '@pixi/3d'
@@ -11,6 +12,8 @@ import '@pixi/3d'
 export function installNightward(): void {
   installConfig()
   installEffekseer()
+  Graphics._isFullScreen = () => !!document.fullscreenElement
+  Graphics._switchFullScreen = fullscreen
   const updateEffekseer = SceneManager.updateEffekseer
   SceneManager.updateEffekseer = function (): void {
     if (!(this._scene instanceof Scene_Nightward))

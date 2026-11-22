@@ -59,7 +59,7 @@
    | `windows/Window_NightwardPanel.ts`、`windows/Window_NightwardSelectable.ts` | RMMZ 窗口皮肤与选择处理 |
    | `primitives/ui.ts`、`sprites/Sprite_Nightward*.ts` | 布局、输入、动效与界面精灵 |
    | `sprites/Sprite_NightwardBuild.ts` | 构筑槽、等级点、升级名称与说明 |
-   | `sprites/Sprite_NightwardHud.ts` | HUD、世界投影提示、奖励飞行与触摸摇杆 |
+   | `sprites/Sprite_NightwardHud.ts`、`Sprite_NightwardBossBar.ts`、`Sprite_NightwardMoments.ts`、`Sprite_NightwardStick.ts` | HUD 主栏、Boss 血条与指示、阶段横幅/提示/Toast、世界投影飘字、奖励飞行与触摸摇杆 |
    | `windows/RewardScreen.ts` | 升级与宝箱的入场、聚焦、选择和退场 |
    | `windows/` | 标题、暂停、设置、说明与结算各自的面板 |
    | `scenes/Scene_Nightward.ts` | 场景编排、冻结/恢复、纪录与生命周期 |

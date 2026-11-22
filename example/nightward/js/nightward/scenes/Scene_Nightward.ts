@@ -10,7 +10,6 @@ import { settings, toggleMute } from '../managers/NightwardConfigManager'
 import { readContent } from '../managers/NightwardDataManager'
 import { getPropScene, propSceneReady, propSceneUrl } from '../managers/NightwardPropSceneManager'
 import { loadRecords, records, saveResult } from '../managers/NightwardRecordManager'
-import { Game_NightwardPhaseEvents } from '../objects/Game_NightwardPhaseEvents'
 import { Game_NightwardRun } from '../objects/Game_NightwardRun'
 import { colors, consumeInput, fullscreen, out, phase, reducedMotion, uiLayout } from '../primitives/ui'
 import { Sprite_NightwardHud } from '../sprites/Sprite_NightwardHud'
@@ -30,7 +29,6 @@ export class Scene_Nightward extends Scene_Base {
   run!: Game_NightwardRun
   private worldView!: Spriteset_Nightward
   private hud?: Sprite_NightwardHud
-  private phases!: Game_NightwardPhaseEvents
   private worldRoot = new Container()
   private uiRoot = new Container()
   private flightRoot = new Container({ eventMode: 'none' })
@@ -102,7 +100,6 @@ export class Scene_Nightward extends Scene_Base {
     this.run = new Game_NightwardRun(readContent(), getPropScene(propSceneUrl(globals.$dataMap.note)), demo)
     this.worldView = new Spriteset_Nightward(this.run, getAssets())
     this.worldView.beginIntro(fromTitle)
-    this.phases = new Game_NightwardPhaseEvents(demo)
     this.worldRoot.addChild(this.worldView.view, this.worldView.overlay, this.letterbox)
     if (demo) {
       this.base = new TitleScreen(() => {
@@ -148,8 +145,7 @@ export class Scene_Nightward extends Scene_Base {
   }
 
   private startPhases(): void {
-    this.phases.queue('start')
-    this.phases.update(this.run.time)
+    this.run.commonEvents.queue('start')
   }
 
   showNotice(message: string): void {
@@ -177,14 +173,8 @@ export class Scene_Nightward extends Scene_Base {
       this.pause()
     const movement = !this.demo && !this.base && !this.reward && !this.busy && this.run.state === 'running' ? this.hud!.movement() : { x: 0, z: 0 }
     const advancing = (!this.busy || this.demo) && this.run.state === 'running'
-    if (advancing) {
+    if (advancing)
       this.run.update(movement)
-      for (const { kind } of this.run.events) {
-        if (kind === 'boss' || kind === 'bossDeath')
-          this.phases.queue(kind)
-      }
-      this.phases.update(this.run.time)
-    }
     const events = this.run.events.splice(0)
     this.consumeAudio(events)
     if (!this.demo) {
@@ -238,8 +228,7 @@ export class Scene_Nightward extends Scene_Base {
       if (before < 1.4 && this.victoryAt >= 1.4)
         this.hud!.setShown(false, 0.6)
       if (this.victoryAt >= 1.8) {
-        this.phases.queue('victory')
-        this.phases.update(this.run.time)
+        this.run.commonEvents.queue('victory')
         AudioManager.playMe(globals.$dataSystem.victoryMe)
         this.victoryAt = -1
       }

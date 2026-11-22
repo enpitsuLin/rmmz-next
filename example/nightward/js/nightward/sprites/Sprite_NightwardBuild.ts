@@ -4,7 +4,7 @@ import { ImageManager } from 'rmmz-next'
 import { equipmentIcon, getAssets } from '../managers/NightwardAssetManager'
 import { passiveKeys, weaponKeys } from '../managers/NightwardDataManager'
 import { back, colors, mixColor, phase, reducedMotion } from '../primitives/ui'
-import { box, sprite } from './uiSprites'
+import { box, iconScale, sprite } from './uiSprites'
 
 export interface BuildItem { key: FamilyKey, rank: number }
 interface Slot { root: Container, frame: Sprite, icon: Sprite, flash: Sprite, sparkle: Sprite, pips: Sprite[], pipFlashes: Sprite[], rank: number, age: number, reveal: number, key?: FamilyKey }
@@ -72,7 +72,7 @@ export class Sprite_NightwardBuild extends Container {
       if (key && rank > 0) {
         const family = this.content.weapons.get(key as WeaponKey) ?? this.content.passives.get(key as PassiveKey)!
         slot.icon.texture = equipmentIcon(family[rank - 1]!.iconIndex)
-        slot.icon.scale.set(16 / slot.icon.texture.frame.width)
+        slot.icon.scale.set(iconScale(slot.icon))
       }
       slot.pips.forEach((pip, p) => {
         pip.visible = !!key && rank > 0
