@@ -1,5 +1,5 @@
 import { NineSliceSprite } from 'pixi.js'
-import { getAssets } from '../managers/NightwardAssetManager'
+import { NightwardAssetManager } from '../managers/NightwardAssetManager'
 import { Window_NightwardPanel } from './Window_NightwardPanel'
 
 export function panel(width: number, height: number, part?: 'panel' | 'panelHot'): Window_NightwardPanel
@@ -11,5 +11,13 @@ export function panel(width: number, height: number, part = 'panel'): Window_Nig
     return node
   }
   const border = part === 'softRect' ? 18 : part === 'thinFrame' ? 1 : 3
-  return new NineSliceSprite({ texture: getAssets().ui[part]!, leftWidth: border, rightWidth: border, topHeight: border, bottomHeight: part === 'keycap' ? 4 : border, width, height })
+  return new NineSliceSprite({
+    texture: NightwardAssetManager.assets().ui[part]!,
+    leftWidth: border,
+    rightWidth: border,
+    topHeight: border,
+    bottomHeight: part === 'keycap' ? 4 : border,
+    width,
+    height,
+  })
 }

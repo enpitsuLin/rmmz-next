@@ -1,5 +1,5 @@
 import { Container, Sprite } from 'pixi.js'
-import { getAssets } from '../managers/NightwardAssetManager'
+import { NightwardAssetManager } from '../managers/NightwardAssetManager'
 
 // Original glyph metrics include their shadow and an independent, hand-rasterized 2x set.
 export class Sprite_NightwardText extends Container {
@@ -32,13 +32,13 @@ export class Sprite_NightwardText extends Container {
   }
 
   measure(text: string): number {
-    const assets = getAssets()
+    const assets = NightwardAssetManager.assets()
     const size = this.big ? 2 : 1
     return Math.max(0, [...text].reduce((sum, char) => sum + (assets.glyphs.get(char)?.advance ?? assets.uiData.space) * size, 0) - size)
   }
 
   relayout(): void {
-    const assets = getAssets()
+    const assets = NightwardAssetManager.assets()
     const size = this.big ? 2 : 1
     let x = 0
     for (let i = 0; i < this.value.length; i++) {
@@ -70,7 +70,7 @@ export function text(value: string, x: number, y: number, style = 0, tint = 0xFF
   return node
 }
 export function wrap(value: string, maxWidth: number, balanced = false): string[] {
-  const assets = getAssets()
+  const assets = NightwardAssetManager.assets()
   const measure = (line: string): number => Math.max(0, [...line].reduce((sum, char) => sum + (assets.glyphs.get(char)?.advance ?? assets.uiData.space), 0) - 1)
   const words = value.split(' ')
   const lines: string[] = []

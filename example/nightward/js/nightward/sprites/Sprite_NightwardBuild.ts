@@ -1,7 +1,7 @@
 import type { Content, FamilyKey, PassiveKey, WeaponKey } from '../managers/NightwardDataManager'
 import { Container, Sprite } from 'pixi.js'
 import { ImageManager } from 'rmmz-next'
-import { equipmentIcon, getAssets } from '../managers/NightwardAssetManager'
+import { NightwardAssetManager } from '../managers/NightwardAssetManager'
 import { passiveKeys, weaponKeys } from '../managers/NightwardDataManager'
 import { back, colors, mixColor, phase, reducedMotion } from '../primitives/ui'
 import { box, iconScale, sprite } from './uiSprites'
@@ -71,12 +71,12 @@ export class Sprite_NightwardBuild extends Container {
       slot.icon.visible = !!key && rank > 0
       if (key && rank > 0) {
         const family = this.content.weapons.get(key as WeaponKey) ?? this.content.passives.get(key as PassiveKey)!
-        slot.icon.texture = equipmentIcon(family[rank - 1]!.iconIndex)
+        slot.icon.texture = NightwardAssetManager.equipmentIcon(family[rank - 1]!.iconIndex)
         slot.icon.scale.set(iconScale(slot.icon))
       }
       slot.pips.forEach((pip, p) => {
         pip.visible = !!key && rank > 0
-        pip.texture = getAssets().ui[p < rank ? 'pipOn' : 'pipOff']!
+        pip.texture = NightwardAssetManager.assets().ui[p < rank ? 'pipOn' : 'pipOff']!
         pip.tint = p < rank ? 0xFFFFFF : 11580616
       })
     }

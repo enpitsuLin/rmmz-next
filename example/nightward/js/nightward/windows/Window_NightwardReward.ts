@@ -1,17 +1,17 @@
 import type { NineSliceSprite, Sprite } from 'pixi.js'
-import type { Reward } from '../objects/rewards'
+import type { Reward } from '../objects/Game_NightwardRewards'
 import type { IconPoint } from '../primitives/ui'
 import type { Sprite_NightwardText } from '../sprites/Sprite_NightwardText'
 import type { Window_NightwardPanel } from './Window_NightwardPanel'
 import { Container, Rectangle } from 'pixi.js'
 import { Input, SoundManager } from 'rmmz-next'
-import { sound } from '../managers/NightwardAudioManager'
+import { NightwardSound } from '../patches/AudioManager'
 import { back, colors, largeScale, out, phase, reducedMotion } from '../primitives/ui'
 import { Sprite_NightwardHeading } from '../sprites/Sprite_NightwardHeading'
 import { text, wrap } from '../sprites/Sprite_NightwardText'
 import { box, icon, iconScale, sprite } from '../sprites/uiSprites'
 import { panel } from './panel'
-import { UiScreen } from './UiScreen'
+import { Window_NightwardScreen } from './Window_NightwardScreen'
 
 interface Card {
   root: Container
@@ -38,8 +38,14 @@ interface Card {
   iconAge: number
   sent: boolean
 }
-interface RewardCallbacks { pick: (index: number) => void, fly: (reward: Reward, point: IconPoint) => void, done: () => void }
-export class RewardScreen extends UiScreen {
+
+export interface RewardCallbacks {
+  pick: (index: number) => void
+  fly: (reward: Reward, point: IconPoint) => void
+  done: () => void
+}
+
+export class Window_NightwardReward extends Window_NightwardScreen {
   private dimmer = box(1, 1, 131850, 0)
   private heading: Sprite_NightwardHeading
   private cards: Card[] = []
@@ -47,10 +53,11 @@ export class RewardScreen extends UiScreen {
   private selected = 0
   private chosen = -1
   private exitAge = -1
-  private row = false
+  private horizontal = false
   private cardWidth = 236
   private cardHeight = 40
   private previous = 0
+
   constructor(private rewards: Reward[], readonly treasure: boolean, bandBottom: number, private callbacks: RewardCallbacks) {
     super()
     this.heading = new Sprite_NightwardHeading(treasure ? 'TREASURE!' : 'LEVEL UP!', treasure ? 3 : 1)
@@ -77,9 +84,9 @@ export class RewardScreen extends UiScreen {
       const card: Card = { root, body, glow, frame, well, icon: image, name, tag, lines, flash, x: 0, y: 0, focus: treasure ? 1 : 0, focusFrom: treasure ? 1 : 0, focusTarget: treasure ? 1 : 0, focusAge: 1, press: 0, pressFrom: 0, pressTarget: 0, pressAge: 1, pressed: false, iconAge: 1, sent: false }
       this.cards.push(card)
     })
-    this.nativeWindow.cycle = true
-    this.nativeWindow.onSelection = undefined
-    this.nativeWindow.choices = this.cards.map((card, index) => ({
+    this.cycle = true
+    this.onSelection = undefined
+    this.choices = this.cards.map((card, index) => ({
       node: card.root,
       get rect() { return card.root.hitArea as Rectangle },
       enabled: !treasure,
@@ -88,17 +95,18 @@ export class RewardScreen extends UiScreen {
       col: 0,
       focus: (focused: boolean) => {
         if (focused)
-          this.select(index)
+          this.selectCard(index)
       },
       setPressed: (pressed: boolean) => { card.pressed = pressed },
       activate: () => this.choose(index),
     }))
     this.content.addChild(this.cursorSprite)
     this.place(bandBottom)
-    this.nativeWindow.focusChoice(0)
+    this.focusChoice(0)
   }
 
   override get accepting(): boolean { return !this.treasure && this.age >= 0.45 && this.exitAge < 0 }
+
   private place(bandBottom: number): void {
     const l = this.layout
     const band = Math.ceil(bandBottom / l.unit)
@@ -107,11 +115,11 @@ export class RewardScreen extends UiScreen {
     const total = headerH + 16 + 3 * 40 + 12
     this.dimmer.width = l.width / l.unit
     this.dimmer.height = l.height / l.unit
-    this.row = band + total + 8 > l.h
+    this.horizontal = band + total + 8 > l.h
     let x: number
     let top: number
     let headerHeight = headerH
-    if (!this.row) {
+    if (!this.horizontal) {
       const y = Math.max(8, Math.round(l.h * 0.47 - total / 2), band + 6)
       this.cardWidth = Math.min(236, l.w - 28)
       this.cardHeight = 40
@@ -127,10 +135,10 @@ export class RewardScreen extends UiScreen {
       top = band + 4 + headerHeight + 10
       this.heading.position.set(Math.round(l.w / 2), band + 4)
     }
-    this.cursorSprite.rotation = this.row ? -Math.PI / 2 : 0
+    this.cursorSprite.rotation = this.horizontal ? -Math.PI / 2 : 0
     this.cards.forEach((card, i) => {
-      card.x = x + (this.row ? i * (this.cardWidth + 6) : 0)
-      card.y = top + (this.row ? 0 : i * 46)
+      card.x = x + (this.horizontal ? i * (this.cardWidth + 6) : 0)
+      card.y = top + (this.horizontal ? 0 : i * 46)
       card.root.position.set(card.x, card.y)
       card.root.hitArea = new Rectangle(0, 0, this.cardWidth, this.cardHeight)
       card.body.pivot.set(Math.round(this.cardWidth / 2), Math.round(this.cardHeight / 2))
@@ -141,26 +149,26 @@ export class RewardScreen extends UiScreen {
       card.glow.height = this.cardHeight + 20
       card.flash.width = this.cardWidth - 6
       card.flash.height = this.cardHeight - 6
-      card.well.position.set(this.row ? 6 : 8, this.row ? 6 : 10)
+      card.well.position.set(this.horizontal ? 6 : 8, this.horizontal ? 6 : 10)
       card.icon.position.set(card.well.x + 10, card.well.y + 10)
-      const left = this.row ? 6 : 35
-      const available = this.row ? this.cardWidth - 12 : this.cardWidth - 40
+      const left = this.horizontal ? 6 : 35
+      const available = this.horizontal ? this.cardWidth - 12 : this.cardWidth - 40
       const lines = wrap(this.rewards[i]!.description, available, true)
       const two = lines.length > 1
       card.lines.forEach((line, n) => {
         line.text = lines[n] ?? ''
-        line.position.set(left, this.row ? 32 + n * 11 : n === 0 ? two ? 17 : 23 : 26)
+        line.position.set(left, this.horizontal ? 32 + n * 11 : n === 0 ? two ? 17 : 23 : 26)
       })
-      card.name.position.set(this.row ? 30 : 35, this.row ? 7 : two ? 6 : 9)
-      card.tag.align = this.row ? 0 : 1
+      card.name.position.set(this.horizontal ? 30 : 35, this.horizontal ? 7 : two ? 6 : 9)
+      card.tag.align = this.horizontal ? 0 : 1
       card.tag.relayout()
       const half = Math.round(card.tag.textWidth / 2)
-      card.tag.pivot.set(this.row ? half : -half, 4)
-      card.tag.position.set(this.row ? 30 + half : this.cardWidth - 8 - half, (this.row ? 18 : card.name.y) + 4)
+      card.tag.pivot.set(this.horizontal ? half : -half, 4)
+      card.tag.position.set(this.horizontal ? 30 + half : this.cardWidth - 8 - half, (this.horizontal ? 18 : card.name.y) + 4)
     })
   }
 
-  private select(index: number): void {
+  private selectCard(index: number): void {
     if (!this.accepting || index === this.selected)
       return
     this.selected = index
@@ -179,14 +187,14 @@ export class RewardScreen extends UiScreen {
     this.callbacks.pick(index)
   }
 
-  protected override handle(): void {
+  protected override handleInput(): void {
     for (let i = 0; i < this.cards.length; i++) {
       if (Input.isTriggered(`choice${i + 1}`)) {
         this.choose(i)
         return
       }
     }
-    super.handle()
+    super.handleInput()
   }
 
   private send(card: Card, index: number): void {
@@ -242,7 +250,7 @@ export class RewardScreen extends UiScreen {
       const focus = still ? 0 : card.focus
       const away = exit >= 0 && !this.treasure && i !== this.chosen ? phase(exit, 0, 0.26) ** 4 : 0
       const punch = exit >= 0 && i === this.chosen ? Math.sin(phase(exit, 0, 0.3) * Math.PI) : 0
-      card.body.position.set(card.body.pivot.x + Math.round(this.row ? 0 : 110 * (1 - slide) + 4 * focus - 70 * away), card.body.pivot.y + Math.round(this.row ? 40 * (1 - slide) - 3 * focus + 30 * away : 0))
+      card.body.position.set(card.body.pivot.x + Math.round(this.horizontal ? 0 : 110 * (1 - slide) + 4 * focus - 70 * away), card.body.pivot.y + Math.round(this.horizontal ? 40 * (1 - slide) - 3 * focus + 30 * away : 0))
       const scale = (1 + 0.02 * focus) * (1 - 0.03 * card.press) * (1 + 0.05 * punch)
       card.body.scale.set(scale * flip, scale)
       card.body.alpha = fade * (1 - away)
@@ -256,14 +264,17 @@ export class RewardScreen extends UiScreen {
       card.flash.alpha = exit >= 0 && i === this.chosen ? 0.85 * (1 - out(phase(exit, 0, 0.3))) : 0
       card.root.eventMode = this.live && !this.inputBlocked && this.accepting ? 'static' : 'none'
       if (this.previous < tagAt && age >= tagAt)
-        sound('Tick', 25 + i * 8, 100 + 37.5 * (this.treasure ? (i + 1) / 3 : 0.4 + 0.3 * i))
+        NightwardSound.playNightwardSe('Tick', 25 + i * 8, 100 + 37.5 * (this.treasure ? (i + 1) / 3 : 0.4 + 0.3 * i))
       if (exit >= (still ? 0 : this.treasure ? i * 0.1 : 0.05) && (this.treasure || i === this.chosen))
         this.send(card, i)
     })
     const card = this.cards[this.selected]!
     const bob = still ? 0 : Math.round(1 - Math.cos(age * Math.PI / 0.45))
     this.cursorSprite.alpha = this.treasure ? 0 : out(phase(age, 0.4, 0.2), 2) * (exit < 0 ? 1 : 1 - phase(exit, 0, 0.15))
-    this.cursorSprite.position.set(this.row ? card.x + card.body.x - card.body.pivot.x + this.cardWidth / 2 : card.x + card.body.x - card.body.pivot.x - 5 - bob, this.row ? card.y + card.body.y - card.body.pivot.y + this.cardHeight + 3 + bob : card.y + Math.round(this.cardHeight / 2))
+    this.cursorSprite.position.set(
+      this.horizontal ? card.x + card.body.x - card.body.pivot.x + this.cardWidth / 2 : card.x + card.body.x - card.body.pivot.x - 5 - bob,
+      this.horizontal ? card.y + card.body.y - card.body.pivot.y + this.cardHeight + 3 + bob : card.y + Math.round(this.cardHeight / 2),
+    )
     this.previous = age
     if (exit >= (still ? 0.15 : leave + duration)) {
       this.live = false

@@ -1,40 +1,25 @@
-import type { Game_Enemy } from 'rmmz-next'
-import type { Content, EnemyData, Layer } from '../managers/NightwardDataManager'
+import type { Content, Layer } from '../managers/NightwardDataManager'
 import type { Point } from '../primitives/geometry'
-import type { Game_NightwardProps, Prop } from './Game_NightwardProps'
+import type { Game_NightwardEnemy } from './Game_NightwardEnemy'
+import type { Game_NightwardProp } from './Game_NightwardProp'
+import type { Game_NightwardProps } from './Game_NightwardProps'
 import { GlobalMananger as globals } from 'rmmz-next'
 import { direction, distance } from '../primitives/geometry'
 import { SpatialGrid } from '../primitives/SpatialGrid'
 
-export interface Enemy extends Point {
-  id: number
-  battler: Game_Enemy
-  data: EnemyData
-  radius: number
-  speed: number
-  elite: boolean
-  vx: number
-  vz: number
-  age: number
-  flash: number
-  dying: number
-  dead: boolean
-  state: 'rise' | 'walk' | 'windup' | 'recover'
-  phase: number
-  swing: number
-  aim: Point
-}
-export interface Obstacle extends Point { width: number, depth: number, prop?: Prop }
+export interface Obstacle extends Point { width: number, depth: number, prop?: Game_NightwardProp }
+
 export class Game_NightwardWorld {
-  get props(): Prop[] { return this.propManager.props }
+  get props(): Game_NightwardProp[] { return this.propManager.props }
   get propsRevision(): number { return this.propManager.structureRevision }
   obstacles: Obstacle[] = []
-  enemies: Enemy[] = []
-  grid = new SpatialGrid<Enemy>()
+  enemies: Game_NightwardEnemy[] = []
+  grid = new SpatialGrid<Game_NightwardEnemy>()
   private tileObstacles: Obstacle[] = []
   private staticGrid = new SpatialGrid<Obstacle>(8)
   private collisionRevision = -1
   private obstacleReach = 0
+
   constructor(private content: Content, readonly propManager: Game_NightwardProps) {
     const map = globals.$gameMap
     const center = content.map.center
@@ -52,17 +37,18 @@ export class Game_NightwardWorld {
       return
     this.obstacles = [...this.tileObstacles, ...this.propManager.obstacles()]
     this.obstacleReach = 0
-    for (const box of this.obstacles) this.obstacleReach = Math.max(this.obstacleReach, box.width / 2, box.depth / 2)
+    for (const box of this.obstacles)
+      this.obstacleReach = Math.max(this.obstacleReach, box.width / 2, box.depth / 2)
     this.staticGrid.rebuild(this.obstacles)
     this.collisionRevision = this.propManager.revision
   }
 
-  nearby(point: Point, radius: number): Enemy[] {
+  nearby(point: Point, radius: number): Game_NightwardEnemy[] {
     return this.grid.query(point.x, point.z, radius + 2.1).filter(enemy => !enemy.dead && distance(point, enemy) < radius + enemy.radius)
   }
 
-  nearest(point: Point, radius: number, exclude = -1): Enemy | undefined {
-    let best: Enemy | undefined
+  nearest(point: Point, radius: number, exclude = -1): Game_NightwardEnemy | undefined {
+    let best: Game_NightwardEnemy | undefined
     let bestDistance = radius
     for (const enemy of this.nearby(point, radius)) {
       if (enemy.id === exclude)
@@ -99,7 +85,12 @@ export class Game_NightwardWorld {
           body.z += pz / d * (radius - d)
         }
         else {
-          const exits = [{ axis: 'x' as const, value: box.x - box.width / 2 - radius }, { axis: 'x' as const, value: box.x + box.width / 2 + radius }, { axis: 'z' as const, value: box.z - box.depth / 2 - radius }, { axis: 'z' as const, value: box.z + box.depth / 2 + radius }]
+          const exits = [
+            { axis: 'x' as const, value: box.x - box.width / 2 - radius },
+            { axis: 'x' as const, value: box.x + box.width / 2 + radius },
+            { axis: 'z' as const, value: box.z - box.depth / 2 - radius },
+            { axis: 'z' as const, value: box.z + box.depth / 2 + radius },
+          ]
           exits.sort((a, b) => Math.abs(body[a.axis] - a.value) - Math.abs(body[b.axis] - b.value))
           body[exits[0]!.axis] = exits[0]!.value
         }
@@ -107,8 +98,8 @@ export class Game_NightwardWorld {
     }
   }
 
-  separate(enemy: Enemy, dt: number): void {
-    if (enemy.data.key === 'reaper')
+  separate(enemy: Game_NightwardEnemy, dt: number): void {
+    if (enemy.isReaper())
       return
     for (const other of this.grid.query(enemy.x, enemy.z, 2.1)) {
       if (other === enemy || other.dead || other.data.layer !== enemy.data.layer)

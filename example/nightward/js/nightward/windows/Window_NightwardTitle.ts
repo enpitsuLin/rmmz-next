@@ -1,17 +1,16 @@
+import type { Sprite_NightwardButton } from '../sprites/Sprite_NightwardButton'
 import { Container } from 'pixi.js'
 import { GlobalMananger as globals, Input, SoundManager } from 'rmmz-next'
-import { sound } from '../managers/NightwardAudioManager'
-import { records } from '../managers/NightwardRecordManager'
+import { NightwardRecordManager } from '../managers/NightwardRecordManager'
+import { NightwardSound } from '../patches/AudioManager'
 import { back, clock, colors, fitScale, out, phase, reducedMotion } from '../primitives/ui'
-import { Sprite_NightwardButton } from '../sprites/Sprite_NightwardButton'
 import { Sprite_NightwardHeading } from '../sprites/Sprite_NightwardHeading'
 import { Sprite_NightwardSystemButtons } from '../sprites/Sprite_NightwardSystemButtons'
 import { text, wrap } from '../sprites/Sprite_NightwardText'
 import { box, sprite } from '../sprites/uiSprites'
-import { bestLine } from './recordText'
-import { UiScreen } from './UiScreen'
+import { Window_NightwardCommand } from './Window_NightwardCommand'
 
-export class TitleScreen extends UiScreen {
+export class Window_NightwardTitle extends Window_NightwardCommand {
   private logo = new Sprite_NightwardHeading((globals.$dataSystem.gameTitle || 'Nightward').toUpperCase())
   private tagline = [text('', 0, 0, 0, colors.blue, 0.5), text('', 0, 0, 0, colors.blue, 0.5)]
   private footer = new Container({ eventMode: 'none' })
@@ -20,30 +19,39 @@ export class TitleScreen extends UiScreen {
   private credit = text('Made with PixiJS and PixiJS 3D', 0, 0, 0, colors.dim, 1)
   private corner = new Sprite_NightwardSystemButtons()
   private sparkles = [sprite('sparkle'), sprite('sparkle'), sprite('sparkle')]
-  private menu: Sprite_NightwardButton[]
+  private menu: Sprite_NightwardButton[] = []
   private flash = box(1, 1, 0xFFFFFF, 0)
   private logoY = 0
   private taglineY: number[] = []
   private playAge = -1
-  private playDone?: () => void
-  constructor(onPlay: () => void, onOpen: (kind: 'options' | 'howto') => void) {
+
+  constructor(playTitleSe = true, skipIntro = false) {
     super()
     this.logo.configure({ halo: 0.26, haloSeconds: 0.8, haloSine: true, breath: 0.03, drop: 10, lettersAt: 0.1, letterSeconds: 0.45, strength: 1.6, stagger: 0.05, rulesAt: 0.55, diamondsAt: 0.7, diamondSeconds: 0.25, glintAt: 2 })
-    this.menu = ['PLAY', 'HOW TO PLAY', 'OPTIONS'].map((name, i) => this.addButton(new Sprite_NightwardButton(name, 120, 22, i ? 'ok' : null), i))
-    this.menu[0]!.onActivate = () => {
-      this.live = false
-      this.playAge = 0
-      this.playDone = onPlay
-      this.menu[0]!.punch()
-      SoundManager.playOk()
-    }
-    this.menu[1]!.onActivate = () => onOpen('howto')
-    this.menu[2]!.onActivate = () => onOpen('options')
+    this.makeCommandList()
     this.sparkles.forEach(node => node.anchor.set(0.5))
     this.footer.addChild(this.best, this.wins, this.credit)
     this.content.addChild(this.logo, ...this.sparkles, ...this.tagline, this.footer, this.flash, this.corner)
     this.place()
-    sound('Title', 45)
+    if (skipIntro) {
+      this.age = 1.2
+      this.focusButton(this.menu[0]!)
+    }
+    if (playTitleSe)
+      NightwardSound.playNightwardSe('Title', 45)
+  }
+
+  private makeCommandList(): void {
+    const play = this.addCommand('PLAY', 'play', 120, 22, null, 0)
+    play.onActivate = () => {
+      this.live = false
+      this.playAge = 0
+      play.punch()
+      SoundManager.playOk()
+    }
+    const howto = this.addCommand('HOW TO PLAY', 'howto', 120, 22, 'ok', 1)
+    const options = this.addCommand('OPTIONS', 'options', 120, 22, 'ok', 2)
+    this.menu = [play, howto, options]
   }
 
   protected place(): void {
@@ -66,7 +74,8 @@ export class TitleScreen extends UiScreen {
       node.position.set(center, this.logoY + logoH + 8 + i * 10)
       this.taglineY[i] = node.y
     })
-    this.best.text = bestLine()
+    const records = NightwardRecordManager.records()
+    this.best.text = NightwardRecordManager.bestLine()
     this.best.visible = records.runs > 0 && !l.short
     this.wins.text = `Reaper slain · fastest ${clock(records.fastestWin ?? 0)}`
     this.wins.visible = this.best.visible && records.wins > 0
@@ -79,7 +88,6 @@ export class TitleScreen extends UiScreen {
     const footerHeight = Math.ceil((this.credit.y + 9) * footerScale)
     this.footer.scale.set(footerScale)
     this.footer.position.set(center, h - 8 - footerHeight)
-    // Reserve the footer before placing controls so records cannot run into credits.
     const gap = portrait ? 8 : 6
     const menuHeight = 3 * buttonH + 2 * gap
     const menuY = Math.min(Math.round(h * (portrait ? 0.64 : 0.58)), this.footer.y - 12 - menuHeight)
@@ -110,13 +118,14 @@ export class TitleScreen extends UiScreen {
   }
 
   override get accepting(): boolean { return this.age >= 0.3 && this.playAge < 0 }
-  protected override handle(): void {
+
+  protected override handleInput(): void {
     if (Input.isTriggered('ok') && this.age < 1.1) {
       this.age = 1.1
-      this.focus(this.menu[0]!)
+      this.focusButton(this.menu[0]!)
       return
     }
-    super.handle()
+    super.handleInput()
   }
 
   protected animate(dt: number): void {
@@ -140,7 +149,7 @@ export class TitleScreen extends UiScreen {
       node.rotation = p * Math.PI / 4
     })
     if (!this.focused && age >= 1.1)
-      this.focus(this.menu[0]!)
+      this.focusButton(this.menu[0]!)
     if (this.playAge >= 0) {
       this.playAge += dt
       const t = this.playAge
@@ -150,13 +159,13 @@ export class TitleScreen extends UiScreen {
         button.motion.alpha *= 1 - p ** 3
         button.motion.x = Math.round(-16 * p ** 3)
       })
-      for (const node of [this.logo, ...this.tagline, this.footer, this.corner]) node.alpha = 1 - phase(t, 0.1, 0.35) ** 3
+      for (const node of [this.logo, ...this.tagline, this.footer, this.corner])
+        node.alpha = 1 - phase(t, 0.1, 0.35) ** 3
       this.logo.y -= Math.round(16 * phase(t, 0.1, 0.35) ** 3)
       this.menu[0]!.motion.alpha *= 1 - phase(t, 0.2, 0.25) ** 3
       if (t >= (still ? 0.15 : 0.3)) {
-        const done = this.playDone
-        this.playDone = undefined
-        done?.()
+        this.playAge = -1
+        this.callCommandHandler('play')
       }
     }
   }

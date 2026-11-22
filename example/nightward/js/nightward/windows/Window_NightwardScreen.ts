@@ -1,34 +1,39 @@
 import type { Sprite_NightwardButton } from '../sprites/Sprite_NightwardButton'
 import { Container } from 'pixi.js'
 import { Input } from 'rmmz-next'
-import { approach, phase, reducedMotion, uiLayout } from '../primitives/ui'
+import { approach, FRAME_DT, phase, reducedMotion, uiLayout } from '../primitives/ui'
 import { Window_NightwardSelectable } from './Window_NightwardSelectable'
 
-export abstract class UiScreen extends Container {
-  // Scene start can render before the first tick applies animation states.
+/**
+ * Base class for full-viewport Nightward UI windows.
+ * Directly extends Window_NightwardSelectable (a real RMMZ Window_Selectable)
+ * so every screen lives cleanly inside Scene_Base._windowLayer and updates via update().
+ */
+export abstract class Window_NightwardScreen extends Window_NightwardSelectable {
+  // Scene start can render before the first update applies animation states.
   readonly content = new Container({ alpha: 0 })
   readonly buttons: Sprite_NightwardButton[] = []
-  readonly nativeWindow: Window_NightwardSelectable
   age = 0
   live = true
   inputBlocked = false
   focused?: Sprite_NightwardButton
-  onBack?: () => void
+  dimmed = false
   protected layout = uiLayout()
-  protected closing = -1
+  protected closingAge = -1
   private closeDuration = 0.2
   private closeDone?: () => void
   private dim = 1
-  dimmed = false
+
   constructor() {
-    super({ eventMode: 'passive' })
-    this.nativeWindow = new Window_NightwardSelectable(this.layout.w, this.layout.h)
-    this.nativeWindow.choices = this.buttons
-    this.nativeWindow.onSelection = (choice) => {
+    const layout = uiLayout()
+    super(layout.w, layout.h)
+    this.eventMode = 'passive'
+    this.layout = layout
+    this.choices = this.buttons
+    this.onSelection = (choice) => {
       this.focused = choice as Sprite_NightwardButton | undefined
     }
-    this.nativeWindow._clientArea!.addChild(this.content)
-    this.addChild(this.nativeWindow)
+    this._clientArea!.addChild(this.content)
     this.scale.set(this.layout.unit)
   }
 
@@ -40,28 +45,29 @@ export abstract class UiScreen extends Container {
     return button
   }
 
-  focus(button: Sprite_NightwardButton, audible = false, keyed = true): void {
+  focusButton(button: Sprite_NightwardButton, audible = false, keyed = true): void {
     const index = this.buttons.indexOf(button)
-    if (audible && this.nativeWindow.index() !== index)
-      this.nativeWindow.playCursorSound()
-    this.nativeWindow.focusChoice(index, keyed)
+    if (audible && this.index() !== index)
+      this.playCursorSound()
+    this.focusChoice(index, keyed)
   }
 
-  protected handle(): void {
-    if (Input.isTriggered('pause') && this.onBack) {
-      this.nativeWindow.processCancel()
+  protected handleInput(): void {
+    if (Input.isTriggered('pause') && this.isCancelEnabled()) {
+      this.processCancel()
       return
     }
-    this.nativeWindow.update()
+    super.update()
   }
 
-  tick(dt: number): void {
+  override update(): void {
+    const dt = FRAME_DT
     this.age += dt
     this.dim = approach(this.dim, this.dimmed ? 0 : 1, 20, dt)
     this.content.alpha = this.dim
-    if (this.closing >= 0) {
-      this.closing += dt
-      const p = phase(this.closing, 0, reducedMotion() ? 0.15 : this.closeDuration)
+    if (this.closingAge >= 0) {
+      this.closingAge += dt
+      const p = phase(this.closingAge, 0, reducedMotion() ? 0.15 : this.closeDuration)
       this.content.alpha *= 1 - p ** 3
       this.content.y = reducedMotion() ? 0 : Math.round(p ** 3 * 8)
       if (p === 1) {
@@ -74,20 +80,22 @@ export abstract class UiScreen extends Container {
     this.animate(dt)
     if (this.destroyed)
       return
-    const live = this.live && !this.inputBlocked && !this.dimmed && this.closing < 0 && this.accepting
-    for (const button of this.buttons) button.tick(dt, live)
-    this.nativeWindow.onCancel = this.onBack
-    this.nativeWindow.setLive(live)
+    const live = this.live && !this.inputBlocked && !this.dimmed && this.closingAge < 0 && this.accepting
+    for (const button of this.buttons)
+      button.tick(dt, live)
+    this.setLive(live)
     if (live)
-      this.handle()
+      this.handleInput()
   }
 
   get accepting(): boolean { return this.age >= 0.15 }
-  close(done: () => void, seconds = 0.2): void {
+
+  closeWithAnimation(done: () => void, seconds = 0.2): void {
     this.live = false
-    this.closing = 0
+    this.closingAge = 0
     this.closeDuration = seconds
     this.closeDone = done
   }
+
   protected abstract animate(dt: number): void
 }

@@ -23,7 +23,7 @@ registerHooks({
 })
 const { Assets: PixiAssets, BufferImageSource, Texture } = await import('pixi.js')
 const { Matrix4, getBuffer, glbToGltf } = await import('@pixi/3d')
-const { loadPropScene } = await import('../js/nightward/managers/NightwardPropSceneManager.ts')
+const { NightwardPropSceneManager } = await import('../js/nightward/managers/NightwardPropSceneManager.ts')
 const { Game_NightwardProps } = await import('../js/nightward/objects/Game_NightwardProps.ts')
 const { transformPoint } = await import('../js/nightward/primitives/geometry.ts')
 const root = fileURLToPath(new URL('../', import.meta.url))
@@ -43,7 +43,7 @@ globalThis.XMLHttpRequest = class {
     this.onload()
   }
 }
-const scene = await loadPropScene('models/maps/graveyard.glb')
+const scene = await NightwardPropSceneManager.load('models/maps/graveyard.glb')
 assert.equal(requests, 1, 'geometry and metadata share a single XHR')
 assert(scene.props.length > 999, 'the layout is independent of the map event capacity')
 assert.equal(new Set(scene.props.map(prop => prop.id)).size, scene.props.length)

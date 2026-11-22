@@ -1,25 +1,28 @@
 import type { Game_Action, Game_Actor, Game_Interpreter, Game_Party, Game_Troop } from 'rmmz-next'
-import type { Content, FamilyKey, Passive, PassiveKey, PickupKey, Weapon, WeaponKey } from '../managers/NightwardDataManager'
+import type { MZ } from 'rmmz-next/database-types'
+import type { Content, FamilyKey, PassiveKey, PickupKey, WeaponKey } from '../managers/NightwardDataManager'
 import type { PropScene } from '../managers/NightwardPropSceneManager'
 import type { RunResult } from '../managers/NightwardRecordManager'
 import type { Point } from '../primitives/geometry'
-import type { DirectorState } from './director'
-import type { Prop } from './Game_NightwardProps'
-import type { Enemy } from './Game_NightwardWorld'
-import type { Pickup, Reward } from './rewards'
-import type { DelayedCast, FirePool, Projectile, TomeState } from './weapons'
-import { DataManager, GlobalMananger as globals } from 'rmmz-next'
+import type { Game_NightwardEnemy } from './Game_NightwardEnemy'
+import type { Game_NightwardProp } from './Game_NightwardProp'
+import type { Pickup, Reward } from './Game_NightwardRewards'
+import type { FirePool, Projectile, TomeState } from './Game_NightwardWeapons'
+import { GlobalMananger as globals } from 'rmmz-next'
 import { weaponKeys } from '../managers/NightwardDataManager'
+import { NightwardSound } from '../patches/AudioManager'
+import { nightwardActor } from '../patches/Game_Actor'
 import { direction, distance } from '../primitives/geometry'
-import { breakProp, stepContact } from './combat'
-import { stepDirector, stepEnemies } from './director'
+import { Game_NightwardCombat } from './Game_NightwardCombat'
+import { Game_NightwardDirector } from './Game_NightwardDirector'
 import { Game_NightwardEvents } from './Game_NightwardEvents'
 import { Game_NightwardProps } from './Game_NightwardProps'
+import { Game_NightwardRewards } from './Game_NightwardRewards'
+import { Game_NightwardWeapons } from './Game_NightwardWeapons'
 import { Game_NightwardWorld } from './Game_NightwardWorld'
-import { activateVacuum, chooseRewards, grantReward, openChest, stepPickups } from './rewards'
-import { stepFirePools, stepProjectiles, stepWeapons } from './weapons'
 
 export type RunState = 'running' | 'choosing' | 'chest' | 'paused' | 'results'
+
 export interface RunEvent extends Point {
   kind: 'hit' | 'hurt' | 'death' | 'bossDeath' | 'pickup' | 'upgrade' | 'chest' | 'break' | 'relic' | 'lash' | 'lightning' | 'wand' | 'tomes' | 'ward' | 'flask' | 'boss' | 'ring' | 'scythe' | 'windup'
   value?: number
@@ -30,9 +33,10 @@ export interface RunEvent extends Point {
   time?: number
   y?: number
   weapon?: WeaponKey
-  target?: Enemy
+  target?: Game_NightwardEnemy
   projectile?: Projectile
 }
+
 export class Game_NightwardRun {
   readonly actor: Game_Actor
   readonly party: Game_Party
@@ -40,6 +44,10 @@ export class Game_NightwardRun {
   readonly props: Game_NightwardProps
   readonly world: Game_NightwardWorld
   readonly commonEvents: Game_NightwardEvents
+  readonly combat: Game_NightwardCombat
+  readonly director: Game_NightwardDirector
+  readonly weapons: Game_NightwardWeapons
+  readonly rewards: Game_NightwardRewards
   state: RunState = 'running'
   isSpawnVisible?: (point: Point) => boolean
   time = 0
@@ -47,74 +55,68 @@ export class Game_NightwardRun {
   nextId = 1
   invulnerable = 0
   readonly hero: Point & { vx: number, vz: number, facing: number, moving: boolean }
-  pickups: Pickup[] = []
-  projectiles: Projectile[] = []
-  pools: FirePool[] = []
-  delayed: DelayedCast[] = []
-  events: RunEvent[] = []
-  cooldowns = new Map<WeaponKey, number>()
-  tomes: TomeState = { active: false, timer: 0, fade: 0, angle: 0, count: 0, radius: 0, hits: new Map() }
-  wardPulse = 0
-  director: DirectorState = { budget: 0, opening: 0, swarm: 14, elite: 35, ring: 60, boss: false }
-  boss?: Enemy
+  boss?: Game_NightwardEnemy
   bossDefeated = false
-  pendingLevels = 0
-  choices: Reward[] = []
-  chestRewards: Reward[] = []
-  chestGold = false
-  chestPending = false
-  relicAt = -1
-  relicRadius = 26
   damage: Record<WeaponKey, number> = { lash: 0, wand: 0, tomes: 0, storm: 0, ward: 0, flask: 0 }
   result?: RunResult
+
   private turn = 0
   private ended = false
+  private _audioEvents: RunEvent[] = []
+  private _effectEvents: RunEvent[] = []
+  private _hudEvents: RunEvent[] = []
+
   constructor(readonly content: Content, readonly propScene: PropScene, readonly demo = false) {
-    DataManager.setupNewGame()
     const player = globals.$gamePlayer
-    player.performTransfer()
     this.hero = { x: player.x - content.map.center, z: player.y - content.map.center, vx: 0, vz: 0, facing: 1, moving: false }
     this.party = globals.$gameParty
     this.troop = globals.$gameTroop
-    this.director.swarm = content.formations.swarm.first
-    this.director.elite = content.formations.elite.first
-    this.director.ring = content.formations.ring.first
     this.actor = this.party.members()[0]!
-    for (const key of weaponKeys) this.cooldowns.set(key, content.weapons.get(key)![0]!.data.initialDelay)
-    this.tomes.timer = content.weapons.get('tomes')![0]!.data.initialDelay
     this.commonEvents = new Game_NightwardEvents(demo)
     this.props = new Game_NightwardProps(propScene, globals.$gameMap.events(), content.map.center)
     this.world = new Game_NightwardWorld(content, this.props)
+    this.combat = new Game_NightwardCombat()
+    this.director = new Game_NightwardDirector(content)
+    this.weapons = new Game_NightwardWeapons(content)
+    this.rewards = new Game_NightwardRewards()
     this.party.onBattleStart(false)
     this.troop.onBattleStart(false)
     if (demo) {
-      for (const [index, key] of weaponKeys.slice(0, content.config.weaponSlots).entries()) this.actor.forceChangeEquip(index, content.weapons.get(key)![0]!)
+      for (const [index, key] of weaponKeys.slice(0, content.config.weaponSlots).entries())
+        this.actor.forceChangeEquip(index, content.weapons.get(key)![0]!)
     }
   }
 
-  get build(): RunResult['build'] {
-    return (this.actor.equips() as (Weapon | Passive | null)[]).flatMap(item => item ? [{ key: item.data.key, rank: item.data.rank }] : [])
+  get build(): RunResult['build'] { return nightwardActor(this.actor).nightwardBuild() }
+  get pickups(): Pickup[] { return this.rewards.pickups }
+  get projectiles(): Projectile[] { return this.weapons.projectiles }
+  get pools(): FirePool[] { return this.weapons.pools }
+  get tomes(): TomeState { return this.weapons.tomes }
+  get wardPulse(): number { return this.weapons.wardPulse }
+  get choices(): Reward[] { return this.rewards.choices }
+  get chestRewards(): Reward[] { return this.rewards.chestRewards }
+  get chestGold(): boolean { return this.rewards.chestGold }
+
+  rank(key: FamilyKey): number { return nightwardActor(this.actor).nightwardRank(key) }
+  weapon(key: WeaponKey): MZ.Weapon | undefined { return nightwardActor(this.actor).nightwardWeapon(key) }
+  passiveValue(key: PassiveKey): number { return nightwardActor(this.actor).nightwardPassiveValue(key) }
+  cooldownScale(): number { return nightwardActor(this.actor).nightwardCooldownScale() }
+
+  emit(event: RunEvent): void {
+    const stamped: RunEvent = { ...event, time: this.time }
+    this._audioEvents.push(stamped)
+    this._effectEvents.push(stamped)
+    this._hudEvents.push(stamped)
   }
 
-  rank(key: FamilyKey): number {
-    return (this.actor.equips() as (Weapon | Passive | null)[]).find(item => item?.data.key === key)?.data.rank ?? 0
-  }
+  drainEffectEvents(): RunEvent[] { return this._effectEvents.splice(0) }
+  drainHudEvents(): RunEvent[] { return this._hudEvents.splice(0) }
 
-  weapon(key: WeaponKey): Weapon | undefined { return (this.actor.weapons() as Weapon[]).find(weapon => weapon.data.key === key) }
-  passiveValue(key: PassiveKey): number {
-    return (this.actor.armors() as Passive[]).find(armor => armor.data.key === key)?.data.value ?? 0
-  }
+  breakProp(prop: Game_NightwardProp): void { this.combat.breakProp(this, prop) }
+  triggerVacuum(): void { this.rewards.activateVacuum() }
+  triggerRelic(radius = 26, delay = 0.4): void { this.rewards.triggerRelic(this.time, radius, delay) }
+  triggerChest(): void { this.rewards.openChest(this) }
 
-  cooldownScale(): number { return 1 - this.passiveValue('cinder') }
-  emit(event: RunEvent): void { this.events.push({ ...event, time: this.time }) }
-  breakProp(prop: Prop): void { breakProp(this, prop) }
-  triggerVacuum(): void { activateVacuum(this) }
-  triggerRelic(radius = 26, delay = 0.4): void {
-    this.relicRadius = radius
-    this.relicAt = this.time + delay
-  }
-
-  triggerChest(): void { openChest(this) }
   queuePropEvent(id: number, prop: string): void {
     this.trackLevels(() => this.commonEvents.run(id, prop))
   }
@@ -130,7 +132,7 @@ export class Game_NightwardRun {
   private trackLevels(fn: () => void): void {
     const previousLevel = this.actor.level
     fn()
-    this.pendingLevels = Math.max(0, this.pendingLevels + this.actor.level - previousLevel)
+    this.rewards.pendingLevels = Math.max(0, this.rewards.pendingLevels + this.actor.level - previousLevel)
   }
 
   pause(): void {
@@ -144,55 +146,17 @@ export class Game_NightwardRun {
   }
 
   select(index: number): void {
-    const reward = this.choices[index]
-    if (this.state !== 'choosing' || !reward)
-      return
-    grantReward(this, reward)
-    this.pendingLevels--
-    this.state = 'running'
-    this.choices = []
-    this.checkRewards()
+    this.rewards.select(this, index)
   }
 
   closeChest(): void {
-    if (this.state !== 'chest')
-      return
-    this.chestRewards = []
-    this.chestPending = false
-    this.state = 'running'
-    this.checkRewards()
-  }
-
-  private checkRewards(): void {
-    if (this.chestPending) {
-      this.state = 'chest'
-      return
-    }
-    if (this.pendingLevels <= 0)
-      return
-    this.choices = chooseRewards(this)
-    if (!this.choices.length) {
-      this.party.gainGold(this.content.config.maxLevelGold * this.pendingLevels)
-      this.pendingLevels = 0
-      return
-    }
-    if (this.demo) {
-      this.selectDemoReward()
-      return
-    }
-    this.state = 'choosing'
-  }
-
-  private selectDemoReward(): void {
-    grantReward(this, this.choices[0]!)
-    this.pendingLevels--
-    this.choices = []
+    this.rewards.closeChest(this)
   }
 
   private demoInput(): Point {
     let target: Pickup | undefined
     let nearest = 7
-    for (const pickup of this.pickups) {
+    for (const pickup of this.rewards.pickups) {
       if (!pickup.key.startsWith('gem'))
         continue
       const range = distance(this.hero, pickup)
@@ -223,22 +187,21 @@ export class Game_NightwardRun {
     this.hero.vx *= Math.exp(-dt * 9)
     this.hero.vz *= Math.exp(-dt * 9)
     globals.$gamePlayer.locate(this.hero.x + this.content.map.center, this.hero.z + this.content.map.center)
-    const eventStart = this.events.length
-    stepDirector(this, dt)
-    stepEnemies(this, dt)
-    stepWeapons(this, dt)
-    stepFirePools(this)
-    stepProjectiles(this, dt)
-    stepContact(this)
-    stepPickups(this, dt)
+    const eventStart = this._audioEvents.length
+    this.director.update(this, dt)
+    this.director.updateEnemies(this, dt)
+    this.weapons.update(this, dt)
+    this.combat.updateContact(this)
+    this.rewards.update(this, dt)
     this.trackLevels(() => {
       this.commonEvents.update(this.time)
-      for (let i = eventStart; i < this.events.length; i++) {
-        const { kind } = this.events[i]!
+      for (let i = eventStart; i < this._audioEvents.length; i++) {
+        const { kind } = this._audioEvents[i]!
         if (kind === 'boss' || kind === 'bossDeath')
           this.commonEvents.queue(kind)
       }
     })
+    NightwardSound.playNightwardRunEvents(this._audioEvents.splice(0))
     this.turn += dt
     if (this.turn >= 1) {
       this.turn -= 1
@@ -254,18 +217,26 @@ export class Game_NightwardRun {
     else if (this.bossDefeated) {
       this.finish(true)
     }
-    else if (this.demo && this.chestPending) {
-      this.chestPending = false
-      this.chestRewards = []
+    else if (this.demo && this.rewards.chestPending) {
+      this.rewards.chestPending = false
+      this.rewards.chestRewards = []
     }
     else {
-      this.checkRewards()
+      this.rewards.checkPending(this)
     }
   }
 
   private finish(won: boolean): void {
     this.state = 'results'
-    this.result = { won, time: this.time, level: this.actor.level, kills: this.kills, gold: this.party.gold(), build: this.build, damage: { ...this.damage } }
+    this.result = {
+      won,
+      time: this.time,
+      level: this.actor.level,
+      kills: this.kills,
+      gold: this.party.gold(),
+      build: this.build,
+      damage: { ...this.damage },
+    }
     this.endBattle()
   }
 
@@ -273,7 +244,6 @@ export class Game_NightwardRun {
     if (this.ended)
       return
     this.ended = true
-    // Keep references: setupNewGame replaces globals before another session begins.
     this.party.onBattleEnd()
     this.troop.onBattleEnd()
   }
@@ -282,11 +252,11 @@ export class Game_NightwardRun {
     this.endBattle()
     this.props.dispose()
     this.world.enemies.length = 0
-    this.pickups.length = 0
-    this.projectiles.length = 0
-    this.pools.length = 0
-    this.delayed.length = 0
-    this.events.length = 0
+    this.weapons.clear()
+    this.rewards.clear()
+    this._audioEvents.length = 0
+    this._effectEvents.length = 0
+    this._hudEvents.length = 0
     this.commonEvents.clear()
   }
 }

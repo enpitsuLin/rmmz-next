@@ -1,15 +1,15 @@
 import type { Sprite } from 'pixi.js'
 import type { Sprite_NightwardText } from '../sprites/Sprite_NightwardText'
 import { Container } from 'pixi.js'
-import { ConfigManager } from 'rmmz-next'
-import { getAssets } from '../managers/NightwardAssetManager'
-import { sound } from '../managers/NightwardAudioManager'
-import { settings } from '../managers/NightwardConfigManager'
-import { back, colors, fullscreen, out, phase, reducedMotion } from '../primitives/ui'
+import { NightwardAssetManager } from '../managers/NightwardAssetManager'
+import { NightwardSound } from '../patches/AudioManager'
+import { NightwardConfig } from '../patches/ConfigManager'
+import { toggleFullscreen } from '../patches/Graphics'
+import { back, colors, out, phase, reducedMotion } from '../primitives/ui'
 import { Sprite_NightwardButton } from '../sprites/Sprite_NightwardButton'
 import { text } from '../sprites/Sprite_NightwardText'
 import { box, sprite } from '../sprites/uiSprites'
-import { SheetScreen } from './SheetScreen'
+import { Window_NightwardSheet } from './Window_NightwardSheet'
 
 class OptionRow extends Sprite_NightwardButton {
   readonly control = new Container()
@@ -25,6 +25,7 @@ class OptionRow extends Sprite_NightwardButton {
   private pointerGesture = false
   private pointerStep = 0
   private pipScale = 1
+
   constructor(name: string, private read: () => number, private write: (value: number) => void, private values?: string[]) {
     super('', 230, 18, null)
     this.title = text(name, 10, 6, 0, colors.label)
@@ -96,7 +97,7 @@ class OptionRow extends Sprite_NightwardButton {
     this.direction = direction
     this.changeAge = 0
     this.write(next)
-    sound('Tick', 35, 100 + 37.5 * next / (this.values ? this.values.length - 1 : 10))
+    NightwardSound.playNightwardSe('Tick', 35, 100 + 37.5 * next / (this.values ? this.values.length - 1 : 10))
   }
 
   private fromPointer(x: number): void {
@@ -104,7 +105,7 @@ class OptionRow extends Sprite_NightwardButton {
     if (next !== this.read()) {
       this.changeAge = 0
       this.write(next)
-      sound('Tick', 25, 100 + 37.5 * next / 10)
+      NightwardSound.playNightwardSe('Tick', 25, 100 + 37.5 * next / 10)
     }
   }
 
@@ -137,8 +138,9 @@ class OptionRow extends Sprite_NightwardButton {
     if (value !== this.shown) {
       this.shown = value
       this.valueText.text = this.values?.[value] ?? String(value)
+      const ui = NightwardAssetManager.assets().ui
       this.pips.forEach((pip, i) => {
-        pip.texture = getAssets().ui[i < value ? 'pipOn' : 'pipOff']!
+        pip.texture = ui[i < value ? 'pipOn' : 'pipOff']!
       })
     }
     if (this.values) {
@@ -150,42 +152,43 @@ class OptionRow extends Sprite_NightwardButton {
     }
   }
 }
-export class OptionsScreen extends SheetScreen {
+
+export class Window_NightwardOptions extends Window_NightwardSheet {
   private rows: OptionRow[]
-  constructor(backToMenu: () => void) {
+
+  constructor() {
     super('OPTIONS')
-    this.onBack = backToMenu
     const save = (): void => {
-      ConfigManager.save()
+      NightwardConfig.save()
     }
     this.rows = [
-      new OptionRow('Music', () => Math.round(ConfigManager.bgmVolume / 10), (value) => {
-        ConfigManager.bgmVolume = value * 10
+      new OptionRow('Music', () => Math.round(NightwardConfig.bgmVolume / 10), (value) => {
+        NightwardConfig.bgmVolume = value * 10
         save()
       }),
-      new OptionRow('Sound', () => Math.round(ConfigManager.seVolume / 10), (value) => {
-        ConfigManager.seVolume = value * 10
-        ConfigManager.meVolume = value * 10
-        sound('Pickup', 35)
+      new OptionRow('Sound', () => Math.round(NightwardConfig.seVolume / 10), (value) => {
+        NightwardConfig.seVolume = value * 10
+        NightwardConfig.meVolume = value * 10
+        NightwardSound.playNightwardSe('Pickup', 35)
         save()
       }),
-      new OptionRow('Screen shake', () => settings.shake === 0.5 ? 1 : settings.shake ? 0 : 2, (value) => {
-        settings.shake = [1, 0.5, 0][value]!
+      new OptionRow('Screen shake', () => NightwardConfig.nightwardShake === 0.5 ? 1 : NightwardConfig.nightwardShake ? 0 : 2, (value) => {
+        NightwardConfig.nightwardShake = [1, 0.5, 0][value]!
         save()
       }, ['FULL', 'LOW', 'OFF']),
-      new OptionRow('Damage numbers', () => settings.damageNumbers ? 0 : 1, (value) => {
-        settings.damageNumbers = value === 0
+      new OptionRow('Damage numbers', () => NightwardConfig.nightwardDamageNumbers ? 0 : 1, (value) => {
+        NightwardConfig.nightwardDamageNumbers = value === 0
         save()
       }, ['ON', 'OFF']),
     ]
     if (document.fullscreenEnabled)
-      this.rows.push(new OptionRow('Fullscreen', () => document.fullscreenElement ? 0 : 1, () => fullscreen(), ['ON', 'OFF']))
+      this.rows.push(new OptionRow('Fullscreen', () => document.fullscreenElement ? 0 : 1, () => toggleFullscreen(), ['ON', 'OFF']))
     this.rows.forEach((row, i) => this.addButton(row, i, 0, this.sheet))
     const button = this.addButton(new Sprite_NightwardButton('BACK', 64, 22, null), this.rows.length, 0, this.sheet)
-    button.onActivate = backToMenu
+    button.onActivate = () => this.processCancel()
     this.place()
-    this.focus(this.rows[0]!)
-    sound('Swoosh', 40)
+    this.focusButton(this.rows[0]!)
+    NightwardSound.playNightwardSe('Swoosh', 40)
   }
 
   protected place(): void {

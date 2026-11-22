@@ -1,4 +1,4 @@
-import type { Container } from 'pixi.js'
+import type { Container, DestroyOptions, Graphics as PixiGraphics } from 'pixi.js'
 import { Bitmap, Rectangle, TouchInput, Window_Selectable } from 'rmmz-next'
 
 export interface WindowChoice {
@@ -22,6 +22,7 @@ export class Window_NightwardSelectable extends Window_Selectable {
   cycle = false
   private keyed = true
   private pressed = -1
+
   constructor(width: number, height: number) {
     super(new Rectangle(0, 0, width, height))
     this.padding = 0
@@ -29,13 +30,18 @@ export class Window_NightwardSelectable extends Window_Selectable {
     this.cursorVisible = false
     this._canRepeat = false
     // Pixi glyph effects overflow item bounds; the scene viewport provides clipping.
-    for (const filter of this._clientArea!.filters ?? []) filter.destroy()
+    for (const filter of this._clientArea!.filters ?? [])
+      filter.destroy()
     this._clientArea!.filters = null
     this.setHandler('ok', () => this.choices[this.index()]?.activate())
-    this.setHandler('cancel', () => this.onCancel?.())
+  }
+
+  override drawShape(_graphics: PixiGraphics): void {
+    // Transparent full-viewport Nightward windows must not mask windows behind them in WindowLayer.
   }
 
   override updatePadding(): void { this.padding = 0 }
+
   override createContents(): void {
     this.destroyContents()
     this.contents = new Bitmap(1, 1)
@@ -50,13 +56,17 @@ export class Window_NightwardSelectable extends Window_Selectable {
   override cursorPageup(): void {}
   override cursorPagedown(): void {}
   override isCurrentItemEnabled(): boolean { return this.available(this.index()) }
-  override isCancelEnabled(): boolean { return !!this.onCancel }
+  override isCancelEnabled(): boolean { return !!this.onCancel || this.isHandled('cancel') }
   override isTouchOkEnabled(): boolean { return this.isOkEnabled() }
   override playOkSound(): void {}
   override updateInputData(): void {}
+
   override processCancel(): void {
     this.deactivate()
-    this.callCancelHandler()
+    if (this.isHandled('cancel'))
+      this.callCancelHandler()
+    else
+      this.onCancel?.()
   }
 
   override _updateCursor(): void {
@@ -149,13 +159,15 @@ export class Window_NightwardSelectable extends Window_Selectable {
     const at = row.findIndex(({ index }) => index === this.index())
     if (row.length > 1)
       this.select(row[Math.max(0, Math.min(row.length - 1, at + direction))]!.index)
-    else current.step?.(direction)
+    else
+      current.step?.(direction)
   }
 
   override cursorDown(): void { this.moveRow(1) }
   override cursorUp(): void { this.moveRow(-1) }
   override cursorRight(): void { this.moveColumn(1) }
   override cursorLeft(): void { this.moveColumn(-1) }
+
   override onTouchSelect(trigger: boolean): void {
     const previous = this.index()
     this.keyed = false
@@ -190,5 +202,9 @@ export class Window_NightwardSelectable extends Window_Selectable {
       this.choices[this.pressed]?.setPressed(false)
       this.pressed = -1
     }
+  }
+
+  override destroy(options: DestroyOptions = { children: true }): void {
+    super.destroy(options)
   }
 }

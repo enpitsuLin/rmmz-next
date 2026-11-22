@@ -1,15 +1,15 @@
 import type { Sprite } from 'pixi.js'
 import type { Content } from '../managers/NightwardDataManager'
 import { Container } from 'pixi.js'
-import { sound } from '../managers/NightwardAudioManager'
+import { NightwardSound } from '../patches/AudioManager'
 import { colors, introAlpha, out, phase, reducedMotion } from '../primitives/ui'
 import { Sprite_NightwardButton } from '../sprites/Sprite_NightwardButton'
 import { text, wrap } from '../sprites/Sprite_NightwardText'
 import { icon, iconScale, keycap, sprite, touchHintArt } from '../sprites/uiSprites'
 import { panel } from './panel'
-import { SheetScreen } from './SheetScreen'
+import { Window_NightwardSheet } from './Window_NightwardSheet'
 
-export class HowToScreen extends SheetScreen {
+export class Window_NightwardHowTo extends Window_NightwardSheet {
   private tabs: Sprite_NightwardButton[]
   private chips: Sprite_NightwardButton[]
   private page = new Container()
@@ -22,9 +22,9 @@ export class HowToScreen extends SheetScreen {
   private direction = 1
   private touchKnob?: Sprite
   private dots = [sprite('diamond'), sprite('diamond'), sprite('diamond')]
-  constructor(backToMenu: () => void, private data: Content) {
+
+  constructor(private data: Content) {
     super('HOW TO PLAY')
-    this.onBack = backToMenu
     this.tabs = ['GOAL', 'CONTROLS', 'PICKUPS'].map((name, i) => {
       const button = this.addButton(new Sprite_NightwardButton(name, 60, 15, null), 0, i, this.sheet)
       button.showCursor = false
@@ -38,11 +38,11 @@ export class HowToScreen extends SheetScreen {
       return button
     })
     const backButton = this.addButton(new Sprite_NightwardButton('BACK', 64, 22, null), 2, 0, this.sheet)
-    backButton.onActivate = backToMenu
+    backButton.onActivate = () => this.processCancel()
     this.sheet.addChild(this.page, ...this.dots)
     this.place()
-    this.focus(this.tabs[0]!)
-    sound('Swoosh', 40)
+    this.focusButton(this.tabs[0]!)
+    NightwardSound.playNightwardSe('Swoosh', 40)
   }
 
   private showPage(page: number, scheme: number): void {
@@ -78,7 +78,8 @@ export class HowToScreen extends SheetScreen {
       button.visible = button.enabled = this.pageIndex === 1
       button.selected = i === this.scheme
     })
-    for (const node of this.page.removeChildren()) node.destroy({ children: true })
+    for (const node of this.page.removeChildren())
+      node.destroy({ children: true })
     this.pageItems = []
     this.touchKnob = undefined
     this.page.position.set(10, 18 + tabH + (this.pageIndex === 1 ? tabH + 8 : 0))
@@ -125,7 +126,9 @@ export class HowToScreen extends SheetScreen {
             ['Pause', [cap('Esc'), or(), cap('P')]],
             ['Mute', [cap('M')]],
           ]
-        : this.scheme === 1 ? [['Move', [cap('L STICK'), or(), cap('D-PAD')]], ['Pick', [cap('D-PAD'), word('and'), cap('A')]], ['Pause', [cap('START')]], ['Back', [cap('B')]]] : [['Move', [{ node: touchArt, width: 26, height: 24 }, word('Drag anywhere')]], ['Pick', [word('Tap a card')]], ['Pause', [badge('pauseBars'), word('Top of the screen')]], ['Mute', [badge('speakerOn'), word('Title and pause menu')]]]
+        : this.scheme === 1
+          ? [['Move', [cap('L STICK'), or(), cap('D-PAD')]], ['Pick', [cap('D-PAD'), word('and'), cap('A')]], ['Pause', [cap('START')]], ['Back', [cap('B')]]]
+          : [['Move', [{ node: touchArt, width: 26, height: 24 }, word('Drag anywhere')]], ['Pick', [word('Tap a card')]], ['Pause', [badge('pauseBars'), word('Top of the screen')]], ['Mute', [badge('speakerOn'), word('Title and pause menu')]]]
       if (this.scheme === 0 && document.fullscreenEnabled)
         rows.push(['Fullscreen', [cap('F')]])
       if (this.scheme === 2)
@@ -144,7 +147,6 @@ export class HowToScreen extends SheetScreen {
             x = 64
             line++
           }
-          ;
           part.node.position.set(x, line * rowHeight + Math.round((rowHeight - 4 - part.height) / 2))
           x += part.width + (part.cap && !parts[i + 1]?.cap ? 5 : 3)
           row.addChild(part.node)

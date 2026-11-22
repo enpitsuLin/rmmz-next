@@ -3,20 +3,21 @@ import type { Content, WeaponKey } from '../managers/NightwardDataManager'
 import type { Records, RunResult } from '../managers/NightwardRecordManager'
 import { Container } from 'pixi.js'
 import { Input, TouchInput } from 'rmmz-next'
-import { sound } from '../managers/NightwardAudioManager'
-import { back, clock, colors, consumeInput, fitScale, introAlpha, out, phase, reducedMotion } from '../primitives/ui'
+import { NightwardRecordManager } from '../managers/NightwardRecordManager'
+import { NightwardSound } from '../patches/AudioManager'
+import { clearInputEdge } from '../patches/Input'
+import { back, clock, colors, fitScale, introAlpha, out, phase, reducedMotion } from '../primitives/ui'
 import { Sprite_NightwardBuild } from '../sprites/Sprite_NightwardBuild'
-import { Sprite_NightwardButton } from '../sprites/Sprite_NightwardButton'
 import { Sprite_NightwardHeading } from '../sprites/Sprite_NightwardHeading'
 import { Sprite_NightwardText, text } from '../sprites/Sprite_NightwardText'
 import { box, icon, iconScale, sprite } from '../sprites/uiSprites'
 import { panel } from './panel'
-import { bestLine } from './recordText'
-import { UiScreen } from './UiScreen'
+import { Window_NightwardCommand } from './Window_NightwardCommand'
 
 interface StatRow { root: Container, motion: Container, value: Sprite_NightwardText, stamp: Container, target: number, best: boolean }
 interface DamageRow { root: Container, bar: Container, value: Sprite_NightwardText, target: number }
-export class ResultsScreen extends UiScreen {
+
+export class Window_NightwardResults extends Window_NightwardCommand {
   private shade = box(1, 1, colors.death, 0)
   private heading: Sprite_NightwardHeading
   private subtitle: Sprite_NightwardText
@@ -36,7 +37,8 @@ export class ResultsScreen extends UiScreen {
   private previous = 0
   private tickAt = 0
   private waiting = true
-  constructor(private result: RunResult, before: Records, content: Content, retry: () => void, title: () => void) {
+
+  constructor(private result: RunResult, before: Records, content: Content) {
     super()
     this.subtitle = text(`The ${content.enemies.get('reaper')!.name} is slain`, 0, 0, 0, colors.blue, 0.5)
     this.build = new Sprite_NightwardBuild(content)
@@ -53,7 +55,15 @@ export class ResultsScreen extends UiScreen {
     const titleWidth = new Sprite_NightwardText(won ? 'VICTORY!' : 'YOU FELL', won ? 1 : 2, 0.5, true).textWidth
     const large = fitScale(titleWidth, l.width - l.margin * 2, 2 * l.unit)
     const buildHeight = (215 * ratio <= width - 2 * pad ? 25 : 52) * ratio
-    const candidates = l.short ? [{ stat: 12, damage: 11, best: false, scale: l.unit, rows: 4 }] : [{ stat: 16, damage: 13, best: true, scale: large, rows: 6 }, { stat: 13, damage: 11, best: true, scale: large, rows: 6 }, { stat: 13, damage: 11, best: false, scale: large, rows: 6 }, { stat: 13, damage: 11, best: false, scale: l.unit, rows: 6 }, { stat: 13, damage: 11, best: false, scale: l.unit, rows: 4 }]
+    const candidates = l.short
+      ? [{ stat: 12, damage: 11, best: false, scale: l.unit, rows: 4 }]
+      : [
+          { stat: 16, damage: 13, best: true, scale: large, rows: 6 },
+          { stat: 13, damage: 11, best: true, scale: large, rows: 6 },
+          { stat: 13, damage: 11, best: false, scale: large, rows: 6 },
+          { stat: 13, damage: 11, best: false, scale: l.unit, rows: 6 },
+          { stat: 13, damage: 11, best: false, scale: l.unit, rows: 4 },
+        ]
     const measure = (c: typeof candidates[number]): number => {
       const title = Math.ceil(14 * c.scale / l.unit) + (won && !l.short ? 12 : 0) + 10
       const stats = pad + 7 + gap + c.stat * 4 + pad
@@ -66,7 +76,12 @@ export class ResultsScreen extends UiScreen {
     this.shade.tint = won ? colors.dawn : colors.death
     this.heading = new Sprite_NightwardHeading(won ? 'VICTORY!' : 'YOU FELL', won ? 1 : 2)
     this.heading.configure({ halo: won ? 0.24 : 0, haloAt: won ? 1.9 : 0, haloSeconds: 0.6, breath: won ? 0.04 : 0, drop: won ? 20 : 16, lettersAt: won ? 1.9 : 0.6, letterSeconds: won ? 0.45 : 0.4, letterFade: 0.12, strength: won ? 2 : 1.8, stagger: 0.05, rulesAt: 100, diamondsAt: 100, glintAt: won ? 2.6 : Infinity, center: won, scaleIn: won })
-    const highs = [won ? before.wins > 0 && result.time < (before.fastestWin ?? Infinity) : before.runs > 0 && Math.floor(result.time) > Math.floor(before.bestTime), before.runs > 0 && result.level > before.bestLevel, before.runs > 0 && result.kills > before.bestKills, before.runs > 0 && result.gold > before.bestGold]
+    const highs = [
+      won ? before.wins > 0 && result.time < (before.fastestWin ?? Infinity) : before.runs > 0 && Math.floor(result.time) > Math.floor(before.bestTime),
+      before.runs > 0 && result.level > before.bestLevel,
+      before.runs > 0 && result.kills > before.bestKills,
+      before.runs > 0 && result.gold > before.bestGold,
+    ]
     const values = [result.time, result.level, result.kills, result.gold]
     const names = [won ? 'Slain at' : 'Survived', 'Level', 'Kills', 'Gold']
     const icons = [content.config.icons.clock, content.items.get('gemSmall')!.iconIndex, content.config.icons.kills, content.items.get('coin')!.iconIndex]
@@ -164,13 +179,11 @@ export class ResultsScreen extends UiScreen {
     const buttonY = portrait ? this.damageY + chartH + 10 : this.runY + panelH + (l.short ? 6 : 10)
     const buttonW = portrait ? Math.floor(width / 2) - 4 : 72
     const buttonH = Math.max(22, l.tap)
-    const retryButton = this.addButton(new Sprite_NightwardButton('RETRY', buttonW, buttonH), 0, 0)
-    const titleButton = this.addButton(new Sprite_NightwardButton('TITLE', buttonW, buttonH, 'cancel'), 0, 1)
+    const retryButton = this.addCommand('RETRY', 'retry', buttonW, buttonH, 'ok', 0, 0)
+    const titleButton = this.addCommand('TITLE', 'title', buttonW, buttonH, 'cancel', 0, 1)
     retryButton.showCursor = titleButton.showCursor = false
     retryButton.position.set(center - 6 - buttonW, buttonY)
     titleButton.position.set(center + 6, buttonY)
-    retryButton.onActivate = retry
-    titleButton.onActivate = title
     this.best.position.set(center, buttonY + buttonH + 8)
     this.best.visible = config.best
     this.shade.width = l.width / l.unit
@@ -179,17 +192,19 @@ export class ResultsScreen extends UiScreen {
     this.content.addChild(this.heading, this.subtitle, this.runPanel, this.buildPanel, this.damagePanel, this.best)
     this.stats.forEach((row, i) => {
       if (row.best) {
-        for (let p = 0; p < 6; p++) this.addSpark(this.runPanel.x + row.root.x + row.stamp.x, this.runY + row.root.y + row.stamp.y, i, p)
+        for (let p = 0; p < 6; p++)
+          this.addSpark(this.runPanel.x + row.root.x + row.stamp.x, this.runY + row.root.y + row.stamp.y, i, p)
       }
     })
     if (won) {
-      for (let p = 0; p < 8; p++) this.addSpark(center, top + Math.round(headerH / 2), -1, p)
+      for (let p = 0; p < 8; p++)
+        this.addSpark(center, top + Math.round(headerH / 2), -1, p)
     }
   }
 
   setSaved(error = false): void {
     this.waiting = false
-    this.best.text = error ? 'Record could not be saved.' : bestLine()
+    this.best.text = error ? 'Record could not be saved.' : NightwardRecordManager.bestLine()
   }
 
   private addSpark(x: number, y: number, row: number, index: number): void {
@@ -202,12 +217,13 @@ export class ResultsScreen extends UiScreen {
   }
 
   override get accepting(): boolean { return this.ready && !this.waiting }
-  override tick(dt: number): void {
+
+  override update(): void {
     if (!this.ready && this.age >= (this.result.won ? 2.9 : 1.4) && (Input.isTriggered('ok') || TouchInput.isTriggered())) {
       this.age = this.result.won ? 6 : 4.5
-      consumeInput()
+      clearInputEdge()
     }
-    super.tick(dt)
+    super.update()
   }
 
   protected animate(dt: number): void {
@@ -245,10 +261,10 @@ export class ResultsScreen extends UiScreen {
       if (!still && landed >= 0.22 && landed < 0.4)
         row.motion.x += Math.floor((landed - 0.22) / 0.03) % 2 ? 0 : 2
       if (row.best && this.previous < at + duration + 0.22 && time >= at + duration + 0.22)
-        sound('Stamp', 55)
+        NightwardSound.playNightwardSe('Stamp', 55)
       if (count > 0 && count < 1 && age - this.tickAt >= 0.05) {
         this.tickAt = age
-        sound('Tick', 18, 100 + 37.5 * value / Math.max(1, row.target))
+        NightwardSound.playNightwardSe('Tick', 18, 100 + 37.5 * value / Math.max(1, row.target))
       }
     })
     this.build.slots.forEach((slot, i) => {
@@ -276,7 +292,7 @@ export class ResultsScreen extends UiScreen {
     })
     if (!this.ready && time >= delay + 2.9) {
       this.ready = true
-      this.focus(this.buttons[0]!)
+      this.focusButton(this.buttons[0]!)
     }
     this.previous = time
   }

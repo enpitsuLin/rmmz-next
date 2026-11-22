@@ -144,7 +144,7 @@ export class Sprite_NightwardBossBar extends Container {
     this.arrow.visible = this.arrowGlow.visible = false
     if (!enemy || enemy.dead)
       return
-    const point = view.view.worldToScreen({ x: enemy.x, y: Math.max(0, enemy.data.hover) + 1.6, z: enemy.z })
+    const point = view.worldToScreen({ x: enemy.x, y: Math.max(0, enemy.data.hover) + 1.6, z: enemy.z })
     if (!point || (point.x >= 0 && point.x <= l.width && point.y >= 0 && point.y <= l.height))
       return
     const margin = l.margin + 14 * u

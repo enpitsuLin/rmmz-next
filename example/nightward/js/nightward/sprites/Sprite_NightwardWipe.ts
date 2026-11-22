@@ -1,23 +1,27 @@
-import type { Sprite } from 'pixi.js'
+import type { DestroyOptions, Sprite as PixiSprite } from 'pixi.js'
 import { Container } from 'pixi.js'
-import { clamp, colors, reducedMotion, sine, uiLayout } from '../primitives/ui'
+import { Sprite } from 'rmmz-next'
+import { clamp, colors, FRAME_DT, reducedMotion, sine, uiLayout } from '../primitives/ui'
 import { box } from './uiSprites'
 
-export class Sprite_NightwardWipe extends Container {
+export class Sprite_NightwardWipe extends Sprite {
   private draw = new Container()
-  private cells: Sprite[] = []
+  private cells: PixiSprite[] = []
   private time = 0
   private covering = false
   private duration = 0.4
   private done?: () => void
   private running = false
+
   constructor() {
-    super({ eventMode: 'none' })
+    super()
+    this.eventMode = 'none'
     this.addChild(this.draw)
     this.visible = false
   }
 
   get busy(): boolean { return this.running }
+
   play(covering: boolean, seconds: number, done?: () => void): void {
     this.covering = covering
     this.time = 0
@@ -27,10 +31,11 @@ export class Sprite_NightwardWipe extends Container {
     this.visible = true
   }
 
-  tick(dt: number): void {
+  override update(): void {
+    super.update()
     if (!this.running)
       return
-    this.time += dt
+    this.time += FRAME_DT
     const layout = uiLayout()
     const cell = layout.unit * 8
     const columns = Math.ceil(layout.width / cell)
@@ -43,8 +48,8 @@ export class Sprite_NightwardWipe extends Container {
         this.cells.push(node)
         this.draw.addChild(node)
       }
-      this.cells.forEach((cell, i) => {
-        cell.visible = i === 0
+      this.cells.forEach((entry, i) => {
+        entry.visible = i === 0
       })
       node.position.set(0, 0)
       node.width = layout.width
@@ -72,7 +77,8 @@ export class Sprite_NightwardWipe extends Container {
         node.width = size
         node.height = size
       }
-      for (let i = count; i < this.cells.length; i++) this.cells[i]!.visible = false
+      for (let i = count; i < this.cells.length; i++)
+        this.cells[i]!.visible = false
     }
     if (this.time >= this.duration) {
       this.running = false
@@ -81,5 +87,9 @@ export class Sprite_NightwardWipe extends Container {
       this.done = undefined
       done?.()
     }
+  }
+
+  override destroy(options: DestroyOptions = { children: true }): void {
+    super.destroy(options)
   }
 }

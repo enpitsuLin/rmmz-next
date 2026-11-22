@@ -1,14 +1,15 @@
 import type { NineSliceSprite } from 'pixi.js'
 import { Container, Sprite } from 'pixi.js'
-import { equipmentIcon, getAssets } from '../managers/NightwardAssetManager'
+import { NightwardAssetManager } from '../managers/NightwardAssetManager'
 import { panel } from '../windows/panel'
 import { text } from './Sprite_NightwardText'
 
 export function sprite(part: string, x = 0, y = 0): Sprite {
-  const node = new Sprite(getAssets().ui[part]!)
+  const node = new Sprite(NightwardAssetManager.assets().ui[part]!)
   node.position.set(x, y)
   return node
 }
+
 export function box(width: number, height: number, color: number, alpha = 1, x = 0, y = 0): Sprite {
   const node = sprite('white', x, y)
   node.width = width
@@ -19,7 +20,7 @@ export function box(width: number, height: number, color: number, alpha = 1, x =
 }
 
 export function icon(index: number): Sprite {
-  return new Sprite(equipmentIcon(index))
+  return new Sprite(NightwardAssetManager.equipmentIcon(index))
 }
 
 export function iconScale(node: Sprite, factor = 1): number {

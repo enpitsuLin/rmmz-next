@@ -2,14 +2,15 @@ import { Container } from 'pixi.js'
 import { back, fitScale, introAlpha, largeScale, out, phase, reducedMotion } from '../primitives/ui'
 import { Sprite_NightwardHeading } from '../sprites/Sprite_NightwardHeading'
 import { panel } from './panel'
-import { UiScreen } from './UiScreen'
+import { Window_NightwardScreen } from './Window_NightwardScreen'
 
-export abstract class SheetScreen extends UiScreen {
+export abstract class Window_NightwardSheet extends Window_NightwardScreen {
   protected heading: Sprite_NightwardHeading
   protected sheet = new Container()
   protected frame = panel(1, 1)
   protected sheetY = 0
   protected headingY = 0
+
   constructor(title: string) {
     super()
     this.heading = new Sprite_NightwardHeading(title)

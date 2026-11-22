@@ -1,9 +1,9 @@
 import type { NineSliceSprite, Sprite } from 'pixi.js'
-import type { Reward } from '../objects/rewards'
+import type { Reward } from '../objects/Game_NightwardRewards'
 import { Container } from 'pixi.js'
-import { ConfigManager, Input } from 'rmmz-next'
-import { sound } from '../managers/NightwardAudioManager'
-import { settings } from '../managers/NightwardConfigManager'
+import { Input } from 'rmmz-next'
+import { NightwardSound } from '../patches/AudioManager'
+import { NightwardConfig } from '../patches/ConfigManager'
 import { approach, back, colors, fitScale, largeScale, out, phase, reducedMotion, uiLayout } from '../primitives/ui'
 import { panel } from '../windows/panel'
 import { Sprite_NightwardHeading } from './Sprite_NightwardHeading'
@@ -205,7 +205,7 @@ export class Sprite_NightwardMoments extends Container {
     node.scale.set(l.unit)
     this.addChild(node)
     this.toasts.push({ node, image, age: 0, title, glint, sparkles, y: this.toasts.length * 30 * l.unit })
-    sound('Cursor', 30)
+    NightwardSound.playNightwardSe('Cursor', 30)
   }
 
   tick(worldDt: number, active: boolean, bandBottom: number, slotBottom: number): void {
@@ -267,8 +267,8 @@ export class Sprite_NightwardMoments extends Container {
         this.hint.destroy({ children: true })
         this.hint = undefined
         if (this.walked >= 0.25) {
-          settings.seenMoveHint = true
-          ConfigManager.save()
+          NightwardConfig.nightwardSeenMoveHint = true
+          NightwardConfig.save()
         }
       }
     }

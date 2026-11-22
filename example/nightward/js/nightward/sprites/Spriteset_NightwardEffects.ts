@@ -3,8 +3,8 @@ import type { Assets, Look } from '../managers/NightwardAssetManager'
 import type { EnemyKey } from '../managers/NightwardDataManager'
 import type { Game_NightwardRun, RunEvent } from '../objects/Game_NightwardRun'
 import { DirectionalLight } from '@pixi/3d'
-import { shakeGain } from '../managers/NightwardConfigManager'
-import { weaponKeys } from '../managers/NightwardDataManager'
+import { NightwardDataManager, weaponKeys } from '../managers/NightwardDataManager'
+import { NightwardConfig } from '../patches/ConfigManager'
 import { lensNoise, ReferenceCombat, ReferenceLensPass, ReferenceLensState } from '../reference/combat.js'
 
 const enemyKinds: EnemyKey[] = ['bat', 'skeleton', 'ghoul', 'wraith', 'skull', 'reaper']
@@ -30,6 +30,7 @@ const titleParticleBudget = {
   ground: 96,
   firePoolsAtFullDensity: 3,
 }
+
 interface ReferenceEvent {
   kind: string
   time: number
@@ -42,6 +43,7 @@ interface ReferenceEvent {
   dirX: number
   dirZ: number
 }
+
 export class Spriteset_NightwardEffects {
   readonly pass = new ReferenceLensPass()
   private lens = new ReferenceLensState()
@@ -72,11 +74,14 @@ export class Spriteset_NightwardEffects {
   }
 
   private combat: InstanceType<typeof ReferenceCombat>
+
   constructor(private run: Game_NightwardRun, assets: Assets, private view: View3D) {
-    const art = { frames: (name: string) => {
-      const animation = assets.animations[name]!
-      return { ...animation, count: animation.textures.length }
-    } }
+    const art = {
+      frames: (name: string) => {
+        const animation = assets.animations[name]!
+        return { ...animation, count: animation.textures.length }
+      },
+    }
     this.combat = new ReferenceCombat(view, this.simulation, this.lens, art, assets.combat, run.demo ? titleParticleBudget : undefined)
     this.strike.position.set(-8, 60, -20)
     this.strike.lookAt({ x: 0, y: 0, z: 0 })
@@ -95,9 +100,9 @@ export class Spriteset_NightwardEffects {
       this.enemySlots.set(enemy.id, index)
       sim.enemies.x[index] = enemy.x
       sim.enemies.z[index] = enemy.z
-      sim.enemies.y[index] = enemy.data.hover + Math.sin(enemy.age * 4 + enemy.id) * enemy.data.bob
+      sim.enemies.y[index] = enemy.hoverY()
       sim.enemies.kind[index] = enemyKinds.indexOf(enemy.data.key)
-      sim.enemies.scale[index] = enemy.elite ? run.content.config.eliteScale : 1
+      sim.enemies.scale[index] = enemy.visualScale(run.content.config.eliteScale)
     }
     this.projectileSlots.clear()
     const projectiles = sim.projectiles
@@ -115,22 +120,22 @@ export class Spriteset_NightwardEffects {
       projectiles.age[index] = projectile.age
       index++
     }
-    for (const projectile of run.projectiles) write(projectile, 1)
-    // A bolt may hit on its first tick; its muzzle still needs the emitted snapshot.
+    for (const projectile of run.projectiles)
+      write(projectile, 1)
     for (const event of events) {
       if (event.projectile && !this.projectileSlots.has(event.projectile.id))
         write(event.projectile, 0)
     }
     projectiles.count = index
     Object.assign(sim.weapons.tomes, { active: run.tomes.fade, count: run.tomes.count, radius: run.tomes.radius, angle: run.tomes.angle })
-    Object.assign(sim.weapons.ward, { radius: run.weapon('ward')?.data.radius ?? 0, pulse: run.wardPulse })
+    const wardWeapon = run.weapon('ward')
+    Object.assign(sim.weapons.ward, { radius: wardWeapon ? NightwardDataManager.weaponData(wardWeapon).radius ?? 0 : 0, pulse: run.wardPulse })
     const pools = sim.weapons.firePools
     pools.count = run.pools.length
     for (const [slot, pool] of run.pools.entries()) {
       pools.x[slot] = pool.x
       pools.z[slot] = pool.z
-      pools.radius[slot] = pool.weapon.data.radius!
-      // The reference remembers pools by their Float32 start time.
+      pools.radius[slot] = NightwardDataManager.weaponData(pool.weapon).radius!
       pools.start[slot] = Math.fround(pool.startedAt)
       pools.end[slot] = Math.fround(pool.startedAt + pool.life)
     }
@@ -163,7 +168,7 @@ export class Spriteset_NightwardEffects {
   update(events: RunEvent[], dt: number, look: Look, aim: { x: number, y: number, z: number }): number {
     this.sync(events)
     this.frame.warp = dt > 0 ? 1 : 0
-    this.lens.shakeGain = shakeGain()
+    this.lens.shakeGain = NightwardConfig.nightwardShake
     this.combat.update(this.frame)
     this.combat.lights.flush(true)
     const lens = this.lens
@@ -174,14 +179,14 @@ export class Spriteset_NightwardEffects {
     const dx = aim.x - eye.x
     const dy = aim.y - eye.y
     const dz = aim.z - eye.z
-    const distance = Math.hypot(dx, dy, dz)
+    const dist = Math.hypot(dx, dy, dz)
     const horizontal = Math.hypot(dx, dz)
-    const forward = { x: dx / distance, y: dy / distance, z: dz / distance }
+    const forward = { x: dx / dist, y: dy / dist, z: dz / dist }
     const right = { x: -dz / horizontal, z: dx / horizontal }
     const up = { x: -right.z * forward.y, y: right.z * forward.x - right.x * forward.z, z: right.x * forward.y }
     const trauma = lens.trauma * lens.trauma
     if (trauma > 0) {
-      const amplitude = trauma * (0.15 + distance * 0.012)
+      const amplitude = trauma * (0.15 + dist * 0.012)
       const x = amplitude * lensNoise(time, 1.3)
       const y = amplitude * lensNoise(time, 2.9)
       const roll = trauma * 0.035 * lensNoise(time, 4.7)
@@ -236,5 +241,7 @@ export class Spriteset_NightwardEffects {
     return strike
   }
 
-  destroy(): void { this.combat.destroy() }
+  destroy(): void {
+    this.combat.destroy()
+  }
 }

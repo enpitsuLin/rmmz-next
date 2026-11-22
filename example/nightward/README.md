@@ -113,10 +113,11 @@
 
 | 目录 | 职责 |
 | --- | --- |
-| [`primitives/`](js/nightward/primitives) | 坐标与空间索引、输入和布局工具 |
-| [`managers/`](js/nightward/managers) | 数据库读取、GLB 和特效加载、音频、配置及纪录 |
-| [`objects/`](js/nightward/objects) | 对局状态、碰撞、地图物件、阶段事件、战斗和奖励 |
-| [`scenes/`](js/nightward/scenes) | 标题演示和正式对局的生命周期 |
-| [`sprites/`](js/nightward/sprites) | 三维墓园、粒子渲染、HUD 和界面精灵 |
-| [`windows/`](js/nightward/windows) | RMMZ 窗口皮肤、选择处理和各个界面面板 |
+| [`primitives/`](js/nightward/primitives) | 坐标与空间索引、地面自动过渡块、布局与缓动工具 |
+| [`patches/`](js/nightward/patches) | 按 RMMZ 核心类拆分的原型/静态补丁与插件指令注册 |
+| [`managers/`](js/nightward/managers) | RMMZ 静态管理器（对局协调、数据库索引、资产、GLB、特效、纪录） |
+| [`objects/`](js/nightward/objects) | 面向对象 `Game_Nightward*` 领域模型（对局、敌人、战斗、导演、武器、奖励、地图物件、阶段事件） |
+| [`scenes/`](js/nightward/scenes) | 场景基类、标题、正式对局与 `SceneManager.push` 菜单场景（设置/说明） |
+| [`sprites/`](js/nightward/sprites) | `Spriteset_Nightward` 模板、角色/地面/物件/特效子层、HUD 与界面精灵 |
+| [`windows/`](js/nightward/windows) | 基于 `Window_Selectable` / `Window_Command` 的窗口皮肤与各界面窗口 |
 | [`reference/`](js/nightward/reference) | 生成的战斗呈现模块 |

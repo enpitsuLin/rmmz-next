@@ -3,7 +3,7 @@ import type { Texture, TextureSource, WebGLRenderer } from 'pixi.js'
 import type { Assets } from '../managers/NightwardAssetManager'
 import { Container3D, Frustum, getCameraData, Matrix4, Pass3D, RenderPassBit, Sphere } from '@pixi/3d'
 import { EffectManager, Graphics } from 'rmmz-next'
-import { getEffekseerEffectName } from '../managers/NightwardEffectManager'
+import { NightwardEffectManager } from '../managers/NightwardEffectManager'
 
 interface Slot { handle: effekseer.EffekseerHandle, name: string, revision: number, matrix: Float32Array, color?: number, value?: number, alpha?: number }
 interface PreparedFrame {
@@ -111,7 +111,7 @@ export class EffekseerParticles extends Container3D {
     }
     let name = names.get(mode)
     if (!name) {
-      name = getEffekseerEffectName(sources.get(texture.source)!, texture.frame, mode)
+      name = NightwardEffectManager.effectName(sources.get(texture.source)!, texture.frame, mode)
       if (name)
         names.set(mode, name)
     }

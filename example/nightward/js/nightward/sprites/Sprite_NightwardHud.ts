@@ -1,15 +1,16 @@
-import type { Sprite } from 'pixi.js'
+import type { DestroyOptions, Sprite as PixiSprite } from 'pixi.js'
 import type { FamilyKey } from '../managers/NightwardDataManager'
-import type { Game_NightwardRun, RunEvent } from '../objects/Game_NightwardRun'
-import type { Reward } from '../objects/rewards'
+import type { Reward } from '../objects/Game_NightwardRewards'
+import type { Game_NightwardRun } from '../objects/Game_NightwardRun'
 import type { Point } from '../primitives/geometry'
 import type { IconPoint } from '../primitives/ui'
 import type { Spriteset_Nightward } from './Spriteset_Nightward'
 import { Container } from 'pixi.js'
-import { getAssets } from '../managers/NightwardAssetManager'
-import { sound } from '../managers/NightwardAudioManager'
-import { settings } from '../managers/NightwardConfigManager'
-import { approach, back, clock, colors, largeScale, mixColor, out, phase, reducedMotion, sine, snap, uiLayout } from '../primitives/ui'
+import { Sprite } from 'rmmz-next'
+import { NightwardAssetManager } from '../managers/NightwardAssetManager'
+import { NightwardSound } from '../patches/AudioManager'
+import { NightwardConfig } from '../patches/ConfigManager'
+import { approach, back, clock, colors, FRAME_DT, largeScale, mixColor, out, phase, reducedMotion, sine, snap, uiLayout } from '../primitives/ui'
 import { panel } from '../windows/panel'
 import { Window_NightwardSelectable } from '../windows/Window_NightwardSelectable'
 import { Sprite_NightwardBossBar } from './Sprite_NightwardBossBar'
@@ -20,11 +21,11 @@ import { Sprite_NightwardStick } from './Sprite_NightwardStick'
 import { Sprite_NightwardText, text } from './Sprite_NightwardText'
 import { box, icon, iconScale, sprite } from './uiSprites'
 
-interface Flight { image: Sprite, from: IconPoint, to: IconPoint, age: number, key: FamilyKey }
+interface Flight { image: PixiSprite, from: IconPoint, to: IconPoint, age: number, key: FamilyKey }
 interface DamageNumber { text: Sprite_NightwardText, age: number, x: number, z: number, height: number, drift: number, push?: number }
 interface Callout { node: Container, age: number, big: boolean }
 
-export class Sprite_NightwardHud extends Container {
+export class Sprite_NightwardHud extends Sprite {
   readonly flights = new Container({ eventMode: 'none' })
   readonly build: Sprite_NightwardBuild
   bandBottom = 0
@@ -44,13 +45,13 @@ export class Sprite_NightwardHud extends Container {
   private xpSparkles = Array.from({ length: 5 }, () => sprite('sparkle'))
   private timer = text('00:00', 0, 0, 0, 0xFFFFFF, 0.5, true)
   private timerPlate = panel(1, 1, 'softRect')
-  private pauseButton = new Sprite_NightwardButton(getAssets().ui.pauseBars!, 15, 15, null)
+  private pauseButton = new Sprite_NightwardButton(NightwardAssetManager.assets().ui.pauseBars!, 15, 15, null)
   private pauseWindow = new Window_NightwardSelectable(15, 15)
   private slotsFrame = panel(135, 62)
   private counterFrame = panel(1, 44)
   private counters = new Container()
-  private killIcon: Sprite
-  private coinIcon: Sprite
+  private killIcon: PixiSprite
+  private coinIcon: PixiSprite
   private kills = text('', 0, 0, 0, 0xFFFFFF, 1)
   private gold = text('', 0, 0, 1, 0xFFFFFF, 1)
   private hp = new Container()
@@ -89,13 +90,14 @@ export class Sprite_NightwardHud extends Container {
   private callouts: Callout[] = []
   private modal = false
 
-  constructor(private run: Game_NightwardRun, pause: () => void) {
-    super({ eventMode: 'passive' })
+  constructor(private run: Game_NightwardRun, private view: Spriteset_Nightward, onPause: () => void) {
+    super()
+    this.eventMode = 'passive'
     this.build = new Sprite_NightwardBuild(run.content)
     this.killIcon = icon(run.content.config.icons.kills)
     this.coinIcon = icon(run.content.items.get('coin')!.iconIndex)
     this.bossBar = new Sprite_NightwardBossBar(run.content.enemies.get('reaper')!.name)
-    this.pauseButton.onActivate = pause
+    this.pauseButton.onActivate = onPause
     this.pauseWindow.pointerOnly = true
     this.pauseWindow.choices = [this.pauseButton]
     this.pauseWindow._clientArea!.addChild(this.pauseButton)
@@ -116,6 +118,10 @@ export class Sprite_NightwardHud extends Container {
     this.addChild(this.world, this.lowHp, this.screen, this.bossBar.arrowLayer, this.moments, this.stick)
     this.build.fill(run.build)
     this.layout()
+  }
+
+  setPauseHandler(onPause: () => void): void {
+    this.pauseButton.onActivate = onPause
   }
 
   setShown(to: boolean, duration = 0.2, delay = 0): void {
@@ -143,6 +149,7 @@ export class Sprite_NightwardHud extends Container {
   }
 
   private items(): { key: FamilyKey, rank: number }[] { return this.run.result?.build ?? this.run.build }
+
   hold(reward: Reward): void {
     this.build.hold(reward.key, reward.rank - 1)
     this.build.fill(this.items())
@@ -168,7 +175,7 @@ export class Sprite_NightwardHud extends Container {
   private land(key: FamilyKey): void {
     this.build.release(key)
     this.build.fill(this.items(), true)
-    sound('Tick', 45, 137.5)
+    NightwardSound.playNightwardSe('Tick', 45, 137.5)
   }
 
   private layout(): void {
@@ -286,8 +293,12 @@ export class Sprite_NightwardHud extends Container {
     this.callouts.push({ node, age: 0, big })
   }
 
-  tick(events: RunEvent[], view: Spriteset_Nightward, dt: number): void {
+  override update(): void {
+    super.update()
+    const dt = FRAME_DT
     const run = this.run
+    const view = this.view
+    const events = run.drainHudEvents()
     const l = uiLayout()
     const { unit: u, icon: s } = l
     const still = reducedMotion()
@@ -323,7 +334,7 @@ export class Sprite_NightwardHud extends Container {
         this.bossBar.onSpawn()
       if (event.kind === 'bossDeath')
         this.bossBar.onDefeat()
-      if (event.kind === 'hit' && settings.damageNumbers && this.numberBudget >= 1) {
+      if (event.kind === 'hit' && NightwardConfig.nightwardDamageNumbers && this.numberBudget >= 1) {
         this.numberBudget--
         const crit = event.value! >= 30
         const node = new Sprite_NightwardText(String(Math.max(1, Math.round(event.value!))), crit ? 3 : 0, 0.5, crit)
@@ -334,13 +345,13 @@ export class Sprite_NightwardHud extends Container {
     this.numberBudget = Math.min(6, this.numberBudget + worldDt * 18)
     if (run.actor.level > this.previousLevel) {
       this.levelAge = 0
-      sound(run.content.config.sounds.level, 50)
+      NightwardSound.playNightwardSe(run.content.config.sounds.level, 50)
     }
     if (run.kills > this.previousKills) {
       if (Math.floor(run.kills / 100) > Math.floor(this.previousKills / 100)) {
         this.killAge = this.skullAge = 0
         this.killPeak = 1.4
-        sound('Cursor', 30)
+        NightwardSound.playNightwardSe('Cursor', 30)
       }
       else if (this.killAge > 0.15) {
         this.killAge = 0
@@ -401,7 +412,7 @@ export class Sprite_NightwardHud extends Container {
     const on = !run.actor.isDead() && hp < 0.999
     this.hpAlpha = approach(this.hpAlpha, on ? 1 : 0, on ? 10 : 3, dt)
     this.chip = this.chip < hp ? hp : approach(this.chip, hp, 3, dt)
-    const foot = view.view.worldToScreen({ x: run.hero.x, y: 0, z: run.hero.z })
+    const foot = view.worldToScreen({ x: run.hero.x, y: 0, z: run.hero.z })
     this.hp.alpha = this.hpAlpha
     this.hp.visible = !!foot && this.hpAlpha > 0.01
     if (foot)
@@ -421,7 +432,7 @@ export class Sprite_NightwardHud extends Container {
         callout.node.destroy({ children: true })
         return false
       }
-      const point = view.view.worldToScreen({ x: run.hero.x, y: 2, z: run.hero.z })
+      const point = view.worldToScreen({ x: run.hero.x, y: 2, z: run.hero.z })
       const age = callout.age
       callout.node.visible = !!point
       if (point)
@@ -452,8 +463,8 @@ export class Sprite_NightwardHud extends Container {
   private updateNumbers(view: Spriteset_Nightward, dt: number): void {
     const run = this.run
     const u = uiLayout().unit
-    const foot = view.view.worldToScreen({ x: run.hero.x, y: 0, z: run.hero.z })
-    const edge = view.view.worldToScreen({ x: run.hero.x + 1, y: 0, z: run.hero.z })
+    const foot = view.worldToScreen({ x: run.hero.x, y: 0, z: run.hero.z })
+    const edge = view.worldToScreen({ x: run.hero.x + 1, y: 0, z: run.hero.z })
     const worldUnit = foot && edge ? Math.abs(foot.x - edge.x) : 0
     const left = foot ? foot.x - 0.42 * worldUnit - 2 * u : 0
     const right = foot ? foot.x + 0.42 * worldUnit + 2 * u : -1
@@ -467,8 +478,8 @@ export class Sprite_NightwardHud extends Container {
         node.destroy({ children: true })
         return false
       }
-      const point = view.view.worldToScreen({ x: item.x, y: item.height, z: item.z })
-      node.visible = !!point && settings.damageNumbers
+      const point = view.worldToScreen({ x: item.x, y: item.height, z: item.z })
+      node.visible = !!point && NightwardConfig.nightwardDamageNumbers
       if (!point)
         return true
       const density = uiLayout().resolution
@@ -494,8 +505,8 @@ export class Sprite_NightwardHud extends Container {
     })
   }
 
-  override destroy(): void {
+  override destroy(options: DestroyOptions = { children: true }): void {
     this.flights.destroy({ children: true })
-    super.destroy({ children: true })
+    super.destroy(options)
   }
 }

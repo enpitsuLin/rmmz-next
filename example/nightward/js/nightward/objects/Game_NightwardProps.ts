@@ -1,54 +1,50 @@
 import type { Matrix4 } from '@pixi/3d'
 import type { Game_Event } from 'rmmz-next'
-import type { LocalCollider, PropModel, PropPlacement, PropScene } from '../managers/NightwardPropSceneManager'
-import { transformPoint } from '../primitives/geometry'
+import type { PropPlacement, PropScene } from '../managers/NightwardPropSceneManager'
+import type { NightwardEvent } from '../patches/Game_Event'
+import type { PropObstacle } from './Game_NightwardProp'
 import { eventComments } from '../primitives/metadata'
+import { Game_NightwardProp } from './Game_NightwardProp'
 
-export interface Prop {
-  id: string
-  seed: number
-  modelKey: string
-  model: PropModel
-  kind: string
-  tags: string[]
-  matrix: Matrix4
-  x: number
-  y: number
-  z: number
-  active: boolean
-  revision: number
-  radius: number
-  baseRadius: number
-  hp: number
-  broken: boolean
-  brokenAt: number
-  doorMotion?: { from: number, to: number, start: number, duration: number }
-}
+export type { Game_NightwardProp as Prop, PropObstacle }
+
 interface EventDriver {
   event: Game_Event
   page?: ReturnType<Game_Event['page']>
   bindings: {
-    prop: Prop
+    prop: Game_NightwardProp
     offset: number[]
   }[]
   x: number
   z: number
 }
-export interface PropObstacle extends LocalCollider {
-  prop: Prop
+
+function activePageOf(event: Game_Event): ReturnType<Game_Event['page']> | undefined {
+  const extended = event as Partial<NightwardEvent>
+  if (typeof extended.nightwardActivePage === 'function')
+    return extended.nightwardActivePage()
+  return event._erased || event._pageIndex < 0 ? undefined : event.page()
 }
+
+function realPositionOf(event: Game_Event): { x: number, y: number } {
+  const extended = event as Partial<NightwardEvent>
+  return {
+    x: typeof extended.nightwardRealX === 'function' ? extended.nightwardRealX() : event._realX,
+    y: typeof extended.nightwardRealY === 'function' ? extended.nightwardRealY() : event._realY,
+  }
+}
+
 export class Game_NightwardProps {
-  readonly props: Prop[]
+  readonly props: Game_NightwardProp[]
   revision = 0
   structureRevision = 0
-  private byId = new Map<string, Prop>()
+  private byId = new Map<string, Game_NightwardProp>()
   private drivers: EventDriver[] = []
+
   constructor(scene: PropScene, events: Game_Event[], private center: number) {
     this.props = scene.props.map((placement: PropPlacement) => {
-      const matrix = placement.matrix.clone()
-      const m = matrix.elements
-      const prop: Prop = { id: placement.id, seed: placement.seed, modelKey: placement.modelKey, model: placement.model, kind: placement.model.kind, tags: [...(placement.model.tags ?? [])], matrix, x: m[12]!, y: m[13]!, z: m[14]!, active: placement.model.active ?? true, revision: 0, radius: placement.model.radius ?? 0.45, baseRadius: placement.model.radius ?? 0.45, hp: placement.model.hp ?? Infinity, broken: false, brokenAt: -1 }
-      this.touch(prop)
+      const prop = new Game_NightwardProp(placement)
+      this.revision++
       this.byId.set(prop.id, prop)
       return prop
     })
@@ -68,79 +64,61 @@ export class Game_NightwardProps {
     this.updateEvents()
   }
 
-  get(id: string): Prop | undefined {
+  get(id: string): Game_NightwardProp | undefined {
     return this.byId.get(id)
   }
 
-  select(target: string): Prop[] {
-    return target.startsWith('#') ? this.props.filter(prop => prop.tags.includes(target.slice(1))) : [this.get(target)].filter((prop): prop is Prop => !!prop)
+  select(target: string): Game_NightwardProp[] {
+    return target.startsWith('#')
+      ? this.props.filter(prop => prop.tags.includes(target.slice(1)))
+      : [this.get(target)].filter((prop): prop is Game_NightwardProp => !!prop)
   }
 
-  private touch(prop: Prop): void {
-    const m = prop.matrix.elements
-    prop.x = m[12]!
-    prop.y = m[13]!
-    prop.z = m[14]!
-    prop.radius = prop.baseRadius * Math.max(Math.hypot(m[0]!, m[2]!), Math.hypot(m[8]!, m[10]!))
-    prop.revision++
+  move(prop: Game_NightwardProp, x: number, y: number, z: number): void {
+    prop.move(x, y, z)
     this.revision++
   }
 
-  move(prop: Prop, x: number, y: number, z: number): void {
-    prop.matrix.setPosition({ x, y, z })
-    this.touch(prop)
+  transform(prop: Game_NightwardProp, matrix: Matrix4): void {
+    prop.transform(matrix)
+    this.revision++
   }
 
-  transform(prop: Prop, matrix: Matrix4): void {
-    prop.matrix.copyFrom(matrix)
-    this.touch(prop)
+  show(prop: Game_NightwardProp, active: boolean): void {
+    if (prop.show(active))
+      this.revision++
   }
 
-  show(prop: Prop, active: boolean): void {
-    if (prop.active === active)
-      return
-    prop.active = active
-    this.touch(prop)
-  }
-
-  break(prop: Prop, time: number): boolean {
-    if (!prop.active || prop.broken)
+  break(prop: Game_NightwardProp, time: number): boolean {
+    if (!prop.break(time))
       return false
-    prop.hp = 0
-    prop.broken = true
-    prop.brokenAt = time
-    this.touch(prop)
+    this.revision++
     return true
   }
 
-  open(prop: Prop, amount: number, time: number, duration: number): void {
-    prop.doorMotion = { from: this.doorAmount(prop, time), to: Math.max(0, Math.min(1, amount)), start: time, duration }
+  open(prop: Game_NightwardProp, amount: number, time: number, duration: number): void {
+    prop.open(amount, time, duration)
   }
 
-  remove(prop: Prop): void {
+  remove(prop: Game_NightwardProp): void {
     this.show(prop, false)
     this.byId.delete(prop.id)
     const index = this.props.indexOf(prop)
     if (index >= 0)
       this.props.splice(index, 1)
-    for (const driver of this.drivers) driver.bindings = driver.bindings.filter(entry => entry.prop !== prop)
+    for (const driver of this.drivers)
+      driver.bindings = driver.bindings.filter(entry => entry.prop !== prop)
     this.structureRevision++
   }
 
-  doorAmount(prop: Prop, time: number): number {
-    const motion = prop.doorMotion
-    if (!motion)
-      return 0
-    const elapsed = time - motion.start
-    if (elapsed >= motion.duration)
-      return motion.to
-    return motion.from + (motion.to - motion.from) * (elapsed / motion.duration)
+  doorAmount(prop: Game_NightwardProp, time: number): number {
+    return prop.doorAmount(time)
   }
 
   updateEvents(): void {
     for (const driver of this.drivers) {
       const { event } = driver
-      const page = event._erased || event._pageIndex < 0 ? undefined : event.page()
+      const page = activePageOf(event)
       if (page !== driver.page) {
         for (const entry of driver.bindings)
           this.show(entry.prop, false)
@@ -156,28 +134,18 @@ export class Game_NightwardProps {
           this.show(prop, true)
         }
       }
-      if (driver.x === event._realX && driver.z === event._realY)
+      const pos = realPositionOf(event)
+      if (driver.x === pos.x && driver.z === pos.y)
         continue
-      driver.x = event._realX
-      driver.z = event._realY
+      driver.x = pos.x
+      driver.z = pos.y
       for (const { prop, offset } of driver.bindings)
-        this.move(prop, event._realX - this.center + offset[0]!, offset[1]!, event._realY - this.center + offset[2]!)
+        this.move(prop, pos.x - this.center + offset[0]!, offset[1]!, pos.y - this.center + offset[2]!)
     }
   }
 
   obstacles(): PropObstacle[] {
-    return this.props.flatMap(prop => !prop.active || prop.broken
-      ? []
-      : prop.model.colliders.map((box) => {
-          const corners = [-1, 1].flatMap(x => [-1, 1].map(z => transformPoint(prop.matrix, box.x + x * box.width / 2, 0, box.z + z * box.depth / 2)))
-          const xs = corners.map(point => point.x)
-          const zs = corners.map(point => point.z)
-          const minX = Math.min(...xs)
-          const maxX = Math.max(...xs)
-          const minZ = Math.min(...zs)
-          const maxZ = Math.max(...zs)
-          return { x: (minX + maxX) / 2, z: (minZ + maxZ) / 2, width: maxX - minX, depth: maxZ - minZ, prop }
-        }))
+    return this.props.flatMap(prop => prop.obstacles())
   }
 
   dispose(): void {

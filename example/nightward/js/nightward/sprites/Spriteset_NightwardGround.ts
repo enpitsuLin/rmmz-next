@@ -4,7 +4,7 @@ import type { MZ } from 'rmmz-next/database-types'
 import { Material3D, Mesh3D, Plane, PlaneGeometry, Vector3 } from '@pixi/3d'
 import { RenderTexture } from 'pixi.js'
 import { GlobalMananger as globals, Graphics, ImageManager, Tilemap } from 'rmmz-next'
-import { refreshDirtEdges } from '../../../scripts/ground-tileset.mjs'
+import { refreshDirtEdges } from '../primitives/groundTiles.js'
 import { readMetaJson } from '../primitives/metadata'
 
 export function groundBitmaps(tileset: MZ.Tileset): { albedo: Bitmap[], normal: Bitmap[] } {
