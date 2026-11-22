@@ -2,8 +2,7 @@ shellEmulator: true
 
 trustPolicy: no-downgrade
 packages:
-  - example/basic
-  - example/nightward
+  - examples/*
   - packages/*
 
 catalog:

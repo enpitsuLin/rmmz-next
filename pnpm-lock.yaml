@@ -60,7 +60,7 @@ importers:
         specifier: catalog:dev
         version: 6.0.3
 
-  example/basic:
+  examples/basic:
     dependencies:
       rmmz-next:
         specifier: workspace:*
@@ -73,7 +73,7 @@ importers:
         specifier: catalog:dev
         version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
 
-  example/nightward:
+  examples/nightward:
     dependencies:
       '@pixi/3d':
         specifier: 'catalog:'
@@ -4294,11 +4294,11 @@ snapshots:
   vite@7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2):
     dependencies:
       esbuild: 0.27.3
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
       postcss: 8.5.6
       rollup: 4.59.0
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.17
     optionalDependencies:
       '@types/node': 25.3.3
       fsevents: 2.3.3
