@@ -59,7 +59,8 @@ export class Spriteset_Nightward {
   private dawnFrom?: Look
   constructor(readonly run: Game_NightwardRun, private assets: Assets) {
     this.focus = { x: run.hero.x, z: run.hero.z }
-    const reference = assets.manifest; const look = reference.look[run.demo ? 'title' : 'play']
+    const reference = assets.manifest
+    const look = reference.look[run.demo ? 'title' : 'play']
     this.look = { ...look }
     if (run.demo)
       Object.assign(this.framing, { pitch: 36, distance: 27 })
@@ -69,27 +70,34 @@ export class Spriteset_Nightward {
     this.view = new View3D({ width: Graphics.width, height: Graphics.height, autoResize: false, camera: new Camera3D({ fov: 32, near: 0.5, far: 500 }), background: this.sky, environment: this.environment, fog: this.fog, shadowQuality: 'high', shadowFilter: 'pcf', toneMapping: 'aces', exposure: look.exposure })
     this.view.eventMode = 'none'
     const moon = this.moon = new DirectionalLight({ color: look.moonColor, intensity: look.moonIntensity, castShadow: true, shadow: { cascades: 1, maxDistance: 45, bias: 0.0015 } })
-    const azimuth = -24 * Math.PI / 180; const elevation = 31 * Math.PI / 180
+    const azimuth = -24 * Math.PI / 180
+    const elevation = 31 * Math.PI / 180
     moon.position.set(Math.sin(azimuth) * Math.cos(elevation) * 60, Math.sin(elevation) * 60, -Math.cos(azimuth) * Math.cos(elevation) * 60)
-    moon.lookAt({ x: 0, y: 0, z: 0 }); this.view.root.addChild(moon)
+    moon.lookAt({ x: 0, y: 0, z: 0 })
+    this.view.root.addChild(moon)
     this.ground = new Spriteset_NightwardGround(this.view, run.content.map.center)
     this.makeWorld()
     this.worldProps = new Spriteset_NightwardProps(run, assets, this.view, this.propMaterial)
     for (let index = 0; index < 48; index++) {
-      const leaf = index >= 12; const sprite = new Sprite3D({ texture: leaf ? assets.leaves[index % 4]! : assets.mist, height: leaf ? 0.12 + index % 3 * 0.04 : 3, width: leaf ? 0.2 : 10, billboardMode: 'spherical', alphaMode: leaf ? 'mask' : 'blend', tint: leaf ? 0xFFFFFF : 0x8A9BAA, alpha: leaf ? 0.8 : 0.065 })
-      const phase = index * 2.39996; const height = leaf ? 0.5 + index % 7 * 0.5 : 1.1
+      const leaf = index >= 12
+      const sprite = new Sprite3D({ texture: leaf ? assets.leaves[index % 4]! : assets.mist, height: leaf ? 0.12 + index % 3 * 0.04 : 3, width: leaf ? 0.2 : 10, billboardMode: 'spherical', alphaMode: leaf ? 'mask' : 'blend', tint: leaf ? 0xFFFFFF : 0x8A9BAA, alpha: leaf ? 0.8 : 0.065 })
+      const phase = index * 2.39996
+      const height = leaf ? 0.5 + index % 7 * 0.5 : 1.1
       sprite.position.set(Math.cos(phase) * (5 + index % 22), height, 6 + Math.sin(phase) * (5 + index % 22))
-      this.view.root.addChild(sprite); this.ambient.push({ sprite, height, phase, leaf })
+      this.view.root.addChild(sprite)
+      this.ambient.push({ sprite, height, phase, leaf })
     }
     this.moonDisc = new Sprite3D({ texture: assets.moon, width: 23.5, height: 23.5, billboardMode: 'spherical' })
     this.view.root.addChild(this.moonDisc)
     const heroAnimation = assets.animations['hero.idle']!
     this.hero = this.makeActor(heroAnimation.textures[0]!, heroAnimation.height)
     const lantern = new PointLight({ color: reference.lights.heroColor, intensity: 2.8, range: reference.lights.heroRange, radius: 0.5 })
-    this.view.root.addChild(lantern); this.lamps.push(lantern)
+    this.view.root.addChild(lantern)
+    this.lamps.push(lantern)
     for (const point of reference.details.candles) {
       const glow = this.sprite(assets.effects[0]!, 0.24)
-      glow.tint = 0xFFC477; glow.position.set(point[0]!, point[1]!, point[2]!)
+      glow.tint = 0xFFC477
+      glow.position.set(point[0]!, point[1]!, point[2]!)
     }
     const gl = Graphics.app.renderer.gl
     if (gl.getExtension('EXT_color_buffer_float')) {
@@ -123,7 +131,9 @@ export class Spriteset_Nightward {
 
   private flat(frame: number, width: number, height: number, y: number): Sprite3D {
     const sprite = new Sprite3D({ texture: this.assets.effects[frame]!, width, height, billboardMode: 'none', alphaMode: 'blend' })
-    sprite.rotation.x = -Math.PI / 2; sprite.y = y; this.view.root.addChild(sprite)
+    sprite.rotation.x = -Math.PI / 2
+    sprite.y = y
+    this.view.root.addChild(sprite)
     return sprite
   }
 
@@ -133,14 +143,16 @@ export class Spriteset_Nightward {
     this.materials.add(material)
     this.view.root.addChild(sprite)
     const shadow = this.flat(5, height * 0.7, height * 0.4, 0.025)
-    shadow.tint = 0x000000; shadow.alpha = 0.45
+    shadow.tint = 0x000000
+    shadow.alpha = 0.45
     return { sprite, shadow, material, deathAge: 0 }
   }
 
   private particle(point: Point, color: number, count: number, strength = 1): void {
     for (let i = 0; i < count; i++) {
       const sprite = this.sprite(this.assets.effects[0]!, 0.13 * strength)
-      sprite.tint = color; sprite.position.set(point.x, 0.7, point.z)
+      sprite.tint = color
+      sprite.position.set(point.x, 0.7, point.z)
       this.particles.push({ sprite, age: 0, life: 0.3 + Math.random() * 0.35, vx: (Math.random() - 0.5) * 4 * strength, vy: Math.random() * 3, vz: (Math.random() - 0.5) * 4 * strength, size: 0.13 * strength })
     }
   }
@@ -148,8 +160,15 @@ export class Spriteset_Nightward {
   private burst(event: RunEvent): void {
     if (event.kind === 'hit' || event.kind === 'death' || event.kind === 'break' || event.kind === 'lash' || event.kind === 'wand' || event.kind === 'tomes' || event.kind === 'lightning' || event.kind === 'ward' || event.kind === 'flask')
       return
-    if (event.kind === 'hurt') { this.shake = 0.26; this.particle(event, 0xDC6577, 9); return }
-    if (event.kind === 'upgrade' || event.kind === 'chest') { this.particle(event, 0xF7DA83, 16); return }
+    if (event.kind === 'hurt') {
+      this.shake = 0.26
+      this.particle(event, 0xDC6577, 9)
+      return
+    }
+    if (event.kind === 'upgrade' || event.kind === 'chest') {
+      this.particle(event, 0xF7DA83, 16)
+      return
+    }
     if (event.kind === 'boss' || event.kind === 'bossDeath' || event.kind === 'ring') {
       if (event.kind !== 'ring')
         this.shake = 0.6
@@ -161,15 +180,21 @@ export class Spriteset_Nightward {
     let life = 0.35
     if (event.kind === 'scythe' || event.kind === 'windup') {
       sprite = this.flat(3, 4, event.kind === 'windup' ? 1 : 2, 0.12)
-      sprite.rotation.z = event.side!; sprite.tint = 0xF07C99; life = event.kind === 'windup' ? 0.45 : 0.25
+      sprite.rotation.z = event.side!
+      sprite.tint = 0xF07C99
+      life = event.kind === 'windup' ? 0.45 : 0.25
     }
     else {
       const size = event.value! * 2
       sprite = this.flat(3, size, size, 0.05)
       sprite.tint = 0xFFF0B8
-      if (event.kind === 'relic') { life = 0.65; this.shake = 0.4 }
+      if (event.kind === 'relic') {
+        life = 0.65
+        this.shake = 0.4
+      }
     }
-    sprite.x = event.x; sprite.z = event.z
+    sprite.x = event.x
+    sprite.z = event.z
     this.particles.push({ sprite, age: 0, life, vx: 0, vy: 0, vz: 0, size: 0 })
   }
 
@@ -182,7 +207,11 @@ export class Spriteset_Nightward {
     this.update([], 0)
   }
 
-  beginDawn(): void { this.dawnFrom = { ...this.look }; this.dawnAge = 0 }
+  beginDawn(): void {
+    this.dawnFrom = { ...this.look }
+    this.dawnAge = 0
+  }
+
   private updateLook(dt: number): void {
     const target = this.assets.manifest.look[this.run.demo ? 'title' : this.run.bossDefeated ? 'dawn' : this.run.boss ? 'boss' : 'play']
     const colorKeys = new Set(['shadowTint', 'highlightTint', 'tint', 'fogColor', 'moonColor', 'skyColor', 'groundColor', 'skyTop', 'skyHorizon'])
@@ -190,12 +219,14 @@ export class Spriteset_Nightward {
     if (this.introAge >= 0) {
       this.introAge = Math.min(1, this.introAge + dt)
       const p = this.introAge < 0.5 ? 4 * this.introAge ** 3 : 1 - (-2 * this.introAge + 2) ** 3 / 2
-      this.framing.pitch = 36 + 6 * p; this.framing.distance = 27 - 3 * p
+      this.framing.pitch = 36 + 6 * p
+      this.framing.distance = 27 - 3 * p
     }
     if (this.dawnAge >= 0)
       this.dawnAge = Math.min(3, this.dawnAge + dt)
     for (const key of Object.keys(target) as (keyof Look)[]) {
-      const a = this.dawnAge >= 0 ? this.dawnFrom![key] : this.introAge >= 0 ? this.assets.manifest.look.title[key] : this.look[key]; const b = target[key]
+      const a = this.dawnAge >= 0 ? this.dawnFrom![key] : this.introAge >= 0 ? this.assets.manifest.look.title[key] : this.look[key]
+      const b = target[key]
       const dawn = Math.max(0, Math.min(1, (this.dawnAge - 0.6) / 2.4))
       const blend = this.dawnAge >= 0 ? 0.5 - 0.5 * Math.cos(Math.PI * dawn) : this.introAge >= 0 ? this.introAge < 0.5 ? 4 * this.introAge ** 3 : 1 - (-2 * this.introAge + 2) ** 3 / 2 : amount
       if (colorKeys.has(key)) {
@@ -210,15 +241,33 @@ export class Spriteset_Nightward {
     }
     if (this.introAge >= 1)
       this.introAge = -1
-    if (this.dawnAge >= 3) { this.dawnAge = -1; this.dawnFrom = undefined }
+    if (this.dawnAge >= 3) {
+      this.dawnAge = -1
+      this.dawnFrom = undefined
+    }
     const look = this.look
-    this.view.exposure = look.exposure; this.fog.color = look.fogColor; this.fog.density = look.fogDensity
-    this.sky.skyColor = look.skyTop; this.sky.groundColor = look.skyHorizon
-    this.environment.skyColor = look.skyColor; this.environment.groundColor = look.groundColor; this.environment.intensity = look.hemisphere
-    this.moon.color = look.moonColor; this.moon.intensity = look.moonIntensity
+    this.view.exposure = look.exposure
+    this.fog.color = look.fogColor
+    this.fog.density = look.fogDensity
+    this.sky.skyColor = look.skyTop
+    this.sky.groundColor = look.skyHorizon
+    this.environment.skyColor = look.skyColor
+    this.environment.groundColor = look.groundColor
+    this.environment.intensity = look.hemisphere
+    this.moon.color = look.moonColor
+    this.moon.intensity = look.moonIntensity
     for (const pass of this.passes) {
-      if (pass instanceof BloomEffect) { pass.intensity = look.bloomIntensity; pass.threshold = look.bloomThreshold; pass.radius = look.bloomRadius }
-      if (pass instanceof TiltShiftEffect) { pass.maxBlur = look.tilt; pass.focalDepth = this.framing.distance - 1.75; pass.focalNear = this.framing.distance * look.focus + 1.75; pass.focalFar = this.framing.distance * (look.focus + 0.22) + 1.75 }
+      if (pass instanceof BloomEffect) {
+        pass.intensity = look.bloomIntensity
+        pass.threshold = look.bloomThreshold
+        pass.radius = look.bloomRadius
+      }
+      if (pass instanceof TiltShiftEffect) {
+        pass.maxBlur = look.tilt
+        pass.focalDepth = this.framing.distance - 1.75
+        pass.focalNear = this.framing.distance * look.focus + 1.75
+        pass.focalFar = this.framing.distance * (look.focus + 0.22) + 1.75
+      }
     }
   }
 
@@ -245,7 +294,8 @@ export class Spriteset_Nightward {
       if (item.sprite.z - this.focus.z < -27)
         item.sprite.z += 54
     }
-    const shake = shakeGain() * this.shake * 0.25 * (run.demo ? 0.3 : 1); const { pitch, distance: cameraDistance } = this.framing
+    const shake = shakeGain() * this.shake * 0.25 * (run.demo ? 0.3 : 1)
+    const { pitch, distance: cameraDistance } = this.framing
     this.view.camera.position.set(this.focus.x + (Math.random() - 0.5) * shake, 0.7 + Math.sin(pitch * Math.PI / 180) * cameraDistance, this.focus.z + Math.cos(pitch * Math.PI / 180) * cameraDistance)
     this.view.camera.lookAt({ x: this.focus.x, y: 0.7, z: this.focus.z })
     this.ground.update(dt > 0)
@@ -265,7 +315,10 @@ export class Spriteset_Nightward {
       let visual = this.actors.get(enemy.id)
       const animationName = enemy.data.key === 'reaper' ? enemy.state === 'rise' ? 'reaper.rise' : enemy.state === 'windup' || enemy.state === 'recover' ? 'reaper.swing' : 'reaper.walk' : { bat: 'bat.fly', skeleton: 'skeleton.walk', ghoul: 'ghoul.walk', wraith: 'wraith.float', skull: 'skull.fly' }[enemy.data.key]
       const animation = this.assets.animations[animationName]!
-      if (!visual) { visual = this.makeActor(animation.textures[0]!, animation.height * (enemy.elite ? 1.6 : 1)); this.actors.set(enemy.id, visual) }
+      if (!visual) {
+        visual = this.makeActor(animation.textures[0]!, animation.height * (enemy.elite ? 1.6 : 1))
+        this.actors.set(enemy.id, visual)
+      }
       const sprite = visual.sprite
       sprite.texture = facingTexture(animation.textures[enemy.state === 'rise' ? Math.min(animation.textures.length - 1, Math.floor((1 - enemy.phase / run.content.formations.reaper.rise) * animation.textures.length)) : Math.floor(enemy.age * animation.fps) % animation.textures.length]!, enemy.x < run.hero.x ? 1 : -1)
       const hover = enemy.data.hover + Math.sin(enemy.age * 4 + enemy.id) * enemy.data.bob
@@ -275,12 +328,19 @@ export class Spriteset_Nightward {
       if (enemy.dead)
         visual.deathAge += dt
       sprite.alpha = enemy.dead ? Math.max(0, 1 - visual.deathAge / 0.18) : 1
-      visual.shadow.position.set(enemy.x, 0.028, enemy.z); visual.shadow.visible = sprite.visible && !enemy.dead
+      visual.shadow.position.set(enemy.x, 0.028, enemy.z)
+      visual.shadow.visible = sprite.visible && !enemy.dead
       if (enemy.state === 'windup')
         sprite.tint = 0xFF698C
     }
     for (const [id, visual] of this.actors) {
-      if (!aliveIds.has(id)) { visual.sprite.destroy(); visual.shadow.destroy(); visual.material.destroy(); this.materials.delete(visual.material); this.actors.delete(id) }
+      if (!aliveIds.has(id)) {
+        visual.sprite.destroy()
+        visual.shadow.destroy()
+        visual.material.destroy()
+        this.materials.delete(visual.material)
+        this.actors.delete(id)
+      }
     }
     const pickupScale = { gemSmall: 1.35, gemMedium: 1.4, gemBig: 1.5, coin: 1.25, chicken: 1, vacuum: 1.45, relic: 1.7, chest: 1.05 }
     const pickupNames = { gemSmall: 'gem.small', gemMedium: 'gem.mid', gemBig: 'gem.big', coin: 'coin', chicken: 'chicken', vacuum: 'vacuum', relic: 'relic', chest: 'chest' }
@@ -292,19 +352,30 @@ export class Spriteset_Nightward {
     }, (pickup, sprite) => {
       const animation = this.assets.animations[pickupNames[pickup.key]]!
       sprite.texture = animation.textures[Math.floor(pickup.age * animation.fps) % animation.textures.length]!
-      sprite.position.set(pickup.x, pickup.y + Math.sin(pickup.age * 3) * 0.08, pickup.z); sprite.visible = distance(pickup, this.focus) < 29
+      sprite.position.set(pickup.x, pickup.y + Math.sin(pickup.age * 3) * 0.08, pickup.z)
+      sprite.visible = distance(pickup, this.focus) < 29
     })
     this.syncObjects(run.projectiles.filter(projectile => projectile.kind === 'wave'), this.projectiles, () => this.sprite(this.assets.effects[0]!, 2.6), (projectile, sprite) => {
       sprite.position.set(projectile.x, projectile.y, projectile.z)
-      sprite.width = 3; sprite.height = 1.3; sprite.tint = 0xC8B3FF
+      sprite.width = 3
+      sprite.height = 1.3
+      sprite.tint = 0xC8B3FF
     })
     this.particles = this.particles.filter((particle) => {
       particle.age += dt
-      if (particle.age >= particle.life) { particle.sprite.destroy(); return false }
+      if (particle.age >= particle.life) {
+        particle.sprite.destroy()
+        return false
+      }
       const sprite = particle.sprite
-      sprite.x += particle.vx * dt; sprite.y += particle.vy * dt; sprite.z += particle.vz * dt
+      sprite.x += particle.vx * dt
+      sprite.y += particle.vy * dt
+      sprite.z += particle.vz * dt
       sprite.alpha = 1 - particle.age / particle.life
-      if (particle.size) { particle.vy -= dt * 7; sprite.height = particle.size * (1 - particle.age / particle.life * 0.6) }
+      if (particle.size) {
+        particle.vy -= dt * 7
+        sprite.height = particle.size * (1 - particle.age / particle.life * 0.6)
+      }
       return true
     })
     const strike = this.weapons.update(events, dt, this.look, { x: this.focus.x, y: 0.7, z: this.focus.z })
@@ -324,11 +395,17 @@ export class Spriteset_Nightward {
   private syncObjects<T extends { id: number }>(items: T[], visuals: Map<number, Sprite3D>, create: (item: T) => Sprite3D, update: (item: T, visual: Sprite3D) => void): void {
     const ids = new Set(items.map(item => item.id))
     for (const [id, visual] of visuals) {
-      if (!ids.has(id)) { visual.destroy(); visuals.delete(id) }
+      if (!ids.has(id)) {
+        visual.destroy()
+        visuals.delete(id)
+      }
     }
     for (const item of items) {
       let sprite = visuals.get(item.id)
-      if (!sprite) { sprite = create(item); visuals.set(item.id, sprite) }
+      if (!sprite) {
+        sprite = create(item)
+        visuals.set(item.id, sprite)
+      }
       update(item, sprite)
     }
   }

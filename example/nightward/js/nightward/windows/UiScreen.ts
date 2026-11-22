@@ -24,13 +24,19 @@ export abstract class UiScreen extends Container {
     super({ eventMode: 'passive' })
     this.nativeWindow = new Window_NightwardSelectable(this.layout.w, this.layout.h)
     this.nativeWindow.choices = this.buttons
-    this.nativeWindow.onSelection = (choice) => { this.focused = choice as Sprite_NightwardButton | undefined }
+    this.nativeWindow.onSelection = (choice) => {
+      this.focused = choice as Sprite_NightwardButton | undefined
+    }
     this.nativeWindow._clientArea!.addChild(this.content)
-    this.addChild(this.nativeWindow); this.scale.set(this.layout.unit)
+    this.addChild(this.nativeWindow)
+    this.scale.set(this.layout.unit)
   }
 
   protected addButton(button: Sprite_NightwardButton, row = this.buttons.length, col = 0, parent = this.content): Sprite_NightwardButton {
-    button.row = row; button.col = col; parent.addChild(button); this.buttons.push(button)
+    button.row = row
+    button.col = col
+    parent.addChild(button)
+    this.buttons.push(button)
     return button
   }
 
@@ -42,7 +48,10 @@ export abstract class UiScreen extends Container {
   }
 
   protected handle(): void {
-    if (Input.isTriggered('pause') && this.onBack) { this.nativeWindow.processCancel(); return }
+    if (Input.isTriggered('pause') && this.onBack) {
+      this.nativeWindow.processCancel()
+      return
+    }
     this.nativeWindow.update()
   }
 
@@ -53,8 +62,14 @@ export abstract class UiScreen extends Container {
     if (this.closing >= 0) {
       this.closing += dt
       const p = phase(this.closing, 0, reducedMotion() ? 0.15 : this.closeDuration)
-      this.content.alpha *= 1 - p ** 3; this.content.y = reducedMotion() ? 0 : Math.round(p ** 3 * 8)
-      if (p === 1) { const done = this.closeDone; this.closeDone = undefined; done?.(); return }
+      this.content.alpha *= 1 - p ** 3
+      this.content.y = reducedMotion() ? 0 : Math.round(p ** 3 * 8)
+      if (p === 1) {
+        const done = this.closeDone
+        this.closeDone = undefined
+        done?.()
+        return
+      }
     }
     this.animate(dt)
     if (this.destroyed)
@@ -68,6 +83,11 @@ export abstract class UiScreen extends Container {
   }
 
   get accepting(): boolean { return this.age >= 0.15 }
-  close(done: () => void, seconds = 0.2): void { this.live = false; this.closing = 0; this.closeDuration = seconds; this.closeDone = done }
+  close(done: () => void, seconds = 0.2): void {
+    this.live = false
+    this.closing = 0
+    this.closeDuration = seconds
+    this.closeDone = done
+  }
   protected abstract animate(dt: number): void
 }

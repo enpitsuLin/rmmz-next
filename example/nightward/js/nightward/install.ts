@@ -56,7 +56,10 @@ export function installNightward(): void {
         return
       const run = scene.run
       const context = run.propContext(this)
-      if (command === 'PropContext') { Reflect.apply(globals.$gameVariables.setValue, globals.$gameVariables, [Number(args.variable), context ?? '']); return }
+      if (command === 'PropContext') {
+        Reflect.apply(globals.$gameVariables.setValue, globals.$gameVariables, [Number(args.variable), context ?? ''])
+        return
+      }
       for (const prop of run.props.select(args.target === '@context' ? context ?? '' : args.target ?? '')) {
         if (command === 'PropMove') {
           const relative = args.relative === 'true'

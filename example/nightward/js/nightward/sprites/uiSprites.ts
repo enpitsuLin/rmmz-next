@@ -8,7 +8,10 @@ export function sprite(part: string, x = 0, y = 0): Sprite {
 }
 export function box(width: number, height: number, color: number, alpha = 1, x = 0, y = 0): Sprite {
   const node = sprite('white', x, y)
-  node.width = width; node.height = height; node.tint = color; node.alpha = alpha
+  node.width = width
+  node.height = height
+  node.tint = color
+  node.alpha = alpha
   return node
 }
 

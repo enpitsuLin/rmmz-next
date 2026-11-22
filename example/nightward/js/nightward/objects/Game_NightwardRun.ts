@@ -177,12 +177,22 @@ export class Game_NightwardRun {
   }
 
   private checkRewards(): void {
-    if (this.chestPending) { this.state = 'chest'; return }
+    if (this.chestPending) {
+      this.state = 'chest'
+      return
+    }
     if (this.pendingLevels <= 0)
       return
     this.choices = chooseRewards(this)
-    if (!this.choices.length) { this.party.gainGold(25 * this.pendingLevels); this.pendingLevels = 0; return }
-    if (this.demo) { this.selectDemoReward(); return }
+    if (!this.choices.length) {
+      this.party.gainGold(25 * this.pendingLevels)
+      this.pendingLevels = 0
+      return
+    }
+    if (this.demo) {
+      this.selectDemoReward()
+      return
+    }
     this.state = 'choosing'
   }
 
@@ -224,13 +234,15 @@ export class Game_NightwardRun {
     this.props.updateEvents()
     this.world.syncProps()
     this.invulnerable = Math.max(0, this.invulnerable - dt)
-    const movement = this.demo ? this.demoInput() : input; const n = Math.hypot(movement.x, movement.z) > 1 ? direction(movement.x, movement.z) : movement
+    const movement = this.demo ? this.demoInput() : input
+    const n = Math.hypot(movement.x, movement.z) > 1 ? direction(movement.x, movement.z) : movement
     this.hero.moving = Math.hypot(n.x, n.z) > 0.1
     if (Math.abs(n.x) > 0.1)
       this.hero.facing = n.x > 0 ? 1 : -1
     const speed = this.content.hero.speed * (1 + this.passiveValue('haste'))
     this.world.move(this.hero, (n.x * speed + this.hero.vx) * dt, (n.z * speed + this.hero.vz) * dt, this.content.hero.radius)
-    this.hero.vx *= Math.exp(-dt * 9); this.hero.vz *= Math.exp(-dt * 9)
+    this.hero.vx *= Math.exp(-dt * 9)
+    this.hero.vz *= Math.exp(-dt * 9)
     globals.$gamePlayer.locate(this.hero.x + this.content.map.center, this.hero.z + this.content.map.center)
     stepDirector(this, dt)
     stepEnemies(this, dt)
@@ -255,7 +267,10 @@ export class Game_NightwardRun {
     else if (this.bossDefeated) {
       this.finish(true)
     }
-    else if (this.demo && this.chestPending) { this.chestPending = false; this.chestRewards = [] }
+    else if (this.demo && this.chestPending) {
+      this.chestPending = false
+      this.chestRewards = []
+    }
     else {
       this.checkRewards()
     }

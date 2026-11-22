@@ -5,7 +5,10 @@ export class Window_NightwardPanel extends Window {
   private hot = false
   constructor(width: number, height: number) {
     super()
-    this.padding = 0; this.margin = 0; this.cursorVisible = false; this.active = false
+    this.padding = 0
+    this.margin = 0
+    this.cursorVisible = false
+    this.active = false
     this.windowskin = ImageManager.loadSystem('Window')
     this.windowskin.smooth = false
     this.backOpacity = 255
@@ -18,7 +21,9 @@ export class Window_NightwardPanel extends Window {
   set highlighted(value: boolean) {
     if (this.hot === value)
       return
-    this.hot = value; this._refreshBack(); this._refreshFrame()
+    this.hot = value
+    this._refreshBack()
+    this._refreshFrame()
   }
 
   private skinRect(): Rectangle {
@@ -28,8 +33,12 @@ export class Window_NightwardPanel extends Window {
   override _refreshBack(): void {
     if (!this._windowskin)
       return
-    const rect = this.hot ? new Rectangle(101, 101, 38, 38) : new Rectangle(0, 0, 95, 95); const back = this._backSprite!; const size = rect.width
-    back.bitmap = this.windowskin; back.setFrame(rect.x, rect.y, size, size); back.move(5, 5)
+    const rect = this.hot ? new Rectangle(101, 101, 38, 38) : new Rectangle(0, 0, 95, 95)
+    const back = this._backSprite!
+    const size = rect.width
+    back.bitmap = this.windowskin
+    back.setFrame(rect.x, rect.y, size, size)
+    back.move(5, 5)
     back.scale.set(Math.max(0, this.width - 10) / size, Math.max(0, this.height - 10) / size)
     back.children[0]!.visible = false
   }

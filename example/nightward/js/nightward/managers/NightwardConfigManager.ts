@@ -4,7 +4,9 @@ export const settings = { muted: false, shake: 1, damageNumbers: true, seenMoveH
 export const shakeGain = (): number => settings.shake
 export function installConfig(): void {
   const makeData = ConfigManager.makeData
-  ConfigManager.makeData = function () { return { ...makeData.call(this), nightward: { ...settings } } }
+  ConfigManager.makeData = function () {
+    return { ...makeData.call(this), nightward: { ...settings } }
+  }
   const applyData = ConfigManager.applyData
   ConfigManager.applyData = function (config) {
     applyData.call(this, config)

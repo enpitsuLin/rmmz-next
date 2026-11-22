@@ -30,10 +30,12 @@ export function allRewards(run: Game_NightwardRun, ownedOnly = false): Reward[] 
   })
 }
 export function chooseRewards(run: Game_NightwardRun): Reward[] {
-  const pool = allRewards(run); const choices: Reward[] = []
+  const pool = allRewards(run)
+  const choices: Reward[] = []
   for (let i = 0; i < 3 && pool.length; i++) {
     const weights = pool.map(reward => reward.rank > 1 ? 3 : reward.weapon ? 2 : 1.4)
-    let roll = Math.random() * weights.reduce((a, b) => a + b, 0); let index = 0
+    let roll = Math.random() * weights.reduce((a, b) => a + b, 0)
+    let index = 0
     while (index < pool.length - 1 && roll >= weights[index]!) roll -= weights[index++]!
     choices.push(pool.splice(index, 1)[0]!)
   }
@@ -67,7 +69,8 @@ export function dropPickup(run: Game_NightwardRun, key: PickupKey, point: Point)
   run.pickups.push({ id: run.nextId++, key, x: point.x, z: point.z, age: 0, y: 0.3, vy: 4, vx: Math.cos(angle) * 1.3, vz: Math.sin(angle) * 1.3, attracted: false, vacuum: false, speed: -3 })
 }
 function openChest(run: Game_NightwardRun): void {
-  const roll = Math.random(); const count = roll < 0.5 ? 1 : roll < 0.8 ? 2 : 3
+  const roll = Math.random()
+  const count = roll < 0.5 ? 1 : roll < 0.8 ? 2 : 3
   const granted: Reward[] = []
   for (let i = 0; i < count; i++) {
     const owned = allRewards(run, true)
@@ -94,7 +97,12 @@ function collect(run: Game_NightwardRun, pickup: Pickup): void {
     action.apply(run.actor)
   }
   else if (pickup.key === 'vacuum') {
-    for (const gem of run.pickups) { if (gem.key.startsWith('gem')) { gem.attracted = true; gem.vacuum = true } }
+    for (const gem of run.pickups) {
+      if (gem.key.startsWith('gem')) {
+        gem.attracted = true
+        gem.vacuum = true
+      }
+    }
   }
   else if (pickup.key === 'relic') {
     run.relicAt = run.time + 0.4
@@ -109,18 +117,26 @@ export function stepPickups(run: Game_NightwardRun, dt: number): void {
   run.pickups = run.pickups.filter((pickup) => {
     pickup.age += dt
     if (!pickup.attracted && (pickup.y > 0.12 || pickup.vy > 0)) {
-      pickup.y = Math.max(0.12, pickup.y + pickup.vy * dt); pickup.vy -= 18 * dt
-      pickup.x += pickup.vx * dt; pickup.z += pickup.vz * dt
+      pickup.y = Math.max(0.12, pickup.y + pickup.vy * dt)
+      pickup.vy -= 18 * dt
+      pickup.x += pickup.vx * dt
+      pickup.z += pickup.vz * dt
     }
-    const d = distance(pickup, run.hero); const gem = pickup.key.startsWith('gem')
+    const d = distance(pickup, run.hero)
+    const gem = pickup.key.startsWith('gem')
     if (pickup.age >= 0.25 && d < (gem ? magnet : 0.85))
       pickup.attracted = true
     if (pickup.attracted) {
-      if (d < 0.45) { collect(run, pickup); return false }
+      if (d < 0.45) {
+        collect(run, pickup)
+        return false
+      }
       pickup.speed = Math.min(pickup.vacuum ? 48 : 30, pickup.speed + dt * 42)
       const n = direction(run.hero.x - pickup.x, run.hero.z - pickup.z)
       const move = Math.min(d, pickup.speed * dt)
-      pickup.x += n.x * move; pickup.z += n.z * move; pickup.y += (0.5 - pickup.y) * dt * 10
+      pickup.x += n.x * move
+      pickup.z += n.z * move
+      pickup.y += (0.5 - pickup.y) * dt * 10
     }
     return true
   })

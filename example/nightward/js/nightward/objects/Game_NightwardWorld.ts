@@ -50,12 +50,16 @@ export class Game_NightwardWorld {
   }
 
   nearest(point: Point, radius: number, exclude = -1): Enemy | undefined {
-    let best: Enemy | undefined; let bestDistance = radius
+    let best: Enemy | undefined
+    let bestDistance = radius
     for (const enemy of this.nearby(point, radius)) {
       if (enemy.id === exclude)
         continue
       const d = distance(point, enemy)
-      if (d < bestDistance) { bestDistance = d; best = enemy }
+      if (d < bestDistance) {
+        bestDistance = d
+        best = enemy
+      }
     }
     return best
   }
@@ -73,10 +77,15 @@ export class Game_NightwardWorld {
           continue
         const nx = Math.max(box.x - box.width / 2, Math.min(box.x + box.width / 2, body.x))
         const nz = Math.max(box.z - box.depth / 2, Math.min(box.z + box.depth / 2, body.z))
-        const px = body.x - nx; const pz = body.z - nz; const d = Math.hypot(px, pz)
+        const px = body.x - nx
+        const pz = body.z - nz
+        const d = Math.hypot(px, pz)
         if (d >= radius)
           continue
-        if (d > 0.0001) { body.x += px / d * (radius - d); body.z += pz / d * (radius - d) }
+        if (d > 0.0001) {
+          body.x += px / d * (radius - d)
+          body.z += pz / d * (radius - d)
+        }
         else {
           const exits = [{ axis: 'x' as const, value: box.x - box.width / 2 - radius }, { axis: 'x' as const, value: box.x + box.width / 2 + radius }, { axis: 'z' as const, value: box.z - box.depth / 2 - radius }, { axis: 'z' as const, value: box.z + box.depth / 2 + radius }]
           exits.sort((a, b) => Math.abs(body[a.axis] - a.value) - Math.abs(body[b.axis] - b.value))
@@ -92,7 +101,8 @@ export class Game_NightwardWorld {
     for (const other of this.grid.query(enemy.x, enemy.z, 2.1)) {
       if (other === enemy || other.dead || other.data.layer !== enemy.data.layer)
         continue
-      const min = enemy.radius + other.radius; const d = distance(enemy, other)
+      const min = enemy.radius + other.radius
+      const d = distance(enemy, other)
       if (d >= min)
         continue
       const n = d < 0.001 ? { x: Math.sin(enemy.id), z: Math.cos(enemy.id) } : direction(enemy.x - other.x, enemy.z - other.z)

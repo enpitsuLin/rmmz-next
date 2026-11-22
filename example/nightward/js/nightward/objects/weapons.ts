@@ -31,9 +31,13 @@ function splash(run: Game_NightwardRun, weapon: Weapon, point: Point, radius: nu
   hitProps(run, point, radius, weapon)
 }
 function lash(run: Game_NightwardRun, weapon: Weapon, side: number): void {
-  const data = weapon.data; const reach = data.reach!; const height = data.halfHeight!; const origin = { ...run.hero }
+  const data = weapon.data
+  const reach = data.reach!
+  const height = data.halfHeight!
+  const origin = { ...run.hero }
   const contains = (point: Point, radius: number): boolean => {
-    const x = (point.x - origin.x) * side; const z = point.z - origin.z
+    const x = (point.x - origin.x) * side
+    const z = point.z - origin.z
     return x >= -0.25 - radius && (x / (reach + radius)) ** 2 + (z / (height + radius)) ** 2 <= 1
   }
   run.emit({ kind: 'lash', x: origin.x, z: origin.z, value: reach, extra: height, side })
@@ -44,8 +48,13 @@ function lash(run: Game_NightwardRun, weapon: Weapon, side: number): void {
   hitProps(run, origin, reach, weapon, prop => (prop.x - origin.x) * side > -0.25 && contains(prop, 0.45))
 }
 function castDelayed(run: Game_NightwardRun, cast: DelayedCast): void {
-  const weapon = run.weapon(cast.weapon.data.key)!; const { mode } = cast; const data = weapon.data
-  if (mode === 'lash') { lash(run, weapon, cast.side); return }
+  const weapon = run.weapon(cast.weapon.data.key)!
+  const { mode } = cast
+  const data = weapon.data
+  if (mode === 'lash') {
+    lash(run, weapon, cast.side)
+    return
+  }
   if (mode === 'bolt') {
     const target = run.world.nearest(run.hero, data.range!)
     if (!target)
@@ -61,7 +70,8 @@ function castDelayed(run: Game_NightwardRun, cast: DelayedCast): void {
   if (mode === 'storm') {
     if (!targets.length)
       return
-    const target = pick(targets); const point = { x: target.x, z: target.z }
+    const target = pick(targets)
+    const point = { x: target.x, z: target.z }
     run.emit({ kind: 'lightning', ...point, value: data.radius! })
     splash(run, weapon, point, data.radius!)
   }
@@ -71,15 +81,18 @@ function castDelayed(run: Game_NightwardRun, cast: DelayedCast): void {
       target = pick(targets)
     }
     else {
-      const angle = Math.random() * Math.PI * 2; const radius = 2 + 3 * Math.random()
+      const angle = Math.random() * Math.PI * 2
+      const radius = 2 + 3 * Math.random()
       target = { x: run.hero.x + Math.cos(angle) * radius, z: run.hero.z + Math.sin(angle) * radius }
     }
-    const flight = data.flight!; const point = { x: target.x, z: target.z }
+    const flight = data.flight!
+    const point = { x: target.x, z: target.z }
     run.projectiles.push({ id: run.nextId++, kind: 'flask', x: run.hero.x, z: run.hero.z, y: data.throwHeight!, vx: (point.x - run.hero.x) / flight, vz: (point.z - run.hero.z) / flight, vy: (-data.throwHeight! + 0.5 * data.gravity! * flight * flight) / flight, age: 0, life: flight, weapon, lastHit: -1, pierce: 1, aim: point })
   }
 }
 function stepTomes(run: Game_NightwardRun, dt: number): void {
-  const weapon = run.weapon('tomes'); const tomes = run.tomes
+  const weapon = run.weapon('tomes')
+  const tomes = run.tomes
   if (!weapon)
     return
   const data = weapon.data
@@ -87,7 +100,8 @@ function stepTomes(run: Game_NightwardRun, dt: number): void {
   if (tomes.timer <= 0) {
     tomes.active = !tomes.active
     if (tomes.active) {
-      tomes.count = data.count!; tomes.radius = data.radius!
+      tomes.count = data.count!
+      tomes.radius = data.radius!
       beginCast(run, weapon)
       run.emit({ kind: 'tomes', x: run.hero.x, z: run.hero.z, value: tomes.count })
     }
@@ -100,7 +114,8 @@ function stepTomes(run: Game_NightwardRun, dt: number): void {
   if (tomes.fade < 0.5)
     return
   for (let i = 0; i < tomes.count; i++) {
-    const angle = tomes.angle + i * Math.PI * 2 / tomes.count; const point = { x: run.hero.x + Math.cos(angle) * tomes.radius, z: run.hero.z + Math.sin(angle) * tomes.radius }
+    const angle = tomes.angle + i * Math.PI * 2 / tomes.count
+    const point = { x: run.hero.x + Math.cos(angle) * tomes.radius, z: run.hero.z + Math.sin(angle) * tomes.radius }
     for (const enemy of run.world.nearby(point, data.radiusHit!)) {
       if (run.time - (tomes.hits.get(enemy.id) ?? -100) < data.rehit!)
         continue
@@ -111,8 +126,12 @@ function stepTomes(run: Game_NightwardRun, dt: number): void {
   }
 }
 function ready(run: Game_NightwardRun, weapon: Weapon, dt: number): boolean {
-  const key = weapon.data.key; const remaining = run.cooldowns.get(key)! - dt
-  if (remaining > 0) { run.cooldowns.set(key, remaining); return false }
+  const key = weapon.data.key
+  const remaining = run.cooldowns.get(key)! - dt
+  if (remaining > 0) {
+    run.cooldowns.set(key, remaining)
+    return false
+  }
   const interval = weapon.data.cooldown! * run.cooldownScale()
   run.cooldowns.set(key, remaining + interval > 0 ? remaining + interval : interval)
   return true
@@ -128,7 +147,10 @@ export function stepWeapons(run: Game_NightwardRun, dt: number): void {
     if (!weapon)
       continue
     const data = weapon.data
-    if (key === 'tomes') { stepTomes(run, dt); continue }
+    if (key === 'tomes') {
+      stepTomes(run, dt)
+      continue
+    }
     if (key === 'ward')
       run.wardPulse = Math.max(0, run.wardPulse - dt / data.pulseFade!)
     if (ready(run, weapon, dt)) {
@@ -177,17 +199,26 @@ export function stepProjectiles(run: Game_NightwardRun, dt: number): void {
       if (projectile.target?.dead)
         projectile.target = run.world.nearest(projectile, 9, projectile.lastHit)
       if (projectile.target) {
-        const current = Math.atan2(projectile.vz, projectile.vx); const wanted = Math.atan2(projectile.target.z - projectile.z, projectile.target.x - projectile.x)
-        const diff = Math.atan2(Math.sin(wanted - current), Math.cos(wanted - current)); const angle = current + Math.max(-dt * data.turnRate!, Math.min(dt * data.turnRate!, diff))
-        projectile.vx = Math.cos(angle) * data.speed!; projectile.vz = Math.sin(angle) * data.speed!
+        const current = Math.atan2(projectile.vz, projectile.vx)
+        const wanted = Math.atan2(projectile.target.z - projectile.z, projectile.target.x - projectile.x)
+        const diff = Math.atan2(Math.sin(wanted - current), Math.cos(wanted - current))
+        const angle = current + Math.max(-dt * data.turnRate!, Math.min(dt * data.turnRate!, diff))
+        projectile.vx = Math.cos(angle) * data.speed!
+        projectile.vz = Math.sin(angle) * data.speed!
       }
     }
-    if (projectile.kind === 'flask') { projectile.vy -= projectile.weapon!.data.gravity! * dt; projectile.y += projectile.vy * dt }
-    projectile.x += projectile.vx * dt; projectile.z += projectile.vz * dt
+    if (projectile.kind === 'flask') {
+      projectile.vy -= projectile.weapon!.data.gravity! * dt
+      projectile.y += projectile.vy * dt
+    }
+    projectile.x += projectile.vx * dt
+    projectile.z += projectile.vz * dt
     if (projectile.kind === 'flask') {
       if (projectile.age >= projectile.life - 1e-6) {
         const weapon = projectile.weapon!
-        projectile.x = projectile.aim.x; projectile.y = 0; projectile.z = projectile.aim.z
+        projectile.x = projectile.aim.x
+        projectile.y = 0
+        projectile.z = projectile.aim.z
         if (run.pools.length === 32)
           run.pools.shift()
         run.pools.push({ id: run.nextId++, ...projectile.aim, age: 0, life: weapon.data.duration!, startedAt: run.time, nextTick: run.time, weapon })
@@ -202,7 +233,8 @@ export function stepProjectiles(run: Game_NightwardRun, dt: number): void {
       }
     }
     else {
-      const weapon = projectile.weapon!; const radius = weapon.data.radiusHit!
+      const weapon = projectile.weapon!
+      const radius = weapon.data.radiusHit!
       for (const enemy of run.world.nearby(projectile, radius)) {
         if (projectile.lastHit === enemy.id)
           continue
@@ -212,7 +244,10 @@ export function stepProjectiles(run: Game_NightwardRun, dt: number): void {
           return false
       }
       const brazier = run.world.props.find(prop => prop.active && prop.kind === 'brazier' && !prop.broken && distance(prop, projectile) <= radius + prop.radius)
-      if (brazier) { hitProps(run, projectile, radius, weapon); return false }
+      if (brazier) {
+        hitProps(run, projectile, radius, weapon)
+        return false
+      }
       if (Math.abs(projectile.x) > 100 || Math.abs(projectile.z) > 100)
         return false
     }

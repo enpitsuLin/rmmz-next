@@ -60,7 +60,11 @@ export function killEnemy(run: Game_NightwardRun, enemy: Enemy): void {
   run.kills++
   const y = enemy.data.hover + Math.sin(enemy.age * 4 + enemy.id) * enemy.data.bob + enemy.data.height * (enemy.elite ? 1.6 : 1) * 0.5
   run.emit({ kind: 'death', x: enemy.x, y, z: enemy.z, value: enemy.elite ? 2 : 1, target: enemy })
-  if (enemy.data.key === 'reaper') { run.bossDefeated = true; run.emit({ kind: 'bossDeath', x: enemy.x, z: enemy.z }); return }
+  if (enemy.data.key === 'reaper') {
+    run.bossDefeated = true
+    run.emit({ kind: 'bossDeath', x: enemy.x, z: enemy.z })
+    return
+  }
   dropPickup(run, enemy.elite ? 'gemBig' : Math.random() < enemy.data.midChance ? 'gemMedium' : 'gemSmall', enemy)
   if (enemy.elite)
     dropPickup(run, 'chest', enemy)
@@ -75,7 +79,8 @@ export function hurtHero(run: Game_NightwardRun, enemy: Enemy, origin: Point, co
   action.applyGlobal()
   run.invulnerable = run.content.hero.invulnerable
   const n = direction(run.hero.x - origin.x, run.hero.z - origin.z)
-  run.hero.vx += n.x * 4; run.hero.vz += n.z * 4
+  run.hero.vx += n.x * 4
+  run.hero.vz += n.z * 4
   run.emit({ kind: 'hurt', x: run.hero.x, z: run.hero.z, value: run.actor.result().hpDamage })
 }
 export function stepContact(run: Game_NightwardRun): void {

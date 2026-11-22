@@ -16,7 +16,10 @@ export function requestEffekseer(): Promise<void> {
     request.open('GET', 'img/nightward/reference/effekseer.json')
     request.responseType = 'json'
     request.onload = () => {
-      if (request.status >= 400) { reject(new Error(`Nightward effects (${request.status})`)); return }
+      if (request.status >= 400) {
+        reject(new Error(`Nightward effects (${request.status})`))
+        return
+      }
       for (const entry of (request.response as { effects: EffectEntry[] }).effects) {
         entries.set(key(entry.atlas, entry.frame, entry.mode), entry.name)
         EffectManager.load(`nightward/${entry.name}`)

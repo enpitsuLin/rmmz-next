@@ -13,8 +13,13 @@ export const reducedMotion = (): boolean => motionPreference.matches
 export const clock = (seconds: number): string => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`
 export function consumeInput(): void {
   // Keep held movement keys while consuming the menu's activation edge.
-  Input._previousState = { ...Input._currentState }; Input._latestButton = null; Input._pressedTime = 0; Input._virtualButton = null
-  TouchInput._currentState = TouchInput._createNewState(); TouchInput._newState = TouchInput._createNewState(); TouchInput._clicked = false
+  Input._previousState = { ...Input._currentState }
+  Input._latestButton = null
+  Input._pressedTime = 0
+  Input._virtualButton = null
+  TouchInput._currentState = TouchInput._createNewState()
+  TouchInput._newState = TouchInput._createNewState()
+  TouchInput._clicked = false
 }
 export function mixColor(a: number, b: number, k: number): number {
   return Math.round((a >> 16) + ((b >> 16) - (a >> 16)) * k) << 16 | Math.round((a >> 8 & 255) + ((b >> 8 & 255) - (a >> 8 & 255)) * k) << 8 | Math.round((a & 255) + ((b & 255) - (a & 255)) * k)
@@ -24,7 +29,13 @@ export const snap = (value: number): number => Math.round(value * uiDensity()) /
 export const largeScale = (unit: number): number => Math.max(2, Math.round(unit * uiDensity() * 1.5)) / uiDensity()
 export interface UiLayout { width: number, height: number, unit: number, icon: number, resolution: number, w: number, h: number, margin: number, portrait: boolean, short: boolean, tap: number }
 export function uiLayout(): UiLayout {
-  const width = Graphics.width; const height = Graphics.height; const resolution = uiDensity(); const pixelsW = Math.round(width * resolution); const pixelsH = Math.round(height * resolution); const pixelUnit = Math.max(2, Math.round(Math.min(pixelsW, pixelsH) / 290)); const unit = pixelUnit / resolution
+  const width = Graphics.width
+  const height = Graphics.height
+  const resolution = uiDensity()
+  const pixelsW = Math.round(width * resolution)
+  const pixelsH = Math.round(height * resolution)
+  const pixelUnit = Math.max(2, Math.round(Math.min(pixelsW, pixelsH) / 290))
+  const unit = pixelUnit / resolution
   return { width, height, unit, icon: Math.max(2, Math.round(pixelUnit * 0.7)) / resolution, resolution, w: Math.floor(pixelsW / pixelUnit), h: Math.floor(pixelsH / pixelUnit), margin: 4 * unit, portrait: height > width, short: Math.floor(pixelsH / pixelUnit) < 240, tap: coarsePointer.matches ? Math.ceil(44 / unit) : 0 }
 }
 export const fitScale = (texels: number, width: number, maximum: number): number => Math.max(1 / uiDensity(), Math.min(maximum, Math.floor(width * uiDensity() / Math.max(1, texels)) / uiDensity()))

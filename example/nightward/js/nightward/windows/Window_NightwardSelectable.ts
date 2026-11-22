@@ -25,7 +25,10 @@ export class Window_NightwardSelectable extends Window_Selectable {
   private pressed = -1
   constructor(width: number, height: number) {
     super(new Rectangle(0, 0, width, height))
-    this.padding = 0; this.opacity = 0; this.cursorVisible = false; this._canRepeat = false
+    this.padding = 0
+    this.opacity = 0
+    this.cursorVisible = false
+    this._canRepeat = false
     // Pixi glyph effects overflow item bounds; the scene viewport provides clipping.
     for (const filter of this._clientArea!.filters ?? []) filter.destroy()
     this._clientArea!.filters = null
@@ -34,7 +37,12 @@ export class Window_NightwardSelectable extends Window_Selectable {
   }
 
   override updatePadding(): void { this.padding = 0 }
-  override createContents(): void { this.destroyContents(); this.contents = new Bitmap(1, 1); this.contentsBack = new Bitmap(1, 1) }
+  override createContents(): void {
+    this.destroyContents()
+    this.contents = new Bitmap(1, 1)
+    this.contentsBack = new Bitmap(1, 1)
+  }
+
   override maxItems(): number { return this.choices?.length ?? 0 }
   override maxVisibleItems(): number { return this.maxItems() }
   override overallHeight(): number { return this.innerHeight }
@@ -48,8 +56,16 @@ export class Window_NightwardSelectable extends Window_Selectable {
   override playOkSound(): void {}
   override playCursorSound(): void { sound('Cursor') }
   override updateInputData(): void {}
-  override processCancel(): void { this.deactivate(); this.callCancelHandler() }
-  override _updateCursor(): void { super._updateCursor(); this._cursorSprite!.visible = false }
+  override processCancel(): void {
+    this.deactivate()
+    this.callCancelHandler()
+  }
+
+  override _updateCursor(): void {
+    super._updateCursor()
+    this._cursorSprite!.visible = false
+  }
+
   override processCursorMove(): void {
     if (!this.pointerOnly)
       super.processCursorMove()
@@ -66,10 +82,15 @@ export class Window_NightwardSelectable extends Window_Selectable {
     if (previous !== index)
       this.choices?.[previous]?.focus(false, this.keyed)
     const choice = this.choices?.[index]
-    choice?.focus(true, this.keyed); this.onSelection?.(choice)
+    choice?.focus(true, this.keyed)
+    this.onSelection?.(choice)
   }
 
-  focusChoice(index: number, keyed = true): void { this.keyed = keyed; this.select(index) }
+  focusChoice(index: number, keyed = true): void {
+    this.keyed = keyed
+    this.select(index)
+  }
+
   private available(index: number): boolean {
     const choice = this.choices?.[index]
     if (!choice?.enabled)
@@ -85,7 +106,9 @@ export class Window_NightwardSelectable extends Window_Selectable {
     const choice = this.choices?.[index]
     if (!choice)
       return new Rectangle()
-    const { x, y, width, height } = choice.rect; const a = this.toLocal(choice.node.toGlobal({ x, y })); const b = this.toLocal(choice.node.toGlobal({ x: x + width, y: y + height }))
+    const { x, y, width, height } = choice.rect
+    const a = this.toLocal(choice.node.toGlobal({ x, y }))
+    const b = this.toLocal(choice.node.toGlobal({ x: x + width, y: y + height }))
     return new Rectangle(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(b.x - a.x), Math.abs(b.y - a.y))
   }
 
@@ -103,18 +126,29 @@ export class Window_NightwardSelectable extends Window_Selectable {
     if (!enabled.length)
       return
     if (this.cycle) {
-      const current = enabled.findIndex(({ index }) => index === this.index()); const next = (current + direction + enabled.length) % enabled.length
-      this.select(enabled[next]!.index); return
+      const current = enabled.findIndex(({ index }) => index === this.index())
+      const next = (current + direction + enabled.length) % enabled.length
+      this.select(enabled[next]!.index)
+      return
     }
-    const rows = [...new Set(enabled.map(({ choice }) => choice.row))].sort((a, b) => a - b); const current = this.choices[this.index()]; const at = current ? rows.indexOf(current.row) : -1; const row = rows[(at + direction + rows.length) % rows.length]!; const candidates = enabled.filter(({ choice }) => choice.row === row)
+    const rows = [...new Set(enabled.map(({ choice }) => choice.row))].sort((a, b) => a - b)
+    const current = this.choices[this.index()]
+    const at = current ? rows.indexOf(current.row) : -1
+    const row = rows[(at + direction + rows.length) % rows.length]!
+    const candidates = enabled.filter(({ choice }) => choice.row === row)
     const next = candidates.find(({ choice }) => choice.selected) ?? candidates.reduce((best, item) => Math.abs(item.choice.col - (current?.col ?? 0)) < Math.abs(best.choice.col - (current?.col ?? 0)) ? item : best)
     this.select(next.index)
   }
 
   private moveColumn(direction: number): void {
     this.keyed = true
-    if (this.cycle || this.index() < 0) { this.moveRow(direction); return }
-    const current = this.choices[this.index()]!; const row = this.choices.map((choice, index) => ({ choice, index })).filter(({ choice, index }) => choice.row === current.row && this.available(index)).sort((a, b) => a.choice.col - b.choice.col); const at = row.findIndex(({ index }) => index === this.index())
+    if (this.cycle || this.index() < 0) {
+      this.moveRow(direction)
+      return
+    }
+    const current = this.choices[this.index()]!
+    const row = this.choices.map((choice, index) => ({ choice, index })).filter(({ choice, index }) => choice.row === current.row && this.available(index)).sort((a, b) => a.choice.col - b.choice.col)
+    const at = row.findIndex(({ index }) => index === this.index())
     if (row.length > 1)
       this.select(row[Math.max(0, Math.min(row.length - 1, at + direction))]!.index)
     else current.step?.(direction)
@@ -126,10 +160,14 @@ export class Window_NightwardSelectable extends Window_Selectable {
   override cursorLeft(): void { this.moveColumn(-1) }
   override onTouchSelect(trigger: boolean): void {
     const previous = this.index()
-    this.keyed = false; super.onTouchSelect(trigger)
+    this.keyed = false
+    super.onTouchSelect(trigger)
     if (!trigger && previous !== this.index())
       this.playCursorSound()
-    if (trigger) { this.pressed = this.hitIndex(); this.choices[this.pressed]?.setPressed(true) }
+    if (trigger) {
+      this.pressed = this.hitIndex()
+      this.choices[this.pressed]?.setPressed(true)
+    }
   }
 
   override onTouchOk(): void {
@@ -139,13 +177,20 @@ export class Window_NightwardSelectable extends Window_Selectable {
 
   override processTouch(): void {
     super.processTouch()
-    if (!TouchInput.isPressed() && this.pressed >= 0) { this.choices[this.pressed]?.setPressed(false); this.pressed = -1 }
+    if (!TouchInput.isPressed() && this.pressed >= 0) {
+      this.choices[this.pressed]?.setPressed(false)
+      this.pressed = -1
+    }
   }
 
   setLive(live: boolean): void {
     if (live && !this.active) {
       this.activate()
     }
-    else if (!live && this.active) { this.deactivate(); this.choices[this.pressed]?.setPressed(false); this.pressed = -1 }
+    else if (!live && this.active) {
+      this.deactivate()
+      this.choices[this.pressed]?.setPressed(false)
+      this.pressed = -1
+    }
   }
 }
