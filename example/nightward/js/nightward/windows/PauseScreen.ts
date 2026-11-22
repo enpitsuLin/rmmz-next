@@ -2,6 +2,7 @@ import type { Sprite } from 'pixi.js'
 import type { Game_NightwardRun } from '../objects/Game_NightwardRun'
 import type { Sprite_NightwardText } from '../sprites/Sprite_NightwardText'
 import { Container } from 'pixi.js'
+import { SoundManager } from 'rmmz-next'
 import { sound } from '../managers/NightwardAudioManager'
 import { back, clock, colors, introAlpha, largeScale, out, phase, reducedMotion } from '../primitives/ui'
 import { Sprite_NightwardBuild } from '../sprites/Sprite_NightwardBuild'
@@ -43,7 +44,7 @@ export class PauseScreen extends UiScreen {
     this.runPanel.addChild(this.runFrame)
     const actions: PauseAction[] = ['resume', 'options', 'howto', 'restart', 'title']
     this.menuButtons = ['RESUME', 'OPTIONS', 'HOW TO PLAY', 'RESTART', 'QUIT TO TITLE'].map((name, i) => {
-      const button = this.addButton(new Sprite_NightwardButton(name, 110, 22, i ? 'Confirm' : null), i, 0, this.menu)
+      const button = this.addButton(new Sprite_NightwardButton(name, 110, 22, i ? 'ok' : null), i, 0, this.menu)
       button.onActivate = () => {
         const kind = actions[i]!
         if (kind === 'restart' || kind === 'title')
@@ -65,8 +66,9 @@ export class PauseScreen extends UiScreen {
     this.ask.visible = false
     this.yes.enabled = this.no.enabled = false
     const values = [clock(run.time), `Lv ${run.actor.level}`, String(run.kills), String(run.party.gold())]
-    for (const [i, key] of ['clock', 'gem', 'kills', 'coin'].entries()) {
-      const image = icon(key)
+    const icons = [run.content.config.icons.clock, run.content.items.get('gemSmall')!.iconIndex, run.content.config.icons.kills, run.content.items.get('coin')!.iconIndex]
+    for (const [i, iconIndex] of icons.entries()) {
+      const image = icon(iconIndex)
       const value = text(values[i]!, 0, 0, i === 3 ? 1 : 0)
       this.runPanel.addChild(image, value)
       this.stats.push({ image, value })
@@ -94,7 +96,7 @@ export class PauseScreen extends UiScreen {
   }
 
   private cancelAsk(): void {
-    sound('Cancel')
+    SoundManager.playCancel()
     const previous = this.asking
     this.asking = undefined
     this.returningAge = 0
@@ -121,7 +123,7 @@ export class PauseScreen extends UiScreen {
     this.stats.forEach(({ image, value }, i) => {
       const x = 10 + i % 2 * colWidth
       const y = 10 + Math.floor(i / 2) * statH
-      image.scale.set(l.icon / l.unit)
+      image.scale.set(16 / image.texture.frame.width * l.icon / l.unit)
       image.position.set(x, y)
       value.position.set(x + iconSize + 5, y + Math.round((iconSize - 7) / 2))
     })

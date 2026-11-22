@@ -4,7 +4,7 @@ import type { IconPoint } from '../primitives/ui'
 import type { Sprite_NightwardText } from '../sprites/Sprite_NightwardText'
 import type { Window_NightwardPanel } from './Window_NightwardPanel'
 import { Container, Rectangle } from 'pixi.js'
-import { Input } from 'rmmz-next'
+import { Input, SoundManager } from 'rmmz-next'
 import { sound } from '../managers/NightwardAudioManager'
 import { back, colors, largeScale, out, phase, reducedMotion } from '../primitives/ui'
 import { Sprite_NightwardHeading } from '../sprites/Sprite_NightwardHeading'
@@ -173,7 +173,7 @@ export class RewardScreen extends UiScreen {
     this.selected = index
     this.chosen = index
     this.exitAge = 0
-    sound('Confirm')
+    SoundManager.playOk()
     this.cards[index]!.press = this.cards[index]!.pressFrom = this.cards[index]!.pressTarget = 0
     this.cards[index]!.pressed = false
     this.callbacks.pick(index)

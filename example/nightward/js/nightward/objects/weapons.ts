@@ -248,7 +248,8 @@ export function stepProjectiles(run: Game_NightwardRun, dt: number): void {
         hitProps(run, projectile, radius, weapon)
         return false
       }
-      if (Math.abs(projectile.x) > 100 || Math.abs(projectile.z) > 100)
+      const limit = run.content.map.bounds + 10
+      if (Math.abs(projectile.x) > limit || Math.abs(projectile.z) > limit)
         return false
     }
     return projectile.age < projectile.life

@@ -1,7 +1,9 @@
 import type { Game_Interpreter } from 'rmmz-next'
-import { Game_Actor, GlobalMananger as globals, Input, PluginManager, SceneManager } from 'rmmz-next'
+import { Game_Actor, Game_BattlerBase, GlobalMananger as globals, Input, PluginManager, SceneManager } from 'rmmz-next'
 import { installConfig } from './managers/NightwardConfigManager'
+import { readPluginConfig } from './managers/NightwardDataManager'
 import { installEffekseer } from './managers/NightwardEffectManager'
+import { activeWeapon } from './objects/combat'
 import { Scene_Nightward } from './scenes/Scene_Nightward'
 import { Scene_NightwardTitle } from './scenes/Scene_NightwardTitle'
 import '@pixi/3d'
@@ -14,13 +16,29 @@ export function installNightward(): void {
     if (!(this._scene instanceof Scene_Nightward))
       updateEffekseer.call(this)
   }
+  const paramPlus = Game_Actor.prototype.paramPlus
+  Game_Actor.prototype.paramPlus = function (paramId) {
+    const weapon = activeWeapon(this)
+    if (!weapon || paramId !== 2)
+      return paramPlus.call(this, paramId)
+    let value = Game_BattlerBase.prototype.paramPlus.call(this, paramId) + weapon.params[paramId]!
+    for (const armor of this.armors())
+      value += armor.params[paramId]!
+    return value
+  }
   const expForLevel = Game_Actor.prototype.expForLevel
   Game_Actor.prototype.expForLevel = function (level) {
-    return this.currentClass().note.includes('"key":"nightward"') ? 5 * (level - 1) ** 2 : expForLevel.call(this, level)
+    const c = this.currentClass()
+    if (c.note.includes('"key":"nightward"') && c.expParams[2] === 0 && c.expParams[3] === 0)
+      return Math.round((level - 1) * c.expParams[0]! + c.expParams[1]! * (level - 1) * (level - 2) / 2)
+    return expForLevel.call(this, level)
   }
   const equipSlots = Game_Actor.prototype.equipSlots
   Game_Actor.prototype.equipSlots = function () {
-    return this.currentClass().note.includes('"key":"nightward"') ? [1, 1, 1, 1, 1, 1, 2, 3, 4, 5] : equipSlots.call(this)
+    if (!this.currentClass().note.includes('"key":"nightward"'))
+      return equipSlots.call(this)
+    const { weaponSlots } = readPluginConfig()
+    return [...Array.from<number>({ length: weaponSlots }).fill(1), 2, 3, 4, 5]
   }
   const run = SceneManager.run
   SceneManager.run = function (scene, scenes) {
@@ -48,6 +66,21 @@ export function installNightward(): void {
     const scene = SceneManager._scene
     if (scene instanceof Scene_Nightward)
       scene.setTimerWarning(args.enabled === 'true')
+  })
+  PluginManager.registerCommand('Nightward', 'PickupVacuum', () => {
+    const scene = SceneManager._scene
+    if (scene instanceof Scene_Nightward)
+      scene.run.triggerVacuum()
+  })
+  PluginManager.registerCommand('Nightward', 'PickupRelic', (args) => {
+    const scene = SceneManager._scene
+    if (scene instanceof Scene_Nightward)
+      scene.run.triggerRelic(Number(args.radius ?? 26), Number(args.delay ?? 0.4))
+  })
+  PluginManager.registerCommand('Nightward', 'PickupChest', () => {
+    const scene = SceneManager._scene
+    if (scene instanceof Scene_Nightward)
+      scene.run.triggerChest()
   })
   for (const command of ['PropMove', 'PropVisible', 'PropBreak', 'PropDoor', 'PropCommonEvent', 'PropContext']) {
     PluginManager.registerCommand('Nightward', command, function (this: Game_Interpreter, args) {

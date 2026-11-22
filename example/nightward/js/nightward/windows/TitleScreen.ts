@@ -1,5 +1,5 @@
 import { Container } from 'pixi.js'
-import { Input } from 'rmmz-next'
+import { GlobalMananger as globals, Input, SoundManager } from 'rmmz-next'
 import { sound } from '../managers/NightwardAudioManager'
 import { records } from '../managers/NightwardRecordManager'
 import { back, clock, colors, fitScale, out, phase, reducedMotion } from '../primitives/ui'
@@ -12,7 +12,7 @@ import { bestLine } from './recordText'
 import { UiScreen } from './UiScreen'
 
 export class TitleScreen extends UiScreen {
-  private logo = new Sprite_NightwardHeading('NIGHTWARD')
+  private logo = new Sprite_NightwardHeading((globals.$dataSystem.gameTitle || 'Nightward').toUpperCase())
   private tagline = [text('', 0, 0, 0, colors.blue, 0.5), text('', 0, 0, 0, colors.blue, 0.5)]
   private footer = new Container({ eventMode: 'none' })
   private best = text('', 0, 0, 0, colors.dim, 0.5)
@@ -29,13 +29,13 @@ export class TitleScreen extends UiScreen {
   constructor(onPlay: () => void, onOpen: (kind: 'options' | 'howto') => void) {
     super()
     this.logo.configure({ halo: 0.26, haloSeconds: 0.8, haloSine: true, breath: 0.03, drop: 10, lettersAt: 0.1, letterSeconds: 0.45, strength: 1.6, stagger: 0.05, rulesAt: 0.55, diamondsAt: 0.7, diamondSeconds: 0.25, glintAt: 2 })
-    this.menu = ['PLAY', 'HOW TO PLAY', 'OPTIONS'].map((name, i) => this.addButton(new Sprite_NightwardButton(name, 120, 22, i ? 'Confirm' : null), i))
+    this.menu = ['PLAY', 'HOW TO PLAY', 'OPTIONS'].map((name, i) => this.addButton(new Sprite_NightwardButton(name, 120, 22, i ? 'ok' : null), i))
     this.menu[0]!.onActivate = () => {
       this.live = false
       this.playAge = 0
       this.playDone = onPlay
       this.menu[0]!.punch()
-      sound('Confirm')
+      SoundManager.playOk()
     }
     this.menu[1]!.onActivate = () => onOpen('howto')
     this.menu[2]!.onActivate = () => onOpen('options')
@@ -95,8 +95,13 @@ export class TitleScreen extends UiScreen {
     this.flash.width = play.size.width - 4
     this.flash.height = play.size.height - 4
     const positions = [1, 8, 2]
+    const glyphs = this.logo.title.glyphs
     this.sparkles.forEach((node, i) => {
-      const glyph = this.logo.title.glyphs[positions[i]!]!
+      const glyph = glyphs[Math.min(positions[i]!, glyphs.length - 1)]
+      if (!glyph) {
+        node.visible = false
+        return
+      }
       const k = this.logo.title.scale.x
       const width = glyph.texture.frame.width
       node.position.set(Math.round(center + (glyph.x + (i === 1 ? width - 2 : width / 2)) * k), Math.round(this.logoY + (i === 0 ? -4 : i === 1 ? 1 : logoH + 3)))

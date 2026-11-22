@@ -19,7 +19,7 @@ interface DamageRow { root: Container, bar: Container, value: Sprite_NightwardTe
 export class ResultsScreen extends UiScreen {
   private shade = box(1, 1, colors.death, 0)
   private heading: Sprite_NightwardHeading
-  private subtitle = text('The Grave Reaper is slain', 0, 0, 0, colors.blue, 0.5)
+  private subtitle: Sprite_NightwardText
   private subtitleY = 0
   private runPanel = new Container()
   private damagePanel = new Container()
@@ -38,6 +38,7 @@ export class ResultsScreen extends UiScreen {
   private waiting = true
   constructor(private result: RunResult, before: Records, content: Content, retry: () => void, title: () => void) {
     super()
+    this.subtitle = text(`The ${content.enemies.get('reaper')!.name} is slain`, 0, 0, 0, colors.blue, 0.5)
     this.build = new Sprite_NightwardBuild(content)
     const won = result.won
     const l = this.layout
@@ -68,7 +69,7 @@ export class ResultsScreen extends UiScreen {
     const highs = [won ? before.wins > 0 && result.time < (before.fastestWin ?? Infinity) : before.runs > 0 && Math.floor(result.time) > Math.floor(before.bestTime), before.runs > 0 && result.level > before.bestLevel, before.runs > 0 && result.kills > before.bestKills, before.runs > 0 && result.gold > before.bestGold]
     const values = [result.time, result.level, result.kills, result.gold]
     const names = [won ? 'Slain at' : 'Survived', 'Level', 'Kills', 'Gold']
-    const icons = ['clock', 'gem', 'kills', 'coin']
+    const icons = [content.config.icons.clock, content.items.get('gemSmall')!.iconIndex, content.config.icons.kills, content.items.get('coin')!.iconIndex]
     const rowH = config.stat
     const stampText = width - 2 * pad - 60 >= new Sprite_NightwardText('NEW BEST', 3).textWidth + 54 ? 'NEW BEST' : 'NEW!'
     const stampWidth = new Sprite_NightwardText(stampText, 3).textWidth + 8
@@ -82,7 +83,7 @@ export class ResultsScreen extends UiScreen {
       const image = icon(icons[i]!)
       const value = text('', valueX, Math.round((rowH - 7) / 2), i === 3 ? 1 : 0, 0xFFFFFF, 1)
       const stamp = new Container()
-      image.scale.set(ratio)
+      image.scale.set(16 / image.texture.frame.width * ratio)
       image.y = Math.round((rowH - iconSize) / 2)
       const stampHeight = Math.min(13, rowH - 1)
       const frame = panel(stampWidth, stampHeight, 'barFrame')
@@ -164,7 +165,7 @@ export class ResultsScreen extends UiScreen {
     const buttonW = portrait ? Math.floor(width / 2) - 4 : 72
     const buttonH = Math.max(22, l.tap)
     const retryButton = this.addButton(new Sprite_NightwardButton('RETRY', buttonW, buttonH), 0, 0)
-    const titleButton = this.addButton(new Sprite_NightwardButton('TITLE', buttonW, buttonH, 'Cancel'), 0, 1)
+    const titleButton = this.addButton(new Sprite_NightwardButton('TITLE', buttonW, buttonH, 'cancel'), 0, 1)
     retryButton.showCursor = titleButton.showCursor = false
     retryButton.position.set(center - 6 - buttonW, buttonY)
     titleButton.position.set(center + 6, buttonY)

@@ -32,7 +32,7 @@ export function allRewards(run: Game_NightwardRun, ownedOnly = false): Reward[] 
 export function chooseRewards(run: Game_NightwardRun): Reward[] {
   const pool = allRewards(run)
   const choices: Reward[] = []
-  for (let i = 0; i < 3 && pool.length; i++) {
+  for (let i = 0; i < run.content.config.upgradeChoices && pool.length; i++) {
     const weights = pool.map(reward => reward.rank > 1 ? 3 : reward.weapon ? 2 : 1.4)
     let roll = Math.random() * weights.reduce((a, b) => a + b, 0)
     let index = 0
@@ -68,7 +68,15 @@ export function dropPickup(run: Game_NightwardRun, key: PickupKey, point: Point)
   const angle = Math.random() * Math.PI * 2
   run.pickups.push({ id: run.nextId++, key, x: point.x, z: point.z, age: 0, y: 0.3, vy: 4, vx: Math.cos(angle) * 1.3, vz: Math.sin(angle) * 1.3, attracted: false, vacuum: false, speed: -3 })
 }
-function openChest(run: Game_NightwardRun): void {
+export function activateVacuum(run: Game_NightwardRun): void {
+  for (const gem of run.pickups) {
+    if (gem.key.startsWith('gem')) {
+      gem.attracted = true
+      gem.vacuum = true
+    }
+  }
+}
+export function openChest(run: Game_NightwardRun): void {
   const roll = Math.random()
   const count = roll < 0.5 ? 1 : roll < 0.8 ? 2 : 3
   const granted: Reward[] = []
@@ -82,7 +90,7 @@ function openChest(run: Game_NightwardRun): void {
     granted.push(reward)
   }
   if (!granted.length)
-    run.party.gainGold(100)
+    run.party.gainGold(run.content.config.chestGold)
   run.chestRewards = granted
   run.chestGold = !granted.length
   run.chestPending = true
@@ -92,25 +100,15 @@ function collect(run: Game_NightwardRun, pickup: Pickup): void {
   const item = run.content.items.get(pickup.key)!
   const action = new Game_Action(run.actor)
   action.setItem(item.id)
-  run.applyPickupEffects(action)
-  if (pickup.key === 'chicken') {
+  let healed: number | undefined
+  if (action.isForFriend()) {
     action.apply(run.actor)
+    const amount = -run.actor.result().hpDamage
+    if (amount > 0)
+      healed = amount
   }
-  else if (pickup.key === 'vacuum') {
-    for (const gem of run.pickups) {
-      if (gem.key.startsWith('gem')) {
-        gem.attracted = true
-        gem.vacuum = true
-      }
-    }
-  }
-  else if (pickup.key === 'relic') {
-    run.relicAt = run.time + 0.4
-  }
-  else if (pickup.key === 'chest') {
-    openChest(run)
-  }
-  run.emit({ kind: 'pickup', x: pickup.x, z: pickup.z, pickup: pickup.key })
+  run.applyPickupEffects(action)
+  run.emit({ kind: 'pickup', x: pickup.x, z: pickup.z, pickup: pickup.key, value: healed })
 }
 export function stepPickups(run: Game_NightwardRun, dt: number): void {
   const magnet = run.content.hero.magnet * (1 + run.passiveValue('lodestone'))
@@ -142,7 +140,8 @@ export function stepPickups(run: Game_NightwardRun, dt: number): void {
   })
   if (run.relicAt > 0 && run.time >= run.relicAt) {
     run.relicAt = -1
-    for (const enemy of run.world.nearby(run.hero, 26)) killEnemy(run, enemy)
-    run.emit({ kind: 'relic', x: run.hero.x, z: run.hero.z, value: 26 })
+    const radius = run.relicRadius
+    for (const enemy of run.world.nearby(run.hero, radius)) killEnemy(run, enemy)
+    run.emit({ kind: 'relic', x: run.hero.x, z: run.hero.z, value: radius })
   }
 }

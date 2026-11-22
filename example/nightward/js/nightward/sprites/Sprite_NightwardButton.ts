@@ -1,11 +1,13 @@
 import type { Texture } from 'pixi.js'
 import type { WindowChoice } from '../windows/Window_NightwardSelectable'
 import { Container, Rectangle, Sprite } from 'pixi.js'
-import { sound } from '../managers/NightwardAudioManager'
+import { SoundManager } from 'rmmz-next'
 import { back, colors, out, phase, reducedMotion } from '../primitives/ui'
 import { panel } from '../windows/panel'
 import { Sprite_NightwardText } from './Sprite_NightwardText'
 import { sprite } from './uiSprites'
+
+export type ButtonCue = 'ok' | 'cancel' | 'cursor' | null
 
 export class Sprite_NightwardButton extends Container implements WindowChoice {
   readonly motion = new Container()
@@ -34,7 +36,7 @@ export class Sprite_NightwardButton extends Container implements WindowChoice {
   private time = 0
   private buttonWidth = 0
   private buttonHeight = 0
-  constructor(caption: string | Texture, width: number, height = 22, readonly cue: string | null = 'Confirm') {
+  constructor(caption: string | Texture, width: number, height = 22, readonly cue: ButtonCue = 'ok') {
     super({ eventMode: 'static', cursor: 'pointer' })
     this.glow.tint = colors.lantern
     this.cursorSprite.anchor.set(1, 0.5)
@@ -77,8 +79,12 @@ export class Sprite_NightwardButton extends Container implements WindowChoice {
   setPressed(pressed: boolean): void { this.pressed = pressed }
   activate(): void {
     if (this.enabled) {
-      if (this.cue)
-        sound(this.cue)
+      if (this.cue === 'ok')
+        SoundManager.playOk()
+      else if (this.cue === 'cancel')
+        SoundManager.playCancel()
+      else if (this.cue === 'cursor')
+        SoundManager.playCursor()
       this.onActivate?.()
     }
   }

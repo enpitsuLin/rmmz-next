@@ -1,7 +1,7 @@
 import type { MZ } from 'rmmz-next/database-types'
 import { Game_Interpreter, GlobalMananger as globals } from 'rmmz-next'
 
-type PhaseSignal = 'start' | 'boss' | 'bossDeath'
+type PhaseSignal = 'start' | 'boss' | 'bossDeath' | 'victory'
 interface PhaseEvent {
   at: string | number
   list: MZ.CommonEvent['list']
@@ -19,7 +19,7 @@ export class Game_NightwardPhaseEvents {
       const comment = event.list[0]
       if (comment?.code !== 108)
         continue
-      const match = /^<nightwardPhase:(start|boss|bossDeath|\d+(?:\.\d+)?)(,demo)?>$/.exec(String(comment.parameters[0]).trim())
+      const match = /^<nightwardPhase:(start|boss|bossDeath|victory|\d+(?:\.\d+)?)(,demo)?>$/.exec(String(comment.parameters[0]).trim())
       if (!match || (demo && !match[2]))
         continue
       const seconds = Number(match[1])

@@ -2,6 +2,7 @@ import type { Game_Enemy } from 'rmmz-next'
 import type { Content, EnemyData, Layer } from '../managers/NightwardDataManager'
 import type { Point } from '../primitives/geometry'
 import type { Game_NightwardProps, Prop } from './Game_NightwardProps'
+import { GlobalMananger as globals } from 'rmmz-next'
 import { direction, distance } from '../primitives/geometry'
 import { SpatialGrid } from '../primitives/SpatialGrid'
 
@@ -11,7 +12,6 @@ export interface Enemy extends Point {
   data: EnemyData
   radius: number
   speed: number
-  contact: number
   elite: boolean
   vx: number
   vz: number
@@ -24,21 +24,33 @@ export interface Enemy extends Point {
   swing: number
   aim: Point
 }
-export interface Obstacle extends Point { width: number, depth: number, prop: Prop }
+export interface Obstacle extends Point { width: number, depth: number, prop?: Prop }
 export class Game_NightwardWorld {
   get props(): Prop[] { return this.propManager.props }
   get propsRevision(): number { return this.propManager.structureRevision }
   obstacles: Obstacle[] = []
   enemies: Enemy[] = []
   grid = new SpatialGrid<Enemy>()
+  private tileObstacles: Obstacle[] = []
   private staticGrid = new SpatialGrid<Obstacle>(8)
   private collisionRevision = -1
   private obstacleReach = 0
-  constructor(private content: Content, readonly propManager: Game_NightwardProps) { this.syncProps() }
+  constructor(private content: Content, readonly propManager: Game_NightwardProps) {
+    const map = globals.$gameMap
+    const center = content.map.center
+    for (let y = 0; y < map.height(); y++) {
+      for (let x = 0; x < map.width(); x++) {
+        if (!map.checkPassage(x, y, 0x0F))
+          this.tileObstacles.push({ x: x - center, z: y - center, width: 1, depth: 1 })
+      }
+    }
+    this.syncProps()
+  }
+
   syncProps(): void {
     if (this.collisionRevision === this.propManager.revision)
       return
-    this.obstacles = this.propManager.obstacles()
+    this.obstacles = [...this.tileObstacles, ...this.propManager.obstacles()]
     this.obstacleReach = 0
     for (const box of this.obstacles) this.obstacleReach = Math.max(this.obstacleReach, box.width / 2, box.depth / 2)
     this.staticGrid.rebuild(this.obstacles)
@@ -73,7 +85,7 @@ export class Game_NightwardWorld {
       if (layer !== 'ground')
         continue
       for (const box of this.staticGrid.query(body.x, body.z, radius + this.obstacleReach)) {
-        if (!box.prop.active || box.prop.broken)
+        if (box.prop && (!box.prop.active || box.prop.broken))
           continue
         const nx = Math.max(box.x - box.width / 2, Math.min(box.x + box.width / 2, body.x))
         const nz = Math.max(box.z - box.depth / 2, Math.min(box.z + box.depth / 2, body.z))

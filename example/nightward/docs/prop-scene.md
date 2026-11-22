@@ -67,6 +67,9 @@
 
    | 指令 | 参数与行为 |
    | --- | --- |
+   | `PickupVacuum` | 将地图上全部经验宝石吸向主角 |
+   | `PickupRelic` | `radius`、`delay`；延迟后清除范围内敌人 |
+   | `PickupChest` | 触发 1–3 次装备升级（满构筑时改给金币）并打开宝箱界面 |
    | `PropMove` | `target`、`x/y/z`、`relative`；世界坐标移动，或按增量平移 |
    | `PropVisible` | `target`、`visible`；同步控制模型、碰撞、光效 |
    | `PropBreak` | `target`；破坏一次，火盆沿用现有掉落和特效 |
@@ -74,19 +77,21 @@
    | `PropCommonEvent` | `target`、`commonEvent`；按 Prop 排队调用原生公共事件 |
    | `PropContext` | `variable`；把当前 Prop 公共事件的 ID 写入指定变量 |
 
-   `target` 可以是稳定 ID，例如 `brazier:1`，也可以是标签，例如 `#brazier`。在 Prop 公共事件中，`@context` 表示本次调用对应的 Prop。这类调用由地图解释器执行。绑定事件的位置持续驱动 Prop，调整位置时可直接移动绑定事件。
+   `target` 可以是稳定 ID，例如 `brazier:1`，也可以是标签，例如 `#brazier`。在 Prop 公共事件中，`@context` 表示本次调用对应的 Prop。这类调用由地图解释器执行。绑定事件的位置持续驱动 Prop，调整位置时可直接移动绑定事件。带有 `<nightwardSpawn:reaper>`（可选 `<spawnOffset:dx,dz>`）的地图事件用于指定死神出生点；图块集中标记为不可通行（`×`）的图块会自动加入地面静态碰撞。
 
 5. **阶段演出**
 
-   在 RMMZ 的「公共事件」中将触发条件设为「无」，首条指令使用注释 `<nightwardPhase:60>`，表示对局时间到达 60 秒时执行一次。`start` 对应开始对局，`boss` 和 `bossDeath` 对应死神登场和被击败。加上 `,demo` 可同时在标题演示中运行，例如 `<nightwardPhase:170,demo>`。
+   在 RMMZ 的「公共事件」中将触发条件设为「无」，首条指令使用注释 `<nightwardPhase:60>`，表示对局时间到达 60 秒时执行一次。`start` 对应开始对局，`boss`、`bossDeath` 和 `victory` 分别对应死神登场、被击败与胜利结算。加上 `,demo` 可同时在标题演示中运行，例如 `<nightwardPhase:170,demo>`。
 
    | 公共事件 | 默认内容 |
    | --- | --- |
    | 002 | 死神登场的 BGM、SE 和横幅 |
+   | 003 | 胜利时的黎明 BGM（`Dawn`，在胜利 ME 结束后淡入） |
    | 005–007 | 开场横幅、1:00 和 2:00 的短提示 |
    | 008 | 2:50 显示 `#crypt`，10 秒内开门，标题演示也执行 |
    | 009–010 | 2:50 警告横幅、每秒响一次的倒计时、头三秒额外警报，3:00 结束倒计时 |
    | 011 | 击败死神的 SE |
+   | 012–018 | 拾取物公共事件（经验宝石、金币、磁吸、圣物、宝箱） |
 
    提示使用 `PhaseNotice` 和 `PhaseBanner`，计时器颜色和脉冲使用 `TimerWarning`。音效、等待和调用其他公共事件使用 RMMZ 原生命令。通过 `PropVisible` 可在同一阶段控制物件、碰撞和光效的显隐。每个阶段事件独立执行，等待随对局暂停，重开时从头开始。门旋转与墓穴光效共用同一开度，对局暂停时开度保持当前值。
 

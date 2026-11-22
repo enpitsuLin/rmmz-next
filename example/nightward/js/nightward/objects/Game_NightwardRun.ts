@@ -15,7 +15,7 @@ import { breakProp, stepContact } from './combat'
 import { stepDirector, stepEnemies } from './director'
 import { Game_NightwardProps } from './Game_NightwardProps'
 import { Game_NightwardWorld } from './Game_NightwardWorld'
-import { chooseRewards, grantReward, stepPickups } from './rewards'
+import { activateVacuum, chooseRewards, grantReward, openChest, stepPickups } from './rewards'
 import { stepFirePools, stepProjectiles, stepWeapons } from './weapons'
 
 export type RunState = 'running' | 'choosing' | 'chest' | 'paused' | 'results'
@@ -63,6 +63,7 @@ export class Game_NightwardRun {
   chestGold = false
   chestPending = false
   relicAt = -1
+  relicRadius = 26
   damage: Record<WeaponKey, number> = { lash: 0, wand: 0, tomes: 0, storm: 0, ward: 0, flask: 0 }
   result?: RunResult
   private turn = 0
@@ -95,7 +96,7 @@ export class Game_NightwardRun {
     this.party.onBattleStart(false)
     this.troop.onBattleStart(false)
     if (demo) {
-      for (const [index, key] of weaponKeys.entries()) this.actor.forceChangeEquip(index, content.weapons.get(key)![0]!)
+      for (const [index, key] of weaponKeys.slice(0, content.config.weaponSlots).entries()) this.actor.forceChangeEquip(index, content.weapons.get(key)![0]!)
     }
   }
 
@@ -112,6 +113,13 @@ export class Game_NightwardRun {
   cooldownScale(): number { return 1 - this.passiveValue('cinder') }
   emit(event: RunEvent): void { this.events.push({ ...event, time: this.time }) }
   breakProp(prop: Prop): void { breakProp(this, prop) }
+  triggerVacuum(): void { activateVacuum(this) }
+  triggerRelic(radius = 26, delay = 0.4): void {
+    this.relicRadius = radius
+    this.relicAt = this.time + delay
+  }
+
+  triggerChest(): void { openChest(this) }
   queuePropEvent(id: number, prop: string): void { this.propEvents.push({ id, prop }) }
   propContext(interpreter: Game_Interpreter): string | undefined {
     for (let current: Game_Interpreter | null = this.interpreter; current; current = Reflect.get(current, '_childInterpreter') as Game_Interpreter | null) {
@@ -185,7 +193,7 @@ export class Game_NightwardRun {
       return
     this.choices = chooseRewards(this)
     if (!this.choices.length) {
-      this.party.gainGold(25 * this.pendingLevels)
+      this.party.gainGold(this.content.config.maxLevelGold * this.pendingLevels)
       this.pendingLevels = 0
       return
     }
@@ -239,7 +247,7 @@ export class Game_NightwardRun {
     this.hero.moving = Math.hypot(n.x, n.z) > 0.1
     if (Math.abs(n.x) > 0.1)
       this.hero.facing = n.x > 0 ? 1 : -1
-    const speed = this.content.hero.speed * (1 + this.passiveValue('haste'))
+    const speed = this.content.hero.speed * this.actor.paramRate(6)
     this.world.move(this.hero, (n.x * speed + this.hero.vx) * dt, (n.z * speed + this.hero.vz) * dt, this.content.hero.radius)
     this.hero.vx *= Math.exp(-dt * 9)
     this.hero.vz *= Math.exp(-dt * 9)

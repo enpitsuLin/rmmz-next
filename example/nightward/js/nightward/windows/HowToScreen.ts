@@ -1,4 +1,5 @@
 import type { Sprite } from 'pixi.js'
+import type { Content } from '../managers/NightwardDataManager'
 import { Container } from 'pixi.js'
 import { sound } from '../managers/NightwardAudioManager'
 import { colors, introAlpha, out, phase, reducedMotion } from '../primitives/ui'
@@ -21,7 +22,7 @@ export class HowToScreen extends SheetScreen {
   private direction = 1
   private touchKnob?: Sprite
   private dots = [sprite('diamond'), sprite('diamond'), sprite('diamond')]
-  constructor(backToMenu: () => void, private attackIcon: number) {
+  constructor(backToMenu: () => void, private data: Content) {
     super('HOW TO PLAY')
     this.onBack = backToMenu
     this.tabs = ['GOAL', 'CONTROLS', 'PICKUPS'].map((name, i) => {
@@ -84,6 +85,16 @@ export class HowToScreen extends SheetScreen {
     const ratio = l.icon / l.unit
     const iconSize = Math.ceil(16 * ratio)
     let y = 0
+    const goalRows: [number, string][] = [
+      [this.data.config.icons.clock, 'Survive the night. The horde grows every minute.'],
+      [this.data.weapons.get('lash')![0]!.iconIndex, 'You only move. Your weapons fire on their own.'],
+      [this.data.items.get('gemSmall')!.iconIndex, 'Gems fill your XP bar. Each level, pick one of three upgrades.'],
+      [this.data.config.icons.kills, `At 3:00 the ${this.data.enemies.get('reaper')!.name} rises. Slay him to win.`],
+    ]
+    const pickupRows: [number, string][] = (['gemSmall', 'coin', 'chicken', 'vacuum', 'relic'] as const).map((key) => {
+      const item = this.data.items.get(key)!
+      return [item.iconIndex, `${item.name}: ${item.description}`]
+    })
     if (this.pageIndex === 1) {
       interface Part { node: Container, width: number, height: number, cap?: boolean }
       const cap = (value: string): Part => {
@@ -157,19 +168,19 @@ export class HowToScreen extends SheetScreen {
       y -= 2
     }
     else {
-      const rows: [string | number, string][] = this.pageIndex === 0 ? [['clock', 'Survive the night. The horde grows every minute.'], [this.attackIcon, 'You only move. Your weapons fire on their own.'], ['gem', 'Gems fill your XP bar. Each level, pick one of three upgrades.'], ['kills', 'At 3:00 the Grave Reaper rises. Slay him to win.']] : [['gem', 'XP gems fill your bar. Bigger gems give more.'], ['coin', 'Gold adds to your score.'], ['chicken', 'Roast chicken heals 30 HP.'], ['vacuum', 'The vacuum pulls in every gem.'], ['relic', 'The relic destroys every foe on screen.']]
+      const rows = this.pageIndex === 0 ? goalRows : pickupRows
       if (this.pageIndex === 2) {
         const note = text('Break braziers to find them.', 0, y, 0, colors.dim)
         this.page.addChild(note)
         this.pageItems.push(note)
         y += 14
       }
-      for (const [key, value] of rows) {
+      for (const [iconIndex, value] of rows) {
         const row = new Container()
-        const image = icon(key)
+        const image = icon(iconIndex)
         const lines = wrap(value, inner - iconSize - 6)
         row.y = y
-        image.scale.set(typeof key === 'number' ? 16 / image.texture.frame.width * ratio : ratio)
+        image.scale.set(16 / image.texture.frame.width * ratio)
         row.addChild(image)
         lines.forEach((line, i) => row.addChild(text(line, iconSize + 6, i * 10 + Math.max(0, Math.round((iconSize - 7) / 2) - (lines.length > 1 ? 4 : 0)))))
         this.page.addChild(row)
@@ -179,8 +190,8 @@ export class HowToScreen extends SheetScreen {
       y -= 8
     }
     const itemPageHeight = (values: string[], note = false): number => (note ? 14 : 0) + values.reduce((height, value) => height + Math.max(iconSize, wrap(value, inner - iconSize - 6).length * 10 - 3) + 8, 0) - 8
-    const goalH = itemPageHeight(['Survive the night. The horde grows every minute.', 'You only move. Your weapons fire on their own.', 'Gems fill your XP bar. Each level, pick one of three upgrades.', 'At 3:00 the Grave Reaper rises. Slay him to win.'])
-    const pickupH = itemPageHeight(['XP gems fill your bar. Bigger gems give more.', 'Gold adds to your score.', 'Roast chicken heals 30 HP.', 'The vacuum pulls in every gem.', 'The relic destroys every foe on screen.'], true)
+    const goalH = itemPageHeight(goalRows.map(([, value]) => value))
+    const pickupH = itemPageHeight(pickupRows.map(([, value]) => value), true)
     const contentH = Math.max(goalH, pickupH, (document.fullscreenEnabled ? 83 : 79) + tabH + 8, y + (this.pageIndex === 1 ? tabH + 8 : 0))
     const bottom = 18 + tabH + contentH + 10
     const button = this.buttons[this.buttons.length - 1]!

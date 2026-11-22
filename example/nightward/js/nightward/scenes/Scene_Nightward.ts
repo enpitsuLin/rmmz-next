@@ -3,7 +3,7 @@ import type { RunEvent } from '../objects/Game_NightwardRun'
 import type { PauseAction } from '../windows/PauseScreen'
 import type { UiScreen } from '../windows/UiScreen'
 import { Container, Graphics as Draw } from 'pixi.js'
-import { AudioManager, ConfigManager, DataManager, GlobalMananger as globals, Graphics, Input, Scene_Base, TouchInput } from 'rmmz-next'
+import { AudioManager, ConfigManager, DataManager, GlobalMananger as globals, Graphics, Input, Scene_Base, SoundManager, TouchInput } from 'rmmz-next'
 import { assetsReady, getAssets, requestAssets } from '../managers/NightwardAssetManager'
 import { duckMusic, sound } from '../managers/NightwardAudioManager'
 import { settings, toggleMute } from '../managers/NightwardConfigManager'
@@ -238,6 +238,8 @@ export class Scene_Nightward extends Scene_Base {
       if (before < 1.4 && this.victoryAt >= 1.4)
         this.hud!.setShown(false, 0.6)
       if (this.victoryAt >= 1.8) {
+        this.phases.queue('victory')
+        this.phases.update(this.run.time)
         AudioManager.playMe(globals.$dataSystem.victoryMe)
         this.victoryAt = -1
       }
@@ -258,28 +260,27 @@ export class Scene_Nightward extends Scene_Base {
 
   private consumeAudio(events: RunEvent[]): void {
     const kinds = new Set(events.map(event => event.kind))
+    const se = this.run.content.config.sounds
     if (kinds.has('lash'))
-      sound('Lash', 25)
+      sound(se.lash, 25)
     if (kinds.has('wand'))
-      sound('Wand', 22)
+      sound(se.wand, 22)
     if (kinds.has('tomes'))
-      sound('Tomes', 25)
+      sound(se.tomes, 25)
     if (kinds.has('ward'))
-      sound('Ward', 20)
+      sound(se.ward, 20)
     if (kinds.has('hurt'))
-      sound('Hurt', 65)
+      SoundManager.playActorDamage()
     else if (kinds.has('lightning'))
-      sound('Lightning', 30)
+      sound(se.lightning, 30)
     else if (kinds.has('hit'))
-      sound('Hit', 16)
+      SoundManager.playEnemyDamage()
     if (kinds.has('pickup'))
-      sound('Pickup', 20)
-    if (kinds.has('chest'))
-      sound('Chest', 65)
+      SoundManager.playUseItem()
     if (kinds.has('relic'))
-      sound('Relic', 70)
+      sound(se.relic, 70)
     if (kinds.has('flask'))
-      sound('Flask', 23)
+      sound(se.flask, 23)
   }
 
   pause(): void {
@@ -306,7 +307,7 @@ export class Scene_Nightward extends Scene_Base {
       if (!screen || this.busy)
         return
       this.busy = true
-      sound('Cancel')
+      SoundManager.playCancel()
       screen.close(() => {
         screen.destroy({ children: true })
         this.base = undefined
@@ -328,7 +329,7 @@ export class Scene_Nightward extends Scene_Base {
     this.base!.dimmed = true
     this.panelTarget = this.demo ? 0.5 : 0
     const back = (): void => this.closeSheet()
-    this.sheet = kind === 'options' ? new OptionsScreen(back) : new HowToScreen(back, this.run.content.weapons.get('lash')![0]!.iconIndex)
+    this.sheet = kind === 'options' ? new OptionsScreen(back) : new HowToScreen(back, this.run.content)
     this.uiRoot.addChild(this.sheet)
     this.clearInput()
   }
@@ -338,7 +339,7 @@ export class Scene_Nightward extends Scene_Base {
     if (!sheet || this.busy)
       return
     this.busy = true
-    sound('Cancel')
+    SoundManager.playCancel()
     ConfigManager.save()
     sheet.close(() => {
       sheet.destroy({ children: true })

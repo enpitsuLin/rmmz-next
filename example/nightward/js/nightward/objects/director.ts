@@ -26,9 +26,10 @@ function chooseType(run: Game_NightwardRun): EnemyKey {
   return 'bat'
 }
 function ringPoint(run: Game_NightwardRun, radius = randomRange(17, 21), angle = Math.random() * Math.PI * 2, outside = true): Point {
+  const limit = Math.max(1, run.content.map.bounds - 3)
   let point: Point = { ...run.hero }
   for (let attempt = 0; attempt < 24; attempt++) {
-    point = { x: Math.max(-87, Math.min(87, run.hero.x + Math.cos(angle) * radius)), z: Math.max(-87, Math.min(87, run.hero.z + Math.sin(angle) * radius)) }
+    point = { x: Math.max(-limit, Math.min(limit, run.hero.x + Math.cos(angle) * radius)), z: Math.max(-limit, Math.min(limit, run.hero.z + Math.sin(angle) * radius)) }
     if (!outside || !run.isSpawnVisible?.(point))
       return point
     if (distance(point, run.hero) < radius - 2)
@@ -39,15 +40,18 @@ function ringPoint(run: Game_NightwardRun, radius = randomRange(17, 21), angle =
 }
 export function spawnEnemy(run: Game_NightwardRun, key: EnemyKey, point: Point, elite = false, speed = 1): Enemy {
   const entry = run.content.enemies.get(key)!
+  const { eliteHpRate, eliteAtkRate, eliteScale } = run.content.config
   const boss = key === 'reaper'
   const data = entry.data
   const battler = new Game_Enemy(entry.id, 0, 0)
-  const healthScale = boss ? 1 : (1 + Math.max(0, run.time - 30) / 120) * (elite ? 4 : 1)
+  const healthScale = boss ? 1 : (1 + Math.max(0, run.time - 30) / 120) * (elite ? eliteHpRate : 1)
   battler.addParam(0, Math.round(entry.params[0]! * (healthScale - 1)))
+  if (elite)
+    battler.addParam(2, Math.round(entry.params[2]! * (eliteAtkRate - 1)))
   battler.recoverAll()
   run.troop.members().push(battler)
   battler.onBattleStart(false)
-  const enemy: Enemy = { id: run.nextId++, x: point.x, z: point.z, battler, data, radius: data.radius * (elite ? 1.6 : 1), speed: data.speed * speed * (boss ? 1 : 1 + Math.min(0.25, run.time / 720)), contact: data.damage * (elite ? 2 : 1), elite, vx: 0, vz: 0, age: 0, flash: 0, dying: 0, dead: false, state: boss ? 'rise' : 'walk', phase: boss ? run.content.formations.reaper.rise : 0, swing: run.content.formations.reaper.firstSwing, aim: { x: 0, z: 1 } }
+  const enemy: Enemy = { id: run.nextId++, x: point.x, z: point.z, battler, data, radius: data.radius * (elite ? eliteScale : 1), speed: data.speed * speed * (boss ? 1 : 1 + Math.min(0.25, run.time / 720)), elite, vx: 0, vz: 0, age: 0, flash: 0, dying: 0, dead: false, state: boss ? 'rise' : 'walk', phase: boss ? run.content.formations.reaper.rise : 0, swing: run.content.formations.reaper.firstSwing, aim: { x: 0, z: 1 } }
   run.world.move(enemy, 0, 0, enemy.radius, data.layer)
   run.world.enemies.push(enemy)
   if (boss) {
@@ -72,7 +76,7 @@ export function stepDirector(run: Game_NightwardRun, dt: number): void {
   }
   state.budget += dt * (1 + 0.06 * time + 0.22 * (time / 60) ** 2)
   const alive = run.world.enemies.filter(enemy => !enemy.dead).length
-  const cap = Math.min(900, Math.floor(60 + 2.2 * time))
+  const cap = Math.min(run.content.config.enemyCap, Math.floor(60 + 2.2 * time))
   let room = cap - alive
   while (state.budget >= 1 && room > 0) {
     spawnEnemy(run, chooseType(run), ringPoint(run))
@@ -104,7 +108,7 @@ export function stepDirector(run: Game_NightwardRun, dt: number): void {
   }
   if (!run.demo && !state.boss && time >= config.reaper.first) {
     state.boss = true
-    const point = { x: 0, z: -12.5 }
+    const point = { ...run.content.spawns.reaper }
     if (distance(point, run.hero) > 32) {
       point.x = run.hero.x
       point.z = run.hero.z - 13

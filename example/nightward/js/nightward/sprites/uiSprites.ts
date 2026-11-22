@@ -15,6 +15,6 @@ export function box(width: number, height: number, color: number, alpha = 1, x =
   return node
 }
 
-export function icon(key: string | number): Sprite {
-  return new Sprite(typeof key === 'number' ? equipmentIcon(key) : getAssets().hudIcons[key]!)
+export function icon(index: number): Sprite {
+  return new Sprite(equipmentIcon(index))
 }

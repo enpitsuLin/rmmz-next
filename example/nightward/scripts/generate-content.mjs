@@ -20,7 +20,7 @@ const families = [
   { key: 'ward', name: 'Ward', icon: 100, cooldown: [.62, .56, .5, .45, .4], radius: [1.6, 1.85, 2.1, 2.4, 2.7], pulseFade: .35, knockback: 3.2, initialDelay: .2 },
   { key: 'flask', name: 'Flask', icon: 101, cooldown: [3.6, 3.3, 3, 2.8, 2.5], count: [1, 2, 2, 3, 4], radius: [1.25, 1.35, 1.5, 1.65, 1.85], duration: [2.6, 3, 3.2, 3.6, 4], tick: .35, flight: .55, gravity: 20, throwHeight: 1.3, range: 8, stagger: .09, knockback: 0, initialDelay: .6 },
 ]
-const skillBase = { animationId: 0, damage: { critical: false, elementId: 1, formula: '0', type: 1, variance: 0 }, effects: [], hitType: 0, message1: '', message2: '', mpCost: 0, occasion: 1, repeats: 1, requiredWtypeId1: 0, requiredWtypeId2: 0, scope: 1, speed: 0, stypeId: 1, successRate: 100, tpCost: 0, tpGain: 0, messageType: 1 }
+const skillBase = { animationId: 0, damage: { critical: false, elementId: 1, formula: 'a.atk', type: 1, variance: 0 }, effects: [], hitType: 0, message1: '', message2: '', mpCost: 0, occasion: 1, repeats: 1, requiredWtypeId1: 0, requiredWtypeId2: 0, scope: 1, speed: 0, stypeId: 1, successRate: 100, tpCost: 0, tpGain: 0, messageType: 1 }
 const skills = [null]
 const weapons = [null], armors = [null]
 const equipBase = { price: 0, params: Array(8).fill(0), traits: [] }
@@ -35,33 +35,43 @@ for (const family of families) {
   }
 }
 const contactSkillId = skills.length
-skills.push({ ...skillBase, id: contactSkillId, name: 'contact', iconIndex: 0, description: '', damage: { ...skillBase.damage, formula: '1' }, note: note({ key: 'contact', category: 'enemyAttack' }) })
+skills.push({ ...skillBase, id: contactSkillId, name: 'contact', iconIndex: 0, description: '', note: note({ key: 'contact', category: 'enemyAttack' }) })
 // Keep the Reaper's wave skill authored in the database.
 skills.push(readData('Skills')[skills.length])
 json('Skills', skills)
 const states = [null, { id: 1, autoRemovalTiming: 0, chanceByDamage: 100, iconIndex: 1, maxTurns: 1, minTurns: 1, motion: 3, name: 'Death', note: '', overlay: 0, priority: 100, releaseByDamage: false, removeAtBattleEnd: false, removeByDamage: false, removeByRestriction: false, removeByWalking: false, restriction: 4, stepsToRemove: 100, traits: [], message1: '', message2: '', message3: '', message4: '', messageType: 1 }]
 json('States', states)
-for (const [i, [key, value]] of [
-  ['might', .1],
-  ['haste', .1],
-  ['lodestone', .35],
-  ['cinder', .08],
+const round = value => Math.round(value * 10000) / 10000
+for (const [i, [key, value, paramId]] of [
+  ['might', .1, 2],
+  ['haste', .1, 6],
+  ['lodestone', .35, null],
+  ['cinder', .08, null],
 ].entries()) for (let rank = 1; rank <= 5; rank++) {
-  armors.push({ ...equipBase, ...equipmentDisplay(armorData[armors.length]), id: armors.length, etypeId: i + 2, atypeId: 1, note: note({ key, rank, value: value * rank }) })
+  const traits = paramId === null ? [] : [{ code: 21, dataId: paramId, value: round(1 + value * rank) }]
+  const meta = paramId === null ? { key, rank, value: round(value * rank) } : { key, rank }
+  armors.push({ ...equipBase, ...equipmentDisplay(armorData[armors.length]), traits, id: armors.length, etypeId: i + 2, atypeId: 1, note: note(meta) })
 }
 json('Weapons', weapons)
 json('Armors', armors)
 json('Actors', [null, { id: 1, name: 'The Warden', nickname: '', profile: '', classId: 1, initialLevel: 1, maxLevel: 99, characterName: '$NightwardHero', characterIndex: 0, faceName: '', faceIndex: 0, battlerName: 'NightwardHero', equips: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], traits: [], note: note({ key: 'warden', radius: .34, speed: 4.5, invulnerable: .85, magnet: 1.8 }) }])
-json('Classes', [null, { id: 1, name: 'Night Warden', expParams: [5, 10, 0, 0], params: [100, 0, 1, 0, 1, 0, 1, 1].map(value => Array(100).fill(value)), learnings: [], traits: [{ code: 22, dataId: 0, value: 1 }, { code: 22, dataId: 7, value: .01 }, { code: 51, dataId: 1, value: 1 }, { code: 52, dataId: 1, value: 1 }], note: note({ key: 'nightward', experience: '5*(level-1)^2' }) }])
+json('Classes', [null, { id: 1, name: 'Night Warden', expParams: [5, 10, 0, 0], params: [100, 0, 0, 0, 1, 0, 1, 1].map(value => Array(100).fill(value)), learnings: [], traits: [{ code: 22, dataId: 0, value: 1 }, { code: 22, dataId: 7, value: .01 }, { code: 51, dataId: 1, value: 1 }, { code: 52, dataId: 1, value: 1 }], note: note({ key: 'nightward' }) }])
+const existingEnemies = existsSync(`${root}data/Enemies.json`) ? readData('Enemies') : []
 const enemyValues = [
-  ['bat', 'Bat', 5, 3.8, .28, .6, .8, .16, 1.5, 1.3, .5, 12, 'air', 0],
-  ['skeleton', 'Skeleton', 13, 2.2, .34, 1.4, 0, 0, 2.5, 1, 1, 7, 'ground', .04],
-  ['ghoul', 'Ghoul', 42, 1.6, .42, 1.4, 0, 0, 4.5, .45, 2.5, 5, 'ground', .35],
-  ['wraith', 'Wraith', 22, 2.6, .34, 1.3, .3, .12, 4, .8, 1, 6, 'ghost', .25],
-  ['skull', 'Flying Skull', 18, 3, .26, .6, .9, .12, 4, 1, .6, 10, 'air', .6],
-  ['reaper', 'The Reaper', 2000, 2.2, 1.3, 5, 0, 0, 15, 0, 50, 5, 'ground', 0],
+  ['bat', 'Bat', 5, 2, 3.8, .28, .6, .8, .16, 1.3, .5, 'air', null],
+  ['skeleton', 'Skeleton', 13, 3, 2.2, .34, 1.4, 0, 0, 1, 1, 'ground', 25],
+  ['ghoul', 'Ghoul', 42, 5, 1.6, .42, 1.4, 0, 0, .45, 2.5, 'ground', 3],
+  ['wraith', 'Wraith', 22, 4, 2.6, .34, 1.3, .3, .12, .8, 1, 'ghost', 4],
+  ['skull', 'Flying Skull', 18, 4, 3, .26, .6, .9, .12, 1, .6, 'air', 2],
+  ['reaper', 'Grave Reaper', 2000, 15, 2.2, 1.3, 5, 0, 0, 0, 50, 'ground', null],
 ]
-json('Enemies', [null, ...enemyValues.map(([key, name, hp, speed, radius, height, hover, bob, damage, knockback, mass, animRate, layer, midChance], index) => ({ id: index + 1, name, battlerName: `Nightward_${key}`, battlerHue: 0, exp: 0, gold: 0, actions: [{ conditionParam1: 0, conditionParam2: 0, conditionType: 0, rating: 5, skillId: contactSkillId }], params: [hp, 0, 1, 0, 1, 0, 1, 1], traits: [], dropItems: [{ kind: 1, dataId: 1, denominator: 1 }, { kind: 1, dataId: 2, denominator: 25 }, { kind: 0, dataId: 0, denominator: 1 }], note: note({ key, speed, radius, height, hover, bob, damage, knockback, mass, animRate, layer, midChance }) }))])
+json('Enemies', [null, ...enemyValues.map(([key, name, hp, atk, speed, radius, height, hover, bob, knockback, mass, layer, midDenom], index) => {
+  const existing = existingEnemies[index + 1]
+  const defaultDrops = key === 'reaper'
+    ? [{ kind: 0, dataId: 0, denominator: 1 }, { kind: 0, dataId: 0, denominator: 1 }, { kind: 0, dataId: 0, denominator: 1 }]
+    : [{ kind: 1, dataId: 1, denominator: 1 }, midDenom ? { kind: 1, dataId: 2, denominator: midDenom } : { kind: 0, dataId: 0, denominator: 1 }, { kind: 0, dataId: 0, denominator: 1 }]
+  return { id: index + 1, name: existing?.name ?? name, battlerName: `Nightward_${key}`, battlerHue: 0, exp: 0, gold: 0, actions: [{ conditionParam1: 0, conditionParam2: 0, conditionType: 0, rating: 5, skillId: contactSkillId }], params: existing?.params ?? [hp, 0, atk, 0, 1, 0, 1, 1], traits: [], dropItems: existing?.dropItems ?? defaultDrops, note: note({ key, speed, radius, height, hover, bob, knockback, mass, layer }) }
+})])
 const formations = [
   { key: 'swarm', first: 14, every: 22, baseCount: 12, growth: 2, maxCount: 30, timeline: [0, 30, 55, 90, 115, 150, 180, 300], weights: [[6, 4, 0, 0, 0], [5, 5, 0, 0, 0], [4, 5, .6, .6, 0], [3, 4, 2, 2, 0], [2.5, 3.5, 2, 2, .6], [2, 3, 2.5, 2, 2], [2, 3, 3, 2, 3], [2, 3, 3, 2, 4]] },
   { key: 'ring', first: 60, every: 60, baseCount: 40, growth: 16, maxCount: 96, afterReaper: .6 },
@@ -77,9 +87,9 @@ if (!existsSync(`${root}data/Items.json`)) {
     ['gemBig', 'Ruby', 'Gain 25 experience.', 14],
     ['coin', 'Gold', 'Gain 10 gold.', 15],
     ['chicken', 'Roast Chicken', 'Restore 30 health.'],
-    ['vacuum', 'Vacuum', 'Collect every experience gem.'],
-    ['relic', 'Relic', 'Purge everything in a wide radius.'],
-    ['chest', 'Treasure', 'Upgrade your current equipment.'],
+    ['vacuum', 'Vacuum', 'Collect every experience gem.', 16],
+    ['relic', 'Relic', 'Purge everything in a wide radius.', 17],
+    ['chest', 'Treasure', 'Upgrade your current equipment.', 18],
   ]
   const items = itemValues.map(([key, name, description, commonEventId], i) => {
     const effects = []
@@ -132,7 +142,7 @@ if (!existsSync(`${root}data/CommonEvents.json`)) {
     null,
     event(1, 'Night Begins', [bgm('Nightward')]),
     event(2, 'Reaper Arrives', [phase('boss'), bgm('Reaper'), se('Reaper', 75), ...banner('GRAVE REAPER', 'Slay him to win the night', '2', '2.2', 'true'), se('Swoosh', 40)]),
-    event(3, 'Dawn', [bgm('Dawn')]),
+    event(3, 'Dawn', [phase('victory'), bgm('Dawn')]),
     event(4, 'Fallen', [bgm('Nightward')]),
     // The original delayed banner first appeared on simulation frame 31.
     event(5, 'Opening Banner', [phase('start'), command(230, 31), ...banner('SURVIVE THE NIGHT', 'The Grave Reaper rises at 3:00', '1', '2'), se('Swoosh', 40)]),
@@ -150,6 +160,9 @@ if (!existsSync(`${root}data/CommonEvents.json`)) {
     event(13, 'Emerald EXP', [command(315, 0, 1, 0, 0, 5, false)]),
     event(14, 'Ruby EXP', [command(315, 0, 1, 0, 0, 25, false)]),
     event(15, 'Gold Pickup', [command(125, 0, 0, 10)]),
+    event(16, 'Vacuum Pickup', [...plugin('PickupVacuum', 'Pull All Gems', {})]),
+    event(17, 'Relic Pickup', [...plugin('PickupRelic', 'Purge Nearby Enemies', { radius: '26', delay: '0.4' })]),
+    event(18, 'Treasure Pickup', [...plugin('PickupChest', 'Open Treasure Chest', {}), se('Chest', 65)]),
   ])
 }
 json('Animations', [null])
@@ -159,7 +172,29 @@ for (let y = 0; y < 181; y++) for (let x = 0; x < 181; x++) {
   if (Math.abs(x - 90) <= 1 && y > 97 && y < 135) tiles[181 * 181 + y * 181 + x] = groundTileId('dirt', x - 90, y - 90)
 }
 refreshDirtEdges({ width: 181, height: 181, data: tiles }, 90)
-if (!existsSync(`${root}data/Map001.json`)) json('Map001', { autoplayBgm: true, autoplayBgs: false, battleback1Name: '', battleback2Name: '', bgm: { name: 'Nightward', volume: 65, pitch: 100, pan: 0 }, bgs: { name: '', volume: 90, pitch: 100, pan: 0 }, disableDashing: true, displayName: 'The Graveyard', encounterList: [], encounterStep: 30, height: 181, width: 181, note: note({ center: 90, bounds: 90, path: { start: 9, end: 44, width: 3.2 } }) + '\n<propScene:models/maps/graveyard.glb>', parallaxLoopX: false, parallaxLoopY: false, parallaxName: '', parallaxShow: false, parallaxSx: 0, parallaxSy: 0, scrollType: 0, specifyBattleback: false, tilesetId: 1, data: tiles, events: [null] })
+const reaperSpawn = {
+  id: 1,
+  name: 'Reaper Spawn',
+  note: '',
+  pages: [{
+    conditions: { actorId: 1, actorValid: false, itemId: 1, itemValid: false, selfSwitchCh: 'A', selfSwitchValid: false, switch1Id: 1, switch1Valid: false, switch2Id: 1, switch2Valid: false, variableId: 1, variableValid: false, variableValue: 0 },
+    directionFix: false,
+    image: { characterIndex: 0, characterName: '', direction: 2, pattern: 0, tileId: 0 },
+    list: [{ code: 108, indent: 0, parameters: ['<nightwardSpawn:reaper>'] }, { code: 408, indent: 0, parameters: ['<spawnOffset:0,-0.5>'] }, { code: 0, indent: 0, parameters: [] }],
+    moveFrequency: 3,
+    moveRoute: { list: [{ code: 0, parameters: [] }], repeat: true, skippable: false, wait: false },
+    moveSpeed: 3,
+    moveType: 0,
+    priorityType: 0,
+    stepAnime: false,
+    through: true,
+    trigger: 0,
+    walkAnime: false,
+  }],
+  x: 90,
+  y: 78,
+}
+if (!existsSync(`${root}data/Map001.json`)) json('Map001', { autoplayBgm: true, autoplayBgs: false, battleback1Name: '', battleback2Name: '', bgm: { name: 'Nightward', volume: 65, pitch: 100, pan: 0 }, bgs: { name: '', volume: 90, pitch: 100, pan: 0 }, disableDashing: true, displayName: 'The Graveyard', encounterList: [], encounterStep: 30, height: 181, width: 181, note: '<propScene:models/maps/graveyard.glb>', parallaxLoopX: false, parallaxLoopY: false, parallaxName: '', parallaxShow: false, parallaxSx: 0, parallaxSy: 0, scrollType: 0, specifyBattleback: false, tilesetId: 1, data: tiles, events: [null, reaperSpawn] })
 if (!existsSync(`${root}data/MapInfos.json`)) json('MapInfos', [null, { id: 1, expanded: true, name: 'Graveyard', order: 1, parentId: 0, scrollX: 816, scrollY: 624 }])
 json('Tilesets', [null, { id: 1, name: 'Nightward', mode: 1, note: '<normalTilesets:{"4":"NightwardGround-normal","5":"NightwardDirtEdgesB-normal","6":"NightwardDirtEdgesC-normal","7":"NightwardDirtEdgesD-normal"}>', tilesetNames: ['', '', '', '', 'NightwardGround', 'NightwardDirtEdgesB', 'NightwardDirtEdgesC', 'NightwardDirtEdgesD', ''], flags: Array(8192).fill(0) }])
 const system = readData('System')

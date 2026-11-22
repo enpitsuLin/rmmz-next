@@ -8,6 +8,7 @@ import { Container, groupD8, Texture } from 'pixi.js'
 import { Graphics } from 'rmmz-next'
 import { shakeGain } from '../managers/NightwardConfigManager'
 import { distance } from '../primitives/geometry'
+import { mixColor } from '../primitives/ui'
 import { EffekseerPass } from './Effekseer'
 import { Spriteset_NightwardEffects } from './Spriteset_NightwardEffects'
 import { Spriteset_NightwardGround } from './Spriteset_NightwardGround'
@@ -230,10 +231,7 @@ export class Spriteset_Nightward {
       const dawn = Math.max(0, Math.min(1, (this.dawnAge - 0.6) / 2.4))
       const blend = this.dawnAge >= 0 ? 0.5 - 0.5 * Math.cos(Math.PI * dawn) : this.introAge >= 0 ? this.introAge < 0.5 ? 4 * this.introAge ** 3 : 1 - (-2 * this.introAge + 2) ** 3 / 2 : amount
       if (colorKeys.has(key)) {
-        const r = Math.round((a >> 16 & 255) + ((b >> 16 & 255) - (a >> 16 & 255)) * blend)
-        const g = Math.round((a >> 8 & 255) + ((b >> 8 & 255) - (a >> 8 & 255)) * blend)
-        const blue = Math.round((a & 255) + ((b & 255) - (a & 255)) * blend)
-        this.look[key] = r << 16 | g << 8 | blue
+        this.look[key] = mixColor(a, b, blend)
       }
       else {
         this.look[key] = a + (b - a) * blend
@@ -316,7 +314,7 @@ export class Spriteset_Nightward {
       const animationName = enemy.data.key === 'reaper' ? enemy.state === 'rise' ? 'reaper.rise' : enemy.state === 'windup' || enemy.state === 'recover' ? 'reaper.swing' : 'reaper.walk' : { bat: 'bat.fly', skeleton: 'skeleton.walk', ghoul: 'ghoul.walk', wraith: 'wraith.float', skull: 'skull.fly' }[enemy.data.key]
       const animation = this.assets.animations[animationName]!
       if (!visual) {
-        visual = this.makeActor(animation.textures[0]!, animation.height * (enemy.elite ? 1.6 : 1))
+        visual = this.makeActor(animation.textures[0]!, animation.height * (enemy.elite ? run.content.config.eliteScale : 1))
         this.actors.set(enemy.id, visual)
       }
       const sprite = visual.sprite
@@ -382,14 +380,8 @@ export class Spriteset_Nightward {
     this.view.exposure = this.look.exposure * (1 + 0.2 * strike)
     this.environment.intensity = this.look.hemisphere + strike * 0.25
     this.sky.intensity = 1 + strike * 2.5
-    const mix = (from: number, to: number, amount: number): number => {
-      const r = Math.round((from >> 16 & 255) + ((to >> 16 & 255) - (from >> 16 & 255)) * amount)
-      const g = Math.round((from >> 8 & 255) + ((to >> 8 & 255) - (from >> 8 & 255)) * amount)
-      const b = Math.round((from & 255) + ((to & 255) - (from & 255)) * amount)
-      return r << 16 | g << 8 | b
-    }
-    this.sky.skyColor = mix(this.look.skyTop, 6970572, strike * 0.75)
-    this.sky.groundColor = mix(this.look.skyHorizon, 14209279, strike * 0.6)
+    this.sky.skyColor = mixColor(this.look.skyTop, 6970572, strike * 0.75)
+    this.sky.groundColor = mixColor(this.look.skyHorizon, 14209279, strike * 0.6)
   }
 
   private syncObjects<T extends { id: number }>(items: T[], visuals: Map<number, Sprite3D>, create: (item: T) => Sprite3D, update: (item: T, visual: Sprite3D) => void): void {

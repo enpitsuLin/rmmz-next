@@ -110,8 +110,8 @@ export class Sprite_NightwardHud extends Container {
   private slotsFrame = panel(135, 62)
   private counterFrame = panel(1, 44)
   private counters = new Container()
-  private killIcon = icon('kills')
-  private coinIcon = icon('coin')
+  private killIcon: Sprite
+  private coinIcon: Sprite
   private kills = text('', 0, 0, 0, 0xFFFFFF, 1)
   private gold = text('', 0, 0, 1, 0xFFFFFF, 1)
   private hp = new Container()
@@ -123,7 +123,7 @@ export class Sprite_NightwardHud extends Container {
   private lowHp = sprite('vignette')
   private boss = new Container()
   private bossBox = new Container()
-  private bossName = text('GRAVE REAPER', 0, 0, 2, 0xFFFFFF, 0.5)
+  private bossName: Sprite_NightwardText
   private bossFrame = panel(1, 6, 'thinFrame')
   private bossBack = box(1, 1, 1836553)
   private bossChip = box(1, 1, 16763040)
@@ -190,6 +190,9 @@ export class Sprite_NightwardHud extends Container {
   constructor(private run: Game_NightwardRun, pause: () => void) {
     super({ eventMode: 'passive' })
     this.build = new Sprite_NightwardBuild(run.content)
+    this.killIcon = icon(run.content.config.icons.kills)
+    this.coinIcon = icon(run.content.items.get('coin')!.iconIndex)
+    this.bossName = text(run.content.enemies.get('reaper')!.name.toUpperCase(), 0, 0, 2, 0xFFFFFF, 0.5)
     this.pauseButton.onActivate = pause
     this.pauseWindow.pointerOnly = true
     this.pauseWindow.choices = [this.pauseButton]
@@ -446,7 +449,7 @@ export class Sprite_NightwardHud extends Container {
       const value = i ? this.gold : this.kills
       const y = (5 + i * 18) * s
       image.position.set(13 * s, y + 8 * s)
-      image.scale.set(s)
+      image.scale.set(16 / image.texture.frame.width * s)
       value.pivot.y = 4
       value.position.set((counterWidth - 5) * s, Math.round(y + (16 * s - 7 * u) / 2) + 4 * u)
       value.scale.set(u)
@@ -533,8 +536,8 @@ export class Sprite_NightwardHud extends Container {
       line.scale.set(largeScale(l.unit) / l.unit)
     line.y = -Math.round(line.capHeight * line.scale.y)
     if (heart) {
-      const image = icon('heart')
-      image.scale.set(Math.max(1, Math.round(l.unit * 0.55)) / l.unit)
+      const image = icon(this.run.content.config.icons.heart)
+      image.scale.set(16 / image.texture.frame.width * Math.max(1, Math.round(l.unit * 0.55)) / l.unit)
       image.position.set(-Math.round((line.textWidth + image.width + 2) / 2), -Math.round(line.capHeight / 2 + image.height / 2))
       line.x = Math.round((image.width + 2) / 2)
       node.addChild(image)
@@ -592,15 +595,15 @@ export class Sprite_NightwardHud extends Container {
       if (event.kind === 'pickup') {
         if (event.pickup?.startsWith('gem'))
           this.xpAge = 0
-        if (event.pickup === 'chicken')
-          this.callout('+30 HP', 0, 9105568, false, true)
+        if (event.value && event.value > 0)
+          this.callout(`+${event.value} HP`, 0, 9105568, false, true)
         if (event.pickup === 'vacuum')
           this.callout('VACUUM!', 0, 10147583)
         if (event.pickup === 'relic')
           this.callout('RELIC!', 3, 0xFFFFFF, true)
       }
       if (event.kind === 'chest' && !event.value) {
-        this.callout('+100 GOLD', 1, 0xFFFFFF)
+        this.callout(`+${run.content.config.chestGold} GOLD`, 1, 0xFFFFFF)
         this.goldPopAge = 0
       }
       if (event.kind === 'boss')
@@ -618,7 +621,7 @@ export class Sprite_NightwardHud extends Container {
     this.numberBudget = Math.min(6, this.numberBudget + worldDt * 18)
     if (run.actor.level > this.previousLevel) {
       this.levelAge = 0
-      sound('Level', 50)
+      sound(run.content.config.sounds.level, 50)
     }
     if (run.kills > this.previousKills) {
       if (Math.floor(run.kills / 100) > Math.floor(this.previousKills / 100)) {
@@ -674,10 +677,10 @@ export class Sprite_NightwardHud extends Container {
     this.kills.text = String(run.kills)
     this.kills.scale.set(u * (still ? 1 : this.killPeak - (this.killPeak - 1) * (this.killPeak === 1.18 ? out(phase(this.killAge, 0, 0.18)) : back(phase(this.killAge, 0, 0.3), 3))))
     this.kills.tint = mixColor(16767336, 0xFFFFFF, out(phase(this.skullAge, 0, 0.4)))
-    this.killIcon.scale.set(s * (still ? 1 : 1.5 - 0.5 * back(phase(this.skullAge, 0, 0.3), 3)))
+    this.killIcon.scale.set(16 / this.killIcon.texture.frame.width * s * (still ? 1 : 1.5 - 0.5 * back(phase(this.skullAge, 0, 0.3), 3)))
     this.gold.text = String(run.party.gold())
     this.gold.y = this.goldY - (still ? 0 : Math.round(2 * Math.sin(phase(this.goldAge, 0, 0.25) * Math.PI)) * u)
-    this.coinIcon.scale.x = s * (still ? 1 : 1 - 0.85 * Math.sin(phase(this.goldAge, 0, 0.2) * Math.PI))
+    this.coinIcon.scale.x = 16 / this.coinIcon.texture.frame.width * s * (still ? 1 : 1 - 0.85 * Math.sin(phase(this.goldAge, 0, 0.2) * Math.PI))
     this.gold.scale.set(u * (still ? 1 : 1.4 - 0.4 * back(phase(this.goldPopAge, 0, 0.3), 3)))
     this.build.fill(run.build, true)
     this.build.tick(dt)

@@ -14,7 +14,7 @@ export class Sprite_NightwardSystemButtons extends Container {
     mute.onActivate = toggleMute
     this.buttons = [mute]
     if (document.fullscreenEnabled) {
-      const full = new Sprite_NightwardButton(getAssets().ui.fullscreenEnter!, 15, 15, 'Cursor')
+      const full = new Sprite_NightwardButton(getAssets().ui.fullscreenEnter!, 15, 15, 'cursor')
       full.onActivate = fullscreen
       this.buttons.push(full)
     }

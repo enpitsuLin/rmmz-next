@@ -97,7 +97,7 @@ export class Spriteset_NightwardEffects {
       sim.enemies.z[index] = enemy.z
       sim.enemies.y[index] = enemy.data.hover + Math.sin(enemy.age * 4 + enemy.id) * enemy.data.bob
       sim.enemies.kind[index] = enemyKinds.indexOf(enemy.data.key)
-      sim.enemies.scale[index] = enemy.elite ? 1.6 : 1
+      sim.enemies.scale[index] = enemy.elite ? run.content.config.eliteScale : 1
     }
     this.projectileSlots.clear()
     const projectiles = sim.projectiles

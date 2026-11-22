@@ -1,6 +1,5 @@
 import type { Container } from 'pixi.js'
 import { Bitmap, Rectangle, TouchInput, Window_Selectable } from 'rmmz-next'
-import { sound } from '../managers/NightwardAudioManager'
 
 export interface WindowChoice {
   readonly node: Container
@@ -54,7 +53,6 @@ export class Window_NightwardSelectable extends Window_Selectable {
   override isCancelEnabled(): boolean { return !!this.onCancel }
   override isTouchOkEnabled(): boolean { return this.isOkEnabled() }
   override playOkSound(): void {}
-  override playCursorSound(): void { sound('Cursor') }
   override updateInputData(): void {}
   override processCancel(): void {
     this.deactivate()

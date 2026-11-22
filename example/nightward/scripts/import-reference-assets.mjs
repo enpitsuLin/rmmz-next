@@ -95,7 +95,7 @@ const iconKeys = ['lash', 'wand', 'tomes', 'storm', 'ward', 'flask', 'might', 'h
 const icons = Object.fromEntries(iconKeys.map(name => [name, reference.icons.rect(name)]))
 const iconSheet = new Canvas()
 iconSheet.width=512;iconSheet.height=256;iconSheet.pixels=new Uint8ClampedArray(512*256*4)
-const mzIcons=['lash','wand','tomes','storm','ward','flask','might','haste','lodestone','cinder','gem','gem','gem','coin','chicken','vacuum','relic','chest']
+const mzIcons=['lash','wand','tomes','storm','ward','flask','might','haste','lodestone','cinder','gem','gem','gem','coin','chicken','vacuum','relic','chest','kills','heart','clock']
 for(const [index,name] of mzIcons.entries()){
   const rect=reference.icons.rect(name), tint=index===11?[.65,1,.7]:index===12?[1,.5,.55]:[1,1,1]
   for(let y=0;y<32;y++)for(let x=0;x<32;x++){
