@@ -1,5 +1,6 @@
 import { Rectangle, Texture } from 'pixi.js'
 import { EffectManager, ImageManager } from 'rmmz-next'
+import { loadResource } from '../primitives/resource'
 import { requestEffekseer } from './NightwardEffectManager'
 
 export const actorNames = ['hero', 'bat', 'skeleton', 'ghoul', 'wraith', 'skull', 'reaper'] as const
@@ -104,18 +105,8 @@ let combatData: { frames: Record<string, Frame> }
 let loading: Promise<void> | undefined
 let ready = false
 let failure: unknown
-function loadResource<T>(name: string): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const request = new XMLHttpRequest()
-    request.open('GET', `${folder}${name}`)
-    request.responseType = 'json'
-    request.onload = () => request.status < 400 ? resolve(request.response as T) : reject(new Error(`Nightward asset: ${name} (${request.status})`))
-    request.onerror = () => reject(new Error(`Nightward asset: ${name}`))
-    request.send()
-  })
-}
 export function requestAssets(): void {
-  loading ??= Promise.all([loadResource<ReferenceManifest>('manifest.json'), loadResource<ReferenceUi>('ui.json'), loadResource<typeof combatData>('combat-fx.json'), requestEffekseer()])
+  loading ??= Promise.all([loadResource<ReferenceManifest>(`${folder}manifest.json`), loadResource<ReferenceUi>(`${folder}ui.json`), loadResource<typeof combatData>(`${folder}combat-fx.json`), requestEffekseer()])
     .then(([world, ui, combat]) => {
       manifest = world
       uiData = ui

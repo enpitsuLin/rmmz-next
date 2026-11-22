@@ -79,8 +79,13 @@ export interface Content {
   contactSkill: number
   waveSkill: number
 }
-export function metadata<T>(entry: { note: string }): T {
-  return JSON.parse(entry.note.match(/<nightward:([^>]+)>/)![1]!) as T
+export function metadata<T>(entry: { meta: MZ.Meta }): T {
+  return JSON.parse(entry.meta.nightward as string) as T
+}
+// Troop tuning lives in a battle event comment, which DataManager does not extract.
+function formation<T>(troopId: number): T {
+  const comment = globals.$dataTroops[troopId]!.pages[0]!.list[0]!.parameters[0] as string
+  return JSON.parse(comment.match(/<nightward:([^>]+)>/)![1]!) as T
 }
 export function readContent(): Content {
   const weapons: Content['weapons'] = new Map()
@@ -124,10 +129,10 @@ export function readContent(): Content {
     enemies,
     items,
     formations: {
-      swarm: metadata({ note: globals.$dataTroops[1]!.pages[0]!.list[0]!.parameters[0] as string }),
-      ring: metadata({ note: globals.$dataTroops[2]!.pages[0]!.list[0]!.parameters[0] as string }),
-      elite: metadata({ note: globals.$dataTroops[3]!.pages[0]!.list[0]!.parameters[0] as string }),
-      reaper: metadata({ note: globals.$dataTroops[4]!.pages[0]!.list[0]!.parameters[0] as string }),
+      swarm: formation(1),
+      ring: formation(2),
+      elite: formation(3),
+      reaper: formation(4),
     },
     hero: metadata(globals.$dataActors[1]!),
     map: metadata(globals.$dataMap),

@@ -2,6 +2,7 @@ import type { BaseMaterial3D, Geometry3D, GltfFormat, Scene3DSource } from '@pix
 import { getAttributeData, glbToGltf, loadImages, Matrix4, normalizeMeshopt, parseGltf, Quaternion } from '@pixi/3d'
 import { Assets as PixiAssets } from 'pixi.js'
 import { transformPoint } from '../primitives/geometry'
+import { loadResource } from '../primitives/resource'
 
 export interface MeshValues { positions: Float32Array, normals: Float32Array, uvs: Float32Array, colors: Uint8Array, indices: Uint16Array | Uint32Array }
 export interface ModelMesh { material: string, geometry: Geometry3D, values: MeshValues, matrix: Matrix4, doorSide?: number }
@@ -63,15 +64,7 @@ function nodeMatrix(node: GltfFormat.Node): Matrix4 {
 }
 
 export async function loadPropScene(url: string): Promise<PropScene> {
-  // RMMZ/NW.js loads local resources through XHR; fetch(file://) is unavailable.
-  const data = await new Promise<ArrayBuffer>((resolve, reject) => {
-    const request = new XMLHttpRequest()
-    request.open('GET', url)
-    request.responseType = 'arraybuffer'
-    request.onload = () => request.status < 400 && request.response ? resolve(request.response) : reject(new Error(`Nightward GLB: ${url} (${request.status})`))
-    request.onerror = () => reject(new Error(`Nightward GLB: ${url}`))
-    request.send()
-  })
+  const data = await loadResource<ArrayBuffer>(url, 'arraybuffer')
   const { json, buffers } = glbToGltf(data)
   await normalizeMeshopt(json, buffers)
   const images = await loadImages(json, url.slice(0, url.lastIndexOf('/') + 1), buffers, PixiAssets.loader)

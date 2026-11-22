@@ -656,6 +656,7 @@ export declare namespace MZ {
     encounterStep: number
     height: number
     note: string
+    meta: Meta
     parallaxLoopX: boolean
     parallaxLoopY: boolean
     parallaxName: string

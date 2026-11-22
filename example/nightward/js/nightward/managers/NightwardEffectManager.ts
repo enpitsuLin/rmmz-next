@@ -1,5 +1,6 @@
 import type { Frame } from './NightwardAssetManager'
 import { EffectManager, Graphics } from 'rmmz-next'
+import { loadResource } from '../primitives/resource'
 
 interface EffectEntry { name: string, atlas: string, frame: Frame, mode: string }
 
@@ -10,25 +11,12 @@ export function getEffekseerEffectName(atlas: string, frame: Frame, mode: string
   return entries.get(key(atlas, frame, mode))
 }
 
-export function requestEffekseer(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const request = new XMLHttpRequest()
-    request.open('GET', 'img/nightward/reference/effekseer.json')
-    request.responseType = 'json'
-    request.onload = () => {
-      if (request.status >= 400) {
-        reject(new Error(`Nightward effects (${request.status})`))
-        return
-      }
-      for (const entry of (request.response as { effects: EffectEntry[] }).effects) {
-        entries.set(key(entry.atlas, entry.frame, entry.mode), entry.name)
-        EffectManager.load(`nightward/${entry.name}`)
-      }
-      resolve()
-    }
-    request.onerror = () => reject(new Error('Nightward effects: effekseer.json'))
-    request.send()
-  })
+export async function requestEffekseer(): Promise<void> {
+  const { effects } = await loadResource<{ effects: EffectEntry[] }>('img/nightward/reference/effekseer.json')
+  for (const entry of effects) {
+    entries.set(key(entry.atlas, entry.frame, entry.mode), entry.name)
+    EffectManager.load(`nightward/${entry.name}`)
+  }
 }
 
 // Configure the one RMMZ context before any effects are loaded. No second WASM or canvas.
