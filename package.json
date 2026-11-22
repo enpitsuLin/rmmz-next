@@ -5,9 +5,12 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "build": "pnpm --filter rmmz-next build"
+    "build": "pnpm --filter rmmz-next build",
+    "typecheck": "pnpm -r typecheck",
+    "release": "bumpp -r --execute=\"pnpm i\""
   },
   "devDependencies": {
+    "bumpp": "catalog:dev",
     "@antfu/eslint-config": "catalog:dev",
     "@types/node": "catalog:types",
     "eslint": "catalog:dev",
