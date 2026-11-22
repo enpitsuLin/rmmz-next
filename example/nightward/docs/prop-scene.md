@@ -40,7 +40,7 @@
    }
    ```
 
-   `id` 是稳定标识，复制节点后需要为副本设置唯一 ID；名称、节点顺序和位置不作为身份。`model` 标记生成器中的资源键，例如 `brazier`、`crypt`、`tomb-0001`。碰撞框为模型局部 X/Z 坐标，支持多个框；装饰可使用空数组。`active:false` 可设置初始隐藏，`onBreak` 可填写破坏后调用的 RMMZ 公共事件 ID。
+   `id` 是稳定标识，复制节点后需要为副本设置唯一 ID；名称、节点顺序和位置不作为身份。`model` 标记模型资源键，例如 `brazier`、`crypt`、`tomb-0001`。碰撞框为模型局部 X/Z 坐标，支持多个框；装饰可使用空数组。`active:false` 可设置初始隐藏，`onBreak` 可填写破坏后调用的 RMMZ 公共事件 ID。
 
    火焰、烛火、窗光和墓穴光使用命名子节点，`extras.nightward.light` 保存种类、颜色、亮度、范围等配置，子节点变换决定挂点位置。双扇门子节点名为 `door-left`、`door-right`，`extras.nightward.doorSide` 分别为 `-1`、`1`，节点原点就是转轴。
 
@@ -95,24 +95,6 @@
 
    提示使用 `PhaseNotice` 和 `PhaseBanner`，计时器颜色和脉冲使用 `TimerWarning`。音效、等待和调用其他公共事件使用 RMMZ 原生命令。通过 `PropVisible` 可在同一阶段控制物件、碰撞和光效的显隐。每个阶段事件独立执行，等待随对局暂停，重开时从头开始。门旋转与墓穴光效共用同一开度，对局暂停时开度保持当前值。
 
-   `generate:content` 在公共事件文件缺失时创建默认配置，保留现有文件中的注释和指令。
-
-6. **迁移与资源重制**
+6. **布局迁移**
 
    当前工程的旧布局已迁入 GLB。迁移读取保存的事件坐标、注释和偏移，外圈墓碑组拆回单体并保留组的整体位移。纯摆件事件删除，有条件页、事件指令或移动路线的事件保留为 ID 绑定。地图原点与其他备注保留。
-
-   正常重新生成保留场景已有节点层级、变换、稳定 ID、自定义属性，以及手工增加、删除和复制的布局；只更新原版网格和材质。生成网格的 `extras.nightward.key` 是资源键，编辑导出时需保留；没有原版资源键的自定义网格和材质继续保留。`generate:content` 保留 Map001 和 MapInfos，不重新铺设 Prop。
-
-   只更新模型资产：
-
-   ```sh
-   node scripts/import-reference-assets.mjs --world-only
-   ```
-
-   显式重置为原版默认布局（覆盖手工场景布局）：
-
-   ```sh
-   node scripts/import-reference-assets.mjs --world-only --reset-layout
-   ```
-
-   原版源脚本可通过 `NIGHTWARD_REFERENCE_SOURCE` 与 `NIGHTWARD_REFERENCE_LOADER` 指向本地快照。普通运行不依赖这些脚本。

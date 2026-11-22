@@ -10,9 +10,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "postinstall": "rmmz-next protect",
-    "generate:content": "node scripts/generate-content.mjs",
-    "generate:assets": "node scripts/import-reference-assets.mjs"
+    "postinstall": "rmmz-next protect"
   },
   "dependencies": {
     "@pixi/3d": "catalog:",

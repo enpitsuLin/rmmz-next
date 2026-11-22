@@ -4,7 +4,7 @@
 
    以 [官方 Nightward 发布脚本](https://goodstuff.pixijs.io/nightward/assets/start-DZtWMAL3.js) 中的实际模拟参数和绘制代码为准。
 
-   `scripts/import-reference-combat.mjs` 使用共享的 TypeScript 符号依赖提取器，将原版六武器的绘制模块、粒子着色器、命中效果和镜头后处理导出为 `js/nightward/reference/combat.js`。文件头记录来源和 SHA-256，应通过生成脚本维护。
+   `js/nightward/reference/combat.js` 包含离线提取的六种武器绘制模块、粒子着色器、命中效果和镜头后处理。文件头记录来源和 SHA-256。
 
    `sprites/Spriteset_NightwardEffects.ts` 将本工程的角色、飞弹、法典、法阵、火池和战斗事件提供给绘制模块。攻击、伤害、成长和状态仍由 `Game_NightwardRun`、RMMZ `Game_Action` 和数据库负责。
 
@@ -43,25 +43,11 @@
    - Cinder 不再减免受到的伤害，Haste 不再影响武器冷却。
    - 连发间隔、鞭子反击延迟、药瓶飞行和火池伤害间隔不受 Cinder 缩放，遵循原版。
 
-   数据库描述和生成脚本同步这些规则。命中事件使用 `Game_Action` 的伤害结果，保留原版重击特效的伤害阈值和击杀时的完整伤害数字。
+   数据库描述与这些规则一致。命中事件使用 `Game_Action` 的伤害结果，保留原版重击特效的伤害阈值和击杀时的完整伤害数字。
 
 5. **资产和生命周期**
 
    `combat-fx.png` 和 `combat-fx.json` 已随工程提供。粒子、光束、地面效果、书本与药瓶由 RMMZ 现有 Effekseer 运行时绘制，沿用原版容量、贴图、轨迹和时序。临时光源与镜头继续使用 Pixi3D。实例随视图销毁停止；共享图集与 EffectManager 资源缓存保留。武器光效跟随世界时间，暂停、升级和宝箱选择期间冻结，新一局重新初始化。资源制作和职责边界见 [Effekseer 说明](effekseer.md)。
-
-   在本工程目录只重新制作武器呈现与图集：
-
-   ```sh
-   node scripts/import-reference-combat.mjs
-   ```
-
-   重新生成包含装备在内的 RMMZ 数据库：
-
-   ```sh
-   node scripts/generate-content.mjs
-   ```
-
-   全量 `generate:assets` 也会更新战斗呈现与图集。`NIGHTWARD_REFERENCE_SOURCE` 可指定已缓存的官方脚本；Chrome 仅执行 Canvas 图集制作，不启动游戏。重制数据库会覆盖 Weapons、Armors、Skills 等数据库中的手动修改，保留现有地图布局和事件页。
 
 6. **交付约定**
 
@@ -77,7 +63,7 @@
    - 敌人接触攻击（007，默认公式 `a.atk`）读取 `Enemies.json` 的原生「攻击力」并通过 `Game_Action` 结算；死神镰刀波（008）执行原生伤害公式，默认值为 25。
    - Might（ATK 倍率 `code: 21, dataId: 2`）与 Haste（AGI 倍率 `code: 21, dataId: 6`）使用防具原生能力值倍率特征；Lodestone（每阶 +35% 磁吸）与 Cinder（每阶 -8% 冷却）在饰品备注的 `value` 中保存当前总倍率。永久构筑不再依赖学习技能或被动状态。
    - 名称、图标和逐阶描述直接使用数据库原生字段。武器的 `nightward` 备注保存 `key`、`rank` 以及冷却、数量、范围和轨迹参数。饰品备注保存 `key`、`rank`、`value`。
-   - 升级、宝箱、新武器提示及结算共用数据库文案。`generate-content.mjs` 保留现有装备的名称、说明和图标，也保留武器的能力值。
+   - 升级、宝箱、新武器提示及结算共用数据库文案。
    - 每件武器配置一条“添加技能”特性，技能 ID 取自该特性的 `dataId`。出手与命中逐件读取来源武器的绑定，不通过角色汇总技能或 `attackSkillId()` 选择，六件武器可同时运行各自攻击。装备提供的技能由原生特性系统管理，无需 learnSkill；不保留备注 skillId 的兼容读取。
    - 原始数据库对象保留身份，用于原生 `Game_Item` 和装备接口；备注只在内容载入时解析。出手、飞弹、火池和 Effekseer 生命周期保持原有规则。
 

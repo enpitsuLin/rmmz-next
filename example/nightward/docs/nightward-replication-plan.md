@@ -791,7 +791,7 @@ M1 与 M2 用于尽早发现接入问题。最终交付要求 M1 至 M6 全部�
 | 三维墓园、灯光与效果 | `sprites/Spriteset_Nightward.ts`、`managers/NightwardAssetManager.ts` |
 | HUD、覆盖层与输入 | `sprites/Sprite_NightwardHud.ts`、`scenes/Scene_Nightward.ts`、`windows/` |
 | 音频、选项与纪录 | `managers/NightwardAudioManager.ts`、`managers/NightwardConfigManager.ts`、`managers/NightwardRecordManager.ts` |
-| 数据、像素图与声音生成 | `scripts/generate-content.mjs` |
+| 像素图、声音与模型 | `img/`、`audio/`、`models/` |
 | 启动、打包与资源说明 | `README.md` |
 
 实现中补充的原作规则：宝箱优先提升已有条目；已有条目全满后仍可抽取未拥有条目，全部十类都满阶才兑换金币。火盆在 60 秒后才可能掉落清场圣物。三维公告板按纹理来源共享绘制，死亡实例的独立材质即时释放；场景销毁时释放几何、后处理和监听器，保留 ImageManager 共享纹理。
@@ -800,7 +800,7 @@ M1 与 M2 用于尽早发现接入问题。最终交付要求 M1 至 M6 全部�
 
 ## 24 原版资产纠正
 
-上一版自行制作简化素材，与完整复刻的要求不符，该资源策略已撤销。当前使用 `scripts/import-reference-assets.mjs` 编译官方发布脚本中的资产生成函数，产出标准 PNG、gzip 几何、资源清单和 RMMZ Ogg 音频。原版角色的 idle、walk、hurt、rise 和 swing 动画按实际帧数、尺寸和 FPS 接入，材质同时使用原版法线与自发光图集。
+上一版自行制作简化素材，与完整复刻的要求不符，该资源策略已撤销。当时离线编译官方发布脚本中的资产生成函数，产出标准 PNG、gzip 几何、资源清单和 RMMZ Ogg 音频。原版角色的 idle、walk、hurt、rise 和 swing 动画按实际帧数、尺寸和 FPS 接入，材质同时使用原版法线与自发光图集。
 
 墓园使用原版确定性生成的地面、纪念碑、墓穴、建筑、墓碑、枯木、铁艺、玻璃和门体几何。地图碰撞与火盆位置同步其生成结果。UI 使用原版字形、图标和面板，替换 Press Start 2P 与简化背景；音乐和音效由原版合成器离线烘焙。
 
@@ -828,7 +828,7 @@ M1 与 M2 用于尽早发现接入问题。最终交付要求 M1 至 M6 全部�
 1. 六种武器的绘制不再使用简化替代效果，改由离线提取的官方战斗呈现模块和独立战斗图集提供。新增weapon-effects.ts负责RMMZ模拟适配，生成模块位于reference/combat.js，资源和源码均记录官方来源。
 2. 保留原版鞭迹、魔杖拖尾、法典尾焰、分叉雷电、旋转法阵、药瓶爆燃与残留焦痕，以及对应命中粒子、局部光照和镜头反馈。世界色彩分级与闪光使用原版镜头着色器，HUD仍由独立UI层绘制。
 3. 首次出手、连发、反向鞭击、法典休眠/停转、法阵脉冲和火池结算时序按官方实际代码实现。Cinder每级减少8%冷却，Haste每级增加10%移速，撤销此前错误的Haste冷却加成与Cinder减伤。
-4. 技能、伤害、状态、升级和战斗结果继续由RMMZ对象与数据库管理。说明与资源重制入口见weapon-replication.md。本次未执行自动化验证或试玩，由用户重启游戏测试。
+4. 技能、伤害、状态、升级和战斗结果继续由RMMZ对象与数据库管理。实现细节见 [武器说明](weapon-replication.md)。本次未执行自动化验证或试玩，由用户重启游戏测试。
 
 
 ## 地图事件驱动Prop补充

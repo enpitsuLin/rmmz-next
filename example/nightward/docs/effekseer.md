@@ -32,27 +32,13 @@
 
    场景销毁时停止所属实例，不清理其他场景的全局 EffectManager 缓存。原有地图手工坐标、注释和事件页不受资源制作影响。
 
-4. **重新制作**
-
-   生成结果已随工程提供，运行游戏不需要安装特效编辑器或 .NET。只有重制特效时需要官方 [Effekseer 1.70e](https://github.com/effekseer/Effekseer/releases/tag/170e) 和 .NET 8 SDK。
-
-   在 `example/nightward` 目录运行：
-
-   ```sh
-   EFFEKSEER_EDITOR_DIR="/path/to/Effekseer" node scripts/generate-effekseer.mjs
-   ```
-
-   `EFFEKSEER_EDITOR_DIR` 指向包含 `EffekseerCore.dll`、`Newtonsoft.Json.dll` 的官方目录；macOS 位于 `Effekseer.app/Contents/Resources`。`DOTNET` 可指定 `dotnet` 可执行文件。制作脚本调用官方 EffekseerCore 导出器，临时编译产物放入系统临时目录。
-
-   更换原版图集或重新运行 `generate:assets` 后，再运行该命令更新帧清单、预乘贴图和 `.efkefc`。只重制原版轨迹呈现代码可运行 `node scripts/import-reference-combat.mjs --runtime-only`；生成器保留 Effekseer 绘制接入。
-
-5. **清理与交付**
+4. **清理与交付**
 
    已删除 `effects/` 根目录 120 个旧 RTP `.efkefc`；本工程 Animations 数据库没有这些资源的 `effectName` 引用。保留 RMMZ 的运行时 JS/WASM 和新 Nightward 资源。
 
    首次迁移只执行资源制作及其导出器编译。随后用户授权用 `pnpm run dev` 和 DevTools 调试掉帧及地图问题；已实际录制 CPU 性能、统计实例调用，并核对地图恢复后的游戏画布。未运行自动化测试、类型检查、lint 或游戏构建，没有提交或推送。
 
-6. **本机性能记录**
+5. **本机性能记录**
 
    - 问题录制：约 8.7 FPS，六秒内 47,815 次 `updateHandle()`，合计约 4.4 秒；已经消失的粒子仍保留数千个实例。官方运行时的逐实例更新会扫描实例块，不能为每个粒子重复调用。
    - 修复后：每个渲染帧只批量更新一次；最后一次八秒录制为 468 帧、468 次 `update()`、零次 `updateHandle()`。地图与六种武器同时显示，未记录到运行异常。

@@ -83,16 +83,7 @@
 
    六种武器和火盆特效由 RMMZ 现有 Effekseer 运行时绘制，沿用原版贴图、轨迹、粒子参数和时序；灯光、镜头与后处理继续使用 Pixi3D。首次出手、连发、法典休眠和火池伤害时序同步原版。Cinder 每级减少 8% 冷却，Haste 每级增加 10% 移速，见 [武器说明](docs/weapon-replication.md) 和 [Effekseer 说明](docs/effekseer.md)。
 
-   数据和素材已经随工程提供，正常启动不需要生成。需要重新制作资产时：
-
-   ```sh
-   pnpm --filter nightward generate:assets
-   pnpm --filter nightward generate:content
-   ```
-
-   资产编译需要访问官方发布脚本、可用的 Chrome 和 FFmpeg。可用 `NIGHTWARD_CHROME`、`NIGHTWARD_FFMPEG` 指定其路径；已有脚本快照可通过 `NIGHTWARD_REFERENCE_SOURCE`、`NIGHTWARD_REFERENCE_LOADER` 指定。独立 Chrome 只用于生成 UI、战斗特效图集和离线音频，不运行游戏。
-
-   `generate:content` 只重建 RMMZ 数据。它会保留已有地图、玩家初始位置、系统音频、物品、公共事件、武器能力值、死神镰刀波技能，以及武器和防具的名称、说明和图标索引。物品或公共事件文件缺失时会创建对应的默认配置。其他由脚本生成的数据库字段会按生成器重建。[资产来源说明](docs/reference-assets.md) 记录来源与转换方式。
+   启动和构建直接使用随工程提供的数据和素材。游戏数据可在 RMMZ 编辑器中修改，素材的来源与转换方式见 [资产来源说明](docs/reference-assets.md)。
 
 6. **打包与存储**
 
