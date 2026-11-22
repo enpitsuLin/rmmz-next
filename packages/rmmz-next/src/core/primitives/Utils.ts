@@ -21,7 +21,7 @@ export class Utils {
    * @type string
    * @constant
    */
-  static RPGMAKER_NAME: string = 'MZ'
+  static RPGMAKER_NAME: string = 'MZ-Next'
 
   /**
    * The version of the RPG Maker.
@@ -29,7 +29,7 @@ export class Utils {
    * @type string
    * @constant
    */
-  static RPGMAKER_VERSION: string = '1.9.0'
+  static RPGMAKER_VERSION: string = '2.0.0'
 
   /**
    * Checks whether the current RPG Maker version is greater than or equal to

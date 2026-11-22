@@ -1,9 +1,9 @@
 {
   "name": "rmmz-next",
   "type": "module",
-  "version": "0.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "RPG Maker MZ engine, runtime and Vite integration",
+  "description": "Game runtime, brand new JGSS core and Vite tooling for RPG Maker MZ projects, with TypeScript support",
   "exports": {
     ".": "./src/core/index.ts",
     "./database-types": "./src/database-types/index.ts",
