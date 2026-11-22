@@ -5,9 +5,10 @@ import { Material3D, Mesh3D, Plane, PlaneGeometry, Vector3 } from '@pixi/3d'
 import { RenderTexture } from 'pixi.js'
 import { GlobalMananger as globals, Graphics, ImageManager, Tilemap } from 'rmmz-next'
 import { refreshDirtEdges } from '../../../scripts/ground-tileset.mjs'
+import { readMetaJson } from '../primitives/metadata'
 
 export function groundBitmaps(tileset: MZ.Tileset): { albedo: Bitmap[], normal: Bitmap[] } {
-  const normals = JSON.parse(tileset.note.match(/<normalTilesets:([^>]+)>/)?.[1] ?? '{}') as Record<number, string>
+  const normals = readMetaJson<Record<number, string>>(tileset, 'normalTilesets') ?? {}
   return {
     albedo: tileset.tilesetNames.map(name => ImageManager.loadTileset(name)),
     normal: tileset.tilesetNames.map((_, index) => ImageManager.loadTileset(normals[index] ?? '')),

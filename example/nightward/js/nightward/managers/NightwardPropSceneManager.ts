@@ -1,7 +1,9 @@
 import type { BaseMaterial3D, Geometry3D, GltfFormat, Scene3DSource } from '@pixi/3d'
+import type { MZ } from 'rmmz-next/database-types'
 import { getAttributeData, glbToGltf, loadImages, Matrix4, normalizeMeshopt, parseGltf, Quaternion } from '@pixi/3d'
 import { Assets as PixiAssets } from 'pixi.js'
 import { transformPoint } from '../primitives/geometry'
+import { readMetaString } from '../primitives/metadata'
 import { loadResource } from '../primitives/resource'
 
 export interface MeshValues { positions: Float32Array, normals: Float32Array, uvs: Float32Array, colors: Uint8Array, indices: Uint16Array | Uint32Array }
@@ -170,8 +172,8 @@ export function propSceneReady(url: string): boolean {
 export function getPropScene(url: string): PropScene {
   return scenes.get(url)!.scene!
 }
-export function propSceneUrl(note: string): string {
-  const url = note.match(/<propScene:([^>]+)>/i)?.[1]?.trim()
+export function propSceneUrl(map: MZ.Map): string {
+  const url = readMetaString(map, 'propScene')
   if (!url)
     throw new Error('Nightward map requires <propScene:models/maps/graveyard.glb>')
   return url

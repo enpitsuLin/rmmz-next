@@ -1,9 +1,11 @@
 import type { Game_Interpreter } from 'rmmz-next'
+import type { MZ } from 'rmmz-next/database-types'
 import { Game_Actor, Game_BattlerBase, GlobalMananger as globals, Graphics, Input, PluginManager, SceneManager } from 'rmmz-next'
 import { installConfig } from './managers/NightwardConfigManager'
 import { readPluginConfig } from './managers/NightwardDataManager'
 import { installEffekseer } from './managers/NightwardEffectManager'
 import { activeWeapon } from './objects/combat'
+import { readMetaJson } from './primitives/metadata'
 import { fullscreen } from './primitives/ui'
 import { Scene_Nightward } from './scenes/Scene_Nightward'
 import { Scene_NightwardTitle } from './scenes/Scene_NightwardTitle'
@@ -29,16 +31,18 @@ export function installNightward(): void {
       value += armor.params[paramId]!
     return value
   }
+  const isNightwardClass = (entry: MZ.Class): boolean =>
+    readMetaJson<{ key?: string }>(entry)?.key === 'nightward'
   const expForLevel = Game_Actor.prototype.expForLevel
   Game_Actor.prototype.expForLevel = function (level) {
     const c = this.currentClass()
-    if (c.note.includes('"key":"nightward"') && c.expParams[2] === 0 && c.expParams[3] === 0)
+    if (isNightwardClass(c) && c.expParams[2] === 0 && c.expParams[3] === 0)
       return Math.round((level - 1) * c.expParams[0]! + c.expParams[1]! * (level - 1) * (level - 2) / 2)
     return expForLevel.call(this, level)
   }
   const equipSlots = Game_Actor.prototype.equipSlots
   Game_Actor.prototype.equipSlots = function () {
-    if (!this.currentClass().note.includes('"key":"nightward"'))
+    if (!isNightwardClass(this.currentClass()))
       return equipSlots.call(this)
     const { weaponSlots } = readPluginConfig()
     return [...Array.from<number>({ length: weaponSlots }).fill(1), 2, 3, 4, 5]

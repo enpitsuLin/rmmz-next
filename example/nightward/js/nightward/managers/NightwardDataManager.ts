@@ -1,6 +1,7 @@
 import type { MZ } from 'rmmz-next/database-types'
 import type { Point } from '../primitives/geometry'
 import { GlobalMananger as globals, PluginManager } from 'rmmz-next'
+import { commentMeta, readMetaJson, readMetaString, requireMetaJson } from '../primitives/metadata'
 
 export const weaponKeys = ['lash', 'wand', 'tomes', 'storm', 'ward', 'flask'] as const
 export const passiveKeys = ['might', 'haste', 'lodestone', 'cinder'] as const
@@ -142,25 +143,12 @@ export function readPluginConfig(): PluginConfig {
   }
 }
 
-export function metadata<T>(entry: { meta: MZ.Meta }): T {
-  return JSON.parse(entry.meta.nightward as string) as T
-}
-
-function optionalMetadata<T>(entry: { meta?: MZ.Meta }): T | undefined {
-  const raw = entry.meta?.nightward
-  return typeof raw === 'string' ? JSON.parse(raw) as T : undefined
-}
-
 // Troop tuning lives in a battle event comment, which DataManager does not extract.
 function readFormations(): Formations {
   const map = new Map<string, unknown>()
   for (const troop of globals.$dataTroops.slice(1)) {
-    const comment = troop?.pages[0]?.list.find(command => command.code === 108)?.parameters[0]
-    const match = typeof comment === 'string' ? comment.match(/<nightward:([^>]+)>/) : null
-    if (!match)
-      continue
-    const data = JSON.parse(match[1]!) as { key?: string }
-    if (data.key)
+    const data = readMetaJson<{ key?: string }>(commentMeta(troop?.pages[0]?.list))
+    if (data?.key)
       map.set(data.key, data)
   }
   return {
@@ -172,17 +160,16 @@ function readFormations(): Formations {
 }
 
 function readSpawnPoint(tag: string, center: number, fallback: Point): Point {
+  const target = tag.toLowerCase()
   for (const event of globals.$dataMap.events) {
     if (!event)
       continue
-    const text = [
-      event.note,
-      ...event.pages.flatMap(page => page.list.filter(command => [108, 408].includes(command.code)).map(command => String(command.parameters[0]))),
-    ].join('\n')
-    const match = new RegExp(`<nightwardSpawn:${tag}>`, 'i').exec(text)
-    if (!match)
+    const carriers = [event, ...event.pages.map(page => commentMeta(page.list))]
+    const matched = carriers.some(carrier => readMetaString(carrier, 'nightwardSpawn')?.toLowerCase() === target)
+    if (!matched)
       continue
-    const offset = text.match(/<spawnOffset:([^>]+)>/i)?.[1]?.split(',').map(Number) ?? [0, 0]
+    const rawOffset = carriers.map(carrier => readMetaString(carrier, 'spawnOffset')).find(Boolean)
+    const offset = rawOffset?.split(',').map(Number) ?? [0, 0]
     return {
       x: event.x - center + (Number.isFinite(offset[0]) ? offset[0]! : 0),
       z: event.y - center + (Number.isFinite(offset[1]) ? offset[1]! : 0),
@@ -218,30 +205,30 @@ function readStaticDatabase(): StaticDatabase {
   for (const key of weaponKeys) weapons.set(key, [])
   for (const key of passiveKeys) passives.set(key, [])
   for (const weapon of globals.$dataWeapons.slice(1)) {
-    const data = weapon ? optionalMetadata<WeaponData>(weapon) : undefined
+    const data = readMetaJson<WeaponData>(weapon)
     if (!weapon || !data)
       continue
     // Keep database identity for Game_Item and the native equipment APIs.
     weapons.get(data.key)?.push(Object.assign(weapon, { data }))
   }
   for (const armor of globals.$dataArmors.slice(1)) {
-    const data = armor ? optionalMetadata<PassiveData>(armor) : undefined
+    const data = readMetaJson<PassiveData>(armor)
     if (!armor || !data)
       continue
     passives.get(data.key)?.push(Object.assign(armor, { data }))
   }
   for (const skill of globals.$dataSkills.slice(1)) {
-    const data = skill ? optionalMetadata<{ key?: string }>(skill) : undefined
+    const data = readMetaJson<{ key?: string }>(skill)
     if (skill && data?.key)
       enemySkills.set(data.key, skill.id)
   }
   for (const enemy of globals.$dataEnemies.slice(1)) {
-    const data = enemy ? optionalMetadata<EnemyData>(enemy) : undefined
+    const data = readMetaJson<EnemyData>(enemy)
     if (enemy && data)
       enemies.set(data.key, { ...enemy, data })
   }
   for (const item of globals.$dataItems.slice(1)) {
-    const data = item ? optionalMetadata<{ key: PickupKey }>(item) : undefined
+    const data = readMetaJson<{ key: PickupKey }>(item)
     if (!item || !data)
       continue
     items.set(data.key, item)
@@ -255,7 +242,7 @@ function readStaticDatabase(): StaticDatabase {
     items,
     itemKeyById,
     formations: readFormations(),
-    hero: metadata(globals.$dataActors[1]!),
+    hero: requireMetaJson<HeroData>(globals.$dataActors[1]),
     contactSkill: enemySkills.get('contact')!,
     waveSkill: enemySkills.get('reaperWave')!,
   }
@@ -265,7 +252,7 @@ function readStaticDatabase(): StaticDatabase {
 
 export function readContent(): Content {
   const db = readStaticDatabase()
-  const mapMeta = optionalMetadata<{ center?: number, bounds?: number }>(globals.$dataMap)
+  const mapMeta = readMetaJson<{ center?: number, bounds?: number }>(globals.$dataMap)
   const center = mapMeta?.center ?? Math.floor(globals.$dataMap.width / 2)
   const bounds = mapMeta?.bounds ?? Math.floor(Math.min(globals.$dataMap.width, globals.$dataMap.height) / 2)
   return {

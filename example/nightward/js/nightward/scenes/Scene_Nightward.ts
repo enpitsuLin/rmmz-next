@@ -71,7 +71,7 @@ export class Scene_Nightward extends Scene_Base {
     if (!DataManager.isMapLoaded())
       return false
     groundBitmaps(globals.$dataTilesets[globals.$dataMap.tilesetId]!)
-    return super.isReady() && assetsReady() && propSceneReady(propSceneUrl(globals.$dataMap.note)) && this.readyRecords
+    return super.isReady() && assetsReady() && propSceneReady(propSceneUrl(globals.$dataMap)) && this.readyRecords
   }
 
   override start(): void {
@@ -97,7 +97,7 @@ export class Scene_Nightward extends Scene_Base {
     this.resultHandled = false
     this.chestWait = this.victoryAt = -1
     this.introPending = false
-    this.run = new Game_NightwardRun(readContent(), getPropScene(propSceneUrl(globals.$dataMap.note)), demo)
+    this.run = new Game_NightwardRun(readContent(), getPropScene(propSceneUrl(globals.$dataMap)), demo)
     this.worldView = new Spriteset_Nightward(this.run, getAssets())
     this.worldView.beginIntro(fromTitle)
     this.worldRoot.addChild(this.worldView.view, this.worldView.overlay, this.letterbox)

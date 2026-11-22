@@ -1,6 +1,7 @@
 import type { Game_Action } from 'rmmz-next'
 import type { MZ } from 'rmmz-next/database-types'
 import { Game_Action as Action, Game_Interpreter, GlobalMananger as globals } from 'rmmz-next'
+import { commentMeta, readMetaString } from '../primitives/metadata'
 
 export type PhaseSignal = 'start' | 'boss' | 'bossDeath' | 'victory'
 
@@ -32,7 +33,8 @@ export class Game_NightwardEvents {
       const comment = event.list[0]
       if (comment?.code !== 108)
         continue
-      const match = /^<nightwardPhase:(start|boss|bossDeath|victory|\d+(?:\.\d+)?)(,demo)?>$/.exec(String(comment.parameters[0]).trim())
+      const tag = readMetaString(commentMeta([comment]), 'nightwardPhase')
+      const match = tag ? /^(start|boss|bossDeath|victory|\d+(?:\.\d+)?)(,demo)?$/.exec(tag) : null
       if (!match || (demo && !match[2]))
         continue
       const seconds = Number(match[1])

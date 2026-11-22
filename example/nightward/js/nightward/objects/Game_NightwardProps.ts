@@ -2,6 +2,7 @@ import type { Matrix4 } from '@pixi/3d'
 import type { Game_Event } from 'rmmz-next'
 import type { LocalCollider, PropModel, PropPlacement, PropScene } from '../managers/NightwardPropSceneManager'
 import { transformPoint } from '../primitives/geometry'
+import { eventComments } from '../primitives/metadata'
 
 export interface Prop {
   id: string
@@ -53,7 +54,7 @@ export class Game_NightwardProps {
     })
     // Only logic events with explicit bindings participate in frame updates.
     for (const event of events) {
-      const text = event.event().pages.flatMap(page => page.list.filter(command => [108, 408].includes(command.code)).map(command => command.parameters[0])).join('\n')
+      const text = event.event().pages.flatMap(page => eventComments(page.list)).join('\n')
       const matches = [...text.matchAll(/<prop:([^>]+)>/gi)]
       if (!matches.length)
         continue
@@ -146,7 +147,7 @@ export class Game_NightwardProps {
         driver.page = page
         driver.bindings = []
         driver.x = Number.NaN
-        const text = page?.list.filter(command => [108, 408].includes(command.code)).map(command => command.parameters[0]).join('\n') ?? ''
+        const text = eventComments(page?.list).join('\n')
         for (const match of text.matchAll(/<prop:([^>]+)>(?:\s*<propOffset:([^>]+)>)?/gi)) {
           const prop = this.get(match[1]!.trim())
           if (!prop)
