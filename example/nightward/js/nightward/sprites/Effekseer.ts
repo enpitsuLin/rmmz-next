@@ -5,17 +5,12 @@ import { Container3D, Frustum, getCameraData, Matrix4, Pass3D, RenderPassBit, Sp
 import { EffectManager, Graphics } from 'rmmz-next'
 import { getEffekseerEffectName } from '../managers/NightwardEffectManager'
 
-interface NativeHandle extends effekseer.EffekseerHandle {
-  setMatrix(matrix: Float32Array): void
-  setAllColor(r: number, g: number, b: number, a: number): void
-  setDynamicInput(index: number, value: number): void
-}
-interface Slot { handle: NativeHandle, name: string, revision: number, matrix: Float32Array, color?: number, value?: number, alpha?: number }
+interface Slot { handle: effekseer.EffekseerHandle, name: string, revision: number, matrix: Float32Array, color?: number, value?: number, alpha?: number }
 interface PreparedFrame {
   session?: RenderSession
   containers: { node: EffekseerParticles, shown: boolean, depth: number }[]
-  opaque: NativeHandle[]
-  transparent: NativeHandle[]
+  opaque: effekseer.EffekseerHandle[]
+  transparent: effekseer.EffekseerHandle[]
 }
 interface ParticleOptions {
   label?: string
@@ -63,7 +58,7 @@ export class EffekseerParticles extends Container3D {
   readonly opaque: boolean
   private textures: Texture[]
   private slots: (Slot | undefined)[] = []
-  private live: NativeHandle[] = []
+  private live: effekseer.EffekseerHandle[] = []
   private matrix = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
   private pyro: boolean
   private streak: boolean
@@ -109,7 +104,7 @@ export class EffekseerParticles extends Container3D {
     let slot = this.slots[index]
     if (slot?.name !== name) {
       slot?.handle.stop()
-      const handle = context().play(EffectManager.load(`nightward/${name}`)!) as NativeHandle
+      const handle = context().play(EffectManager.load(`nightward/${name}`)!)
       handle.setSpeed(0)
       handle.setDynamicInput(2, Number(this.options.blendMode === undefined || this.options.blendMode === 'normal'))
       slot = { handle, name, revision: this.revision, matrix: new Float32Array(16) }
@@ -149,7 +144,7 @@ export class EffekseerParticles extends Container3D {
     m[12] = x; m[13] = y; m[14] = z
   }
 
-  prepare(camera: Camera3D, shown: boolean, frustum: Frustum): readonly NativeHandle[] {
+  prepare(camera: Camera3D, shown: boolean, frustum: Frustum): readonly effekseer.EffekseerHandle[] {
     this.live.length = 0
     this.revision++
     if (!shown) { this.releaseInactive(); return this.live }
@@ -256,7 +251,7 @@ export class EffekseerParticles extends Container3D {
 export class EffekseerPass extends Pass3D {
   private static frames = new WeakMap<Container3D, PreparedFrame>()
   readonly stage: 'afterOpaque' | 'afterTransparent'
-  private handles: readonly NativeHandle[] = []
+  private handles: readonly effekseer.EffekseerHandle[] = []
   private globals = new Float32Array(4)
   private fog = new Float32Array(4)
   private locations = new WeakMap<WebGLProgram, { globals: WebGLUniformLocation | null, fog: WebGLUniformLocation | null }>()
