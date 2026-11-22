@@ -1,8 +1,8 @@
-import { Container3D, getCameraData, Pass3D, RenderPassBit } from '@pixi/3d'
 import type { Camera3D, RenderGraph, RenderSession } from '@pixi/3d'
 import type { Texture, TextureSource, WebGLRenderer } from 'pixi.js'
-import { EffectManager, Graphics } from 'rmmz-next'
 import type { Assets, Frame } from './assets'
+import { Container3D, Frustum, getCameraData, Matrix4, Pass3D, RenderPassBit, Sphere } from '@pixi/3d'
+import { EffectManager, Graphics } from 'rmmz-next'
 
 interface EffectEntry { name: string, atlas: string, frame: Frame, mode: string }
 interface NativeHandle extends effekseer.EffekseerHandle {
@@ -10,7 +10,7 @@ interface NativeHandle extends effekseer.EffekseerHandle {
   setAllColor(r: number, g: number, b: number, a: number): void
   setDynamicInput(index: number, value: number): void
 }
-interface Slot { handle: NativeHandle, name: string, revision: number, color?: number, value?: number, alpha?: number }
+interface Slot { handle: NativeHandle, name: string, revision: number, matrix: Float32Array, color?: number, value?: number, alpha?: number }
 interface PreparedFrame {
   session?: RenderSession
   containers: { node: EffekseerParticles, shown: boolean, depth: number }[]
@@ -35,6 +35,28 @@ const context = (): effekseer.EffekseerContext => Graphics.effekseer
 const key = (atlas: string, frame: Frame, mode: string): string => `${atlas}:${frame.x},${frame.y},${frame.width},${frame.height}:${mode}`
 const clamp = (value: number): number => Math.min(1, Math.max(0, value))
 const fract = (value: number): number => value - Math.floor(value)
+const glowMargin = 48
+const cullMatrix = new Matrix4()
+const particleFrustum = new Frustum()
+const particleBounds = new Sphere()
+
+function prepareFrustum(camera: Camera3D): Frustum {
+  const { viewProjection, frame } = getCameraData(camera)
+  const clip = cullMatrix.copyFrom(viewProjection).elements
+  const x = frame.width / (frame.width + glowMargin * 2)
+  const y = frame.height / (frame.height + glowMargin * 2)
+  for (let column = 0; column < 16; column += 4) {
+    clip[column] *= x
+    clip[column + 1] *= y
+  }
+  return particleFrustum.setFromProjectionMatrix(cullMatrix)
+}
+
+function intersectsParticle(frustum: Frustum, x: number, y: number, z: number, radius: number): boolean {
+  particleBounds.center.set(x, y, z)
+  particleBounds.radius = radius
+  return frustum.intersectsSphere(particleBounds)
+}
 
 export function requestEffekseer(): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -119,7 +141,8 @@ export class EffekseerParticles extends Container3D {
       const handle = context().play(EffectManager.load(`nightward/${name}`)!) as NativeHandle
       handle.setSpeed(0)
       handle.setDynamicInput(2, Number(this.options.blendMode === undefined || this.options.blendMode === 'normal'))
-      slot = { handle, name, revision: this.revision }; this.slots[index] = slot
+      slot = { handle, name, revision: this.revision, matrix: new Float32Array(16) }
+      this.slots[index] = slot
     }
     slot.revision = this.revision
     this.live.push(slot.handle)
@@ -139,7 +162,14 @@ export class EffekseerParticles extends Container3D {
     if (slot.color !== packed) { handle.setAllColor(packed & 255, packed >>> 8 & 255, packed >>> 16 & 255, packed >>> 24); slot.color = packed }
     if (slot.value !== value) { handle.setDynamicInput(0, value); slot.value = value }
     if (slot.alpha !== alpha) { handle.setDynamicInput(1, alpha); slot.alpha = alpha }
-    handle.setMatrix(this.matrix)
+    const matrix = this.matrix
+    for (let index = 0; index < matrix.length; index++) {
+      if (matrix[index] !== slot.matrix[index]) {
+        handle.setMatrix(matrix)
+        slot.matrix.set(matrix)
+        break
+      }
+    }
   }
   private transform(x: number, y: number, z: number, rx: number, ry: number, rz: number, ux: number, uy: number, uz: number): void {
     const m = this.matrix
@@ -147,7 +177,8 @@ export class EffekseerParticles extends Container3D {
     m[8] = ry * uz - rz * uy; m[9] = rz * ux - rx * uz; m[10] = rx * uy - ry * ux
     m[12] = x; m[13] = y; m[14] = z
   }
-  prepare(camera: Camera3D, shown: boolean): readonly NativeHandle[] {
+
+  prepare(camera: Camera3D, shown: boolean, frustum: Frustum): readonly NativeHandle[] {
     this.live.length = 0
     this.revision++
     if (!shown) { this.releaseInactive(); return this.live }
@@ -156,6 +187,7 @@ export class EffekseerParticles extends Container3D {
     if (this.options.billboard === 'horizontal') { rx = 1; ry = 0; rz = 0; ux = 0; uy = 0; uz = 1 }
     else if (this.options.billboard === 'cylindrical') { const length = Math.hypot(rx, rz); rx /= length; ry = 0; rz /= length; ux = 0; uy = 1; uz = 0 }
     const time = this.uniforms.uParticleTime as number
+    const aspect = this.options.aspect ?? 1
     for (let index = 0; index < this.options.capacity; index++) {
       const at = index * 96
       if (this.beam) {
@@ -164,6 +196,9 @@ export class EffekseerParticles extends Container3D {
         const ax = data[end]!, ay = data[end + 1]!, az = data[end + 2]!
         const bx = data[at]!, by = data[at + 1]!, bz = data[at + 2]!
         const dx = bx - ax, dy = by - ay, dz = bz - az
+        const radius = (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) + Math.max(Math.abs(widthA), Math.abs(widthB))) * 0.5
+        if (!intersectsParticle(frustum, (ax + bx) * 0.5, (ay + by) * 0.5, (az + bz) * 0.5, radius))
+          continue
         const flatX = dx * rx + dy * ry + dz * rz, flatY = dx * ux + dy * uy + dz * uz
         const length = Math.hypot(flatX, flatY), dirX = length > 1e-5 ? flatX / length : 0, dirY = length > 1e-5 ? flatY / length : 1
         const sx = ux * dirX - rx * dirY, sy = uy * dirX - ry * dirY, sz = uz * dirX - rz * dirY
@@ -181,24 +216,28 @@ export class EffekseerParticles extends Container3D {
       }
       let size = data[at + 3]!
       if (size <= 0) continue
-      let x = data[at]!, y = data[at + 1]!, z = data[at + 2]!, rotation = data[at + 4]!, heat = 1, alpha = 1
+      let x = data[at]!
+      let y = data[at + 1]!
+      let z = data[at + 2]!
+      let rotation = data[at + 4]!
+      let age = 0
+      let progress = 0
       let rightX = rx, rightY = ry, rightZ = rz, upX = ux, upY = uy, upZ = uz, span = size
       if (this.pyro) {
-        const age = time - data[at + 7]!, life = data[at + 8]!
+        age = time - data[at + 7]!
+        const life = data[at + 8]!
         if (life <= 0 || age < 0 || age > life) continue
-        const progress = clamp(age / Math.max(life, 1e-6)), t = Math.max(age, 0), drag = data[at + 16]!
-        const decay = drag > 1e-3 ? Math.exp(-drag * t) : 1
-        const a = drag > 1e-3 ? (1 - decay) / drag : t, b = drag > 1e-3 ? (t - a) / drag : t * t * .5
+        progress = clamp(age / Math.max(life, 1e-6))
+        const drag = data[at + 16]!
+        const decay = drag > 1e-3 ? Math.exp(-drag * age) : 1
+        const a = drag > 1e-3 ? (1 - decay) / drag : age
+        const b = drag > 1e-3 ? (age - a) / drag : age * age * 0.5
         const gravity = this.uniforms.uGravity as number[], scale = data[at + 17]!
         const vx = data[at + 9]!, vy = data[at + 10]!, vz = data[at + 11]!
         const tx = vx * a + gravity[0]! * scale * b, ty = vy * a + gravity[1]! * scale * b, tz = vz * a + gravity[2]! * scale * b
         x += tx; y += ty; z += tz
         size += (data[at + 14]! - size) * (1 - (1 - progress) ** (this.uniforms.uGrowth as number))
-        rotation += data[at + 15]! * t
-        heat = data[at + 12]! + (data[at + 13]! - data[at + 12]!) * progress ** (this.uniforms.uCooling as number)
-        alpha = clamp(t / (this.uniforms.uFadeIn as number)) * (1 - progress ** (this.uniforms.uFadeOut as number))
-        const flicker = data[at + 18]!
-        if (flicker > 0) alpha *= 1 - flicker * fract(fract(vx * .1031 + vy * .1173 + vz * .0973 + Math.floor(time * 30) * .618034) * 97.31)
+        rotation += data[at + 15]! * age
         if (this.streak) {
           const wx = vx * decay + gravity[0]! * scale * a, wy = vy * decay + gravity[1]! * scale * a, wz = vz * decay + gravity[2]! * scale * a
           const sx = wx * rx + wy * ry + wz * rz, sy = wx * ux + wy * uy + wz * uz, speed = Math.hypot(sx, sy)
@@ -208,14 +247,30 @@ export class EffekseerParticles extends Container3D {
           rightX = ux * dx - rx * dy; rightY = uy * dx - ry * dy; rightZ = uz * dx - rz * dy
           x -= upX * reach / 2; y -= upY * reach / 2; z -= upZ * reach / 2
           span = size + reach; rotation = 0
-          alpha *= (size / span) ** (this.uniforms.uStreakFade as number)
         }
         else span = size
+      }
+      const width = size * aspect
+      if (!intersectsParticle(frustum, x, y, z, (Math.abs(width) + Math.abs(span)) * 0.5))
+        continue
+      let heat = 1
+      let alpha = 1
+      if (this.pyro) {
+        heat = data[at + 12]! + (data[at + 13]! - data[at + 12]!) * progress ** (this.uniforms.uCooling as number)
+        alpha = clamp(age / (this.uniforms.uFadeIn as number)) * (1 - progress ** (this.uniforms.uFadeOut as number))
+        const flicker = data[at + 18]!
+        if (flicker > 0) {
+          const vx = data[at + 9]!
+          const vy = data[at + 10]!
+          const vz = data[at + 11]!
+          alpha *= 1 - flicker * fract(fract(vx * 0.1031 + vy * 0.1173 + vz * 0.0973 + Math.floor(time * 30) * 0.618034) * 97.31)
+        }
+        if (this.streak)
+          alpha *= (size / span) ** (this.uniforms.uStreakFade as number)
         const depth = -(v[2] * x + v[6] * y + v[10] * z + v[14])
         alpha *= clamp((depth - .3) / (this.uniforms.uNearFade as number))
       }
       const cosine = Math.cos(rotation), sine = Math.sin(rotation)
-      const width = size * (this.options.aspect ?? 1)
       this.transform(x, y, z, (rightX * cosine + upX * sine) * width, (rightY * cosine + upY * sine) * width, (rightZ * cosine + upZ * sine) * width, (upX * cosine - rightX * sine) * span, (upY * cosine - rightY * sine) * span, (upZ * cosine - rightZ * sine) * span)
       const mode = this.opaque ? 'mask' : this.options.blendMode ?? 'normal'
       this.appearance(this.native(index, this.textures[data[at + 6]!]!, mode), u32[at + 5]!, heat, alpha)
@@ -258,7 +313,10 @@ export class EffekseerPass extends Pass3D {
       EffekseerPass.frames.set(root, frame)
     }
     if (frame.session !== session) {
-      const { containers, opaque, transparent } = frame, view = session.view3d.camera.view.elements
+      const { containers, opaque, transparent } = frame
+      const camera = session.view3d.camera
+      const view = camera.view.elements
+      const frustum = prepareFrustum(camera)
       containers.length = 0; opaque.length = 0; transparent.length = 0
       const visit = (node: Container3D, shown: boolean): void => {
         shown &&= node.visible
@@ -272,7 +330,7 @@ export class EffekseerPass extends Pass3D {
       containers.sort((a, b) => b.depth - a.depth)
       for (const entry of containers) {
         const handles = entry.node.opaque ? opaque : transparent
-        for (const handle of entry.node.prepare(session.view3d.camera, entry.shown)) handles.push(handle)
+        for (const handle of entry.node.prepare(camera, entry.shown, frustum)) handles.push(handle)
       }
       // updateHandle scans native instance chunks per handle. One bulk update
       // refreshes every zero-speed instance after this frame's poses are ready.
@@ -282,6 +340,8 @@ export class EffekseerPass extends Pass3D {
     this.handles = this.opaque ? frame.opaque : frame.transparent
   }
   private render(session: RenderSession): void {
+    if (!this.handles.length)
+      return
     const runtime = context(), camera = session.view3d.camera, renderer = session.renderer as WebGLRenderer
     const data = getCameraData(camera)
     runtime.setCameraMatrix(data.view.elements)
