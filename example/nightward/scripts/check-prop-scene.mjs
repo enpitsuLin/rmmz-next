@@ -23,8 +23,9 @@ registerHooks({
 })
 const { Assets: PixiAssets, BufferImageSource, Texture } = await import('pixi.js')
 const { Matrix4, getBuffer, glbToGltf } = await import('@pixi/3d')
-const { loadPropScene, transformPoint } = await import('../js/nightward/prop-scene.ts')
-const { PropManager } = await import('../js/nightward/props.ts')
+const { loadPropScene } = await import('../js/nightward/managers/NightwardPropSceneManager.ts')
+const { Game_NightwardProps } = await import('../js/nightward/objects/Game_NightwardProps.ts')
+const { transformPoint } = await import('../js/nightward/primitives/geometry.ts')
 const root = fileURLToPath(new URL('../', import.meta.url))
 let requests = 0
 const originalLoad = PixiAssets.loader.load
@@ -51,7 +52,7 @@ assert(!scene.environment.some(mesh => mesh.material === 'grass'))
 assert(!scene.materials.has('grass'))
 assert(!scene.environment.some(mesh => mesh.material === 'dirt'), 'road and scattered mud stay in the native map')
 assert.equal(scene.props.filter(prop => prop.model.meshes.some(mesh => mesh.material === 'dirt')).length, 684, 'tomb mud stays attached to the original 3D models')
-const manager = new PropManager(scene, [], 90)
+const manager = new Game_NightwardProps(scene, [], 90)
 const prop = manager.props.find(prop => prop.kind === 'brazier')
 assert(prop && prop.model.meshes.length && prop.model.lights.length && prop.model.colliders.length)
 const originalX = prop.x
@@ -76,10 +77,10 @@ assert(manager.break(prop, 12))
 assert(!manager.break(prop, 13))
 assert.equal(prop.brokenAt, 12)
 assert(!manager.obstacles().some(entry => entry.prop === prop))
-manager.open(prop, 1)
+manager.open(prop, 1, 0, 0)
 assert.equal(manager.doorAmount(prop, 0), 1)
 assert(manager.select('#brazier').includes(prop))
-const reset = new PropManager(scene, [], 90)
+const reset = new Game_NightwardProps(scene, [], 90)
 const restored = reset.get(prop.id)
 assert.equal(restored.x, originalX)
 assert.equal(restored.broken, false)
@@ -92,7 +93,7 @@ assert(geometry.getAttribute('aPosition').buffer.data.byteLength > 0, 'individua
 const comments = [{ code: 108, parameters: ['<prop:brazier:1>\n<propOffset:0.4,1,-0.2>'] }]
 const page = { list: comments }
 const event = { _erased: false, _pageIndex: -1, _realX: 95, _realY: 92, event: () => ({ pages: [page] }), page: () => page, eventId: () => 1 }
-const driven = new PropManager(scene, [event], 90)
+const driven = new Game_NightwardProps(scene, [event], 90)
 const bound = driven.get('brazier:1')
 assert.equal(bound.active, false)
 event._pageIndex = 0

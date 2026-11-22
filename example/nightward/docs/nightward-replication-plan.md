@@ -623,7 +623,7 @@ Scene_Nightward
 
 ### 17.1 业务文件
 
-以下为实施时的新文件清单，职责相近的函数保留在同一文件中。
+以下为原始实施计划中的模块名和文件布局。当前路径见 [源码结构](../README.md#源码结构)。
 
 ```text
 example/nightward/js/plugins/Nightward.js
@@ -782,15 +782,15 @@ M1 与 M2 用于尽早发现接入问题。最终交付要求 M1 至 M6 全部�
 
 | 范围 | 实际入口 |
 | --- | --- |
-| 插件与标题替换 | `js/plugins/Nightward.js`、`js/nightward/install.ts`、`title-scene.ts` |
-| 数据编译与内容 | `js/nightward/content.ts`、`data/*.json` |
-| 连续世界与单局时钟 | `world.ts`、`session.ts` |
-| 原生行动与六武器 | `combat.ts`、`weapons.ts` |
-| 三选一、拾取物与宝箱 | `rewards.ts` |
-| 阶段、阵形、精英与死神 | `director.ts`、`data/Troops.json` 的事件注释 |
-| 三维墓园、灯光与效果 | `view.ts`、`assets.ts` |
-| HUD、覆盖层与输入 | `hud.ts`、`scene.ts` |
-| 音频、选项与纪录 | `audio.ts`、`records.ts` |
+| 插件与标题替换 | `js/plugins/Nightward.js`、`js/nightward/install.ts`、`scenes/Scene_NightwardTitle.ts` |
+| 数据编译与内容 | `managers/NightwardDataManager.ts`、`data/*.json` |
+| 连续世界与单局时钟 | `objects/Game_NightwardWorld.ts`、`objects/Game_NightwardRun.ts` |
+| 原生行动与六武器 | `objects/combat.ts`、`objects/weapons.ts` |
+| 三选一、拾取物与宝箱 | `objects/rewards.ts` |
+| 阶段、阵形、精英与死神 | `objects/director.ts`、`data/Troops.json` 的事件注释 |
+| 三维墓园、灯光与效果 | `sprites/Spriteset_Nightward.ts`、`managers/NightwardAssetManager.ts` |
+| HUD、覆盖层与输入 | `sprites/Sprite_NightwardHud.ts`、`scenes/Scene_Nightward.ts`、`windows/` |
+| 音频、选项与纪录 | `managers/NightwardAudioManager.ts`、`managers/NightwardConfigManager.ts`、`managers/NightwardRecordManager.ts` |
 | 数据、像素图与声音生成 | `scripts/generate-content.mjs` |
 | 启动、打包与资源说明 | `README.md` |
 

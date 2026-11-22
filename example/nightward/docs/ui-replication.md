@@ -56,13 +56,13 @@
 
    | 文件 | 职责 |
    | --- | --- |
-   | `js/nightward/window-ui.ts` | RMMZ Window 皮肤与 Window_Selectable 选择处理 |
-   | `js/nightward/ui.ts` | 字形、像素比例、标题、窗口动画、输入边沿与擦屏 |
-   | `js/nightward/build-ui.ts` | 构筑槽、等级点、升级名称与说明 |
-   | `js/nightward/hud.ts` | HUD、世界投影提示、奖励飞行与触摸摇杆 |
-   | `js/nightward/upgrade-ui.ts` | 升级与宝箱的入场、聚焦、选择和退场 |
-   | `js/nightward/screens.ts` | 标题、暂停、设置、说明与结算 |
-   | `js/nightward/scene.ts` | 场景编排、冻结/恢复、纪录与生命周期 |
+   | `windows/Window_NightwardPanel.ts`、`windows/Window_NightwardSelectable.ts` | RMMZ 窗口皮肤与选择处理 |
+   | `primitives/ui.ts`、`sprites/Sprite_Nightward*.ts` | 布局、输入、动效与界面精灵 |
+   | `sprites/Sprite_NightwardBuild.ts` | 构筑槽、等级点、升级名称与说明 |
+   | `sprites/Sprite_NightwardHud.ts` | HUD、世界投影提示、奖励飞行与触摸摇杆 |
+   | `windows/RewardScreen.ts` | 升级与宝箱的入场、聚焦、选择和退场 |
+   | `windows/` | 标题、暂停、设置、说明与结算各自的面板 |
+   | `scenes/Scene_Nightward.ts` | 场景编排、冻结/恢复、纪录与生命周期 |
 
    RMMZ 的 `Window` 负责菜单按钮、升级卡片、设置/说明、暂停、HUD 面板与结算面板的背景和边框。`Window_Selectable` 负责索引、选项移动、确认、取消、悬停与触摸确认，使用原版不规则排版对应的 `itemRect`。标题、暂停页的系统按钮及 HUD 暂停按钮也使用原生选择窗口。
 

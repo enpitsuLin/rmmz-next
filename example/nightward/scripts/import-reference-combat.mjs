@@ -29,7 +29,7 @@ const generated = `// Generated from the official Nightward combat presentation;
 // Source: ${sourceUrl}
 // SHA-256: ${sourceHash}
 import { Container3D as ce, PointLight as dh, PostEffect as eu } from '@pixi/3d'
-import { EffekseerParticles as yi } from '../effekseer'
+import { EffekseerParticles as yi } from '../sprites/Effekseer'
 import { Texture as U, Rectangle as kt, UniformGroup as gn } from 'pixi.js'
 // Atlas textures belong to ImageManager and survive scene teardown.
 const gI = () => {}

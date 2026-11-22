@@ -19,11 +19,11 @@
 
    单独重制地表 tileset：`node scripts/import-reference-assets.mjs --ground-only`。此命令不重建 GLB、UI 或音频，也不重铺已编辑的地图。`node scripts/check-ground-tileset.mjs` 检查纹理切分、世界比例和法线对齐。
 
-   Prop 已拆为独立模型，使用标准 `models/maps/graveyard.glb` 保存几何、材质、贴图、节点布局、局部碰撞与光效挂点；`models/props/` 提供可复用 GLB。运行态由 PropManager 管理并按材质合批，普通物件不占用地图事件。资源重制保留 GLB 节点布局与配置，详见 [GLB 场景说明](prop-scene.md)。
+   Prop 已拆为独立模型，使用标准 `models/maps/graveyard.glb` 保存几何、材质、贴图、节点布局、局部碰撞与光效挂点。`models/props/` 提供可复用 GLB。`Game_NightwardProps` 管理运行状态，`Spriteset_NightwardProps` 按材质合批。资源重制保留 GLB 节点布局与配置，详见 [GLB 场景说明](prop-scene.md)。
 
    火盆火焰、破坏闪光和余辉由 RMMZ 现有 Effekseer 运行时绘制，复用原版光晕贴图和参数：瞬间闪光按 `exp(-7 × 时间)` 衰减，留下火盆上方与地面两层橙红余辉，以原版频率持续闪烁。破坏后的局部光照继续复用 Pixi3D 点光源池，范围缩为 4，不额外增加点光源。光效跟随地图事件，随世界暂停冻结，新一局重建时重置。
 
-   六种武器使用独立的原版战斗特效图集 `combat-fx.png`，由 `import-reference-combat.mjs` 执行官方 `yI` 绘制器生成，包含光核、火花、烟团、圆环、弧光、闪电、光束、碎片、余烬、焦痕、符文、火焰和光晕。对应帧清单与输入来源保存在 `combat-fx.json`。纯呈现模块离线提取到 `js/nightward/reference/combat.js`，通过 `weapon-effects.ts` 读取本工程的模拟结果；`effekseer.ts` 将原版粒子公式与光束顶点交给 Effekseer 绘制，保留池容量，14 个战斗点光源预算和镜头后处理继续使用 Pixi3D。实现范围与重制命令见 [武器说明](weapon-replication.md) 和 [Effekseer 说明](effekseer.md)。
+   六种武器使用独立的原版战斗特效图集 `combat-fx.png`，由 `import-reference-combat.mjs` 执行官方 `yI` 绘制器生成，包含光核、火花、烟团、圆环、弧光、闪电、光束、碎片、余烬、焦痕、符文、火焰和光晕。对应帧清单与输入来源保存在 `combat-fx.json`。`sprites/Spriteset_NightwardEffects.ts` 将模拟结果提供给 `reference/combat.js`，`sprites/Effekseer.ts` 将粒子与光束顶点交给 Effekseer 绘制。14 个战斗点光源预算和镜头后处理继续使用 Pixi3D。实现范围与重制命令见 [武器说明](weapon-replication.md) 和 [Effekseer 说明](effekseer.md)。
 
 3. **UI 与字形**
 

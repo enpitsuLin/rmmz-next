@@ -67,11 +67,11 @@
 
    在物品 001–004 的「使用效果」中选择奖励公共事件。默认公共事件 012–014 给守夜人（角色 001）增加 1、5、25 点经验，015 增加 10 金币。使用原生「增减经验」时保持「显示升级」关闭，由 Nightward 逐级处理升级选择。
 
-   地图中心格 `(90, 90)` 对应三维世界 `(0, 0)`。连续碰撞和空间查询位于 `js/nightward/world.ts`；战斗、刷怪与奖励分别位于同目录的对应模块。
+   地图中心格 `(90, 90)` 对应三维世界 `(0, 0)`。连续碰撞和空间查询位于 [Game_NightwardWorld.ts](js/nightward/objects/Game_NightwardWorld.ts)，战斗、刷怪和奖励由同目录下的模块处理。
 
    草地、道路和散布泥地在 RMMZ 地图编辑器中铺设：第一图块层铺草地，第二图块层用 A5 泥地图块画道路轮廓，进入场景时自动补齐透明渐隐边缘和转角。运行时由原生 `Tilemap` 合成为三维平面地面，颜色与法线一起过渡，接收场景光照、阴影和雾。墓碑脚下的泥地保留在三维墓碑模型中，使用原版网格和内嵌贴图，与墓碑一起变换和显隐。
 
-   地图备注 `<propScene:models/maps/graveyard.glb>` 绑定标准 GLB。普通 Prop 由独立 PropManager 管理，无需地图事件；逻辑事件使用 `<prop:brazier:1>` 和 `<propOffset:0.4,0,-0.2>` 绑定。插件指令支持按 ID 或标签移动、显隐、破坏、开门和调用公共事件，详见 [GLB 场景说明](docs/prop-scene.md)。
+   地图备注 `<propScene:models/maps/graveyard.glb>` 绑定标准 GLB。普通 Prop 由 `Game_NightwardProps` 管理，无需地图事件；逻辑事件使用 `<prop:brazier:1>` 和 `<propOffset:0.4,0,-0.2>` 绑定。插件指令支持按 ID 或标签移动、显隐、破坏、开门和调用公共事件，详见 [GLB 场景说明](docs/prop-scene.md)。
 
 5. **原版资产**
 
@@ -106,3 +106,17 @@
 7. **交付约定**
 
    未添加测试框架；GLB 迁移执行必要的类型、构建与资产检查，未代理试玩。由用户运行本工程并测试。实现范围与设计依据见 `docs/nightward-replication-plan.md`。
+
+## 源码结构
+
+[Nightward.js](js/plugins/Nightward.js) 提供 MZ 插件元数据，由 [install.ts](js/nightward/install.ts) 注册指令和引擎补丁。运行模块按 `rmmz-next` 核心的职责组织在 `js/nightward/`。
+
+| 目录 | 职责 |
+| --- | --- |
+| [`primitives/`](js/nightward/primitives) | 坐标与空间索引、输入和布局工具 |
+| [`managers/`](js/nightward/managers) | 数据库读取、GLB 和特效加载、音频、配置及纪录 |
+| [`objects/`](js/nightward/objects) | 对局状态、碰撞、地图物件、阶段事件、战斗和奖励 |
+| [`scenes/`](js/nightward/scenes) | 标题演示和正式对局的生命周期 |
+| [`sprites/`](js/nightward/sprites) | 三维墓园、粒子渲染、HUD 和界面精灵 |
+| [`windows/`](js/nightward/windows) | RMMZ 窗口皮肤、选择处理和各个界面面板 |
+| [`reference/`](js/nightward/reference) | 生成的战斗呈现模块 |

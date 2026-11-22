@@ -1,0 +1,100 @@
+import { Container } from 'pixi.js'
+import { Input } from 'rmmz-next'
+import { sound } from '../managers/NightwardAudioManager'
+import { records } from '../managers/NightwardRecordManager'
+import { back, clock, colors, fitScale, out, phase, reducedMotion } from '../primitives/ui'
+import { Sprite_NightwardButton } from '../sprites/Sprite_NightwardButton'
+import { Sprite_NightwardHeading } from '../sprites/Sprite_NightwardHeading'
+import { Sprite_NightwardSystemButtons } from '../sprites/Sprite_NightwardSystemButtons'
+import { text, wrap } from '../sprites/Sprite_NightwardText'
+import { box, sprite } from '../sprites/uiSprites'
+import { bestLine } from './recordText'
+import { UiScreen } from './UiScreen'
+
+export class TitleScreen extends UiScreen {
+  private logo = new Sprite_NightwardHeading('NIGHTWARD')
+  private tagline = [text('', 0, 0, 0, colors.blue, .5), text('', 0, 0, 0, colors.blue, .5)]
+  private footer = new Container({ eventMode: 'none' })
+  private best = text('', 0, 0, 0, colors.dim, .5)
+  private wins = text('', 0, 0, 1, 0xffffff, .5)
+  private credit = text('Made with PixiJS and PixiJS 3D', 0, 0, 0, colors.dim, 1)
+  private corner = new Sprite_NightwardSystemButtons()
+  private sparkles = [sprite('sparkle'), sprite('sparkle'), sprite('sparkle')]
+  private menu: Sprite_NightwardButton[]
+  private flash = box(1, 1, 0xffffff, 0)
+  private logoY = 0
+  private taglineY: number[] = []
+  private playAge = -1
+  private playDone?: () => void
+  constructor(onPlay: () => void, onOpen: (kind: 'options' | 'howto') => void) {
+    super()
+    this.logo.configure({ halo: .26, haloSeconds: .8, haloSine: true, breath: .03, drop: 10, lettersAt: .1, letterSeconds: .45, strength: 1.6, stagger: .05, rulesAt: .55, diamondsAt: .7, diamondSeconds: .25, glintAt: 2 })
+    this.menu = ['PLAY', 'HOW TO PLAY', 'OPTIONS'].map((name, i) => this.addButton(new Sprite_NightwardButton(name, 120, 22, i ? 'Confirm' : null), i))
+    this.menu[0]!.onActivate = () => { this.live = false; this.playAge = 0; this.playDone = onPlay; this.menu[0]!.punch(); sound('Confirm') }
+    this.menu[1]!.onActivate = () => onOpen('howto'); this.menu[2]!.onActivate = () => onOpen('options')
+    this.sparkles.forEach(node => node.anchor.set(.5))
+    this.footer.addChild(this.best, this.wins, this.credit)
+    this.content.addChild(this.logo, ...this.sparkles, ...this.tagline, this.footer, this.flash, this.corner)
+    this.place(); sound('Title', 45)
+  }
+  protected place(): void {
+    const l = this.layout, { w, h, unit: u, portrait } = l, center = Math.round(w / 2), band = Math.round(h * (portrait ? .05 : .06)), buttonH = Math.max(22, l.tap)
+    const cornerWidth = this.corner.layout(l.tap)
+    this.corner.position.set(w - 4 - cornerWidth, l.short || band < 17 ? 4 : Math.max(0, Math.round((band - 15) / 2)))
+    const scale = fitScale(102, (l.short ? .5 : portrait ? .86 : .62) * l.width, 3 * u)
+    const compact = portrait || l.short, logoH = this.logo.layout(scale, u, center - 6, compact ? 16 : 44, compact ? 12 : 24, 40)
+    this.logoY = Math.max(band + 4, Math.round(h * (compact ? .13 : .15))); this.logo.position.set(center, this.logoY)
+    const lines = wrap('Survive the night · slay the Reaper', w - 16)
+    this.tagline.forEach((node, i) => { node.visible = !!lines[i]; node.text = lines[i] ?? ''; node.position.set(center, this.logoY + logoH + 8 + i * 10); this.taglineY[i] = node.y })
+    this.best.text = bestLine(); this.best.visible = records.runs > 0 && !l.short
+    this.wins.text = `Reaper slain · fastest ${clock(records.fastestWin ?? 0)}`; this.wins.visible = this.best.visible && records.wins > 0
+    const footerLines = [this.best, this.wins, this.credit].filter(node => node.visible)
+    const footerScale = fitScale(Math.max(...footerLines.map(node => node.textWidth)), l.width - l.margin * 2, l.icon) / u
+    const recordRows = Number(this.best.visible) + Number(this.wins.visible)
+    this.best.position.set(0, 0); this.wins.position.set(0, 12)
+    this.credit.position.set(Math.floor((w - 8 - center) / footerScale), recordRows ? (recordRows - 1) * 12 + 17 : 0)
+    const footerHeight = Math.ceil((this.credit.y + 9) * footerScale)
+    this.footer.scale.set(footerScale); this.footer.position.set(center, h - 8 - footerHeight)
+    // Reserve the footer before placing controls so records cannot run into credits.
+    const gap = portrait ? 8 : 6, menuHeight = 3 * buttonH + 2 * gap
+    const menuY = Math.min(Math.round(h * (portrait ? .64 : .58)), this.footer.y - 12 - menuHeight)
+    const short = l.short || !portrait && menuY < this.logoY + logoH + 8 + lines.length * 10 + 14
+    this.menu.forEach((button, i) => {
+      const width = short ? 104 : portrait ? Math.min(160, w - 40) : 120
+      button.setSize(width, buttonH, l.tap); button.showCursor = !short || i === 0
+      button.position.set(short ? center - 164 + i * 112 : center - Math.round(width / 2), short ? this.footer.y - 12 - buttonH : menuY + i * (buttonH + gap))
+    })
+    const play = this.menu[0]!
+    this.flash.position.set(play.x + 2, play.y + 2); this.flash.width = play.size.width - 4; this.flash.height = play.size.height - 4
+    const positions = [1, 8, 2]
+    this.sparkles.forEach((node, i) => {
+      const glyph = this.logo.title.glyphs[positions[i]!]!, k = this.logo.title.scale.x, width = glyph.texture.frame.width
+      node.position.set(Math.round(center + (glyph.x + (i === 1 ? width - 2 : width / 2)) * k), Math.round(this.logoY + (i === 0 ? -4 : i === 1 ? 1 : logoH + 3))); node.visible = !short || i < 2
+    })
+  }
+  override get accepting(): boolean { return this.age >= .3 && this.playAge < 0 }
+  protected override handle(): void {
+    if (Input.isTriggered('ok') && this.age < 1.1) { this.age = 1.1; this.focus(this.menu[0]!); return }
+    super.handle()
+  }
+  protected animate(dt: number): void {
+    const still = reducedMotion(), age = still ? 10 : this.age
+    this.logo.animate(this.age)
+    this.logo.y = this.logoY
+    this.tagline.forEach((node, i) => { node.y = this.taglineY[i]! + (still ? 0 : Math.round(4 * (1 - out(phase(age, .7, .4))))); node.alpha = out(phase(age, .7, .4)) })
+    this.menu.forEach((button, i) => { button.motion.y = still ? 0 : Math.round(10 * (1 - back(phase(age, .85 + i * .07, .3)))); button.motion.alpha = out(phase(age, .85 + i * .07, .3), 2) })
+    this.footer.alpha = out(phase(age, 1.1, .5), 2)
+    this.corner.tick(dt, this.live && !this.inputBlocked && !this.dimmed && this.playAge < 0, age - 1.2)
+    this.sparkles.forEach((node, i) => { const p = (this.age - 2) % (.9 + 2.1 + i * .7) / .9; node.scale.set(!still && this.age >= 2 && p < 1 ? Math.sin(p * Math.PI) : 0); node.rotation = p * Math.PI / 4 })
+    if (!this.focused && age >= 1.1) this.focus(this.menu[0]!)
+    if (this.playAge >= 0) {
+      this.playAge += dt
+      const t = this.playAge
+      this.flash.alpha = .85 * (1 - out(phase(t, 0, .3)))
+      this.menu.slice(1).forEach((button, i) => { const p = phase(t, .05 + i * .04, .22); button.motion.alpha *= 1 - p ** 3; button.motion.x = Math.round(-16 * p ** 3) })
+      for (const node of [this.logo, ...this.tagline, this.footer, this.corner]) node.alpha = 1 - phase(t, .1, .35) ** 3
+      this.logo.y -= Math.round(16 * phase(t, .1, .35) ** 3); this.menu[0]!.motion.alpha *= 1 - phase(t, .2, .25) ** 3
+      if (t >= (still ? .15 : .3)) { const done = this.playDone; this.playDone = undefined; done?.() }
+    }
+  }
+}

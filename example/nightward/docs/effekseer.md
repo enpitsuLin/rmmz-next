@@ -4,7 +4,7 @@
 
    六种武器的光束、光核、符文、书本与药瓶、火花、火焰、烟尘、碎片、冲击环、焦痕，以及火盆火焰、破坏爆光和余辉，均由 RMMZ 已有的 Effekseer WebGL/WASM 运行时绘制。
 
-   `reference/combat.js` 保留官方纯呈现层的发射参数、确定性随机、武器轨迹和时序；`effekseer.ts` 将其四顶点数据交给 Effekseer。没有将命中判定、伤害或武器冷却搬进特效资源。法典和药瓶直接跟随 RMMZ 的模拟快照，火池的开始、结束和燃尽仍使用同一世界时间。
+   `reference/combat.js` 保留官方纯呈现层的发射参数、确定性随机、武器轨迹和时序。`managers/NightwardEffectManager.ts` 加载特效资源，`sprites/Effekseer.ts` 将四顶点数据交给 Effekseer。法典和药瓶直接跟随 RMMZ 的模拟快照，火池的开始、结束和燃尽仍使用同一世界时间。
 
    `weapons.ts`、`combat.ts` 和 RMMZ 数据库继续负责玩法。原版 14 个战斗点光源、8 个 Prop 点光源、天空闪电、镜头震动、炫光、冲击波、泛光与景深继续由 Pixi3D 提供。UI 字效和飞行图标保持 Pixi。
 

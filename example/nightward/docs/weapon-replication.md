@@ -6,7 +6,7 @@
 
    `scripts/import-reference-combat.mjs` 使用共享的 TypeScript 符号依赖提取器，将原版六武器的绘制模块、粒子着色器、命中效果和镜头后处理导出为 `js/nightward/reference/combat.js`。文件头记录来源和 SHA-256，应通过生成脚本维护。
 
-   `weapon-effects.ts` 将本工程的角色、飞弹、法典、法阵、火池和战斗事件提供给绘制模块。攻击、伤害、成长和状态仍由 `RunSession`、RMMZ `Game_Action` 和数据库负责；没有引入原版游戏模拟器或另一套 PixiJS 引擎。
+   `sprites/Spriteset_NightwardEffects.ts` 将本工程的角色、飞弹、法典、法阵、火池和战斗事件提供给绘制模块。攻击、伤害、成长和状态仍由 `Game_NightwardRun`、RMMZ `Game_Action` 和数据库负责。
 
 2. **武器表现**
 

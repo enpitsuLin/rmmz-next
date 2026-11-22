@@ -1,10 +1,10 @@
+import type { Game_Interpreter } from 'rmmz-next'
 import '@pixi/3d'
 import { Game_Actor, GlobalMananger as globals, Input, PluginManager, SceneManager } from 'rmmz-next'
-import type { Game_Interpreter } from 'rmmz-next'
-import { installConfig } from './audio'
-import { installEffekseer } from './effekseer'
-import { Scene_Nightward, startNightwardRun } from './scene'
-import { Scene_NightwardTitle } from './title-scene'
+import { installConfig } from './managers/NightwardConfigManager'
+import { installEffekseer } from './managers/NightwardEffectManager'
+import { Scene_Nightward } from './scenes/Scene_Nightward'
+import { Scene_NightwardTitle } from './scenes/Scene_NightwardTitle'
 
 export function installNightward(): void {
   installConfig()
@@ -27,7 +27,7 @@ export function installNightward(): void {
   }
   Object.assign(Input.keyMapper, { 65: 'left', 68: 'right', 87: 'up', 83: 'down', 80: 'pause', 77: 'mute', 70: 'fullscreen', 49: 'choice1', 50: 'choice2', 51: 'choice3' })
   Input.gamepadMapper[9] = 'pause'
-  PluginManager.registerCommand('Nightward', 'Start', startNightwardRun)
+  PluginManager.registerCommand('Nightward', 'Start', () => SceneManager.goto(Scene_Nightward))
   PluginManager.registerCommand('Nightward', 'Pause', () => {
     const scene = SceneManager._scene
     if (scene instanceof Scene_Nightward) scene.pause()
