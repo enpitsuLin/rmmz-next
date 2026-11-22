@@ -1,4 +1,4 @@
-import { AudioManager, ConfigManager, GlobalMananger as globals, WebAudio } from 'rmmz-next'
+import { AudioManager, ConfigManager, WebAudio } from 'rmmz-next'
 
 export const settings = { muted: false, shake: 1, damageNumbers: true, seenMoveHint: false }
 export const shakeGain = (): number => settings.shake
@@ -18,11 +18,6 @@ export function toggleMute(): void {
   WebAudio.setMasterVolume(settings.muted ? 0 : 1)
   ConfigManager.save()
 }
-export function playMusic(eventId: number): void {
-  const event = globals.$dataCommonEvents[eventId]!
-  const command = event.list.find(command => command.code === 241)!
-  AudioManager.playBgm(command.parameters[0] as { name: string, volume: number, pitch: number, pan: number })
-}
 export function sound(name: string, volume = 45, pitch = 100): void {
   AudioManager.playSe({ name, volume, pitch, pan: 0 })
 }
@@ -33,6 +28,6 @@ export function duckMusic(duck: boolean): void {
   const current = AudioManager._currentBgm
   if (current) {
     // The content volume is attenuated; the user's volume setting stays intact.
-    AudioManager.updateBufferParameters(AudioManager._bgmBuffer, ConfigManager.bgmVolume, { ...current, volume: duck ? 25 : 65 })
+    AudioManager.updateBufferParameters(AudioManager._bgmBuffer, ConfigManager.bgmVolume, { ...current, volume: duck ? current.volume * (25 / 65) : current.volume })
   }
 }

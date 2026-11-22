@@ -43,7 +43,7 @@ export class RunSession {
   kills = 0
   nextId = 1
   invulnerable = 0
-  hero = { x: 0, z: 6, vx: 0, vz: 0, facing: 1, moving: false }
+  readonly hero: Point & { vx: number, vz: number, facing: number, moving: boolean }
   pickups: Pickup[] = []
   projectiles: Projectile[] = []
   pools: FirePool[] = []
@@ -69,9 +69,9 @@ export class RunSession {
   private propEvents: { id: number, prop: string }[] = []
   constructor(readonly content: Content, readonly propScene: PropScene, readonly demo = false) {
     DataManager.setupNewGame()
-    globals.$gameMap.setup(1)
-    globals.$gamePlayer.locate(content.map.center, content.map.center + 6)
-    globals.$gamePlayer.clearTransferInfo()
+    const player = globals.$gamePlayer
+    player.performTransfer()
+    this.hero = { x: player.x - content.map.center, z: player.y - content.map.center, vx: 0, vz: 0, facing: 1, moving: false }
     this.party = globals.$gameParty
     this.troop = globals.$gameTroop
     this.director.swarm = content.formations.swarm.first

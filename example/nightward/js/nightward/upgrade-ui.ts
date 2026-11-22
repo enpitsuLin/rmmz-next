@@ -1,10 +1,9 @@
-import { Container, Rectangle, Sprite } from 'pixi.js'
-import type { NineSliceSprite } from 'pixi.js'
+import { Container, Rectangle } from 'pixi.js'
+import type { NineSliceSprite, Sprite } from 'pixi.js'
 import { Input } from 'rmmz-next'
-import { getAssets } from './assets'
 import { sound } from './audio'
 import type { Reward } from './rewards'
-import { back, box, colors, Heading, largeScale, out, panel, phase, reducedMotion, sprite, text, UiScreen, wrap } from './ui'
+import { back, box, colors, Heading, icon, largeScale, out, panel, phase, reducedMotion, sprite, text, UiScreen, wrap } from './ui'
 import type { UiText } from './ui'
 import type { NightwardWindow } from './window-ui'
 
@@ -33,7 +32,7 @@ export class RewardScreen extends UiScreen {
     this.cursorSprite.anchor.set(1, .5)
     this.content.addChild(this.dimmer, this.heading)
     rewards.forEach((reward) => {
-      const root = new Container({ eventMode: 'static', cursor: treasure ? 'default' : 'pointer' }), body = new Container(), glow = panel(1, 1, 'softRect'), frame = panel(1, 1), well = sprite('slot'), image = new Sprite(getAssets().hudIcons[reward.key]!), name = text(reward.name, 0, 0), tag = text(reward.rank <= 1 ? 'NEW!' : `Lv ${reward.rank}`, 0, 0, reward.rank <= 1 ? 3 : 0, reward.rank <= 1 ? 0xffffff : 10275071, 1), lines = [text('', 0, 0, 0, colors.blue), text('', 0, 0, 0, colors.blue)], flash = box(1, 1, 0xffffff, 0, 3, 3)
+      const root = new Container({ eventMode: 'static', cursor: treasure ? 'default' : 'pointer' }), body = new Container(), glow = panel(1, 1, 'softRect'), frame = panel(1, 1), well = sprite('slot'), image = icon(reward.icon), name = text(reward.name, 0, 0), tag = text(reward.rank <= 1 ? 'NEW!' : `Lv ${reward.rank}`, 0, 0, reward.rank <= 1 ? 3 : 0, reward.rank <= 1 ? 0xffffff : 10275071, 1), lines = [text('', 0, 0, 0, colors.blue), text('', 0, 0, 0, colors.blue)], flash = box(1, 1, 0xffffff, 0, 3, 3)
       glow.position.set(-10, -10); glow.tint = colors.lantern; image.anchor.set(.5)
       body.addChild(glow, frame, well, image, name, tag, ...lines, flash); root.addChild(body); this.content.addChild(root)
       const card: Card = { root, body, glow, frame, well, icon: image, name, tag, lines, flash, x: 0, y: 0, focus: treasure ? 1 : 0, focusFrom: treasure ? 1 : 0, focusTarget: treasure ? 1 : 0, focusAge: 1, press: 0, pressFrom: 0, pressTarget: 0, pressAge: 1, pressed: false, iconAge: 1, sent: false }

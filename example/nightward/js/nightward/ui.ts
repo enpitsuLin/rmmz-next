@@ -1,7 +1,7 @@
 import { Container, NineSliceSprite, Rectangle, Sprite } from 'pixi.js'
 import type { Texture } from 'pixi.js'
 import { Graphics, Input, TouchInput } from 'rmmz-next'
-import { getAssets } from './assets'
+import { equipmentIcon, getAssets } from './assets'
 import { settings, sound, toggleMute } from './audio'
 import { NightwardSelectable, NightwardWindow } from './window-ui'
 import type { WindowChoice } from './window-ui'
@@ -51,7 +51,9 @@ export function panel(width: number, height: number, part = 'panel'): NightwardW
   const border = part === 'softRect' ? 18 : part === 'thinFrame' ? 1 : 3
   return new NineSliceSprite({ texture: getAssets().ui[part]!, leftWidth: border, rightWidth: border, topHeight: border, bottomHeight: part === 'keycap' ? 4 : border, width, height })
 }
-export function icon(key: string): Sprite { return new Sprite(getAssets().hudIcons[key]!) }
+export function icon(key: string | number): Sprite {
+  return new Sprite(typeof key === 'number' ? equipmentIcon(key) : getAssets().hudIcons[key]!)
+}
 
 // Original glyph metrics include their shadow and an independent, hand-rasterized 2x set.
 export class UiText extends Container {

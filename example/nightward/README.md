@@ -53,11 +53,13 @@
    | Items | 八种拾取物及恢复效果 |
    | Troops | 四个阵形模板，参数放在第一页的战斗事件注释中 |
    | Map001 / Tilesets / GLB 场景 | 原生二维地图铺地、地图绑定、逻辑事件，以及墓园 Prop 的三维布局 |
-   | System / CommonEvents | 音效与阶段音乐引用 |
+   | System / CommonEvents | 玩家初始位置、标题 BGM、胜败 ME，及死神登场 BGM 和 SE |
 
    自定义内容使用 `<nightward:JSON>`。武器、被动饰品、敌人和物品使用备注；地图物件使用 GLB 节点和 `extras.nightward` 保存布局、碰撞和配置；少量原生逻辑事件按 Prop ID 绑定；敌群模板使用战斗事件注释。生命、伤害、经验、装备、状态和金币由 RMMZ 游戏对象管理。Nightward 角色使用六个武器槽（类型 1），以及 Might、Haste、Lodestone、Cinder 四个专属被动槽（类型 2–5）；升级替换同系列装备，HUD、暂停和结算直接读取角色装备。技能不表示武器持有，被动不使用状态保存。
 
-   升级卡片名称和逐阶描述直接读取每阶武器、饰品记录的原生“名称”和“说明”字段。宝箱、武器提示和结算名称共用此来源，重新生成数据库会保留这两个字段的编辑内容，详见 [UI 说明](docs/ui-replication.md)。
+   在地图上设置「玩家初始位置」可调整出生点。起始地图需要配置 Nightward 地图备注和 GLB。开局配乐使用地图的「自动播放 BGM」，标题配乐与胜败 ME 在系统设置中编辑，死神登场时执行公共事件 002。
+
+   升级、宝箱、装备栏和结算使用每阶武器、饰品记录的原生图标，素材从 `img/system/IconSet.png` 读取。升级卡片的名称和逐阶说明也来自这条记录。详见 [UI 说明](docs/ui-replication.md)。
 
    地图中心格 `(90, 90)` 对应三维世界 `(0, 0)`。连续碰撞和空间查询位于 `js/nightward/world.ts`；战斗、刷怪与奖励分别位于同目录的对应模块。
 
@@ -84,7 +86,7 @@
 
    资产编译需要访问官方发布脚本、可用的 Chrome 和 FFmpeg。可用 `NIGHTWARD_CHROME`、`NIGHTWARD_FFMPEG` 指定其路径；已有脚本快照可通过 `NIGHTWARD_REFERENCE_SOURCE`、`NIGHTWARD_REFERENCE_LOADER` 指定。独立 Chrome 只用于生成 UI、战斗特效图集和离线音频，不运行游戏。
 
-   `generate:content` 只重建 RMMZ 数据，不再生成替代图像或音乐。**重新生成会覆盖对应数据库或资产的手动修改，但保留现有 GLB 节点布局、配置、地图逻辑事件及装备的名称和描述。** [资产来源说明](docs/reference-assets.md) 记录来源与转换方式。
+   `generate:content` 只重建 RMMZ 数据。它会保留已有地图、玩家初始位置、系统音频、公共事件，以及武器和防具的名称、说明和图标索引。其他由脚本生成的数据库字段会按生成器重建。[资产来源说明](docs/reference-assets.md) 记录来源与转换方式。
 
 6. **打包与存储**
 

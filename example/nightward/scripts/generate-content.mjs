@@ -7,9 +7,9 @@ const root = fileURLToPath(new URL('../', import.meta.url))
 const save = (path, value) => writeFileSync(`${root}${path}`, value)
 const json = (name, value) => save(`data/${name}.json`, `${JSON.stringify(value, null, 2)}\n`)
 const note = value => `<nightward:${JSON.stringify(value)}>`
-// Keep equipment copy authored in the native database fields.
-const equipmentText = name => JSON.parse(readFileSync(`${root}data/${name}.json`, 'utf8')).map(entry => entry && ({ name: entry.name, description: entry.description }))
-const weaponText = equipmentText('Weapons'), armorText = equipmentText('Armors')
+// Keep equipment presentation authored in the native database fields.
+const equipmentDisplay = name => JSON.parse(readFileSync(`${root}data/${name}.json`, 'utf8')).map(entry => entry && ({ name: entry.name, description: entry.description, iconIndex: entry.iconIndex }))
+const weaponDisplay = equipmentDisplay('Weapons'), armorDisplay = equipmentDisplay('Armors')
 const families = [
   { key: 'lash', name: 'Lash', icon: 96, damage: [14, 17, 20, 24, 30], cooldown: [1.25, 1.2, 1.12, 1.05, .95], reach: [2.6, 2.8, 3, 3.3, 3.7], halfHeight: [.85, .9, 1, 1.1, 1.25], knockback: 4, initialDelay: .3, backDelay: .16 },
   { key: 'wand', name: 'Wand', icon: 97, damage: [10, 11, 13, 15, 18], cooldown: [1, .9, .82, .72, .6], count: [1, 2, 2, 3, 4], pierce: [1, 1, 1, 2, 2], speed: 15, turnRate: 9, life: 1.6, range: 15, height: .9, radiusHit: .25, stagger: .08, knockback: 2.5, initialDelay: .4 },
@@ -28,8 +28,7 @@ for (const family of families) {
   skills.push({ ...skillBase, id: skillId, name: `${name} Attack`, iconIndex: icon, description: '', note: note({ key: family.key, category: 'weaponAttack' }) })
   for (let rank = 1; rank <= 5; rank++) {
     const values = Object.fromEntries(Object.entries(parameters).map(([key, value]) => [key, Array.isArray(value) ? value[rank - 1] : value]))
-    const copy = weaponText[weapons.length]
-    weapons.push({ ...equipBase, id: weapons.length, etypeId: 1, wtypeId: 1, animationId: 0, name: copy.name, iconIndex: icon, description: copy.description, traits: [{ code: 43, dataId: skillId, value: 1 }], note: note({ ...values, rank }) })
+    weapons.push({ ...equipBase, ...weaponDisplay[weapons.length], id: weapons.length, etypeId: 1, wtypeId: 1, animationId: 0, traits: [{ code: 43, dataId: skillId, value: 1 }], note: note({ ...values, rank }) })
   }
 }
 const contactSkillId = skills.length
@@ -43,8 +42,7 @@ for (const [i, [key, value]] of [
   ['lodestone', .35],
   ['cinder', .08],
 ].entries()) for (let rank = 1; rank <= 5; rank++) {
-  const copy = armorText[armors.length]
-  armors.push({ ...equipBase, id: armors.length, etypeId: i + 2, atypeId: 1, name: copy.name, iconIndex: 102 + i, description: copy.description, note: note({ key, rank, value: value * rank }) })
+  armors.push({ ...equipBase, ...armorDisplay[armors.length], id: armors.length, etypeId: i + 2, atypeId: 1, note: note({ key, rank, value: value * rank }) })
 }
 json('Weapons', weapons)
 json('Armors', armors)
@@ -71,7 +69,18 @@ const itemValues = [
   ['gemSmall', 'Sapphire', 'Gain 1 experience.', 1], ['gemMedium', 'Emerald', 'Gain 5 experience.', 5], ['gemBig', 'Ruby', 'Gain 25 experience.', 25], ['coin', 'Gold', 'Gain 10 gold.', 0], ['chicken', 'Roast Chicken', 'Restore 30 health.', 0], ['vacuum', 'Vacuum', 'Collect every experience gem.', 0], ['relic', 'Relic', 'Purge everything in a wide radius.', 0], ['chest', 'Treasure', 'Upgrade your current equipment.', 0],
 ]
 json('Items', [null, ...itemValues.map(([key, name, description, xp], i) => ({ id: i + 1, name, description, iconIndex: 106 + i, consumable: true, itypeId: 1, occasion: 0, price: 0, scope: key === 'chicken' ? 7 : 0, speed: 0, successRate: 100, repeats: 1, tpGain: 0, hitType: 0, animationId: 0, damage: { critical: false, elementId: 0, formula: '0', type: 0, variance: 0 }, effects: key === 'chicken' ? [{ code: 11, dataId: 0, value1: 0, value2: 30 }] : [], note: note({ key, xp }) }))])
-json('CommonEvents', [null, ...['Night Begins', 'The Reaper Arrives', 'Dawn', 'Fallen'].map((name, i) => ({ id: i + 1, name, trigger: 0, switchId: 1, list: [{ code: 241, indent: 0, parameters: [{ name: ['Nightward', 'Reaper', 'Dawn', 'Nightward'][i], volume: 65, pitch: 100, pan: 0 }] }, { code: 0, indent: 0, parameters: [] }] }))])
+if (!existsSync(`${root}data/CommonEvents.json`)) {
+  const names = ['Night Begins', 'Reaper Arrives', 'Dawn', 'Fallen']
+  const tracks = ['Nightward', 'Reaper', 'Dawn', 'Nightward']
+  const commonEvents = names.map((name, i) => {
+    const list = [{ code: 241, indent: 0, parameters: [{ name: tracks[i], volume: 65, pitch: 100, pan: 0 }] }]
+    if (i === 1)
+      list.push({ code: 250, indent: 0, parameters: [{ name: 'Reaper', volume: 75, pitch: 100, pan: 0 }] })
+    list.push({ code: 0, indent: 0, parameters: [] })
+    return { id: i + 1, name, trigger: 0, switchId: 1, list }
+  })
+  json('CommonEvents', [null, ...commonEvents])
+}
 json('Animations', [null])
 const tiles = new Array(181 * 181 * 6).fill(0)
 for (let y = 0; y < 181; y++) for (let x = 0; x < 181; x++) {
@@ -86,9 +95,8 @@ const system = JSON.parse(readFileSync(`${root}data/System.json`, 'utf8'))
 system.equipTypes = ['', 'Weapon', 'Might', 'Haste', 'Lodestone', 'Cinder']
 system.weaponTypes = ['', 'Nightward']
 system.armorTypes = ['', 'Nightward']
-Object.assign(system, { gameTitle: 'Nightward', partyMembers: [1], startMapId: 1, startX: 90, startY: 96, title1Name: '', title2Name: '', optDrawTitle: false, titleBgm: { name: 'Nightward', volume: 65, pitch: 100, pan: 0 }, battleBgm: { name: 'Nightward', volume: 65, pitch: 100, pan: 0 }, victoryMe: { name: 'Victory', volume: 70, pitch: 100, pan: 0 }, defeatMe: { name: 'Defeat', volume: 70, pitch: 100, pan: 0 }, gameoverMe: { name: 'Defeat', volume: 70, pitch: 100, pan: 0 } })
-system.sounds = system.sounds.map((sound, i) => ({ name: i === 0 ? 'Cursor' : i === 1 ? 'Confirm' : i === 2 ? 'Cancel' : 'Hit', volume: 60, pitch: 100, pan: 0 }))
+Object.assign(system, { gameTitle: 'Nightward', partyMembers: [1], title1Name: '', title2Name: '', optDrawTitle: false })
 system.advanced.screenWidth = 1100; system.advanced.screenHeight = 760; system.advanced.uiAreaWidth = 1100; system.advanced.uiAreaHeight = 760
 json('System', system)
 
-console.log('Generated RMMZ content; existing map layout, event pages and comments were preserved.')
+console.log('Generated RMMZ content and preserved editor-authored map, audio, common events, and equipment display fields.')

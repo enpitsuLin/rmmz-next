@@ -38,7 +38,7 @@ export class GraveyardView {
   private weapons: WeaponEffects
   private lamps: PointLight[] = []
   private particles: Particle[] = []
-  private focus = { x: 0, z: 6 }
+  private focus: Point
   private shake = 0
   private clock = 0
   readonly framing = { pitch: 42, distance: 24 }
@@ -46,6 +46,7 @@ export class GraveyardView {
   private dawnAge = -1
   private dawnFrom?: Look
   constructor(readonly run: RunSession, private assets: Assets) {
+    this.focus = { x: run.hero.x, z: run.hero.z }
     const reference = assets.manifest, look = reference.look[run.demo ? 'title' : 'play']
     this.look = { ...look }
     if (run.demo) Object.assign(this.framing, { pitch: 36, distance: 27 })

@@ -1,7 +1,8 @@
+import type { Content, FamilyKey, PassiveKey, WeaponKey } from './content'
 import { Container, Sprite } from 'pixi.js'
-import type { FamilyKey } from './content'
+import { ImageManager } from 'rmmz-next'
+import { equipmentIcon, getAssets } from './assets'
 import { passiveKeys, weaponKeys } from './content'
-import { getAssets } from './assets'
 import { back, box, colors, mixColor, phase, reducedMotion, sprite } from './ui'
 
 export interface BuildItem { key: FamilyKey, rank: number }
@@ -12,7 +13,7 @@ export class BuildSlots extends Container {
   measuredHeight = 0
   private order: FamilyKey[] = []
   private held = new Map<FamilyKey, number>()
-  constructor() {
+  constructor(private content: Content) {
     super({ eventMode: 'none' })
     for (let i = 0; i < 10; i++) {
       const root = new Container(), frame = sprite('slot'), image = new Sprite(), flash = box(16, 16, 0xffffff, 0, 2, 2), sparkle = sprite('sparkle'), pips: Sprite[] = [], pipFlashes: Sprite[] = []
@@ -33,7 +34,11 @@ export class BuildSlots extends Container {
       if (rank > slot.rank && animate) slot.age = 0
       slot.rank = rank; slot.key = key; slot.frame.tint = key ? 0xffffff : colors.edge; slot.frame.alpha = key ? 1 : .75
       slot.icon.visible = !!key && rank > 0
-      if (key) { slot.icon.texture = getAssets().hudIcons[key]!; slot.icon.scale.set(16 / slot.icon.texture.frame.width) }
+      if (key && rank > 0) {
+        const family = this.content.weapons.get(key as WeaponKey) ?? this.content.passives.get(key as PassiveKey)!
+        slot.icon.texture = equipmentIcon(family[rank - 1]!.iconIndex)
+        slot.icon.scale.set(16 / slot.icon.texture.frame.width)
+      }
       slot.pips.forEach((pip, p) => { pip.visible = !!key && rank > 0; pip.texture = getAssets().ui[p < rank ? 'pipOn' : 'pipOff']!; pip.tint = p < rank ? 0xffffff : 11580616 })
     }
   }
@@ -53,7 +58,7 @@ export class BuildSlots extends Container {
     const slot = this.slots.find(slot => slot.key === key)
     if (!slot) return
     const position = slot.root.getGlobalPosition()
-    return { x: position.x, y: position.y, scale: this.scale.x * 16 / getAssets().hudIcons[key]!.frame.width }
+    return { x: position.x, y: position.y, scale: this.scale.x * 16 / ImageManager.iconWidth }
   }
   tick(dt: number): void {
     for (const slot of this.slots) {

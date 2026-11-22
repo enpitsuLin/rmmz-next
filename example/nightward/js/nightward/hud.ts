@@ -1,7 +1,6 @@
-import { Container, Sprite } from 'pixi.js'
-import type { NineSliceSprite } from 'pixi.js'
+import type { NineSliceSprite, Sprite } from 'pixi.js'
+import { Container } from 'pixi.js'
 import { ConfigManager, Graphics, Input, TouchInput } from 'rmmz-next'
-import type { Assets } from './assets'
 import { getAssets } from './assets'
 import { settings, sound } from './audio'
 import { BuildSlots } from './build-ui'
@@ -58,7 +57,7 @@ class Banner extends Container {
 }
 export class Hud extends Container {
   readonly flights = new Container({ eventMode: 'none' })
-  readonly build = new BuildSlots()
+  readonly build: BuildSlots
   bandBottom = 0
   private world = new Container({ eventMode: 'none' })
   private screen = new Container({ eventMode: 'passive' })
@@ -135,7 +134,7 @@ export class Hud extends Container {
   private numbers: DamageNumber[] = []
   private numberBudget = 6
   private callouts: Callout[] = []
-  private toastQueue: Pick<Reward, 'key' | 'rank' | 'name'>[] = []
+  private toastQueue: Pick<Reward, 'icon' | 'rank' | 'name'>[] = []
   private toasts: Toast[] = []
   private banner?: Banner
   private minute?: { node: Container, age: number }
@@ -156,8 +155,9 @@ export class Hud extends Container {
   private modal = false
   private touchSource = false
   private pointerSource = (event: PointerEvent): void => { this.touchSource = event.pointerType !== 'mouse' }
-  constructor(private run: RunSession, private assets: Assets, pause: () => void) {
+  constructor(private run: RunSession, pause: () => void) {
     super({ eventMode: 'passive' })
+    this.build = new BuildSlots(run.content)
     this.pauseButton.onActivate = pause
     this.pauseWindow.pointerOnly = true; this.pauseWindow.choices = [this.pauseButton]
     this.pauseWindow._clientArea!.addChild(this.pauseButton)
@@ -237,7 +237,7 @@ export class Hud extends Container {
     this.build.fill(this.items())
     const to = this.build.point(reward.key)
     if (!to || reducedMotion()) { this.land(reward.key); return }
-    const image = new Sprite(this.assets.hudIcons[reward.key]!)
+    const image = icon(reward.icon)
     image.anchor.set(.5); image.position.set(from.x, from.y); image.scale.set(from.scale); this.flights.addChild(image)
     this.flightItems.push({ image, from, to, age: 0, key: reward.key })
   }
@@ -305,8 +305,8 @@ export class Hud extends Container {
     if (heart) { const image = icon('heart'); image.scale.set(Math.max(1, Math.round(l.unit * .55)) / l.unit); image.position.set(-Math.round((line.textWidth + image.width + 2) / 2), -Math.round(line.capHeight / 2 + image.height / 2)); line.x = Math.round((image.width + 2) / 2); node.addChild(image) }
     node.addChild(line); node.scale.set(l.unit); this.world.addChild(node); this.callouts.push({ node, age: 0, big })
   }
-  private showToast({ key, rank, name: label }: Pick<Reward, 'key' | 'rank' | 'name'>): void {
-    const l = uiLayout(), node = new Container(), well = sprite('slot', 4, 6), image = icon(key), title = text(rank === 5 ? 'MAXED!' : 'NEW WEAPON', 24, 5, rank === 5 ? 1 : 3), name = text(label, 24, 15), glint = text(title.text, 24, 5, 0, 16773312), sparkles = Array.from({ length: 3 }, () => sprite('sparkle'))
+  private showToast({ icon: iconIndex, rank, name: label }: Pick<Reward, 'icon' | 'rank' | 'name'>): void {
+    const l = uiLayout(), node = new Container(), well = sprite('slot', 4, 6), image = icon(iconIndex), title = text(rank === 5 ? 'MAXED!' : 'NEW WEAPON', 24, 5, rank === 5 ? 1 : 3), name = text(label, 24, 15), glint = text(title.text, 24, 5, 0, 16773312), sparkles = Array.from({ length: 3 }, () => sprite('sparkle'))
     well.scale.set(l.icon / l.unit); image.anchor.set(.5); image.position.set(4 + 10 * l.icon / l.unit, 6 + 10 * l.icon / l.unit)
     sparkles.forEach((spark, i) => { spark.anchor.set(.5); spark.position.set(32 + i * 18, i === 1 ? 3 : 8); spark.visible = rank === 5 })
     glint.visible = rank === 5

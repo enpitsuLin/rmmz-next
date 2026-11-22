@@ -1,9 +1,9 @@
 import { getPropScene, propSceneReady, propSceneUrl } from './prop-scene'
 import { Container, Graphics as Draw } from 'pixi.js'
 import type { Sprite } from 'pixi.js'
-import { AudioManager, ConfigManager, DataManager, GlobalMananger as globals, Graphics, Input, Scene_Base, SceneManager, TouchInput } from 'rmmz-next'
+import { AudioManager, ConfigManager, DataManager, Game_Interpreter, GlobalMananger as globals, Graphics, Input, Scene_Base, SceneManager, TouchInput } from 'rmmz-next'
 import { assetsReady, getAssets, requestAssets } from './assets'
-import { duckMusic, playMusic, settings, sound, toggleMute } from './audio'
+import { duckMusic, settings, sound, toggleMute } from './audio'
 import { readContent } from './content'
 import { Hud } from './hud'
 import { loadRecords, records, saveResult } from './records'
@@ -23,6 +23,7 @@ export class Scene_Nightward extends Scene_Base {
   run!: RunSession
   private worldView!: GraveyardView
   private hud?: Hud
+  private bossEntrance = new Game_Interpreter()
   private worldRoot = new Container()
   private uiRoot = new Container()
   private flightRoot = new Container({ eventMode: 'none' })
@@ -45,7 +46,7 @@ export class Scene_Nightward extends Scene_Base {
   private onBlur = (): void => { if (!this.demo && this.run?.state === 'running' && !this.base && !this.reward && !this.busy) this.pause() }
   private onVisibility = (): void => { if (document.hidden) this.onBlur() }
   override create(): void {
-    super.create(); requestAssets(); DataManager.loadMapData(1)
+    super.create(); requestAssets(); DataManager.loadMapData(globals.$dataSystem.startMapId)
     void loadRecords().then(() => { this.readyRecords = true })
   }
   override isReady(): boolean {
@@ -64,6 +65,7 @@ export class Scene_Nightward extends Scene_Base {
   private resetWorld(demo: boolean, fromTitle: boolean): void {
     this.clearScreens(); this.hud?.destroy(); this.hud = undefined
     this.worldView?.destroy(); this.run?.dispose(); this.letterbox.removeFromParent()
+    this.bossEntrance.clear()
     this.demo = demo; this.resultHandled = false; this.chestWait = this.victoryAt = -1; this.introPending = false
     this.run = new RunSession(readContent(), getPropScene(propSceneUrl(globals.$dataMap.note)), demo); this.worldView = new GraveyardView(this.run, getAssets()); this.worldView.beginIntro(fromTitle)
     this.worldRoot.addChild(this.worldView.view, this.worldView.overlay, this.letterbox)
@@ -72,10 +74,22 @@ export class Scene_Nightward extends Scene_Base {
       this.uiRoot.addChildAt(this.base, 0); this.letterboxAge = -1; this.drawLetterbox(1)
     }
     else {
-      this.hud = new Hud(this.run, getAssets(), () => this.pause()); this.worldRoot.addChild(this.hud); this.flightRoot.addChild(this.hud.flights)
+      this.hud = new Hud(this.run, () => this.pause()); this.worldRoot.addChild(this.hud); this.flightRoot.addChild(this.hud.flights)
       this.letterboxAge = fromTitle ? 0 : -1; this.drawLetterbox(fromTitle ? 1 : 0)
     }
-    AudioManager.stopMe(); duckMusic(false); playMusic(1); this.clearInput()
+    AudioManager.stopMe()
+    duckMusic(false)
+    if (demo || !globals.$dataMap.autoplayBgs)
+      AudioManager.stopBgs()
+    if (demo) {
+      AudioManager.playBgm(globals.$dataSystem.titleBgm)
+    }
+    else {
+      if (!globals.$dataMap.autoplayBgm)
+        AudioManager.stopBgm()
+      globals.$gameMap.autoplay()
+    }
+    this.clearInput()
   }
   private beginRunIntro(fromTitle: boolean): void {
     this.busy = false; this.run.resume(); this.hud!.setShown(true, reducedMotion() ? .15 : .4, .15); this.hud!.playIntro(!settings.seenMoveHint)
@@ -89,9 +103,11 @@ export class Scene_Nightward extends Scene_Base {
     if (Input.isTriggered('fullscreen')) fullscreen()
     if (!this.demo && !this.base && !this.reward && !this.busy && this.run.state === 'running' && (Input.isTriggered('escape') || Input.isTriggered('pause') || TouchInput.isCancelled())) this.pause()
     const movement = !this.demo && !this.base && !this.reward && !this.busy && this.run.state === 'running' ? this.hud!.movement() : { x: 0, z: 0 }
-    if (!this.busy || this.demo) this.run.update(movement)
+    const advancing = (!this.busy || this.demo) && this.run.state === 'running'
+    if (advancing)
+      this.run.update(movement)
     const events = this.run.events.splice(0)
-    this.consumeAudio(events)
+    this.consumeAudio(events, advancing)
     if (!this.demo) {
       if (this.run.state === 'results' && !this.resultHandled) this.finish()
       else if (!this.reward && !this.base && !this.busy) {
@@ -118,9 +134,15 @@ export class Scene_Nightward extends Scene_Base {
     this.letterbox.clear()
     if (band > 0) this.letterbox.rect(0, 0, Graphics.width, band).rect(0, Graphics.height - band, Graphics.width, band).fill(0)
   }
-  private consumeAudio(events: RunEvent[]): void {
+  private consumeAudio(events: RunEvent[], advancing: boolean): void {
     const kinds = new Set(events.map(event => event.kind))
-    if (kinds.has('boss')) { playMusic(2); sound('Reaper', 75) }
+    if (kinds.has('boss')) {
+      const entrance = globals.$dataCommonEvents[2]
+      if (entrance)
+        this.bossEntrance.setup(entrance.list)
+    }
+    if (advancing)
+      this.bossEntrance.update()
     if (kinds.has('lash')) sound('Lash', 25)
     if (kinds.has('wand')) sound('Wand', 22)
     if (kinds.has('tomes')) sound('Tomes', 25)
@@ -154,7 +176,7 @@ export class Scene_Nightward extends Scene_Base {
     if (this.sheet || this.busy) return
     this.base!.live = false; this.base!.dimmed = true; this.panelTarget = this.demo ? .5 : 0
     const back = (): void => this.closeSheet()
-    this.sheet = kind === 'options' ? new OptionsScreen(back) : new HowToScreen(back)
+    this.sheet = kind === 'options' ? new OptionsScreen(back) : new HowToScreen(back, this.run.content.weapons.get('lash')![0]!.iconIndex)
     this.uiRoot.addChild(this.sheet); this.clearInput()
   }
   private closeSheet(): void {

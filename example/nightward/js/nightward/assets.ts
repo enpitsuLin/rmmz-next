@@ -75,7 +75,6 @@ export interface Assets {
   glow: Texture
   effects: Texture[]
   combat: CombatAtlas
-  icons: Texture[]
   hudIcons: Record<string, Texture>
   ui: Record<string, Texture>
   glyphs: Map<string, { advance: number, small: Texture[], big: Texture[] }>
@@ -87,6 +86,21 @@ export interface Assets {
   manifest: ReferenceManifest
 }
 const folder = 'img/nightward/reference/'
+const equipmentIcons = new Map<number, Texture>()
+
+export function equipmentIcon(index: number): Texture {
+  let texture = equipmentIcons.get(index)
+  if (!texture) {
+    const width = ImageManager.iconWidth
+    const height = ImageManager.iconHeight
+    texture = new Texture({
+      source: ImageManager.loadSystem('IconSet').baseTexture,
+      frame: new Rectangle(index % 16 * width, Math.floor(index / 16) * height, width, height),
+    })
+    equipmentIcons.set(index, texture)
+  }
+  return texture
+}
 let assets: Assets | undefined
 let manifest: ReferenceManifest
 let uiData: ReferenceUi
@@ -133,12 +147,10 @@ export function getAssets(): Assets {
   ui.softRect = texture('ui-soft', { x: 72, y: 8, width: 48, height: 48 })
   ui.vignette = texture('ui-soft', { x: 128, y: 0, width: 64, height: 64 })
   const effects = [texture('effects', { x: 1, y: 1, width: 126, height: 126 }), animations.tome!.textures[0]!, texture('effects', { x: 129, y: 1, width: 126, height: 126 }), ui.ring!, texture('effects', { x: 257, y: 1, width: 126, height: 126 }), texture('effects', { x: 1, y: 1, width: 126, height: 126 }), ui.sparkle!, animations['brazier.fire']!.textures[0]!]
-  const iconBitmap = ImageManager.loadSystem('IconSet')
   const combat = Object.fromEntries(combatNames.map(name => [name, texture('combat-fx', combatData.frames[name])])) as Record<typeof combatNames[number], Texture>
   assets = {
     actors: Object.fromEntries(actorNames.map((name, index) => [name, animations[names[index]!]!.textures])) as Assets['actors'],
     animations, albedo: texture('actors-albedo'), normal: texture('actors-normal'), glow: texture('actors-glow'), effects, combat: { ...combat, frames: combatNames.map(name => combat[name]) },
-    icons: Array.from({ length: 128 }, (_, index) => new Texture({ source: iconBitmap.baseTexture, frame: new Rectangle(index % 16 * 32, Math.floor(index / 16) * 32, 32, 32) })),
     hudIcons: Object.fromEntries(Object.entries(manifest.icons).map(([name, frame]) => [name, texture('icons', { x: frame.x, y: frame.y, width: frame.w, height: frame.h })])),
     ui, glyphs: new Map(uiData.glyphs.map(glyph => [glyph.char, { advance: glyph.advance, small: glyph.frames.map(frame => texture('ui-pixels', frame)), big: glyph.bigFrames.map(frame => texture('ui-pixels', frame)) }])), uiData, sky: texture('sky'), moon: texture('moon'), mist: texture('mist'),
     leaves: Array.from({ length: 4 }, (_, index) => texture('leaves', { x: index * 36, y: 0, width: 36, height: 36 })), manifest,

@@ -237,7 +237,7 @@ export class HowToScreen extends SheetScreen {
   private direction = 1
   private touchKnob?: Sprite
   private dots = [sprite('diamond'), sprite('diamond'), sprite('diamond')]
-  constructor(backToMenu: () => void) {
+  constructor(backToMenu: () => void, private attackIcon: number) {
     super('HOW TO PLAY'); this.onBack = backToMenu
     this.tabs = ['GOAL', 'CONTROLS', 'PICKUPS'].map((name, i) => { const button = this.addButton(new UiButton(name, 60, 15, null), 0, i, this.sheet); button.showCursor = false; button.onActivate = button.onFocus = () => this.showPage(i, this.scheme); return button })
     this.chips = ['KEYS', 'PAD', 'TOUCH'].map((name, i) => { const button = this.addButton(new UiButton(name, 44, 15, null), 1, i, this.sheet); button.showCursor = false; button.onActivate = button.onFocus = () => this.showPage(1, i); return button })
@@ -287,11 +287,11 @@ export class HowToScreen extends SheetScreen {
       y -= 2
     }
     else {
-      const rows = this.pageIndex === 0 ? [['clock', 'Survive the night. The horde grows every minute.'], ['lash', 'You only move. Your weapons fire on their own.'], ['gem', 'Gems fill your XP bar. Each level, pick one of three upgrades.'], ['kills', 'At 3:00 the Grave Reaper rises. Slay him to win.']] : [['gem', 'XP gems fill your bar. Bigger gems give more.'], ['coin', 'Gold adds to your score.'], ['chicken', 'Roast chicken heals 30 HP.'], ['vacuum', 'The vacuum pulls in every gem.'], ['relic', 'The relic destroys every foe on screen.']]
+      const rows: [string | number, string][] = this.pageIndex === 0 ? [['clock', 'Survive the night. The horde grows every minute.'], [this.attackIcon, 'You only move. Your weapons fire on their own.'], ['gem', 'Gems fill your XP bar. Each level, pick one of three upgrades.'], ['kills', 'At 3:00 the Grave Reaper rises. Slay him to win.']] : [['gem', 'XP gems fill your bar. Bigger gems give more.'], ['coin', 'Gold adds to your score.'], ['chicken', 'Roast chicken heals 30 HP.'], ['vacuum', 'The vacuum pulls in every gem.'], ['relic', 'The relic destroys every foe on screen.']]
       if (this.pageIndex === 2) { const note = text('Break braziers to find them.', 0, y, 0, colors.dim); this.page.addChild(note); this.pageItems.push(note); y += 14 }
       for (const [key, value] of rows) {
-        const row = new Container(), image = icon(key!), lines = wrap(value!, inner - iconSize - 6)
-        row.y = y; image.scale.set(ratio); row.addChild(image)
+        const row = new Container(), image = icon(key), lines = wrap(value, inner - iconSize - 6)
+        row.y = y; image.scale.set(typeof key === 'number' ? 16 / image.texture.frame.width * ratio : ratio); row.addChild(image)
         lines.forEach((line, i) => row.addChild(text(line, iconSize + 6, i * 10 + Math.max(0, Math.round((iconSize - 7) / 2) - (lines.length > 1 ? 4 : 0)))))
         this.page.addChild(row); this.pageItems.push(row); y += Math.max(iconSize, lines.length * 10 - 3) + 8
       }
@@ -322,7 +322,7 @@ export class PauseScreen extends UiScreen {
   private menuFrame = panel(1, 1)
   private runPanel = new Container()
   private runFrame = panel(1, 1)
-  private build = new BuildSlots()
+  private build: BuildSlots
   private buildLabel = text('BUILD', 0, 0, 1)
   private stats: { image: Sprite, value: UiText }[] = []
   private corner = new SystemButtons()
@@ -339,6 +339,7 @@ export class PauseScreen extends UiScreen {
   private headerY = 0
   constructor(run: RunSession, private action: (action: PauseAction) => void) {
     super()
+    this.build = new BuildSlots(run.content)
     this.menu.addChild(this.menuFrame); this.runPanel.addChild(this.runFrame)
     const actions: PauseAction[] = ['resume', 'options', 'howto', 'restart', 'title']
     this.menuButtons = ['RESUME', 'OPTIONS', 'HOW TO PLAY', 'RESTART', 'QUIT TO TITLE'].map((name, i) => {
@@ -422,7 +423,7 @@ export class ResultsScreen extends UiScreen {
   private runPanel = new Container()
   private damagePanel = new Container()
   private buildPanel = new Container()
-  private build = new BuildSlots()
+  private build: BuildSlots
   private best = text('', 0, 0, 0, colors.dim, .5)
   private stats: StatRow[] = []
   private damageRows: DamageRow[] = []
@@ -436,6 +437,7 @@ export class ResultsScreen extends UiScreen {
   private waiting = true
   constructor(private result: RunResult, before: Records, content: Content, retry: () => void, title: () => void) {
     super()
+    this.build = new BuildSlots(content)
     const won = result.won, l = this.layout, ratio = l.icon / l.unit, portrait = l.portrait && !l.short, width = portrait ? Math.min(240, l.w - 16) : Math.min(180, Math.floor((l.w - 28) / 2)), pad = l.short ? 6 : 10, gap = l.short ? 3 : 5, iconSize = Math.ceil(16 * ratio)
     const damage = Object.entries(result.damage).filter(([, value]) => value > 0).sort((a, b) => b[1] - a[1]) as [WeaponKey, number][], max = damage[0]?.[1] ?? 1
     const titleWidth = new UiText(won ? 'VICTORY!' : 'YOU FELL', won ? 1 : 2, .5, true).textWidth, large = fitScale(titleWidth, l.width - l.margin * 2, 2 * l.unit), buildHeight = (215 * ratio <= width - 2 * pad ? 25 : 52) * ratio
@@ -476,11 +478,11 @@ export class ResultsScreen extends UiScreen {
     this.damagePanel.addChild(panel(width, portrait ? chartH : panelH), text('DAMAGE', pad, pad, 1))
     const barX = iconSize + 4 + 60, barW = Math.max(12, width - 2 * pad - barX - 28 - 4)
     damage.slice(0, config.rows).forEach(([key, amount], i) => {
-      const rank = result.build.find(item => item.key === key)!.rank, name = content.weapons.get(key)![rank - 1]!.name
-      const root = new Container(), image = icon(key), bar = new Container(), fill = sprite('dmgFill'), frame = panel(barW, 5, 'thinFrame'), value = text('', width - 2 * pad, Math.round((damageH - 1 - 7) / 2), 0, 0xffffff, 1)
-      image.scale.set(ratio); image.y = Math.round((damageH - 1 - iconSize) / 2); frame.position.set(barX, Math.round((damageH - 1 - 5) / 2))
+      const rank = result.build.find(item => item.key === key)!.rank, weapon = content.weapons.get(key)![rank - 1]!
+      const root = new Container(), image = icon(weapon.iconIndex), bar = new Container(), fill = sprite('dmgFill'), frame = panel(barW, 5, 'thinFrame'), value = text('', width - 2 * pad, Math.round((damageH - 1 - 7) / 2), 0, 0xffffff, 1)
+      image.scale.set(16 / image.texture.frame.width * ratio); image.y = Math.round((damageH - 1 - iconSize) / 2); frame.position.set(barX, Math.round((damageH - 1 - 5) / 2))
       fill.width = Math.max(1, Math.round((barW - 2) * amount / max)); fill.height = 3; bar.position.set(barX + 1, frame.y + 1); bar.addChild(fill)
-      root.addChild(image, text(name, iconSize + 4, value.y, 0, colors.label), bar, frame, value); root.position.set(pad, pad + 7 + gap + i * damageH)
+      root.addChild(image, text(weapon.name, iconSize + 4, value.y, 0, colors.label), bar, frame, value); root.position.set(pad, pad + 7 + gap + i * damageH)
       this.damagePanel.addChild(root); this.damageRows.push({ root, bar, value, target: amount })
     })
     if (!damage.length) this.damagePanel.addChild(text('No damage dealt', pad, pad + 7 + gap + 2, 0, colors.dim))
