@@ -2,6 +2,7 @@
   "name": "rmmz-next-monorepo",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@12.16.1",
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -10,9 +11,9 @@
     "release": "bumpp -r --execute=\"pnpm i\""
   },
   "devDependencies": {
-    "bumpp": "catalog:dev",
     "@antfu/eslint-config": "catalog:dev",
     "@types/node": "catalog:types",
+    "bumpp": "catalog:dev",
     "eslint": "catalog:dev",
     "typescript": "catalog:dev"
   }

@@ -1,9 +1,12 @@
 {
   "name": "rmmz-next",
   "type": "module",
-  "version": "2.0.0",
-  "private": true,
+  "version": "2.0.0-beta.0",
   "description": "Game runtime, brand new JGSS core and Vite tooling for RPG Maker MZ projects, with TypeScript support",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enpitsuLin/rmmz-next.git"
+  },
   "exports": {
     ".": "./src/core/index.ts",
     "./database-types": "./src/database-types/index.ts",
