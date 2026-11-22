@@ -612,8 +612,9 @@ class GI {
   }
   _flames(t, e, s, i, r, o, a, h) {
     const l = this._kit, c = l.flames, u = l.sparks, d = Math.max(Math.floor(a * Ur) + 1, Math.ceil(i * Ur)), f = Math.min(Math.floor(h * Ur), Math.floor(r * Ur)), p = UI * Math.PI * s * s / Ur;
+    const density = l.firePoolsAtFullDensity === undefined ? 1 : Math.min(1, l.firePoolsAtFullDensity / Math.max(1, l.sim.weapons.firePools.count));
     for (let _ = d; _ <= f; _++) {
-      const m = _ / Ur, g = l.rng.seed(we.firePool, o * 65536 + (_ & 65535)), y = Ye((m - i) / 0.15) * Ye((r - m) / 0.5), x = Math.floor(p * y + g.next());
+      const m = _ / Ur, g = l.rng.seed(we.firePool, o * 65536 + (_ & 65535)), y = Ye((m - i) / 0.15) * Ye((r - m) / 0.5), x = Math.floor(p * density * y + g.next());
       for (let w = 0; w < x; w++) {
         const b = g.next() * Ln, T = Math.sqrt(g.next()) * s * 0.85, v = T / s;
         ft(c, J.flame).tint(v > 0.6 ? 16747056 : 16756816, 0.85), c.x = t + Math.cos(b) * T, c.y = 0.12, c.z = e + Math.sin(b) * T, c.vx = g.signed() * 0.2, c.vy = g.range(0.4, 1.1) * (1 - v * 0.4), c.vz = g.signed() * 0.2, c.birth = m, c.life = g.range(0.4, 0.75) * (1 - v * 0.35), c.size = g.range(0.3, 0.45) * (1 - v * 0.3), c.sizeEnd = g.range(0.55, 0.8) * (1 - v * 0.4), c.heat = g.range(1, 1.25), c.heatEnd = 0.1, c.drag = 0.5, c.gravity = 0.25, c.emit();
@@ -1206,13 +1207,13 @@ class PD {
   _impacts;
   _world = 0;
   _destroyed = false;
-  constructor(t, e, s, i, atlas) {
+  constructor(t, e, s, i, atlas, particleBudget) {
     const r = this._root, o = atlas, a = o.frames, h = i.frames("tome"), l = i.frames("flask");
     this._sim = e, this.lights = new hI(r, Gv.fx);
-    const c = new dn(r, { label: "combat-sparks", texture: o.hotGlow, capacity: 3072, blendMode: "add", streak: true, gravity: [0, -14, 0], fadeOut: 3, streakFade: 0.35, nearFade: 1.5 }), u = new dn(r, { label: "combat-glows", texture: a, capacity: 4096, blendMode: "add", gravity: [0, 2.5, 0], fadeIn: 0.02, fadeOut: 1.6, nearFade: 1 }), d = new dn(r, { label: "combat-flames", texture: a, capacity: 2048, blendMode: "add", gravity: [0.2, 4, 0], growth: 3, fadeIn: 0.03, fadeOut: 1.4, nearFade: 0.9, cooling: 1.6 }), f = new dn(r, { label: "combat-debris", texture: a, capacity: 3072, blendMode: "normal", gravity: [0, -16, 0], fadeOut: 6, nearFade: 1 });
+    const c = new dn(r, { label: "combat-sparks", texture: o.hotGlow, capacity: particleBudget?.sparks ?? 3072, blendMode: "add", streak: true, gravity: [0, -14, 0], fadeOut: 3, streakFade: 0.35, nearFade: 1.5 }), u = new dn(r, { label: "combat-glows", texture: a, capacity: particleBudget?.glows ?? 4096, blendMode: "add", gravity: [0, 2.5, 0], fadeIn: 0.02, fadeOut: 1.6, nearFade: 1 }), d = new dn(r, { label: "combat-flames", texture: a, capacity: particleBudget?.flames ?? 2048, blendMode: "add", gravity: [0.2, 4, 0], growth: 3, fadeIn: 0.03, fadeOut: 1.4, nearFade: 0.9, cooling: 1.6 }), f = new dn(r, { label: "combat-debris", texture: a, capacity: particleBudget?.debris ?? 3072, blendMode: "normal", gravity: [0, -16, 0], fadeOut: 6, nearFade: 1 });
     f.container.position.y = CD, d.container.position.y = SD;
     const p = new Ud(r, "combat-decals", a, 96, "horizontal", "multiply");
-    p.container.position.y = AD, this._kit = { view: t, sim: e, lens: s, lights: this.lights, rng: new yr(), sparks: c, glows: u, flames: d, debris: f, beams: new FI(r, "combat-beams", o.beam, 2048), sprites: new Ud(r, "combat-sprites", a, 1536, "spherical"), ground: new Ud(r, "combat-ground", a, 384, "horizontal"), decals: p, art: new II(r, [h, l], 64), pulses: new VI(), flashes: new RI(), hero: this._hero };
+    p.container.position.y = AD, this._kit = { view: t, sim: e, lens: s, lights: this.lights, rng: new yr(), firePoolsAtFullDensity: particleBudget?.firePoolsAtFullDensity, sparks: c, glows: u, flames: d, debris: f, beams: new FI(r, "combat-beams", o.beam, particleBudget?.beams ?? 2048), sprites: new Ud(r, "combat-sprites", a, particleBudget?.sprites ?? 1536, "spherical"), ground: new Ud(r, "combat-ground", a, particleBudget?.ground ?? 384, "horizontal"), decals: p, art: new II(r, [h, l], 64), pulses: new VI(), flashes: new RI(), hero: this._hero };
     const _ = this._kit;
     this._pools = [c, u, d, f], this._sprites = [_.sprites, _.ground, _.decals], this._impacts = new uD(_), this._effects = [new mD(_), new GI(_, l, 1), new dD(_), new vD(_), new yD(_, h, 0), new MD(_), this._impacts], t.root.addChild(r);
   }

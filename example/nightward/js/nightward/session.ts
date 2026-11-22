@@ -172,9 +172,18 @@ export class RunSession {
     this.choices = []
   }
   private demoInput(): Point {
-    const target = this.pickups.filter(pickup => pickup.key.startsWith('gem')).sort((a, b) => distance(this.hero, a) - distance(this.hero, b))[0]
-    const orbit = { x: Math.sin(this.time * .13) * 5, z: 4 + Math.cos(this.time * .17) * 4 }
-    const goal = target && distance(target, this.hero) < 7 ? target : orbit
+    let target: Pickup | undefined
+    let nearest = 7
+    for (const pickup of this.pickups) {
+      if (!pickup.key.startsWith('gem'))
+        continue
+      const range = distance(this.hero, pickup)
+      if (range < nearest) {
+        nearest = range
+        target = pickup
+      }
+    }
+    const goal = target ?? { x: Math.sin(this.time * 0.13) * 5, z: 4 + Math.cos(this.time * 0.17) * 4 }
     return direction(goal.x - this.hero.x, goal.z - this.hero.z)
   }
   update(input: Point, dt = 1 / 60): void {

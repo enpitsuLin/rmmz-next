@@ -12,6 +12,16 @@ const eventKinds: Partial<Record<RunEvent['kind'], string>> = {
   lash: 'lashSwing', wand: 'wandFire', tomes: 'tomesStart', lightning: 'lightning',
   ward: 'wardPulse', flask: 'flaskBurst', hit: 'hit', death: 'kill', break: 'brazierBreak', relic: 'relicBlast',
 }
+const titleParticleBudget = {
+  flames: 448,
+  sparks: 256,
+  glows: 224,
+  debris: 160,
+  beams: 128,
+  sprites: 128,
+  ground: 96,
+  firePoolsAtFullDensity: 3,
+}
 interface ReferenceEvent {
   kind: string
   time: number
@@ -53,7 +63,7 @@ export class WeaponEffects {
       const animation = assets.animations[name]!
       return { ...animation, count: animation.textures.length }
     } }
-    this.combat = new ReferenceCombat(view, this.simulation, this.lens, art, assets.combat)
+    this.combat = new ReferenceCombat(view, this.simulation, this.lens, art, assets.combat, run.demo ? titleParticleBudget : undefined)
     this.strike.position.set(-8, 60, -20)
     this.strike.lookAt({ x: 0, y: 0, z: 0 })
     this.strike.visible = false
