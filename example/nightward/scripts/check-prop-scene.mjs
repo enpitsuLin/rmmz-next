@@ -49,8 +49,8 @@ assert.equal(new Set(scene.props.map(prop => prop.id)).size, scene.props.length)
 assert(scene.environment.length > 0)
 assert(!scene.environment.some(mesh => mesh.material === 'grass'))
 assert(!scene.materials.has('grass'))
-assert(!scene.materials.has('dirt'))
-assert(!scene.props.some(prop => prop.model.meshes.some(mesh => mesh.material === 'dirt')))
+assert(!scene.environment.some(mesh => mesh.material === 'dirt'), 'road and scattered mud stay in the native map')
+assert.equal(scene.props.filter(prop => prop.model.meshes.some(mesh => mesh.material === 'dirt')).length, 684, 'tomb mud stays attached to the original 3D models')
 const manager = new PropManager(scene, [], 90)
 const prop = manager.props.find(prop => prop.kind === 'brazier')
 assert(prop && prop.model.meshes.length && prop.model.lights.length && prop.model.colliders.length)
@@ -118,6 +118,12 @@ assert(map.note.includes('<propScene:models/maps/graveyard.glb>'))
 const triangle = { material: 'grave', positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], normals: [0, 0, 1, 0, 0, 1, 0, 0, 1], uvs: [0, 0, 1, 0, 0, 1], colors: Array.from({ length: 12 }).fill(255), indices: [0, 1, 2] }
 const models = { a: { ...fakeModel, meshes: [triangle] } }
 const instance = { name: 'Manual', translation: [7, 2, 3], extras: { nightward: { id: 'manual:1', model: 'a', kind: 'tomb', tags: ['custom'], hp: 42 } } }
+const tombMud = buildGlb({ root, surfaces: { dirt: { normal: true } }, models: { a: { ...fakeModel, meshes: [{ ...triangle, material: 'dirt' }] } }, instances: [instance] })
+const mudSource = glbToGltf(tombMud.buffer.slice(tombMud.byteOffset, tombMud.byteOffset + tombMud.byteLength))
+assert(mudSource.json.nodes.some(node => node.mesh !== undefined), 'resource generation keeps mud geometry attached to Props')
+assert.equal(mudSource.json.materials[0].name, 'dirt')
+assert(mudSource.json.materials[0].normalTexture)
+assert.deepEqual(Array.from(getBuffer(mudSource.json, mudSource.buffers, mudSource.json.meshes[0].primitives[0].attributes.POSITION)), triangle.positions)
 const encoded = buildGlb({ root, surfaces: {}, models, instances: [instance] })
 const json = glbToGltf(encoded.buffer.slice(encoded.byteOffset, encoded.byteOffset + encoded.byteLength)).json
 const saved = structuredClone(json)
@@ -156,8 +162,9 @@ assert.deepEqual(Array.from(getBuffer(retained.json, retained.buffers, customMes
 assert(retained.json.materials.some(material => material.name === 'custom-grave'))
 const mapGlb = readGlb(`${root}models/maps/graveyard.glb`)
 assert(!mapGlb.images.some(image => image.name.startsWith('grass-')))
-assert(!mapGlb.images.some(image => image.name.startsWith('dirt-')))
-assert(!readGlb(`${root}models/props/tombs.glb`).materials.some(material => material.name === 'dirt'))
+assert(mapGlb.images.some(image => image.name === 'dirt-albedo'))
+assert(mapGlb.images.some(image => image.name === 'dirt-normal'))
+assert(readGlb(`${root}models/props/tombs.glb`).materials.some(material => material.name === 'dirt'))
 for (const image of mapGlb.images)
   assert(image.bufferView !== undefined, 'map textures are embedded')
 PixiAssets.loader.load = originalLoad
@@ -166,11 +173,14 @@ console.log(`GLB/Prop checks passed: ${scene.props.length} Props, native parser,
 if (process.argv.includes('--built')) {
   const deployed = readGlb(`${root}dist/models/maps/graveyard.glb`)
   assert.equal(deployed.asset.version, '2.0')
-  assert(!deployed.materials.some(material => ['grass', 'dirt'].includes(material.name)))
+  assert(!deployed.materials.some(material => material.name === 'grass'))
+  assert(deployed.materials.some(material => material.name === 'dirt'))
   for (const suffix of ['B', 'C', 'D']) {
     assert(existsSync(`${root}dist/img/tilesets/NightwardDirtEdges${suffix}.png`))
     assert(existsSync(`${root}dist/img/tilesets/NightwardDirtEdges${suffix}-normal.png`))
   }
+  assert(!existsSync(`${root}dist/img/tilesets/NightwardTombDirt.png`))
+  assert(!existsSync(`${root}dist/img/tilesets/NightwardTombDirt-normal.png`))
   assert(existsSync(`${root}dist/models/props/brazier.glb`))
   assert(!existsSync(`${root}dist/img/nightward/reference/world.bin`))
   console.log('Production model directory and scene binding are included.')

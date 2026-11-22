@@ -125,7 +125,7 @@ for(let row=0;row<4;row++)for(let column=0;column<3;column++){
 png('../../characters/$NightwardHero',hero)
 const surfaces = {}
 for (const [name, surface] of Object.entries(reference.world)) if (surface.albedo) {
-  if (!['grass', 'dirt'].includes(name)) {
+  if (name !== 'grass') {
     png(`${name}-albedo`, surface.albedo.source.resource)
     if (surface.normal) png(`${name}-normal`, surface.normal.source.resource)
     if (surface.emissive) png(`${name}-emissive`, surface.emissive.source.resource)
@@ -159,7 +159,7 @@ for(let i=0;i<48;i++){const at=i*2;skyBuilder.triangle(at,at+3,at+1);skyBuilder.
 const skyGeometry=skyBuilder.build()
 meshes.push({ material: 'sky', kind: 'sky', ...skyGeometry })
 writePropAssets({ root, surfaces, environment: meshes, models: propWorld.models, layout: propWorld.layout, aliases: propWorld.aliases, previousReference, resetLayout: process.argv.includes('--reset-layout') })
-writeFileSync(`${output}/manifest.json`, `${JSON.stringify({ source: { url: sourceUrl, sha256: createHash('sha256').update(source).digest('hex') }, animations, icons, surfaces: Object.fromEntries(Object.entries(surfaces).filter(([name]) => !['grass', 'dirt'].includes(name))), details, braziers: reference.braziers, crypt: reference.crypt, glassFrames: reference.glassFrames, look:reference.look, palette:reference.palette, skyRadius:reference.skyRadius, lights:reference.lights })}\n`)
+writeFileSync(`${output}/manifest.json`, `${JSON.stringify({ source: { url: sourceUrl, sha256: createHash('sha256').update(source).digest('hex') }, animations, icons, surfaces: Object.fromEntries(Object.entries(surfaces).filter(([name]) => name !== 'grass')), details, braziers: reference.braziers, crypt: reference.crypt, glassFrames: reference.glassFrames, look:reference.look, palette:reference.palette, skyRadius:reference.skyRadius, lights:reference.lights })}\n`)
 console.log(`Wrote ${meshes.length} environment meshes and ${Object.keys(propWorld.models).length} standard GLB Prop models.`)
 
 if (!worldOnly) {
