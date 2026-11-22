@@ -30,40 +30,47 @@ export class MapGround {
   private region = ''
   private frame = -1
   private tilesetId = -1
-  private bitmaps!: ReturnType<typeof groundBitmaps>
+  private readonly hasAnimatedTiles: boolean
 
   constructor(private view: View3D, private center: number) {
     const map = globals.$gameMap
-    refreshDirtEdges({ width: map.width(), height: map.height(), data: map.data() }, center)
+    const data = map.data()
+    const tiles = map.width() * map.height()
+    refreshDirtEdges({ width: map.width(), height: map.height(), data }, center)
+    this.hasAnimatedTiles = data.some((id, index) => index < tiles * 4 && Tilemap.isWaterTile(id))
     for (const tilemap of [this.tilemap, this.normalTilemap]) {
       tilemap.tileWidth = map.tileWidth()
       tilemap.tileHeight = map.tileHeight()
-      tilemap.setData(map.width(), map.height(), map.data())
+      tilemap.setData(map.width(), map.height(), data)
       tilemap.horizontalWrap = map.isLoopHorizontal()
       tilemap.verticalWrap = map.isLoopVertical()
     }
     // Map shadows darken albedo, but must not change normal vectors.
-    const normals = map.data().slice()
-    normals.fill(0, map.width() * map.height() * 4, map.width() * map.height() * 5)
+    const normals = data.slice()
+    normals.fill(0, tiles * 4, tiles * 5)
     this.normalTilemap.setData(map.width(), map.height(), normals)
     this.mesh.rotation.x = -Math.PI / 2
     view.root.addChild(this.mesh)
+    Graphics.app.renderer.runners.contextChange.add(this)
+  }
+
+  contextChange(): void {
+    this.region = ''
   }
 
   update(animate: boolean): void {
     const map = globals.$gameMap
     if (this.tilesetId !== map.tilesetId()) {
-      this.bitmaps = groundBitmaps(map.tileset())
-      for (const [index, tilemap] of [this.tilemap, this.normalTilemap].entries()) {
-        tilemap.setBitmaps(index ? this.bitmaps.normal : this.bitmaps.albedo)
-        tilemap.flags = map.tilesetFlags()
-      }
+      const { albedo, normal } = groundBitmaps(map.tileset())
+      this.tilemap.setBitmaps(albedo)
+      this.normalTilemap.setBitmaps(normal)
+      this.tilemap.flags = this.normalTilemap.flags = map.tilesetFlags()
       this.tilesetId = map.tilesetId()
       this.region = ''
     }
     if (!this.tilemap.isReady() || !this.normalTilemap.isReady())
       return
-    if (animate)
+    if (animate && this.hasAnimatedTiles)
       this.tilemap.update()
     const corners = [{ x: 0, y: 0 }, { x: this.view.width, y: 0 }, { x: 0, y: this.view.height }, { x: this.view.width, y: this.view.height }]
     const points = corners.map(corner => this.view.screenToWorld(this.view.toGlobal(corner), this.plane))
@@ -77,13 +84,15 @@ export class MapGround {
     const width = (Math.ceil((Math.max(...xs) - Math.min(...xs)) / 8) + 1) * 8
     const height = (Math.ceil((Math.max(...ys) - Math.min(...ys)) / 8) + 1) * 8
     const region = `${x},${y},${width},${height}`
-    if (this.region === region && this.frame === this.tilemap.animationFrame && !this.tilemap._needsRepaint)
+    if (this.region === region && this.frame === this.tilemap.animationFrame && !this.tilemap._needsRepaint && !this.normalTilemap._needsRepaint)
       return
     const pixelWidth = width * this.tilemap.tileWidth
     const pixelHeight = height * this.tilemap.tileHeight
     if (this.texture.width !== pixelWidth || this.texture.height !== pixelHeight) {
       this.texture.resize(pixelWidth, pixelHeight)
       this.normalTexture.resize(pixelWidth, pixelHeight)
+      this.tilemap.refresh()
+      this.normalTilemap.refresh()
     }
     for (const tilemap of [this.tilemap, this.normalTilemap]) {
       tilemap.width = pixelWidth
@@ -91,10 +100,7 @@ export class MapGround {
       tilemap.scrollOrigin.set(x * tilemap.tileWidth, y * tilemap.tileHeight)
       tilemap.animationFrame = this.tilemap.animationFrame
     }
-    // Native Tilemaps share the renderer's tileset atlas; switch it for each pass.
-    this.tilemap.setBitmaps(this.bitmaps.albedo)
     Graphics.app.renderer.render({ container: this.tilemap, target: this.texture, clear: true })
-    this.normalTilemap.setBitmaps(this.bitmaps.normal)
     Graphics.app.renderer.render({ container: this.normalTilemap, target: this.normalTexture, clear: true, clearColor: [0.5, 0.5, 1, 1] })
     this.mesh.scale.set(width, height, 1)
     this.mesh.position.set(x + width / 2 - this.center - 0.5, 0, y + height / 2 - this.center - 0.5)
@@ -103,6 +109,7 @@ export class MapGround {
   }
 
   destroy(): void {
+    Graphics.app.renderer.runners.contextChange.remove(this)
     this.mesh.destroy({ geometry: true, material: true })
     this.tilemap.destroy({ children: true })
     this.normalTilemap.destroy({ children: true })

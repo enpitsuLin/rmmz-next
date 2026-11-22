@@ -1,4 +1,4 @@
-import type { Bitmap } from './Bitmap'
+import type { TilemapAtlas } from './TilemapRenderer'
 import * as PIXI from 'pixi.js'
 
 /**
@@ -14,9 +14,8 @@ export class TilemapLayer extends PIXI.RenderContainer {
   _vertexBuffer: PIXI.Buffer | null = null
   _vertexArray = new Float32Array(0)
   _vao: PIXI.Geometry | null = null
-  _needsTexturesUpdate = false
   _needsVertexUpdate = false
-  _images: (HTMLImageElement | HTMLCanvasElement)[] = []
+  private atlas: TilemapAtlas | null = null
   _state = PIXI.State.for2d()
 
   constructor() {
@@ -29,7 +28,6 @@ export class TilemapLayer extends PIXI.RenderContainer {
     this._createVao()
   }
 
-  static MAX_GL_TEXTURES = 3
   static VERTEX_STRIDE = 9 * 4
   static MAX_SIZE = 16000
 
@@ -41,9 +39,8 @@ export class TilemapLayer extends PIXI.RenderContainer {
     super.destroy(options)
   }
 
-  setBitmaps(bitmaps: Bitmap[]): void {
-    this._images = bitmaps.map(bitmap => bitmap.image || bitmap.canvas)
-    this._needsTexturesUpdate = true
+  setAtlas(atlas: TilemapAtlas): void {
+    this.atlas = atlas
   }
 
   clear(): void {
@@ -61,7 +58,11 @@ export class TilemapLayer extends PIXI.RenderContainer {
   }
 
   render(renderer: PIXI.WebGLRenderer): void {
+    if (!this.atlas || this._elements.length === 0)
+      return
+
     const tilemapRenderer = renderer.rpgtilemap
+    tilemapRenderer.bindTextures(renderer, this.atlas)
     const shader = tilemapRenderer.getShader()
     const matrix = shader.resources.tilemapUniforms.uniforms.uProjectionMatrix
     const globals = renderer.globalUniforms.globalUniformData
@@ -69,30 +70,23 @@ export class TilemapLayer extends PIXI.RenderContainer {
       .append(globals.worldTransformMatrix)
       .append(this.groupTransform)
 
-    if (this._needsTexturesUpdate) {
-      tilemapRenderer.updateTextures(renderer, this._images)
-      this._needsTexturesUpdate = false
-    }
-    tilemapRenderer.bindTextures(renderer)
     this._updateIndexBuffer()
     if (this._needsVertexUpdate) {
       this._updateVertexBuffer()
       this._needsVertexUpdate = false
     }
 
-    if (this._elements.length > 0) {
-      renderer.encoder.draw({
-        geometry: this._vao!,
-        shader,
-        state: this._state,
-        size: this._elements.length * 6,
-      })
-    }
+    renderer.encoder.draw({
+      geometry: this._vao!,
+      shader,
+      state: this._state,
+      size: this._elements.length * 6,
+    })
   }
 
   isReady(): boolean {
-    return this._images.length > 0
-      && this._images.every(image => image.width > 0 && image.height > 0)
+    return !!this.atlas?.images.length
+      && this.atlas.images.every(image => image.width > 0 && image.height > 0)
   }
 
   _createVao(): void {
