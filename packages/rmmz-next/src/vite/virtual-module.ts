@@ -1,9 +1,10 @@
 import type { Plugin, ResolvedConfig, Rollup } from 'vite'
 import type { RMMZPluginConfig, RMMZPluginOptions } from './types'
-import { copyFile, readFile, stat } from 'node:fs/promises'
-import { join, resolve, sep } from 'node:path'
+import { copyFile, mkdir, readFile, stat, writeFile } from 'node:fs/promises'
+import { dirname, join, resolve, sep } from 'node:path'
 import {
   ASSET_DIRS,
+  EMPTY_PLUGINS_SOURCE,
   PLUGIN_VIRTUAL_PREFIX,
   PLUGINS_DIR,
   PLUGINS_FILE,
@@ -118,22 +119,22 @@ export async function loadPlugins() {
       })
     },
     // 生产构建：把游戏资源复制到输出目录，与生成的 index.html 同级
-    async writeBundle(options: Rollup.OutputOptions) {
-      if (!options.dir) {
+    async writeBundle(output: Rollup.OutputOptions) {
+      if (!output.dir) {
         return
       }
 
-      for (const dir of ASSET_DIRS) {
+      for (const dir of new Set([...ASSET_DIRS, ...(options.extraAssetDirs ?? [])])) {
         const source = join(projectRoot, dir)
         if (!(await isDirectory(source))) {
           continue
         }
-        await copyDirectory(source, join(options.dir, dir))
+        await copyDirectory(source, join(output.dir, dir))
       }
 
       for (const file of ROOT_FILES) {
         try {
-          await copyFile(join(projectRoot, file), join(options.dir, file))
+          await copyFile(join(projectRoot, file), join(output.dir, file))
         }
         catch (error) {
           if ((error as { code?: string }).code !== 'ENOENT') {
@@ -142,7 +143,11 @@ export async function loadPlugins() {
         }
       }
 
-      log(`已复制游戏资源到: ${options.dir}`)
+      const pluginsOutput = join(output.dir, PLUGINS_FILE)
+      await mkdir(dirname(pluginsOutput), { recursive: true })
+      await writeFile(pluginsOutput, EMPTY_PLUGINS_SOURCE)
+
+      log(`已复制游戏资源到: ${output.dir}`)
     },
   }
 }

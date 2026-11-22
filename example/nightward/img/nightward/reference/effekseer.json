@@ -1,0 +1,1054 @@
+{
+  "exporter": "Effekseer 1.70e",
+  "source": {
+    "url": "https://goodstuff.pixijs.io/nightward/assets/start-DZtWMAL3.js",
+    "sha256": "3950f8d75033c9947932717e740a75d7370f0154ddad44d215ff3d9fd0f4e8cd"
+  },
+  "effects": [
+    {
+      "name": "combat-rune-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 512,
+        "height": 512
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0,
+        0,
+        0.5,
+        1
+      ]
+    },
+    {
+      "name": "combat-rune-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 512,
+        "height": 512
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0,
+        0,
+        0.5,
+        1
+      ]
+    },
+    {
+      "name": "combat-rune-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 512,
+        "height": 512
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0,
+        0,
+        0.5,
+        1
+      ]
+    },
+    {
+      "name": "combat-crescent-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 512,
+        "y": 0,
+        "width": 256,
+        "height": 256
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.5,
+        0,
+        0.25,
+        0.5
+      ]
+    },
+    {
+      "name": "combat-crescent-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 512,
+        "y": 0,
+        "width": 256,
+        "height": 256
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.5,
+        0,
+        0.25,
+        0.5
+      ]
+    },
+    {
+      "name": "combat-crescent-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 512,
+        "y": 0,
+        "width": 256,
+        "height": 256
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.5,
+        0,
+        0.25,
+        0.5
+      ]
+    },
+    {
+      "name": "combat-puff-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "width": 128,
+        "height": 128
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.75,
+        0,
+        0.125,
+        0.25
+      ]
+    },
+    {
+      "name": "combat-puff-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "width": 128,
+        "height": 128
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.75,
+        0,
+        0.125,
+        0.25
+      ]
+    },
+    {
+      "name": "combat-puff-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 768,
+        "y": 0,
+        "width": 128,
+        "height": 128
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.75,
+        0,
+        0.125,
+        0.25
+      ]
+    },
+    {
+      "name": "combat-ring-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 896,
+        "y": 0,
+        "width": 128,
+        "height": 128
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.875,
+        0,
+        0.125,
+        0.25
+      ]
+    },
+    {
+      "name": "combat-ring-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 896,
+        "y": 0,
+        "width": 128,
+        "height": 128
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.875,
+        0,
+        0.125,
+        0.25
+      ]
+    },
+    {
+      "name": "combat-ring-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 896,
+        "y": 0,
+        "width": 128,
+        "height": 128
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.875,
+        0,
+        0.125,
+        0.25
+      ]
+    },
+    {
+      "name": "combat-scorch-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 768,
+        "y": 128,
+        "width": 128,
+        "height": 128
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.75,
+        0.25,
+        0.125,
+        0.25
+      ]
+    },
+    {
+      "name": "combat-scorch-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 768,
+        "y": 128,
+        "width": 128,
+        "height": 128
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.75,
+        0.25,
+        0.125,
+        0.25
+      ]
+    },
+    {
+      "name": "combat-scorch-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 768,
+        "y": 128,
+        "width": 128,
+        "height": 128
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.75,
+        0.25,
+        0.125,
+        0.25
+      ]
+    },
+    {
+      "name": "combat-bolt-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 896,
+        "y": 128,
+        "width": 64,
+        "height": 256
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.875,
+        0.25,
+        0.0625,
+        0.5
+      ]
+    },
+    {
+      "name": "combat-bolt-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 896,
+        "y": 128,
+        "width": 64,
+        "height": 256
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.875,
+        0.25,
+        0.0625,
+        0.5
+      ]
+    },
+    {
+      "name": "combat-bolt-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 896,
+        "y": 128,
+        "width": 64,
+        "height": 256
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.875,
+        0.25,
+        0.0625,
+        0.5
+      ]
+    },
+    {
+      "name": "combat-beam-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 960,
+        "y": 128,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.9375,
+        0.25,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-beam-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 960,
+        "y": 128,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.9375,
+        0.25,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-beam-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 960,
+        "y": 128,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.9375,
+        0.25,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "beam-a",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 960,
+        "y": 128,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "beam-a",
+      "nearest": false,
+      "uv": [
+        0.9375,
+        0.25,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "beam-b",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 960,
+        "y": 128,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "beam-b",
+      "nearest": false,
+      "uv": [
+        0.9375,
+        0.25,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-glow-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 512,
+        "y": 256,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.5,
+        0.5,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-glow-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 512,
+        "y": 256,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.5,
+        0.5,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-glow-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 512,
+        "y": 256,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.5,
+        0.5,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-hotGlow-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 576,
+        "y": 256,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.5625,
+        0.5,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-hotGlow-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 576,
+        "y": 256,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.5625,
+        0.5,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-hotGlow-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 576,
+        "y": 256,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.5625,
+        0.5,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-spark-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 640,
+        "y": 256,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.625,
+        0.5,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-spark-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 640,
+        "y": 256,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.625,
+        0.5,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-spark-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 640,
+        "y": 256,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.625,
+        0.5,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-ember-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 704,
+        "y": 256,
+        "width": 32,
+        "height": 32
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.6875,
+        0.5,
+        0.03125,
+        0.0625
+      ]
+    },
+    {
+      "name": "combat-ember-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 704,
+        "y": 256,
+        "width": 32,
+        "height": 32
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.6875,
+        0.5,
+        0.03125,
+        0.0625
+      ]
+    },
+    {
+      "name": "combat-ember-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 704,
+        "y": 256,
+        "width": 32,
+        "height": 32
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.6875,
+        0.5,
+        0.03125,
+        0.0625
+      ]
+    },
+    {
+      "name": "combat-shard-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 736,
+        "y": 256,
+        "width": 32,
+        "height": 32
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.71875,
+        0.5,
+        0.03125,
+        0.0625
+      ]
+    },
+    {
+      "name": "combat-shard-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 736,
+        "y": 256,
+        "width": 32,
+        "height": 32
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.71875,
+        0.5,
+        0.03125,
+        0.0625
+      ]
+    },
+    {
+      "name": "combat-shard-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 736,
+        "y": 256,
+        "width": 32,
+        "height": 32
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.71875,
+        0.5,
+        0.03125,
+        0.0625
+      ]
+    },
+    {
+      "name": "combat-flame-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 768,
+        "y": 256,
+        "width": 32,
+        "height": 48
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.75,
+        0.5,
+        0.03125,
+        0.09375
+      ]
+    },
+    {
+      "name": "combat-flame-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 768,
+        "y": 256,
+        "width": 32,
+        "height": 48
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.75,
+        0.5,
+        0.03125,
+        0.09375
+      ]
+    },
+    {
+      "name": "combat-flame-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 768,
+        "y": 256,
+        "width": 32,
+        "height": 48
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.75,
+        0.5,
+        0.03125,
+        0.09375
+      ]
+    },
+    {
+      "name": "combat-halo-add",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 800,
+        "y": 256,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.78125,
+        0.5,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-halo-normal",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 800,
+        "y": 256,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "normal",
+      "nearest": false,
+      "uv": [
+        0.78125,
+        0.5,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "combat-halo-multiply",
+      "atlas": "combat-fx",
+      "texture": "effects/nightward/textures/combat-fx.png",
+      "frame": {
+        "x": 800,
+        "y": 256,
+        "width": 64,
+        "height": 64
+      },
+      "mode": "multiply",
+      "nearest": false,
+      "uv": [
+        0.78125,
+        0.5,
+        0.0625,
+        0.125
+      ]
+    },
+    {
+      "name": "tome-0",
+      "atlas": "actors-albedo",
+      "texture": "effects/nightward/textures/actors-albedo.png",
+      "frame": {
+        "x": 427,
+        "y": 538,
+        "width": 14,
+        "height": 14
+      },
+      "mode": "mask",
+      "nearest": true,
+      "uv": [
+        0.8148854961832062,
+        0.9275862068965517,
+        0.026717557251908396,
+        0.02413793103448276
+      ]
+    },
+    {
+      "name": "tome-1",
+      "atlas": "actors-albedo",
+      "texture": "effects/nightward/textures/actors-albedo.png",
+      "frame": {
+        "x": 441,
+        "y": 538,
+        "width": 14,
+        "height": 14
+      },
+      "mode": "mask",
+      "nearest": true,
+      "uv": [
+        0.8416030534351145,
+        0.9275862068965517,
+        0.026717557251908396,
+        0.02413793103448276
+      ]
+    },
+    {
+      "name": "tome-2",
+      "atlas": "actors-albedo",
+      "texture": "effects/nightward/textures/actors-albedo.png",
+      "frame": {
+        "x": 455,
+        "y": 538,
+        "width": 14,
+        "height": 14
+      },
+      "mode": "mask",
+      "nearest": true,
+      "uv": [
+        0.8683206106870229,
+        0.9275862068965517,
+        0.026717557251908396,
+        0.02413793103448276
+      ]
+    },
+    {
+      "name": "tome-3",
+      "atlas": "actors-albedo",
+      "texture": "effects/nightward/textures/actors-albedo.png",
+      "frame": {
+        "x": 469,
+        "y": 538,
+        "width": 14,
+        "height": 14
+      },
+      "mode": "mask",
+      "nearest": true,
+      "uv": [
+        0.8950381679389313,
+        0.9275862068965517,
+        0.026717557251908396,
+        0.02413793103448276
+      ]
+    },
+    {
+      "name": "flask-0",
+      "atlas": "actors-albedo",
+      "texture": "effects/nightward/textures/actors-albedo.png",
+      "frame": {
+        "x": 482,
+        "y": 538,
+        "width": 14,
+        "height": 14
+      },
+      "mode": "mask",
+      "nearest": true,
+      "uv": [
+        0.9198473282442748,
+        0.9275862068965517,
+        0.026717557251908396,
+        0.02413793103448276
+      ]
+    },
+    {
+      "name": "flask-1",
+      "atlas": "actors-albedo",
+      "texture": "effects/nightward/textures/actors-albedo.png",
+      "frame": {
+        "x": 494,
+        "y": 538,
+        "width": 14,
+        "height": 14
+      },
+      "mode": "mask",
+      "nearest": true,
+      "uv": [
+        0.9427480916030534,
+        0.9275862068965517,
+        0.026717557251908396,
+        0.02413793103448276
+      ]
+    },
+    {
+      "name": "brazier-fire-0",
+      "atlas": "actors-albedo",
+      "texture": "effects/nightward/textures/actors-albedo.png",
+      "frame": {
+        "x": 484,
+        "y": 488,
+        "width": 16,
+        "height": 24
+      },
+      "mode": "normal",
+      "nearest": true,
+      "uv": [
+        0.9236641221374046,
+        0.8413793103448276,
+        0.030534351145038167,
+        0.041379310344827586
+      ]
+    },
+    {
+      "name": "brazier-fire-1",
+      "atlas": "actors-albedo",
+      "texture": "effects/nightward/textures/actors-albedo.png",
+      "frame": {
+        "x": 502,
+        "y": 488,
+        "width": 16,
+        "height": 24
+      },
+      "mode": "normal",
+      "nearest": true,
+      "uv": [
+        0.9580152671755725,
+        0.8413793103448276,
+        0.030534351145038167,
+        0.041379310344827586
+      ]
+    },
+    {
+      "name": "brazier-fire-2",
+      "atlas": "actors-albedo",
+      "texture": "effects/nightward/textures/actors-albedo.png",
+      "frame": {
+        "x": 2,
+        "y": 538,
+        "width": 16,
+        "height": 24
+      },
+      "mode": "normal",
+      "nearest": true,
+      "uv": [
+        0.003816793893129771,
+        0.9275862068965517,
+        0.030534351145038167,
+        0.041379310344827586
+      ]
+    },
+    {
+      "name": "brazier-fire-3",
+      "atlas": "actors-albedo",
+      "texture": "effects/nightward/textures/actors-albedo.png",
+      "frame": {
+        "x": 20,
+        "y": 538,
+        "width": 16,
+        "height": 24
+      },
+      "mode": "normal",
+      "nearest": true,
+      "uv": [
+        0.03816793893129771,
+        0.9275862068965517,
+        0.030534351145038167,
+        0.041379310344827586
+      ]
+    },
+    {
+      "name": "brazier-afterglow",
+      "atlas": "effects",
+      "texture": "effects/nightward/textures/effects.png",
+      "frame": {
+        "x": 1,
+        "y": 1,
+        "width": 126,
+        "height": 126
+      },
+      "mode": "add",
+      "nearest": false,
+      "uv": [
+        0.001953125,
+        0.0078125,
+        0.24609375,
+        0.984375
+      ]
+    }
+  ]
+}

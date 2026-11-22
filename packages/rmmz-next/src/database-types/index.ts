@@ -275,6 +275,7 @@ export declare namespace MZ {
     mode: number
     name: string
     note: string
+    meta: Meta
     tilesetNames: string[]
   }
 
@@ -592,6 +593,7 @@ export declare namespace MZ {
       id: number
       name: string
       note: string
+      meta: Meta
       pages: Event.Page[]
       x: number
       y: number
@@ -656,6 +658,7 @@ export declare namespace MZ {
     encounterStep: number
     height: number
     note: string
+    meta: Meta
     parallaxLoopX: boolean
     parallaxLoopY: boolean
     parallaxName: string

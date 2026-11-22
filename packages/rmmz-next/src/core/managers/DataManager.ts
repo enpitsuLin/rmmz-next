@@ -130,13 +130,13 @@ export class DataManager {
     if (Array.isArray(data)) {
       for (const e of data) {
         if (e && typeof e === 'object' && 'note' in e) {
-          this.extractMetadata(e as { note: string, meta?: Record<string, string | boolean> })
+          this.extractMetadata(e as { note: string, meta?: MZ.Meta })
         }
       }
     }
   }
 
-  static extractMetadata(a: { note: string, meta?: Record<string, string | boolean> }): void {
+  static extractMetadata(a: { note: string, meta?: MZ.Meta }): void {
     // TODO fix this
     // eslint-disable-next-line regexp/no-super-linear-backtracking
     const e = /<([^<>:]+)(:?)([^>]*)>/g

@@ -44,3 +44,16 @@ node packages/rmmz-next/bin/cli.js init /path/to/game
 | `pnpm exec rmmz-next game` | 使用 NW.js 运行 `dist` |
 
 NW.js 沿用 CLI 的 Steam 自动发现机制，也可通过 `RMMZ_NW_PATH` 指定可执行文件。
+
+需要复制额外资源目录时，在 `vite.config.ts` 配置 `extraAssetDirs`：
+
+```ts
+import { rmmz } from 'rmmz-next/vite'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [rmmz({ extraAssetDirs: ['models'] })],
+})
+```
+
+目录相对游戏工程根目录，构建时保留相对路径，例如 `models/maps/scene.glb` 复制到 `dist/models/maps/scene.glb`。标准 RMMZ 资源目录始终包含；重复目录只复制一次，尚不存在的目录跳过。

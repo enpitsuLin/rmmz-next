@@ -1,0 +1,23 @@
+[
+null,
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[{"code":21,"dataId":2,"value":1.1}],"id":1,"etypeId":2,"atypeId":1,"name":"Might","iconIndex":102,"description":"Raises all damage by 10%.","note":"<nightward:{\"key\":\"might\",\"rank\":1}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[{"code":21,"dataId":2,"value":1.2}],"id":2,"etypeId":2,"atypeId":1,"name":"Might","iconIndex":102,"description":"Raises all damage by 10%.","note":"<nightward:{\"key\":\"might\",\"rank\":2}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[{"code":21,"dataId":2,"value":1.3}],"id":3,"etypeId":2,"atypeId":1,"name":"Might","iconIndex":102,"description":"Raises all damage by 10%.","note":"<nightward:{\"key\":\"might\",\"rank\":3}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[{"code":21,"dataId":2,"value":1.4}],"id":4,"etypeId":2,"atypeId":1,"name":"Might","iconIndex":102,"description":"Raises all damage by 10%.","note":"<nightward:{\"key\":\"might\",\"rank\":4}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[{"code":21,"dataId":2,"value":1.5}],"id":5,"etypeId":2,"atypeId":1,"name":"Might","iconIndex":102,"description":"Raises all damage by 10%.","note":"<nightward:{\"key\":\"might\",\"rank\":5}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[{"code":21,"dataId":6,"value":1.1}],"id":6,"etypeId":3,"atypeId":1,"name":"Haste","iconIndex":103,"description":"Move 10% faster.","note":"<nightward:{\"key\":\"haste\",\"rank\":1}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[{"code":21,"dataId":6,"value":1.2}],"id":7,"etypeId":3,"atypeId":1,"name":"Haste","iconIndex":103,"description":"Move 10% faster.","note":"<nightward:{\"key\":\"haste\",\"rank\":2}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[{"code":21,"dataId":6,"value":1.3}],"id":8,"etypeId":3,"atypeId":1,"name":"Haste","iconIndex":103,"description":"Move 10% faster.","note":"<nightward:{\"key\":\"haste\",\"rank\":3}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[{"code":21,"dataId":6,"value":1.4}],"id":9,"etypeId":3,"atypeId":1,"name":"Haste","iconIndex":103,"description":"Move 10% faster.","note":"<nightward:{\"key\":\"haste\",\"rank\":4}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[{"code":21,"dataId":6,"value":1.5}],"id":10,"etypeId":3,"atypeId":1,"name":"Haste","iconIndex":103,"description":"Move 10% faster.","note":"<nightward:{\"key\":\"haste\",\"rank\":5}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[],"id":11,"etypeId":4,"atypeId":1,"name":"Lodestone","iconIndex":104,"description":"Pull gems from 30% farther.","note":"<nightward:{\"key\":\"lodestone\",\"rank\":1,\"value\":0.35}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[],"id":12,"etypeId":4,"atypeId":1,"name":"Lodestone","iconIndex":104,"description":"Pull gems from 30% farther.","note":"<nightward:{\"key\":\"lodestone\",\"rank\":2,\"value\":0.7}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[],"id":13,"etypeId":4,"atypeId":1,"name":"Lodestone","iconIndex":104,"description":"Pull gems from 30% farther.","note":"<nightward:{\"key\":\"lodestone\",\"rank\":3,\"value\":1.05}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[],"id":14,"etypeId":4,"atypeId":1,"name":"Lodestone","iconIndex":104,"description":"Pull gems from 30% farther.","note":"<nightward:{\"key\":\"lodestone\",\"rank\":4,\"value\":1.4}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[],"id":15,"etypeId":4,"atypeId":1,"name":"Lodestone","iconIndex":104,"description":"Pull gems from 30% farther.","note":"<nightward:{\"key\":\"lodestone\",\"rank\":5,\"value\":1.75}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[],"id":16,"etypeId":5,"atypeId":1,"name":"Cinder","iconIndex":105,"description":"Weapons recharge 8% faster.","note":"<nightward:{\"key\":\"cinder\",\"rank\":1,\"value\":0.08}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[],"id":17,"etypeId":5,"atypeId":1,"name":"Cinder","iconIndex":105,"description":"Weapons recharge 8% faster.","note":"<nightward:{\"key\":\"cinder\",\"rank\":2,\"value\":0.16}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[],"id":18,"etypeId":5,"atypeId":1,"name":"Cinder","iconIndex":105,"description":"Weapons recharge 8% faster.","note":"<nightward:{\"key\":\"cinder\",\"rank\":3,\"value\":0.24}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[],"id":19,"etypeId":5,"atypeId":1,"name":"Cinder","iconIndex":105,"description":"Weapons recharge 8% faster.","note":"<nightward:{\"key\":\"cinder\",\"rank\":4,\"value\":0.32}>"},
+{"price":0,"params":[0,0,0,0,0,0,0,0],"traits":[],"id":20,"etypeId":5,"atypeId":1,"name":"Cinder","iconIndex":105,"description":"Weapons recharge 8% faster.","note":"<nightward:{\"key\":\"cinder\",\"rank\":5,\"value\":0.4}>"}
+]

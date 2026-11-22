@@ -3,6 +3,7 @@ import * as PIXI from 'pixi.js'
 import { Graphics } from './Graphics'
 import { Point } from './Point'
 import { TilemapLayer } from './TilemapLayer'
+import { TilemapAtlas } from './TilemapRenderer'
 
 /**
  * The tilemap which displays 2D tile-based game map.
@@ -27,6 +28,7 @@ export class Tilemap extends PIXI.Container {
   _lastAnimationFrame?: number
   _lastStartX?: number
   _lastStartY?: number
+  private atlas: TilemapAtlas | null = null
 
   /**
    * The width of each tile.
@@ -122,6 +124,8 @@ export class Tilemap extends PIXI.Container {
    */
   destroy(options: PIXI.DestroyOptions = { children: true, texture: true }): void {
     super.destroy(options)
+    this.atlas?.destroy()
+    this.atlas = null
   }
 
   /**
@@ -232,7 +236,11 @@ export class Tilemap extends PIXI.Container {
 
   protected _updateBitmaps(): void {
     if (this._needsBitmapsUpdate && this.isReady()) {
-      this._lowerLayer.setBitmaps(this._bitmaps)
+      this.atlas?.destroy()
+      const atlas = new TilemapAtlas(this._bitmaps.map(bitmap => bitmap.image || bitmap.canvas))
+      this.atlas = atlas
+      this._lowerLayer.setAtlas(atlas)
+      this._upperLayer.setAtlas(atlas)
       this._needsBitmapsUpdate = false
       this._needsRepaint = true
     }
@@ -748,9 +756,9 @@ export namespace Tilemap {
       super.destroy(options)
     }
 
-    setBitmaps(bitmaps: Bitmap[]): void {
+    setAtlas(atlas: TilemapAtlas): void {
       for (const child of this.children) {
-        child.setBitmaps(bitmaps)
+        child.setAtlas(atlas)
       }
     }
 

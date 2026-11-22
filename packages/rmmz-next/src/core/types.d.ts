@@ -145,7 +145,7 @@ declare namespace effekseer {
 
   export function createContext(): EffekseerContext
 
-  type MatrixArray = [
+  type MatrixArray = readonly [
     number,
     number,
     number,
@@ -162,7 +162,7 @@ declare namespace effekseer {
     number,
     number,
     number,
-  ]
+  ] | (ArrayLike<number> & { readonly length: 16 })
 
   export class EffekseerContext {
     init(webglContext: WebGLRenderingContext, settings?: object): void
@@ -201,6 +201,9 @@ declare namespace effekseer {
     setRotation(x: number, y: number, z: number): void
     setScale(x: number, y: number, z: number): void
     setSpeed(speed: number): void
+    setMatrix(matrix: Float32Array): void
+    setAllColor(red: number, green: number, blue: number, alpha: number): void
+    setDynamicInput(index: number, value: number): void
   }
 }
 
