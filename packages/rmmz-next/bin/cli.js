@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execFileSync, spawn } from 'node:child_process'
-import { chmodSync, existsSync, readFileSync } from 'node:fs'
+import { chmodSync, constants, existsSync, readFileSync, statSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { homedir, platform } from 'node:os'
 import { join, resolve } from 'node:path'
@@ -229,16 +229,18 @@ function getProjectPath(customPath) {
 // Command Functions
 // ============================================================================
 
-function commandProtect() {
+function setPackageJsonReadOnly(readOnly) {
   const file = resolve('package.json')
 
-  // The MZ editor drops custom package.json fields when saving the project.
-  if (isWindows)
-    execFileSync('attrib', ['+R', file])
-  else
-    chmodSync(file, 0o444)
+  if (isWindows) {
+    execFileSync('attrib', [readOnly ? '+R' : '-R', file])
+  }
+  else {
+    const mode = readOnly ? 0o444 : (statSync(file).mode | constants.S_IWUSR) & 0o777
+    chmodSync(file, mode)
+  }
 
-  console.log(`[rmmz] locked ${file}`)
+  console.log(`[rmmz] ${readOnly ? 'locked' : 'unlocked'} ${file}`)
 }
 
 function commandFind() {
@@ -424,7 +426,11 @@ cli
 
 cli
   .command('protect', 'Protect package.json from being overwritten by the MZ editor')
-  .action(commandProtect)
+  .action(() => setPackageJsonReadOnly(true))
+
+cli
+  .command('unprotect', 'Make package.json writable again')
+  .action(() => setPackageJsonReadOnly(false))
 
 cli
   .command('dev', 'Start Vite dev server + game')
