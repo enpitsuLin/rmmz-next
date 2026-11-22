@@ -1,7 +1,14 @@
 import antfu from '@antfu/eslint-config'
 
 export default antfu({
-  ignores: ['example/*/data/**', 'example/*/js/libs/**', 'example/*/js/plugins.js', 'example/*/js/plugins/**', 'example/*/.rmmz-dev/**', 'example/*/.rmmz-next-backup/**', 'packages/rmmz-next/test/fixtures/**', '**/*.md'],
+  ignores: [
+    'example/*/data/**',
+    'example/*/js/libs/**',
+    'example/*/.rmmz-dev/**',
+    'example/*/.rmmz-next-backup/**',
+    'packages/rmmz-next/test/fixtures/**',
+    '**/*.md'
+  ],
   type: 'lib',
   rules: {
     'ts/no-namespace': 'off',

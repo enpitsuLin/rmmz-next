@@ -5,7 +5,7 @@ export const clamp = (n: number): number => Math.max(0, Math.min(1, n))
 export const phase = (time: number, at: number, seconds: number): number => clamp((time - at) / seconds)
 export const out = (n: number, power = 3): number => 1 - (1 - n) ** power
 export const back = (n: number, strength = 1.5): number => 1 + (strength + 1) * (n - 1) ** 3 + strength * (n - 1) ** 2
-export const sine = (n: number): number => .5 - .5 * Math.cos(Math.PI * n)
+export const sine = (n: number): number => 0.5 - 0.5 * Math.cos(Math.PI * n)
 export const approach = (a: number, b: number, speed: number, dt: number): number => a + (b - a) * (1 - Math.exp(-speed * dt))
 const motionPreference = matchMedia('(prefers-reduced-motion: reduce)')
 const coarsePointer = matchMedia('(pointer: coarse)')
@@ -24,16 +24,18 @@ export const snap = (value: number): number => Math.round(value * uiDensity()) /
 export const largeScale = (unit: number): number => Math.max(2, Math.round(unit * uiDensity() * 1.5)) / uiDensity()
 export interface UiLayout { width: number, height: number, unit: number, icon: number, resolution: number, w: number, h: number, margin: number, portrait: boolean, short: boolean, tap: number }
 export function uiLayout(): UiLayout {
-  const width = Graphics.width, height = Graphics.height, resolution = uiDensity(), pixelsW = Math.round(width * resolution), pixelsH = Math.round(height * resolution), pixelUnit = Math.max(2, Math.round(Math.min(pixelsW, pixelsH) / 290)), unit = pixelUnit / resolution
-  return { width, height, unit, icon: Math.max(2, Math.round(pixelUnit * .7)) / resolution, resolution, w: Math.floor(pixelsW / pixelUnit), h: Math.floor(pixelsH / pixelUnit), margin: 4 * unit, portrait: height > width, short: Math.floor(pixelsH / pixelUnit) < 240, tap: coarsePointer.matches ? Math.ceil(44 / unit) : 0 }
+  const width = Graphics.width; const height = Graphics.height; const resolution = uiDensity(); const pixelsW = Math.round(width * resolution); const pixelsH = Math.round(height * resolution); const pixelUnit = Math.max(2, Math.round(Math.min(pixelsW, pixelsH) / 290)); const unit = pixelUnit / resolution
+  return { width, height, unit, icon: Math.max(2, Math.round(pixelUnit * 0.7)) / resolution, resolution, w: Math.floor(pixelsW / pixelUnit), h: Math.floor(pixelsH / pixelUnit), margin: 4 * unit, portrait: height > width, short: Math.floor(pixelsH / pixelUnit) < 240, tap: coarsePointer.matches ? Math.ceil(44 / unit) : 0 }
 }
 export const fitScale = (texels: number, width: number, maximum: number): number => Math.max(1 / uiDensity(), Math.min(maximum, Math.floor(width * uiDensity() / Math.max(1, texels)) / uiDensity()))
 
 export function fullscreen(): void {
-  if (document.fullscreenElement) void document.exitFullscreen()
-  else if (document.fullscreenEnabled) void document.documentElement.requestFullscreen()
+  if (document.fullscreenElement)
+    void document.exitFullscreen()
+  else if (document.fullscreenEnabled)
+    void document.documentElement.requestFullscreen()
 }
 
 export interface IconPoint { x: number, y: number, scale: number }
 
-export const introAlpha = (age: number, at = 0): number => reducedMotion() ? phase(age, 0, .15) : phase(age, at, .3)
+export const introAlpha = (age: number, at = 0): number => reducedMotion() ? phase(age, 0, 0.15) : phase(age, at, 0.3)

@@ -74,17 +74,20 @@ export class EffekseerParticles extends Container3D {
     this.beam = !!options.extraBits?.some(bit => bit.name === 'fxBeam')
     this.opaque = options.alphaMode === 'mask'
   }
-  writePacked(index: number, x: number, y: number, z: number, size: number, rotation = 0, color = 0xffffffff, frame = 0): void {
+
+  writePacked(index: number, x: number, y: number, z: number, size: number, rotation = 0, color = 0xFFFFFFFF, frame = 0): void {
     for (let vertex = 0; vertex < 4; vertex++) {
-      const at = (index * 4 + vertex) * 24, { f32, u32 } = this.data
+      const at = (index * 4 + vertex) * 24; const { f32, u32 } = this.data
       f32[at] = x; f32[at + 1] = y; f32[at + 2] = z
       f32[at + 3] = size; f32[at + 4] = rotation; u32[at + 5] = color; f32[at + 6] = frame
     }
   }
-  setParticleAt(index: number, x: number, y: number, z: number, size: number, rotation = 0, color = 0xffffff, alpha = 1, frame = 0): void {
+
+  setParticleAt(index: number, x: number, y: number, z: number, size: number, rotation = 0, color = 0xFFFFFF, alpha = 1, frame = 0): void {
     const packed = (color >> 16 & 255) | (color >> 8 & 255) << 8 | (color & 255) << 16 | Math.round(clamp(alpha) * 255) << 24
     this.writePacked(index, x, y, z, size, rotation, packed >>> 0, frame)
   }
+
   upload(): void { /* The pass reads the retained data after the camera has been prepared. */ }
   markDirty(_start: number, _end: number): void { /* Beam vertices share the retained buffer. */ }
   clear(): void {
@@ -92,15 +95,18 @@ export class EffekseerParticles extends Container3D {
     for (const slot of this.slots) slot?.handle.stop()
     this.slots.length = 0; this.live.length = 0
   }
+
   private native(index: number, texture: Texture, mode: string): Slot {
     let names = frames.get(texture)
     if (!names) { names = new Map(); frames.set(texture, names) }
     let name = names.get(mode)
     if (!name) {
       name = getEffekseerEffectName(sources.get(texture.source)!, texture.frame, mode)
-      if (name) names.set(mode, name)
+      if (name)
+        names.set(mode, name)
     }
-    if (!name) throw new Error(`Missing Nightward Effekseer frame: ${texture.label} (${mode})`)
+    if (!name)
+      throw new Error(`Missing Nightward Effekseer frame: ${texture.label} (${mode})`)
     let slot = this.slots[index]
     if (slot?.name !== name) {
       slot?.handle.stop()
@@ -114,6 +120,7 @@ export class EffekseerParticles extends Container3D {
     this.live.push(slot.handle)
     return slot
   }
+
   private releaseInactive(): void {
     for (let index = 0; index < this.slots.length; index++) {
       const slot = this.slots[index]
@@ -123,6 +130,7 @@ export class EffekseerParticles extends Container3D {
       }
     }
   }
+
   private appearance(slot: Slot, packed: number, value: number, alpha: number): void {
     const handle = slot.handle
     if (slot.color !== packed) { handle.setAllColor(packed & 255, packed >>> 8 & 255, packed >>> 16 & 255, packed >>> 24); slot.color = packed }
@@ -137,6 +145,7 @@ export class EffekseerParticles extends Container3D {
       }
     }
   }
+
   private transform(x: number, y: number, z: number, rx: number, ry: number, rz: number, ux: number, uy: number, uz: number): void {
     const m = this.matrix
     m[0] = rx; m[1] = ry; m[2] = rz; m[4] = ux; m[5] = uy; m[6] = uz
@@ -148,8 +157,8 @@ export class EffekseerParticles extends Container3D {
     this.live.length = 0
     this.revision++
     if (!shown) { this.releaseInactive(); return this.live }
-    const v = camera.view.elements, { f32: data, u32 } = this.data
-    let rx = v[0], ry = v[4], rz = v[8], ux = v[1], uy = v[5], uz = v[9]
+    const v = camera.view.elements; const { f32: data, u32 } = this.data
+    let rx = v[0]; let ry = v[4]; let rz = v[8]; let ux = v[1]; let uy = v[5]; let uz = v[9]
     if (this.options.billboard === 'horizontal') { rx = 1; ry = 0; rz = 0; ux = 0; uy = 0; uz = 1 }
     else if (this.options.billboard === 'cylindrical') { const length = Math.hypot(rx, rz); rx /= length; ry = 0; rz /= length; ux = 0; uy = 1; uz = 0 }
     const time = this.uniforms.uParticleTime as number
@@ -157,22 +166,23 @@ export class EffekseerParticles extends Container3D {
     for (let index = 0; index < this.options.capacity; index++) {
       const at = index * 96
       if (this.beam) {
-        const end = at + 48, widthB = data[at + 3]!, widthA = data[end + 3]!
-        if (widthA <= 0 && widthB <= 0) continue
-        const ax = data[end]!, ay = data[end + 1]!, az = data[end + 2]!
-        const bx = data[at]!, by = data[at + 1]!, bz = data[at + 2]!
-        const dx = bx - ax, dy = by - ay, dz = bz - az
+        const end = at + 48; const widthB = data[at + 3]!; const widthA = data[end + 3]!
+        if (widthA <= 0 && widthB <= 0)
+          continue
+        const ax = data[end]!; const ay = data[end + 1]!; const az = data[end + 2]!
+        const bx = data[at]!; const by = data[at + 1]!; const bz = data[at + 2]!
+        const dx = bx - ax; const dy = by - ay; const dz = bz - az
         const radius = (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) + Math.max(Math.abs(widthA), Math.abs(widthB))) * 0.5
         if (!intersectsParticle(frustum, (ax + bx) * 0.5, (ay + by) * 0.5, (az + bz) * 0.5, radius))
           continue
-        const flatX = dx * rx + dy * ry + dz * rz, flatY = dx * ux + dy * uy + dz * uz
-        const length = Math.hypot(flatX, flatY), dirX = length > 1e-5 ? flatX / length : 0, dirY = length > 1e-5 ? flatY / length : 1
-        const sx = ux * dirX - rx * dirY, sy = uy * dirX - ry * dirY, sz = uz * dirX - rz * dirY
-        const alx = ax - sx * widthA / 2, aly = ay - sy * widthA / 2, alz = az - sz * widthA / 2
-        const arx = ax + sx * widthA / 2, ary = ay + sy * widthA / 2, arz = az + sz * widthA / 2
-        const blx = bx - sx * widthB / 2, bly = by - sy * widthB / 2, blz = bz - sz * widthB / 2
-        const brx = bx + sx * widthB / 2, bry = by + sy * widthB / 2, brz = bz + sz * widthB / 2
-        const packedA = u32[end + 5]!, packedB = u32[at + 5]!
+        const flatX = dx * rx + dy * ry + dz * rz; const flatY = dx * ux + dy * uy + dz * uz
+        const length = Math.hypot(flatX, flatY); const dirX = length > 1e-5 ? flatX / length : 0; const dirY = length > 1e-5 ? flatY / length : 1
+        const sx = ux * dirX - rx * dirY; const sy = uy * dirX - ry * dirY; const sz = uz * dirX - rz * dirY
+        const alx = ax - sx * widthA / 2; const aly = ay - sy * widthA / 2; const alz = az - sz * widthA / 2
+        const arx = ax + sx * widthA / 2; const ary = ay + sy * widthA / 2; const arz = az + sz * widthA / 2
+        const blx = bx - sx * widthB / 2; const bly = by - sy * widthB / 2; const blz = bz - sz * widthB / 2
+        const brx = bx + sx * widthB / 2; const bry = by + sy * widthB / 2; const brz = bz + sz * widthB / 2
+        const packedA = u32[end + 5]!; const packedB = u32[at + 5]!
         const other = (packedB & 255) * 65536 + (packedB >>> 8 & 255) * 256 + (packedB >>> 16 & 255)
         this.transform((brx + arx) / 2, (bry + ary) / 2, (brz + arz) / 2, brx - blx, bry - bly, brz - blz, arx - blx, ary - bly, arz - blz)
         this.appearance(this.native(index * 2, this.textures[0]!, 'beam-a'), packedA, other, (packedB >>> 24) / 255)
@@ -181,40 +191,44 @@ export class EffekseerParticles extends Container3D {
         continue
       }
       let size = data[at + 3]!
-      if (size <= 0) continue
+      if (size <= 0)
+        continue
       let x = data[at]!
       let y = data[at + 1]!
       let z = data[at + 2]!
       let rotation = data[at + 4]!
       let age = 0
       let progress = 0
-      let rightX = rx, rightY = ry, rightZ = rz, upX = ux, upY = uy, upZ = uz, span = size
+      let rightX = rx; let rightY = ry; let rightZ = rz; let upX = ux; let upY = uy; let upZ = uz; let span = size
       if (this.pyro) {
         age = time - data[at + 7]!
         const life = data[at + 8]!
-        if (life <= 0 || age < 0 || age > life) continue
+        if (life <= 0 || age < 0 || age > life)
+          continue
         progress = clamp(age / Math.max(life, 1e-6))
         const drag = data[at + 16]!
         const decay = drag > 1e-3 ? Math.exp(-drag * age) : 1
         const a = drag > 1e-3 ? (1 - decay) / drag : age
         const b = drag > 1e-3 ? (age - a) / drag : age * age * 0.5
-        const gravity = this.uniforms.uGravity as number[], scale = data[at + 17]!
-        const vx = data[at + 9]!, vy = data[at + 10]!, vz = data[at + 11]!
-        const tx = vx * a + gravity[0]! * scale * b, ty = vy * a + gravity[1]! * scale * b, tz = vz * a + gravity[2]! * scale * b
+        const gravity = this.uniforms.uGravity as number[]; const scale = data[at + 17]!
+        const vx = data[at + 9]!; const vy = data[at + 10]!; const vz = data[at + 11]!
+        const tx = vx * a + gravity[0]! * scale * b; const ty = vy * a + gravity[1]! * scale * b; const tz = vz * a + gravity[2]! * scale * b
         x += tx; y += ty; z += tz
         size += (data[at + 14]! - size) * (1 - (1 - progress) ** (this.uniforms.uGrowth as number))
         rotation += data[at + 15]! * age
         if (this.streak) {
-          const wx = vx * decay + gravity[0]! * scale * a, wy = vy * decay + gravity[1]! * scale * a, wz = vz * decay + gravity[2]! * scale * a
-          const sx = wx * rx + wy * ry + wz * rz, sy = wx * ux + wy * uy + wz * uz, speed = Math.hypot(sx, sy)
+          const wx = vx * decay + gravity[0]! * scale * a; const wy = vy * decay + gravity[1]! * scale * a; const wz = vz * decay + gravity[2]! * scale * a
+          const sx = wx * rx + wy * ry + wz * rz; const sy = wx * ux + wy * uy + wz * uz; const speed = Math.hypot(sx, sy)
           const reach = Math.min(speed * ((this.uniforms.uShutter as number) * data[at + 15]! + data[at + 19]!), Math.hypot(tx, ty, tz))
-          const dx = speed > 1e-5 ? sx / speed : 0, dy = speed > 1e-5 ? sy / speed : 1
+          const dx = speed > 1e-5 ? sx / speed : 0; const dy = speed > 1e-5 ? sy / speed : 1
           upX = rx * dx + ux * dy; upY = ry * dx + uy * dy; upZ = rz * dx + uz * dy
           rightX = ux * dx - rx * dy; rightY = uy * dx - ry * dy; rightZ = uz * dx - rz * dy
           x -= upX * reach / 2; y -= upY * reach / 2; z -= upZ * reach / 2
           span = size + reach; rotation = 0
         }
-        else span = size
+        else {
+          span = size
+        }
       }
       const width = size * aspect
       if (!intersectsParticle(frustum, x, y, z, (Math.abs(width) + Math.abs(span)) * 0.5))
@@ -234,9 +248,9 @@ export class EffekseerParticles extends Container3D {
         if (this.streak)
           alpha *= (size / span) ** (this.uniforms.uStreakFade as number)
         const depth = -(v[2] * x + v[6] * y + v[10] * z + v[14])
-        alpha *= clamp((depth - .3) / (this.uniforms.uNearFade as number))
+        alpha *= clamp((depth - 0.3) / (this.uniforms.uNearFade as number))
       }
-      const cosine = Math.cos(rotation), sine = Math.sin(rotation)
+      const cosine = Math.cos(rotation); const sine = Math.sin(rotation)
       this.transform(x, y, z, (rightX * cosine + upX * sine) * width, (rightY * cosine + upY * sine) * width, (rightZ * cosine + upZ * sine) * width, (upX * cosine - rightX * sine) * span, (upY * cosine - rightY * sine) * span, (upZ * cosine - rightZ * sine) * span)
       const mode = this.opaque ? 'mask' : this.options.blendMode ?? 'normal'
       this.appearance(this.native(index, this.textures[data[at + 6]!]!, mode), u32[at + 5]!, heat, alpha)
@@ -244,6 +258,7 @@ export class EffekseerParticles extends Container3D {
     this.releaseInactive()
     return this.live
   }
+
   override destroy(): void { this.clear(); super.destroy() }
 }
 
@@ -262,15 +277,17 @@ export class EffekseerPass extends Pass3D {
     sources.set(assets.albedo.source, 'actors-albedo')
     sources.set(assets.effects[0]!.source, 'effects')
   }
+
   build(graph: RenderGraph): void {
     graph.addPass({
       name: this.opaque ? 'nightward-effekseer-art' : 'nightward-effekseer-fx',
       bit: RenderPassBit.NONE,
-      setup: builder => { builder.writeColor(builder.targetColor); builder.writeDepth(builder.targetDepth) },
+      setup: (builder) => { builder.writeColor(builder.targetColor); builder.writeDepth(builder.targetDepth) },
       prepare: session => this.prepare(session),
       render: session => this.render(session),
     })
   }
+
   private prepare(session: RenderSession): void {
     const root = session.view3d.root
     let frame = EffekseerPass.frames.get(root)
@@ -305,14 +322,15 @@ export class EffekseerPass extends Pass3D {
     }
     this.handles = this.opaque ? frame.opaque : frame.transparent
   }
+
   private render(session: RenderSession): void {
     if (!this.handles.length)
       return
-    const runtime = context(), camera = session.view3d.camera, renderer = session.renderer as WebGLRenderer
+    const runtime = context(); const camera = session.view3d.camera; const renderer = session.renderer as WebGLRenderer
     const data = getCameraData(camera)
     runtime.setCameraMatrix(data.view.elements)
     runtime.setProjectionMatrix(data.projection.elements)
-    const gl = renderer.gl, useProgram = gl.useProgram, drawElements = gl.drawElements
+    const gl = renderer.gl; const useProgram = gl.useProgram; const drawElements = gl.drawElements
     let program = gl.getParameter(gl.CURRENT_PROGRAM) as WebGLProgram | null
     this.globals.set([session.view3d.exposure, camera.near, camera.far, 1.5])
     const uniforms = session.globalUniformGroup!.uniforms
@@ -320,7 +338,7 @@ export class EffekseerPass extends Pass3D {
     this.fog[3] = (uniforms.uFogParams as Float32Array)[2]!
     // The 1.70 JS API has no material-uniform setter. Supply the view-global
     // uniforms at the GL draw boundary; Effekseer still owns geometry and shading.
-    gl.useProgram = value => { program = value; useProgram.call(gl, value) }
+    gl.useProgram = (value) => { program = value; useProgram.call(gl, value) }
     gl.drawElements = (mode, count, type, offset) => {
       if (program) {
         let locations = this.locations.get(program)
@@ -328,8 +346,10 @@ export class EffekseerPass extends Pass3D {
           locations = { globals: gl.getUniformLocation(program, 'nightwardGlobals'), fog: gl.getUniformLocation(program, 'nightwardFog') }
           this.locations.set(program, locations)
         }
-        if (locations.globals) gl.uniform4fv(locations.globals, this.globals)
-        if (locations.fog) gl.uniform4fv(locations.fog, this.fog)
+        if (locations.globals)
+          gl.uniform4fv(locations.globals, this.globals)
+        if (locations.fog)
+          gl.uniform4fv(locations.fog, this.fog)
       }
       drawElements.call(gl, mode, count, type, offset)
     }

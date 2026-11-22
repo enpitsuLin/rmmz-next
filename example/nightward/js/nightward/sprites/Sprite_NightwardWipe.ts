@@ -8,16 +8,17 @@ export class Sprite_NightwardWipe extends Container {
   private cells: Sprite[] = []
   private time = 0
   private covering = false
-  private duration = .4
+  private duration = 0.4
   private done?: () => void
   private running = false
   constructor() { super({ eventMode: 'none' }); this.addChild(this.draw); this.visible = false }
   get busy(): boolean { return this.running }
-  play(covering: boolean, seconds: number, done?: () => void): void { this.covering = covering; this.time = 0; this.duration = reducedMotion() ? .2 : seconds; this.done = done; this.running = true; this.visible = true }
+  play(covering: boolean, seconds: number, done?: () => void): void { this.covering = covering; this.time = 0; this.duration = reducedMotion() ? 0.2 : seconds; this.done = done; this.running = true; this.visible = true }
   tick(dt: number): void {
-    if (!this.running) return
+    if (!this.running)
+      return
     this.time += dt
-    const layout = uiLayout(), cell = layout.unit * 8, columns = Math.ceil(layout.width / cell), rows = Math.ceil(layout.height / cell), p = sine(clamp(this.time / this.duration))
+    const layout = uiLayout(); const cell = layout.unit * 8; const columns = Math.ceil(layout.width / cell); const rows = Math.ceil(layout.height / cell); const p = sine(clamp(this.time / this.duration))
     if (reducedMotion()) {
       let node = this.cells[0]
       if (!node) { node = box(1, 1, colors.page); this.cells.push(node); this.draw.addChild(node) }
@@ -29,7 +30,7 @@ export class Sprite_NightwardWipe extends Container {
       for (let i = 0; i < count; i++) {
         let node = this.cells[i]
         if (!node) { node = box(1, 1, colors.page); this.cells.push(node); this.draw.addChild(node) }
-        const x = i % columns, y = Math.floor(i / columns), k = clamp((p - (x + y) / Math.max(1, columns + rows - 2) * .6) / .4), size = Math.round((this.covering ? k : 1 - k) * cell * layout.resolution / 2) * 2 / layout.resolution
+        const x = i % columns; const y = Math.floor(i / columns); const k = clamp((p - (x + y) / Math.max(1, columns + rows - 2) * 0.6) / 0.4); const size = Math.round((this.covering ? k : 1 - k) * cell * layout.resolution / 2) * 2 / layout.resolution
         node.visible = size > 0; node.alpha = 1; node.tint = size >= cell ? colors.page : colors.gold
         node.position.set(x * cell + (cell - size) / 2, y * cell + (cell - size) / 2); node.width = size; node.height = size
       }

@@ -9,8 +9,16 @@ import { lensNoise, ReferenceCombat, ReferenceLensPass, ReferenceLensState } fro
 
 const enemyKinds: EnemyKey[] = ['bat', 'skeleton', 'ghoul', 'wraith', 'skull', 'reaper']
 const eventKinds: Partial<Record<RunEvent['kind'], string>> = {
-  lash: 'lashSwing', wand: 'wandFire', tomes: 'tomesStart', lightning: 'lightning',
-  ward: 'wardPulse', flask: 'flaskBurst', hit: 'hit', death: 'kill', break: 'brazierBreak', relic: 'relicBlast',
+  lash: 'lashSwing',
+  wand: 'wandFire',
+  tomes: 'tomesStart',
+  lightning: 'lightning',
+  ward: 'wardPulse',
+  flask: 'flaskBurst',
+  hit: 'hit',
+  death: 'kill',
+  break: 'brazierBreak',
+  relic: 'relicBlast',
 }
 const titleParticleBudget = {
   flames: 448,
@@ -37,7 +45,7 @@ interface ReferenceEvent {
 export class Spriteset_NightwardEffects {
   readonly pass = new ReferenceLensPass()
   private lens = new ReferenceLensState()
-  private strike = new DirectionalLight({ color: 0xc8c2ff, intensity: 0 })
+  private strike = new DirectionalLight({ color: 0xC8C2FF, intensity: 0 })
   private events: ReferenceEvent[] = []
   private enemySlots = new Map<number, number>()
   private projectileSlots = new Map<number, number>()
@@ -53,10 +61,16 @@ export class Spriteset_NightwardEffects {
       firePools: { count: 0, x: [] as number[], z: [] as number[], radius: [] as number[], start: [] as number[], end: [] as number[] },
     },
   }
+
   private frame = {
-    worldTime: 0, realTime: 0, alpha: 1, warp: 1, restarted: false,
+    worldTime: 0,
+    realTime: 0,
+    alpha: 1,
+    warp: 1,
+    restarted: false,
     events: { count: 0, at: (index: number): ReferenceEvent => this.events[index]! },
   }
+
   private combat: InstanceType<typeof ReferenceCombat>
   constructor(private run: Game_NightwardRun, assets: Assets, private view: View3D) {
     const art = { frames: (name: string) => {
@@ -69,8 +83,9 @@ export class Spriteset_NightwardEffects {
     this.strike.visible = false
     view.root.addChild(this.strike)
   }
+
   private sync(events: RunEvent[]): void {
-    const run = this.run, sim = this.simulation
+    const run = this.run; const sim = this.simulation
     sim.tick = Math.round(run.time * 60)
     Object.assign(sim.hero, { x: run.hero.x, z: run.hero.z, prevX: run.hero.x, prevZ: run.hero.z })
     this.enemySlots.clear()
@@ -98,7 +113,10 @@ export class Spriteset_NightwardEffects {
     }
     for (const projectile of run.projectiles) write(projectile, 1)
     // A bolt may hit on its first tick; its muzzle still needs the emitted snapshot.
-    for (const event of events) if (event.projectile && !this.projectileSlots.has(event.projectile.id)) write(event.projectile, 0)
+    for (const event of events) {
+      if (event.projectile && !this.projectileSlots.has(event.projectile.id))
+        write(event.projectile, 0)
+    }
     projectiles.count = index
     Object.assign(sim.weapons.tomes, { active: run.tomes.fade, count: run.tomes.count, radius: run.tomes.radius, angle: run.tomes.angle })
     Object.assign(sim.weapons.ward, { radius: run.weapon('ward')?.data.radius ?? 0, pulse: run.wardPulse })
@@ -112,78 +130,93 @@ export class Spriteset_NightwardEffects {
     this.events.length = 0
     for (const event of events) {
       const kind = eventKinds[event.kind]
-      if (!kind) continue
+      if (!kind)
+        continue
       const target = event.target
       let subject = target ? this.enemySlots.get(target.id)! : 0
-      if (event.projectile) subject = this.projectileSlots.get(event.projectile.id)!
+      if (event.projectile)
+        subject = this.projectileSlots.get(event.projectile.id)!
       this.events.push({
-        kind, time: event.time!, x: event.x, y: event.y ?? 0, z: event.z, subject,
+        kind,
+        time: event.time!,
+        x: event.x,
+        y: event.y ?? 0,
+        z: event.z,
+        subject,
         value: event.kind === 'death' ? enemyKinds.indexOf(target!.data.key) : event.value ?? 0,
         extra: event.kind === 'hit' ? weaponKeys.indexOf(event.weapon!) : event.kind === 'death' ? Number(target!.elite) : event.extra ?? 0,
-        dirX: event.side ?? 0, dirZ: 0,
+        dirX: event.side ?? 0,
+        dirZ: 0,
       })
     }
     this.frame.worldTime = this.frame.realTime = run.time
     this.frame.events.count = this.events.length
   }
+
   update(events: RunEvent[], dt: number, look: Look, aim: { x: number, y: number, z: number }): number {
     this.sync(events)
     this.frame.warp = dt > 0 ? 1 : 0
     this.lens.shakeGain = shakeGain()
     this.combat.update(this.frame)
     this.combat.lights.flush(true)
-    const lens = this.lens, time = this.run.time
+    const lens = this.lens; const time = this.run.time
     lens.advance(time, dt)
-    const camera = this.view.camera, eye = camera.position
-    const dx = aim.x - eye.x, dy = aim.y - eye.y, dz = aim.z - eye.z
-    const distance = Math.hypot(dx, dy, dz), horizontal = Math.hypot(dx, dz)
+    const camera = this.view.camera; const eye = camera.position
+    const dx = aim.x - eye.x; const dy = aim.y - eye.y; const dz = aim.z - eye.z
+    const distance = Math.hypot(dx, dy, dz); const horizontal = Math.hypot(dx, dz)
     const forward = { x: dx / distance, y: dy / distance, z: dz / distance }
     const right = { x: -dz / horizontal, z: dx / horizontal }
     const up = { x: -right.z * forward.y, y: right.z * forward.x - right.x * forward.z, z: right.x * forward.y }
     const trauma = lens.trauma * lens.trauma
     if (trauma > 0) {
-      const amplitude = trauma * (.15 + distance * .012)
-      const x = amplitude * lensNoise(time, 1.3), y = amplitude * lensNoise(time, 2.9), roll = trauma * .035 * lensNoise(time, 4.7)
+      const amplitude = trauma * (0.15 + distance * 0.012)
+      const x = amplitude * lensNoise(time, 1.3); const y = amplitude * lensNoise(time, 2.9); const roll = trauma * 0.035 * lensNoise(time, 4.7)
       const offset = { x: right.x * x + up.x * y, y: up.y * y, z: right.z * x + up.z * y }
       eye.set(eye.x + offset.x, eye.y + offset.y, eye.z + offset.z)
       camera.lookAt({ x: aim.x + offset.x, y: aim.y + offset.y, z: aim.z + offset.z }, { x: up.x * Math.cos(roll) - right.x * Math.sin(roll), y: up.y * Math.cos(roll), z: up.z * Math.cos(roll) - right.z * Math.sin(roll) })
     }
-    const width = this.view.width, height = this.view.height
+    const width = this.view.width; const height = this.view.height
     const project = (x: number, y: number, z: number): { u: number, v: number, depth: number } | undefined => {
       const depth = (x - eye.x) * forward.x + (y - eye.y) * forward.y + (z - eye.z) * forward.z
-      if (depth < .3) return
+      if (depth < 0.3)
+        return
       const point = this.view.worldToScreen({ x, y, z })
-      if (point) return { u: point.x / width, v: point.y / height, depth }
+      if (point)
+        return { u: point.x / width, v: point.y / height, depth }
     }
-    const pass = this.pass, aberration = lens.extraAberration
-    pass.setLens(look.aberration + aberration * (.009 + .036 * aberration * aberration), look.vignette, width / height, look.grain)
+    const pass = this.pass; const aberration = lens.extraAberration
+    pass.setLens(look.aberration + aberration * (0.009 + 0.036 * aberration * aberration), look.vignette, width / height, look.grain)
     pass.setGrade(look.contrast, look.saturation, look.split, look.lift, look.tint, look.shadowTint, look.highlightTint)
-    pass.setGrain(time, Math.min(1, Math.max(.3, Math.abs(forward.y))))
+    pass.setGrain(time, Math.min(1, Math.max(0.3, Math.abs(forward.y))))
     pass.setFlash(lens.flashColor, lens.flashAt(time))
     const zoom = lens.zoom > 0 ? project(lens.zoomAt.x, lens.zoomAt.y, lens.zoomAt.z) : undefined
-    pass.setZoom(zoom?.u ?? .5, zoom?.v ?? .5, zoom ? lens.zoom * .14 : 0, .1)
+    pass.setZoom(zoom?.u ?? 0.5, zoom?.v ?? 0.5, zoom ? lens.zoom * 0.14 : 0, 0.1)
     const focal = camera.zoom / Math.tan(camera.fov * Math.PI / 360)
     for (let index = 0; index < 4; index++) {
-      const at = index * 5, values = lens.shocks
+      const at = index * 5; const values = lens.shocks
       const point = index < lens.shockCount ? project(values[at]!, values[at + 1]!, values[at + 2]!) : undefined
-      if (point) pass.setShock(index, point.u, point.v, Math.min(1.6, values[at + 3]! * focal * .5 / point.depth), Math.min(1.5, values[at + 4]!))
+      if (point)
+        pass.setShock(index, point.u, point.v, Math.min(1.6, values[at + 3]! * focal * 0.5 / point.depth), Math.min(1.5, values[at + 4]!))
       else pass.setShock(index, 0, 0, 0, 0)
     }
     for (let index = 0; index < 8; index++) {
-      const at = index * 5, values = lens.flares
+      const at = index * 5; const values = lens.flares
       const point = index < lens.flareCount ? project(values[at]!, values[at + 1]!, values[at + 2]!) : undefined
       if (point) {
         const border = Math.min(point.u, 1 - point.u, point.v, 1 - point.v)
-        const fade = border >= .05 ? 1 : border <= -.15 ? 0 : (border + .15) / .2
-        pass.setFlare(index, point.u, point.v, values[at + 4]! * fade, values[at + 3]!, Math.min(1.5, Math.max(.45, 5 / Math.sqrt(point.depth))))
+        const fade = border >= 0.05 ? 1 : border <= -0.15 ? 0 : (border + 0.15) / 0.2
+        pass.setFlare(index, point.u, point.v, values[at + 4]! * fade, values[at + 3]!, Math.min(1.5, Math.max(0.45, 5 / Math.sqrt(point.depth))))
       }
-      else pass.setFlare(index, 0, 0, 0, 0xffffff, 1)
+      else {
+        pass.setFlare(index, 0, 0, 0, 0xFFFFFF, 1)
+      }
     }
     const strike = lens.strike
-    this.strike.visible = strike > .01
+    this.strike.visible = strike > 0.01
     this.strike.intensity = strike * 6
     lens.endFrame()
     return strike
   }
+
   destroy(): void { this.combat.destroy() }
 }

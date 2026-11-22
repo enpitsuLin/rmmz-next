@@ -5,7 +5,8 @@ export function sound(name: string, volume = 45, pitch = 100): void {
 }
 let ducked = false
 export function duckMusic(duck: boolean): void {
-  if (duck === ducked) return
+  if (duck === ducked)
+    return
   ducked = duck
   const current = AudioManager._currentBgm
   if (current) {

@@ -98,21 +98,25 @@ export class Game_NightwardRun {
       for (const [index, key] of weaponKeys.entries()) this.actor.forceChangeEquip(index, content.weapons.get(key)![0]!)
     }
   }
+
   get build(): RunResult['build'] {
     return (this.actor.equips() as (Weapon | Passive | null)[]).flatMap(item => item ? [{ key: item.data.key, rank: item.data.rank }] : [])
   }
+
   rank(key: FamilyKey): number { return this.build.find(item => item.key === key)?.rank ?? 0 }
   weapon(key: WeaponKey): Weapon | undefined { return (this.actor.weapons() as Weapon[]).find(weapon => weapon.data.key === key) }
   passiveValue(key: PassiveKey): number {
     return (this.actor.armors() as Passive[]).find(armor => armor.data.key === key)?.data.value ?? 0
   }
+
   cooldownScale(): number { return 1 - this.passiveValue('cinder') }
   emit(event: RunEvent): void { this.events.push({ ...event, time: this.time }) }
   breakProp(prop: Prop): void { breakProp(this, prop) }
   queuePropEvent(id: number, prop: string): void { this.propEvents.push({ id, prop }) }
   propContext(interpreter: Game_Interpreter): string | undefined {
     for (let current: Game_Interpreter | null = this.interpreter; current; current = Reflect.get(current, '_childInterpreter') as Game_Interpreter | null) {
-      if (current === interpreter) return this.propEventId
+      if (current === interpreter)
+        return this.propEventId
     }
   }
 
@@ -142,37 +146,52 @@ export class Game_NightwardRun {
     this.pendingLevels = Math.max(0, this.pendingLevels + this.actor.level - previousLevel)
   }
 
-  pause(): void { if (this.state === 'running') this.state = 'paused' }
-  resume(): void { if (this.state === 'paused') this.state = 'running' }
+  pause(): void {
+    if (this.state === 'running')
+      this.state = 'paused'
+  }
+
+  resume(): void {
+    if (this.state === 'paused')
+      this.state = 'running'
+  }
+
   select(index: number): void {
     const reward = this.choices[index]
-    if (this.state !== 'choosing' || !reward) return
+    if (this.state !== 'choosing' || !reward)
+      return
     grantReward(this, reward)
     this.pendingLevels--
     this.state = 'running'
     this.choices = []
     this.checkRewards()
   }
+
   closeChest(): void {
-    if (this.state !== 'chest') return
+    if (this.state !== 'chest')
+      return
     this.chestRewards = []
     this.chestPending = false
     this.state = 'running'
     this.checkRewards()
   }
+
   private checkRewards(): void {
     if (this.chestPending) { this.state = 'chest'; return }
-    if (this.pendingLevels <= 0) return
+    if (this.pendingLevels <= 0)
+      return
     this.choices = chooseRewards(this)
     if (!this.choices.length) { this.party.gainGold(25 * this.pendingLevels); this.pendingLevels = 0; return }
     if (this.demo) { this.selectDemoReward(); return }
     this.state = 'choosing'
   }
+
   private selectDemoReward(): void {
     grantReward(this, this.choices[0]!)
     this.pendingLevels--
     this.choices = []
   }
+
   private demoInput(): Point {
     let target: Pickup | undefined
     let nearest = 7
@@ -188,8 +207,10 @@ export class Game_NightwardRun {
     const goal = target ?? { x: Math.sin(this.time * 0.13) * 5, z: 4 + Math.cos(this.time * 0.17) * 4 }
     return direction(goal.x - this.hero.x, goal.z - this.hero.z)
   }
+
   update(input: Point, dt = 1 / 60): void {
-    if (this.state !== 'running') return
+    if (this.state !== 'running')
+      return
     this.time += dt
     globals.$gameMap.update(true)
     if (!this.interpreter.isRunning()) {
@@ -203,9 +224,10 @@ export class Game_NightwardRun {
     this.props.updateEvents()
     this.world.syncProps()
     this.invulnerable = Math.max(0, this.invulnerable - dt)
-    const movement = this.demo ? this.demoInput() : input, n = Math.hypot(movement.x, movement.z) > 1 ? direction(movement.x, movement.z) : movement
-    this.hero.moving = Math.hypot(n.x, n.z) > .1
-    if (Math.abs(n.x) > .1) this.hero.facing = n.x > 0 ? 1 : -1
+    const movement = this.demo ? this.demoInput() : input; const n = Math.hypot(movement.x, movement.z) > 1 ? direction(movement.x, movement.z) : movement
+    this.hero.moving = Math.hypot(n.x, n.z) > 0.1
+    if (Math.abs(n.x) > 0.1)
+      this.hero.facing = n.x > 0 ? 1 : -1
     const speed = this.content.hero.speed * (1 + this.passiveValue('haste'))
     this.world.move(this.hero, (n.x * speed + this.hero.vx) * dt, (n.z * speed + this.hero.vz) * dt, this.content.hero.radius)
     this.hero.vx *= Math.exp(-dt * 9); this.hero.vz *= Math.exp(-dt * 9)
@@ -222,25 +244,38 @@ export class Game_NightwardRun {
     if (this.turn >= 1) {
       this.turn -= 1
       this.actor.onTurnEnd()
-      for (const enemy of this.world.enemies) if (!enemy.dead) enemy.battler.onTurnEnd()
+      for (const enemy of this.world.enemies) {
+        if (!enemy.dead)
+          enemy.battler.onTurnEnd()
+      }
     }
-    if (this.actor.isDead()) this.finish(false)
-    else if (this.bossDefeated) this.finish(true)
+    if (this.actor.isDead()) {
+      this.finish(false)
+    }
+    else if (this.bossDefeated) {
+      this.finish(true)
+    }
     else if (this.demo && this.chestPending) { this.chestPending = false; this.chestRewards = [] }
-    else this.checkRewards()
+    else {
+      this.checkRewards()
+    }
   }
+
   private finish(won: boolean): void {
     this.state = 'results'
     this.result = { won, time: this.time, level: this.actor.level, kills: this.kills, gold: this.party.gold(), build: this.build, damage: { ...this.damage } }
     this.endBattle()
   }
+
   private endBattle(): void {
-    if (this.ended) return
+    if (this.ended)
+      return
     this.ended = true
     // Keep references: setupNewGame replaces globals before another session begins.
     this.party.onBattleEnd()
     this.troop.onBattleEnd()
   }
+
   dispose(): void {
     this.endBattle()
     this.props.dispose()

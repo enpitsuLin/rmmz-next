@@ -10,9 +10,32 @@ const combatNames = ['glow', 'hotGlow', 'spark', 'puff', 'ring', 'crescent', 'bo
 export type CombatAtlas = Record<typeof combatNames[number], Texture> & { frames: Texture[] }
 export interface Animation { fps: number, width: number, height: number, textures: Texture[] }
 export interface Look {
-  exposure: number, contrast: number, saturation: number, split: number, shadowTint: number, highlightTint: number, lift: number, tint: number, vignette: number, grain: number, aberration: number,
-  bloomIntensity: number, bloomThreshold: number, bloomRadius: number, tilt: number, focus: number, fogColor: number, fogDensity: number, moonColor: number, moonIntensity: number,
-  moonGlow: number, skyColor: number, groundColor: number, hemisphere: number, skyTop: number, skyHorizon: number
+  exposure: number
+  contrast: number
+  saturation: number
+  split: number
+  shadowTint: number
+  highlightTint: number
+  lift: number
+  tint: number
+  vignette: number
+  grain: number
+  aberration: number
+  bloomIntensity: number
+  bloomThreshold: number
+  bloomRadius: number
+  tilt: number
+  focus: number
+  fogColor: number
+  fogDensity: number
+  moonColor: number
+  moonIntensity: number
+  moonGlow: number
+  skyColor: number
+  groundColor: number
+  hemisphere: number
+  skyTop: number
+  skyHorizon: number
 }
 export interface ReferenceManifest {
   animations: Record<string, { fps: number, width: number, height: number, frames: Frame[] }>
@@ -101,14 +124,17 @@ export function requestAssets(): void {
       ImageManager.loadSystem('IconSet').smooth = false
       ImageManager.loadSystem('Window').smooth = false
       ready = true
-    }).catch(error => { failure = error })
+    })
+    .catch((error) => { failure = error })
 }
 export function assetsReady(): boolean {
-  if (failure) throw failure
+  if (failure)
+    throw failure
   return ready && EffectManager.isReady()
 }
 export function getAssets(): Assets {
-  if (assets) return assets
+  if (assets)
+    return assets
   const texture = (name: string, frame?: Frame): Texture => {
     const bitmap = ImageManager.loadBitmap(folder, name)
     return new Texture({ source: bitmap.baseTexture, frame: frame ? new Rectangle(frame.x, frame.y, frame.width, frame.height) : undefined })
@@ -123,10 +149,21 @@ export function getAssets(): Assets {
   const combat = Object.fromEntries(combatNames.map(name => [name, texture('combat-fx', combatData.frames[name])])) as Record<typeof combatNames[number], Texture>
   assets = {
     actors: Object.fromEntries(actorNames.map((name, index) => [name, animations[names[index]!]!.textures])) as Assets['actors'],
-    animations, albedo: texture('actors-albedo'), normal: texture('actors-normal'), glow: texture('actors-glow'), effects, combat: { ...combat, frames: combatNames.map(name => combat[name]) },
+    animations,
+    albedo: texture('actors-albedo'),
+    normal: texture('actors-normal'),
+    glow: texture('actors-glow'),
+    effects,
+    combat: { ...combat, frames: combatNames.map(name => combat[name]) },
     hudIcons: Object.fromEntries(Object.entries(manifest.icons).map(([name, frame]) => [name, texture('icons', { x: frame.x, y: frame.y, width: frame.w, height: frame.h })])),
-    ui, glyphs: new Map(uiData.glyphs.map(glyph => [glyph.char, { advance: glyph.advance, small: glyph.frames.map(frame => texture('ui-pixels', frame)), big: glyph.bigFrames.map(frame => texture('ui-pixels', frame)) }])), uiData, sky: texture('sky'), moon: texture('moon'), mist: texture('mist'),
-    leaves: Array.from({ length: 4 }, (_, index) => texture('leaves', { x: index * 36, y: 0, width: 36, height: 36 })), manifest,
+    ui,
+    glyphs: new Map(uiData.glyphs.map(glyph => [glyph.char, { advance: glyph.advance, small: glyph.frames.map(frame => texture('ui-pixels', frame)), big: glyph.bigFrames.map(frame => texture('ui-pixels', frame)) }])),
+    uiData,
+    sky: texture('sky'),
+    moon: texture('moon'),
+    mist: texture('mist'),
+    leaves: Array.from({ length: 4 }, (_, index) => texture('leaves', { x: index * 36, y: 0, width: 36, height: 36 })),
+    manifest,
   }
   assets.sky.source.addressMode = 'repeat'
   return assets

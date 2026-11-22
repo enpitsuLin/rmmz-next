@@ -10,7 +10,7 @@ export type EnemyKey = 'bat' | 'skeleton' | 'ghoul' | 'wraith' | 'skull' | 'reap
 export type PickupKey = 'gemSmall' | 'gemMedium' | 'gemBig' | 'coin' | 'chicken' | 'vacuum' | 'relic' | 'chest'
 export type Layer = 'ground' | 'air' | 'ghost'
 export interface WeaponData {
-key: WeaponKey
+  key: WeaponKey
   rank: number
   knockback: number
   cooldown?: number
@@ -91,28 +91,38 @@ export function readContent(): Content {
   for (const key of weaponKeys) weapons.set(key, [])
   for (const key of passiveKeys) passives.set(key, [])
   for (const weapon of globals.$dataWeapons.slice(1)) {
-    if (!weapon) continue
+    if (!weapon)
+      continue
     const data = metadata<WeaponData>(weapon)
     // Keep database identity for Game_Item and the native equipment APIs.
     weapons.get(data.key)!.push(Object.assign(weapon, { data }))
   }
   for (const armor of globals.$dataArmors.slice(1)) {
-    if (!armor) continue
+    if (!armor)
+      continue
     const data = metadata<PassiveData>(armor)
     passives.get(data.key)!.push(Object.assign(armor, { data }))
   }
   for (const skill of globals.$dataSkills.slice(1)) {
-    if (!skill) continue
+    if (!skill)
+      continue
     const data = metadata<{ category: string, key: string }>(skill)
-    if (data.category === 'enemyAttack') enemySkills.set(data.key, skill.id)
+    if (data.category === 'enemyAttack')
+      enemySkills.set(data.key, skill.id)
   }
-  for (const enemy of globals.$dataEnemies.slice(1)) if (enemy) enemies.set(metadata<EnemyData>(enemy).key, { ...enemy, data: metadata<EnemyData>(enemy) })
+  for (const enemy of globals.$dataEnemies.slice(1)) {
+    if (enemy)
+      enemies.set(metadata<EnemyData>(enemy).key, { ...enemy, data: metadata<EnemyData>(enemy) })
+  }
   for (const item of globals.$dataItems.slice(1)) {
     if (item)
       items.set(metadata<{ key: PickupKey }>(item).key, item)
   }
   return {
-    weapons, passives, enemies, items,
+    weapons,
+    passives,
+    enemies,
+    items,
     formations: {
       swarm: metadata({ note: globals.$dataTroops[1]!.pages[0]!.list[0]!.parameters[0] as string }),
       ring: metadata({ note: globals.$dataTroops[2]!.pages[0]!.list[0]!.parameters[0] as string }),

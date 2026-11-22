@@ -22,7 +22,7 @@ export interface Records {
 export const records: Records = { runs: 0, wins: 0, bestTime: 0, bestLevel: 1, bestKills: 0, bestGold: 0, fastestWin: null }
 let loaded: Promise<void> | undefined
 export function loadRecords(): Promise<void> {
-  loaded ??= StorageManager.loadObject<Records>('nightward-records').then(value => { Object.assign(records, value) }).catch(() => {})
+  loaded ??= StorageManager.loadObject<Records>('nightward-records').then((value) => { Object.assign(records, value) }).catch(() => {})
   return loaded
 }
 export async function saveResult(result: RunResult): Promise<void> {
@@ -33,6 +33,7 @@ export async function saveResult(result: RunResult): Promise<void> {
   records.bestLevel = Math.max(records.bestLevel, result.level)
   records.bestKills = Math.max(records.bestKills, result.kills)
   records.bestGold = Math.max(records.bestGold, result.gold)
-  if (result.won) records.fastestWin = Math.min(records.fastestWin ?? Infinity, result.time)
+  if (result.won)
+    records.fastestWin = Math.min(records.fastestWin ?? Infinity, result.time)
   await StorageManager.saveObject('nightward-records', records)
 }
