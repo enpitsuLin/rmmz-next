@@ -1,9 +1,10 @@
 import type { Plugin, ResolvedConfig, Rollup } from 'vite'
 import type { RMMZPluginConfig, RMMZPluginOptions } from './types'
-import { copyFile, readFile, stat } from 'node:fs/promises'
-import { join, resolve, sep } from 'node:path'
+import { copyFile, mkdir, readFile, stat, writeFile } from 'node:fs/promises'
+import { dirname, join, resolve, sep } from 'node:path'
 import {
   ASSET_DIRS,
+  EMPTY_PLUGINS_SOURCE,
   PLUGIN_VIRTUAL_PREFIX,
   PLUGINS_DIR,
   PLUGINS_FILE,
@@ -141,6 +142,10 @@ export async function loadPlugins() {
           }
         }
       }
+
+      const pluginsOutput = join(output.dir, PLUGINS_FILE)
+      await mkdir(dirname(pluginsOutput), { recursive: true })
+      await writeFile(pluginsOutput, EMPTY_PLUGINS_SOURCE)
 
       log(`已复制游戏资源到: ${output.dir}`)
     },
