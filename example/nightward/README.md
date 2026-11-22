@@ -75,13 +75,13 @@
 
 5. **原版资产**
 
-   角色、敌人、拾取物、武器物件、墓园贴图、几何、UI、位图字形、月亮、配乐和音效均由官方 Nightward 的程序生成器编译。已移除上一版自行绘制的简化素材和替代音乐。
+   角色、敌人、拾取物、武器物件、墓园贴图、几何、UI、位图字形、月亮、配乐和音效来自官方 Nightward 程序生成器的离线输出。
 
-   `img/nightward/reference/` 保存原版图集、法线、自发光和来源清单；`models/` 保存内嵌几何、材质和贴图的标准 GLB，旧自定义几何包已移除。玩法继续使用 RMMZ 的角色、武器、防具、内部攻击技能、状态、敌人、物品和存储。
+   `img/nightward/reference/` 保存运行时图集、法线、自发光和来源清单。`models/` 保存内嵌几何、材质和贴图的标准 GLB。
 
    场景 Prop 的碰撞位置已同步原版墓园。相机、月光、火光、材质粗糙度、雾、泛光和景深参数也已按原版接入。界面使用 RMMZ `Window` / `Window_Selectable` 与原版风格的 `img/system/Window.png`，保留原版像素比例、布局和动画时序。字效、光晕与飞行图标继续使用 Pixi，选项处理由原生选择窗口管理。标题、HUD、升级/宝箱、暂停与结算的实现见 [UI 说明](docs/ui-replication.md)。
 
-   六种武器和火盆特效由 RMMZ 现有 Effekseer 运行时绘制，沿用原版贴图、轨迹、粒子参数和时序；灯光、镜头与后处理继续使用 Pixi3D。首次出手、连发、法典休眠和火池伤害时序同步原版。Cinder 每级减少 8% 冷却，Haste 每级增加 10% 移速，见 [武器说明](docs/weapon-replication.md) 和 [Effekseer 说明](docs/effekseer.md)。
+   六种武器的特效、战斗光照和镜头后处理由 Pixi3D 绘制，火盆火焰和余辉由 RMMZ 的 Effekseer 运行时绘制。详见 [武器说明](docs/weapon-replication.md) 和 [Effekseer 说明](docs/effekseer.md)。
 
    启动和构建直接使用随工程提供的数据和素材。游戏数据可在 RMMZ 编辑器中修改，素材的来源与转换方式见 [资产来源说明](docs/reference-assets.md)。
 
@@ -93,10 +93,6 @@
    ```
 
    构建目录为本工程的 `dist`。浏览器使用 IndexedDB，NW.js 使用原生 StorageManager 存储；纪录键为 `nightward-records`，选项存入 `config`。演示和未完成对局不计入纪录。
-
-7. **交付约定**
-
-   未添加测试框架；GLB 迁移执行必要的类型、构建与资产检查，未代理试玩。由用户运行本工程并测试。实现范围与设计依据见 `docs/nightward-replication-plan.md`。
 
 ## 源码结构
 

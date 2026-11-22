@@ -4,9 +4,7 @@
 
    以 [官方 Nightward 发布脚本](https://goodstuff.pixijs.io/nightward/assets/start-DZtWMAL3.js) 中的实际模拟参数和绘制代码为准。
 
-   `js/nightward/reference/combat.js` 包含离线提取的六种武器绘制模块、粒子着色器、命中效果和镜头后处理。文件头记录来源和 SHA-256。
-
-   `sprites/Spriteset_NightwardEffects.ts` 将本工程的角色、飞弹、法典、法阵、火池和战斗事件提供给绘制模块。攻击、伤害、成长和状态仍由 `Game_NightwardRun`、RMMZ `Game_Action` 和数据库负责。
+   [Spriteset_NightwardEffects.ts](../js/nightward/sprites/Spriteset_NightwardEffects.ts) 将角色、飞弹、法典、法阵、火池和战斗事件提供给 [Pixi3D 特效模块](../js/nightward/sprites/effects)。攻击、伤害、成长和状态由 `Game_NightwardRun`、RMMZ `Game_Action` 和数据库负责。
 
 2. **武器表现**
 
@@ -19,7 +17,7 @@
    | Ward | 多层光环、双向旋转符文、随伤害节拍扩散的脉冲、尘雾与上升光点 |
    | Flask | 抛物线、瓶身旋转、尾焰、破碎爆燃、碎片、持续橙色火焰与燃尽焦痕 |
 
-   已撤下原有扁平鞭圈、单点飞弹、竖向闪电贴图、普通法阵圆环和绿色火池。镜头后处理使用原版闪光、冲击波、炫光、色彩分级和颗粒着色器，取代此前的简化色彩滤镜，避免重复叠加。HUD 与原生窗体不经过世界后处理。
+   镜头后处理包含闪光、冲击波、炫光、色彩分级和颗粒效果。HUD 与原生窗体不经过世界后处理。
 
 3. **出手节奏**
 
@@ -47,13 +45,9 @@
 
 5. **资产和生命周期**
 
-   `combat-fx.png` 和 `combat-fx.json` 已随工程提供。粒子、光束、地面效果、书本与药瓶由 RMMZ 现有 Effekseer 运行时绘制，沿用原版容量、贴图、轨迹和时序。临时光源与镜头继续使用 Pixi3D。实例随视图销毁停止；共享图集与 EffectManager 资源缓存保留。武器光效跟随世界时间，暂停、升级和宝箱选择期间冻结，新一局重新初始化。资源制作和职责边界见 [Effekseer 说明](effekseer.md)。
+   `combat-fx.png` 和 `combat-fx.json` 提供战斗图集和帧清单。粒子、光束、地面效果、书本、药瓶、临时光源与镜头效果由 Pixi3D 绘制。武器光效跟随世界时间，暂停、升级和宝箱选择期间冻结，新一局重新初始化。
 
-6. **交付约定**
-
-   未执行测试、类型检查、lint、构建或代理试玩。以上为源码与资源实施记录，实际运行表现由用户自行测试。
-
-7. **原生装备构筑**
+6. **原生装备构筑**
 
    - `Weapons.json` 保存六种武器各五阶，共 30 条；`Armors.json` 保存四种被动各五阶，共 20 条，装备类型按被动区分：Might（ID 2）、Haste（ID 3）、Lodestone（ID 4）、Cinder（ID 5）；防具类型为 Nightward（ID 1），武器类型同样为 Nightward（ID 1）。
    - Nightward 职业使用六个类型 1 的武器槽及类型 2、3、4、5 各一个的被动槽，职业特性提供对应的武器和防具装备许可。初始 Lash 一阶来自 Actor 初始装备，职业不再自动学习武器技能。
@@ -65,6 +59,6 @@
    - 名称、图标和逐阶描述直接使用数据库原生字段。武器的 `nightward` 备注保存 `key`、`rank` 以及冷却、数量、范围和轨迹参数。饰品备注保存 `key`、`rank`、`value`。
    - 升级、宝箱、新武器提示及结算共用数据库文案。
    - 每件武器配置一条“添加技能”特性，技能 ID 取自该特性的 `dataId`。出手与命中逐件读取来源武器的绑定，不通过角色汇总技能或 `attackSkillId()` 选择，六件武器可同时运行各自攻击。装备提供的技能由原生特性系统管理，无需 learnSkill；不保留备注 skillId 的兼容读取。
-   - 原始数据库对象保留身份，用于原生 `Game_Item` 和装备接口；备注只在内容载入时解析。出手、飞弹、火池和 Effekseer 生命周期保持原有规则。
+   - 原始数据库对象保留身份，用于原生 `Game_Item` 和装备接口；备注只在内容载入时解析。
 
-   数据职责依据 [RMMZ 官方武器与防具说明](https://rpgmakerofficial.com/product/MZ_help-en/01_08_05.html)。本次未运行自动化验证或游戏，由用户自行测试。
+   数据职责依据 [RMMZ 官方武器与防具说明](https://rpgmakerofficial.com/product/MZ_help-en/01_08_05.html)。
