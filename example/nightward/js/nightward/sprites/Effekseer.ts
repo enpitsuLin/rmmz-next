@@ -349,7 +349,7 @@ export class EffekseerPass extends Pass3D {
       gl.cullFace(gl.BACK)
       renderer.resetState()
       // resetState clears the winding inversion of the still-bound 3D target.
-      renderer.state.onRenderTargetChange(renderer.renderTarget.renderTarget)
+      renderer.renderTarget.onRenderTargetChange.emit(renderer.renderTarget.renderTarget)
       session.activeTarget = null
     }
   }
