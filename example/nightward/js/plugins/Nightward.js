@@ -11,6 +11,42 @@
  * @text Pause Nightward
  * @desc Open the current run's pause overlay.
  *
+ * @command PhaseNotice
+ * @text Show Stage Notice
+ * @arg message
+ * @type string
+ *
+ * @command PhaseBanner
+ * @text Show Stage Banner
+ * @arg title
+ * @type string
+ * @arg subtitle
+ * @type string
+ * @arg style
+ * @type select
+ * @option Gold
+ * @value 1
+ * @option Warning
+ * @value 2
+ * @default 1
+ * @arg hold
+ * @text Hold (seconds)
+ * @type number
+ * @decimals 2
+ * @min 0
+ * @default 2
+ * @arg slam
+ * @text Slam Entrance
+ * @type boolean
+ * @default false
+ *
+ * @command TimerWarning
+ * @text Set Timer Warning
+ * @desc Enabling the warning also pulses the timer.
+ * @arg enabled
+ * @type boolean
+ * @default true
+ *
  * @command PropMove
  * @text Move Prop
  * @arg target
@@ -62,6 +98,12 @@
  * @min 0
  * @max 1
  * @default 1
+ * @arg duration
+ * @text Duration (seconds)
+ * @type number
+ * @decimals 3
+ * @min 0
+ * @default 0
  *
  * @command PropCommonEvent
  * @text Call Common Event for Props
@@ -86,6 +128,8 @@
  * Props use GLB nodes and extras.nightward; ordinary Props need no map events.
  * Logic event comments: <prop:brazier:1> <propOffset:0,0,0>.
  * Command targets accept a stable ID, #tag, or @context inside a Prop common event.
+ * Stage common events begin with a comment such as <nightwardPhase:60>.
+ * Use start, boss, bossDeath, or elapsed seconds. Add ,demo to include the title demo.
  *
  * Move: WASD / arrows / gamepad / drag. Weapons fire automatically.
  * Pause: Esc / P / Start. M: mute. F: fullscreen. 1–3: select an upgrade.

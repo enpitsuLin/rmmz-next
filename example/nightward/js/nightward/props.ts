@@ -22,7 +22,7 @@ export interface Prop {
   hp: number
   broken: boolean
   brokenAt: number
-  doorOpen?: number
+  doorMotion?: { from: number, to: number, start: number, duration: number }
 }
 interface EventDriver {
   event: Game_Event
@@ -113,8 +113,8 @@ export class PropManager {
     return true
   }
 
-  open(prop: Prop, amount: number): void {
-    prop.doorOpen = Math.max(0, Math.min(1, amount))
+  open(prop: Prop, amount: number, time: number, duration: number): void {
+    prop.doorMotion = { from: this.doorAmount(prop, time), to: Math.max(0, Math.min(1, amount)), start: time, duration }
   }
 
   remove(prop: Prop): void {
@@ -128,7 +128,13 @@ export class PropManager {
   }
 
   doorAmount(prop: Prop, time: number): number {
-    return prop.doorOpen ?? Math.max(0, Math.min(1, (time - 170) / 10))
+    const motion = prop.doorMotion
+    if (!motion)
+      return 0
+    const elapsed = time - motion.start
+    if (elapsed >= motion.duration)
+      return motion.to
+    return motion.from + (motion.to - motion.from) * (elapsed / motion.duration)
   }
 
   updateEvents(): void {

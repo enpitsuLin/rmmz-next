@@ -75,16 +75,42 @@ const itemValues = [
 ]
 json('Items', [null, ...itemValues.map(([key, name, description, xp], i) => ({ id: i + 1, name, description, iconIndex: 106 + i, consumable: true, itypeId: 1, occasion: 0, price: 0, scope: key === 'chicken' ? 7 : 0, speed: 0, successRate: 100, repeats: 1, tpGain: 0, hitType: 0, animationId: 0, damage: { critical: false, elementId: 0, formula: '0', type: 0, variance: 0 }, effects: key === 'chicken' ? [{ code: 11, dataId: 0, value1: 0, value2: 30 }] : [], note: note({ key, xp }) }))])
 if (!existsSync(`${root}data/CommonEvents.json`)) {
-  const names = ['Night Begins', 'Reaper Arrives', 'Dawn', 'Fallen']
-  const tracks = ['Nightward', 'Reaper', 'Dawn', 'Nightward']
-  const commonEvents = names.map((name, i) => {
-    const list = [{ code: 241, indent: 0, parameters: [{ name: tracks[i], volume: 65, pitch: 100, pan: 0 }] }]
-    if (i === 1)
-      list.push({ code: 250, indent: 0, parameters: [{ name: 'Reaper', volume: 75, pitch: 100, pan: 0 }] })
-    list.push({ code: 0, indent: 0, parameters: [] })
-    return { id: i + 1, name, trigger: 0, switchId: 1, list }
-  })
-  json('CommonEvents', [null, ...commonEvents])
+  const command = (code, ...parameters) => ({ code, indent: 0, parameters })
+  const event = (id, name, list) => ({ id, name, trigger: 0, switchId: 1, list: [...list, command(0)] })
+  const phase = at => command(108, `<nightwardPhase:${at}>`)
+  const bgm = name => command(241, { name, volume: 65, pitch: 100, pan: 0 })
+  const se = (name, volume) => command(250, { name, volume, pitch: 100, pan: 0 })
+  const plugin = (name, label, args) => [
+    command(357, 'Nightward', name, label, args),
+    ...Object.entries(args).map(([key, value]) => command(657, `${key} = ${value}`)),
+  ]
+  const banner = (title, subtitle, style, hold, slam = 'false') => plugin('PhaseBanner', 'Show Stage Banner', { title, subtitle, style, hold, slam })
+  const notice = message => plugin('PhaseNotice', 'Show Stage Notice', { message })
+  const warning = enabled => plugin('TimerWarning', 'Set Timer Warning', { enabled })
+  const countdown = Array.from({ length: 10 }, (_, second) => [
+    command(117, 10),
+    ...(second < 3 ? [se('Warn', 50)] : []),
+    command(230, 60),
+  ]).flat()
+  json('CommonEvents', [
+    null,
+    event(1, 'Night Begins', [bgm('Nightward')]),
+    event(2, 'Reaper Arrives', [phase('boss'), bgm('Reaper'), se('Reaper', 75), ...banner('GRAVE REAPER', 'Slay him to win the night', '2', '2.2', 'true'), se('Swoosh', 40)]),
+    event(3, 'Dawn', [bgm('Dawn')]),
+    event(4, 'Fallen', [bgm('Nightward')]),
+    // The original delayed banner first appeared on simulation frame 31.
+    event(5, 'Opening Banner', [phase('start'), command(230, 31), ...banner('SURVIVE THE NIGHT', 'The Grave Reaper rises at 3:00', '1', '2'), se('Swoosh', 40)]),
+    event(6, 'First Minute', [phase(60), ...notice('The horde grows'), se('Swoosh', 35)]),
+    event(7, 'Second Minute', [phase(120), ...notice('One minute till the Reaper'), se('Swoosh', 35)]),
+    event(8, 'Open the Crypt', [
+      phase('170,demo'),
+      ...plugin('PropVisible', 'Show / Hide Props', { target: '#crypt', visible: 'true' }),
+      ...plugin('PropDoor', 'Open / Close Prop Doors', { target: '#crypt', amount: '1', duration: '10' }),
+    ]),
+    event(9, 'Crypt Warning', [phase(170), ...banner('THE CRYPT STIRS', 'Ready yourself', '2', '2.6'), se('Swoosh', 40), ...countdown, ...warning('false')]),
+    event(10, 'Countdown Tick', [...warning('true'), se('Tick', 20)]),
+    event(11, 'Reaper Defeated', [phase('bossDeath'), se('Relic', 75)]),
+  ])
 }
 json('Animations', [null])
 const tiles = new Array(181 * 181 * 6).fill(0)

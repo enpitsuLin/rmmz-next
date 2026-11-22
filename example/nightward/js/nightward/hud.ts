@@ -22,10 +22,10 @@ class Banner extends Container {
   private plate = panel(1, 1, 'softRect')
   private body = new Container()
   private diamonds = [sprite('diamond'), sprite('diamond')]
-  private age: number
+  private age = 0
   private heightF = 0
-  constructor(main: string, sub: string, style: number, private hold: number, private slam = false, delay = 0) {
-    super({ eventMode: 'none' }); this.age = -delay
+  constructor(main: string, sub: string, style: number, private hold: number, private slam: boolean) {
+    super({ eventMode: 'none' })
     const l = uiLayout(), max = slam ? 2 * l.unit : largeScale(l.unit), titleScale = l.short ? l.unit : fitScale(new UiText(main, style, .5, true).textWidth, l.width - 2 * l.margin - 40 * l.unit, max)
     this.heading = new Heading(main, style); this.heading.configure({ halo: 0, lettersAt: .08, drop: 10, letterSeconds: .32, strength: 1.7, stagger: .03, rulesAt: 100, diamondsAt: 100, glintAt: Infinity })
     const titleH = this.heading.layout(titleScale, l.unit, l.w / 2, 0), half = Math.ceil(this.heading.title.textWidth * titleScale / l.unit / 2)
@@ -41,17 +41,15 @@ class Banner extends Container {
     this.position.set(Math.round(l.w / 2) * l.unit, (l.short ? l.h - 8 - this.heightF : Math.max(Math.ceil(band / l.unit) + 12, Math.round(l.h * .28))) * l.unit)
   }
   tick(dt: number): boolean {
-    const before = this.age
     this.age += dt; const age = this.age, still = reducedMotion(), end = .4 + this.hold
-    if (before < 0 && age >= 0) sound('Swoosh', 40)
-    this.visible = age >= 0; this.heading.animate(this.slam ? age + 2 : age)
+    this.heading.animate(this.slam ? age + 2 : age)
     this.plate.scale.x = still ? 1 : out(phase(age, this.slam ? .16 : 0, .25), 4)
     this.subtitle.alpha = out(phase(age, .4, .3)); this.subtitle.y = 8 + this.heading.title.capHeight * this.heading.title.scale.y + 6 + Math.round((still ? 0 : this.slam ? 4 : 3) * (1 - out(phase(age, .4, .3))))
     this.diamonds.forEach(node => { node.scale.set(still ? 1 : back(phase(age, .3, .2), 2.5)); node.alpha = .8 + .2 * Math.cos(age * Math.PI / .8) })
     this.body.scale.set(!still && this.slam ? 2.2 - 1.2 * phase(age, 0, .16) ** 5 : 1)
     this.body.alpha = this.slam && !still ? phase(age, 0, .06) : 1
     this.body.x = !still && this.slam && age >= .16 && age < .46 ? [1, -1, 1, -1, 1, 0][Math.round(phase(age, .16, .3) * 5)]! : 0
-    this.alpha = age < 0 ? 0 : still ? phase(age, 0, .15) * (1 - phase(age, .15 + this.hold, .15)) : 1 - phase(age, end, .35) ** 3
+    this.alpha = still ? phase(age, 0, .15) * (1 - phase(age, .15 + this.hold, .15)) : 1 - phase(age, end, .35) ** 3
     return age >= (still ? this.hold + .3 : end + .35)
   }
 }
@@ -107,7 +105,6 @@ export class Hud extends Container {
   private bossShown = 0
   private bossHp = 0
   private bossHit = 0
-  private previousTime = 0
   private previousLevel = 1
   private previousKills = 0
   private previousGold = 0
@@ -122,6 +119,7 @@ export class Hud extends Container {
   private goldAge = 10
   private goldPopAge = 10
   private timerAge = 10
+  private timerWarning = false
   private goldY = 0
   private uiTime = 0
   private lowAlpha = 0
@@ -181,8 +179,7 @@ export class Hud extends Container {
   }
   setShown(to: boolean, duration = .2, delay = 0): void { this.shown = { from: this.shown.value, to: Number(to), age: 0, duration, delay, value: this.shown.value } }
   setModal(open: boolean): void { this.modal = open; if (open) this.blockPointer() }
-  playIntro(hint: boolean): void {
-    this.showBanner('SURVIVE THE NIGHT', 'The Grave Reaper rises at 3:00', 1, 2, false, .5)
+  showMoveHint(hint: boolean): void {
     if (hint) {
       const l = uiLayout(), root = new Container(), body = new Container(), sub = text('Your weapons fire on their own', 0, 25, 0, colors.blue, .5)
       const cap = (value: string): { node: Container, width: number } => {
@@ -288,16 +285,29 @@ export class Hud extends Container {
     this.bossArrow.scale.set(2 * u); this.arrowGlow.width = this.arrowGlow.height = 40 * u
     this.banner?.place(this.bandBottom)
   }
-  private showBanner(main: string, sub: string, style: number, hold: number, slam = false, delay = 0): void {
-    this.banner?.destroy({ children: true }); this.banner = new Banner(main, sub, style, hold, slam, delay); this.banner.place(this.bandBottom); this.moments.addChild(this.banner)
-    if (!delay) sound('Swoosh', 40)
+
+  showBanner(main: string, sub: string, style: number, hold: number, slam: boolean): void {
+    this.banner?.destroy({ children: true })
+    this.banner = new Banner(main, sub, style, hold, slam)
+    this.banner.place(this.bandBottom)
+    this.moments.addChild(this.banner)
   }
-  private showMinute(value: string): void {
+
+  showNotice(value: string): void {
     this.minute?.node.destroy({ children: true })
     const l = uiLayout(), node = new Container(), line = text(value, 0, 8, 0, colors.text, .5), plate = panel(line.textWidth + 24, 23, 'softRect')
     plate.pivot.x = Math.round((line.textWidth + 24) / 2); plate.tint = 0; plate.alpha = .5; node.addChild(plate, line); node.scale.set(l.unit); node.position.set(Math.round(l.w / 2) * l.unit, l.short ? l.height - 27 * l.unit : this.timerBottom + 6 * l.unit)
-    this.moments.addChild(node); this.minute = { node, age: 0 }; this.timerAge = 0; sound('Swoosh', 35)
+    this.moments.addChild(node)
+    this.minute = { node, age: 0 }
+    this.timerAge = 0
   }
+
+  setTimerWarning(enabled: boolean): void {
+    this.timerWarning = enabled
+    if (enabled)
+      this.timerAge = 0
+  }
+
   private callout(value: string, style: number, tint: number, big = false, heart = false): void {
     const node = new Container(), l = uiLayout(), line = text(value, 0, 0, style, tint, .5, big)
     if (big) line.scale.set(largeScale(l.unit) / l.unit)
@@ -328,7 +338,7 @@ export class Hud extends Container {
         if (event.pickup === 'relic') this.callout('RELIC!', 3, 0xffffff, true)
       }
       if (event.kind === 'chest' && !event.value) { this.callout('+100 GOLD', 1, 0xffffff); this.goldPopAge = 0 }
-      if (event.kind === 'boss') { this.bossAge = 0; this.showBanner('GRAVE REAPER', 'Slay him to win the night', 2, 2.2, true) }
+      if (event.kind === 'boss') this.bossAge = 0
       if (event.kind === 'bossDeath') this.bossDeadAt = 0
       if (event.kind === 'hit' && settings.damageNumbers && this.numberBudget >= 1) {
         this.numberBudget--; const crit = event.value! >= 30, node = new UiText(String(Math.max(1, Math.round(event.value!))), crit ? 3 : 0, .5, crit)
@@ -342,10 +352,9 @@ export class Hud extends Container {
       else if (this.killAge > .15) { this.killAge = 0; this.killPeak = 1.18 }
     }
     if (run.party.gold() > this.previousGold && this.goldAge > .12) this.goldAge = 0
-    for (const at of [60, 120]) if (this.previousTime < at && run.time >= at) this.showMinute(at === 60 ? 'The horde grows' : 'One minute till the Reaper')
-    if (this.previousTime < 170 && run.time >= 170) this.showBanner('THE CRYPT STIRS', 'Ready yourself', 2, 2.6)
-    if (run.time >= 170 && run.time < 180 && Math.floor(run.time) !== Math.floor(this.previousTime)) { this.timerAge = 0; sound('Tick', 20); if ([170, 171, 172].includes(Math.floor(run.time))) sound('Warn', 50) }
-    this.previousTime = run.time; this.previousLevel = run.actor.level; this.previousKills = run.kills; this.previousGold = run.party.gold()
+    this.previousLevel = run.actor.level
+    this.previousKills = run.kills
+    this.previousGold = run.party.gold()
     this.xpAge += dt; this.levelAge += dt; this.killAge += dt; this.skullAge += dt; this.goldAge += dt; this.goldPopAge += dt; this.timerAge += dt
     const levelStart = run.actor.currentLevelExp()
     const exp = run.actor.currentExp() - levelStart
@@ -360,7 +369,7 @@ export class Hud extends Container {
     this.xpFlash.alpha = (still ? .34 : .85) * (1 - out(phase(this.levelAge, 0, .6)))
     this.level.text = `LV ${run.actor.level}`; this.level.tint = mixColor(16767336, 0xffffff, out(phase(this.levelAge, 0, .5))); this.level.scale.set(s * (still ? 1 : 1.7 - .7 * back(phase(this.levelAge, 0, .4), 3)))
     this.xpSparkles.forEach((node, i) => { const p = phase(this.levelAge, i * .05, .5); node.scale.set(!still && p < 1 ? Math.sin(p * Math.PI) * 1.2 * s : 0); node.rotation = p * Math.PI / 4 })
-    this.timer.text = clock(run.time); this.timer.tint = run.time >= 170 && run.time < 180 ? 16743014 : mixColor(colors.gold, 0xffffff, out(phase(this.timerAge, 0, .5))); this.timer.scale.set(u * (still ? 1 : 1.25 - .25 * back(phase(this.timerAge, 0, .3), 3)))
+    this.timer.text = clock(run.time); this.timer.tint = this.timerWarning ? 16743014 : mixColor(colors.gold, 0xffffff, out(phase(this.timerAge, 0, .5))); this.timer.scale.set(u * (still ? 1 : 1.25 - .25 * back(phase(this.timerAge, 0, .3), 3)))
     this.kills.text = String(run.kills); this.kills.scale.set(u * (still ? 1 : this.killPeak - (this.killPeak - 1) * (this.killPeak === 1.18 ? out(phase(this.killAge, 0, .18)) : back(phase(this.killAge, 0, .3), 3))))
     this.kills.tint = mixColor(16767336, 0xffffff, out(phase(this.skullAge, 0, .4))); this.killIcon.scale.set(s * (still ? 1 : 1.5 - .5 * back(phase(this.skullAge, 0, .3), 3)))
     this.gold.text = String(run.party.gold()); this.gold.y = this.goldY - (still ? 0 : Math.round(2 * Math.sin(phase(this.goldAge, 0, .25) * Math.PI)) * u); this.coinIcon.scale.x = s * (still ? 1 : 1 - .85 * Math.sin(phase(this.goldAge, 0, .2) * Math.PI))

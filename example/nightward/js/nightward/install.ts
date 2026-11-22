@@ -32,6 +32,21 @@ export function installNightward(): void {
     const scene = SceneManager._scene
     if (scene instanceof Scene_Nightward) scene.pause()
   })
+  PluginManager.registerCommand('Nightward', 'PhaseNotice', (args) => {
+    const scene = SceneManager._scene
+    if (scene instanceof Scene_Nightward)
+      scene.showNotice(args.message)
+  })
+  PluginManager.registerCommand('Nightward', 'PhaseBanner', (args) => {
+    const scene = SceneManager._scene
+    if (scene instanceof Scene_Nightward)
+      scene.showBanner(args.title, args.subtitle, Number(args.style), Number(args.hold), args.slam === 'true')
+  })
+  PluginManager.registerCommand('Nightward', 'TimerWarning', (args) => {
+    const scene = SceneManager._scene
+    if (scene instanceof Scene_Nightward)
+      scene.setTimerWarning(args.enabled === 'true')
+  })
   for (const command of ['PropMove', 'PropVisible', 'PropBreak', 'PropDoor', 'PropCommonEvent', 'PropContext']) {
     PluginManager.registerCommand('Nightward', command, function (this: Game_Interpreter, args) {
       const scene = SceneManager._scene
@@ -46,7 +61,7 @@ export function installNightward(): void {
         }
         else if (command === 'PropVisible') run.props.show(prop, args.visible === 'true')
         else if (command === 'PropBreak') run.breakProp(prop)
-        else if (command === 'PropDoor') run.props.open(prop, Number(args.amount))
+        else if (command === 'PropDoor') run.props.open(prop, Number(args.amount), run.time, Number(args.duration ?? 0))
         else if (command === 'PropCommonEvent') run.queuePropEvent(Number(args.commonEvent), prop.id)
       }
       run.world.syncProps()
