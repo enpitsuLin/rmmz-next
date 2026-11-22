@@ -25,7 +25,7 @@ export interface DelayedCast { at: number, mode: 'lash' | 'bolt' | 'storm' | 'fl
 export interface TomeState { active: boolean, timer: number, fade: number, angle: number, count: number, radius: number, hits: Map<number, number> }
 function splash(run: RunSession, weapon: Weapon, point: Point, radius: number): void {
   for (const enemy of run.world.nearby(point, radius)) hitEnemy(run, enemy, weapon, point)
-  hitProps(run, point, radius, weapon.data.damage)
+  hitProps(run, point, radius, weapon)
 }
 function lash(run: RunSession, weapon: Weapon, side: number): void {
   const data = weapon.data, reach = data.reach!, height = data.halfHeight!, origin = { ...run.hero }
@@ -35,7 +35,7 @@ function lash(run: RunSession, weapon: Weapon, side: number): void {
   }
   run.emit({ kind: 'lash', x: origin.x, z: origin.z, value: reach, extra: height, side })
   for (const enemy of run.world.nearby(origin, reach)) if (contains(enemy, enemy.radius)) hitEnemy(run, enemy, weapon, { x: enemy.x - side, z: enemy.z })
-  hitProps(run, origin, reach, data.damage, prop => (prop.x - origin.x) * side > -.25 && contains(prop, .45))
+  hitProps(run, origin, reach, weapon, prop => (prop.x - origin.x) * side > -.25 && contains(prop, .45))
 }
 function castDelayed(run: RunSession, cast: DelayedCast): void {
   const weapon = run.weapon(cast.weapon.data.key)!, { mode } = cast, data = weapon.data
@@ -93,7 +93,7 @@ function stepTomes(run: RunSession, dt: number): void {
       tomes.hits.set(enemy.id, run.time)
       hitEnemy(run, enemy, weapon, run.hero)
     }
-    hitProps(run, point, data.radiusHit!, data.damage)
+    hitProps(run, point, data.radiusHit!, weapon)
   }
 }
 function ready(run: RunSession, weapon: Weapon, dt: number): boolean {
@@ -177,7 +177,7 @@ export function stepProjectiles(run: RunSession, dt: number): void {
     }
     else if (projectile.kind === 'wave') {
       if (projectile.pierce && distance(projectile, run.hero) < run.content.formations.reaper.waveRadius + run.content.hero.radius) {
-        hurtHero(run, projectile.caster!, run.content.formations.reaper.damage, projectile, true)
+        hurtHero(run, projectile.caster!, projectile)
         projectile.pierce = 0
       }
     }
@@ -190,7 +190,7 @@ export function stepProjectiles(run: RunSession, dt: number): void {
         if (--projectile.pierce === 0) return false
       }
       const brazier = run.world.props.find(prop => prop.active && prop.kind === 'brazier' && !prop.broken && distance(prop, projectile) <= radius + prop.radius)
-      if (brazier) { hitProps(run, projectile, radius, weapon.data.damage); return false }
+      if (brazier) { hitProps(run, projectile, radius, weapon); return false }
       if (Math.abs(projectile.x) > 100 || Math.abs(projectile.z) > 100) return false
     }
     return projectile.age < projectile.life

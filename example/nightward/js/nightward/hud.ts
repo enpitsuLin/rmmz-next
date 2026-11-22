@@ -347,7 +347,10 @@ export class Hud extends Container {
     if (run.time >= 170 && run.time < 180 && Math.floor(run.time) !== Math.floor(this.previousTime)) { this.timerAge = 0; sound('Tick', 20); if ([170, 171, 172].includes(Math.floor(run.time))) sound('Warn', 50) }
     this.previousTime = run.time; this.previousLevel = run.actor.level; this.previousKills = run.kills; this.previousGold = run.party.gold()
     this.xpAge += dt; this.levelAge += dt; this.killAge += dt; this.skullAge += dt; this.goldAge += dt; this.goldPopAge += dt; this.timerAge += dt
-    const exp = run.actor.currentExp() - run.actor.expForLevel(run.actor.level), next = 5 + (run.actor.level - 1) * 10, target = run.actor.level + Math.min(.999, exp / next)
+    const levelStart = run.actor.currentLevelExp()
+    const exp = run.actor.currentExp() - levelStart
+    const levelSpan = run.actor.nextLevelExp() - levelStart
+    const target = run.actor.level + Math.min(.999, exp / levelSpan)
     this.xpShown = this.xpShown > target ? target : approach(this.xpShown, target, 7, dt)
     const filled = Math.round(this.xpWidth * (this.xpShown - Math.floor(this.xpShown)) / s) * s
     this.xpFill.width = filled; this.xpFill.visible = filled > 0; this.xpEdge.x = this.xpX + filled - s; this.xpEdge.visible = filled > s

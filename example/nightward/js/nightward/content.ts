@@ -13,7 +13,6 @@ export interface Point { x: number, z: number }
 export interface WeaponData {
   key: WeaponKey
   rank: number
-  damage: number
   knockback: number
   cooldown?: number
   count?: number
@@ -68,7 +67,7 @@ export interface Formations {
   swarm: { first: number, every: number, baseCount: number, growth: number, maxCount: number, timeline: number[], weights: number[][] }
   ring: { first: number, every: number, baseCount: number, growth: number, maxCount: number, afterReaper: number }
   elite: { first: number, every: number, transitions: number[] }
-  reaper: { first: number, rise: number, firstSwing: number, swingEvery: number, windup: number, recover: number, range: number, waveSpeed: number, waveLife: number, waveRadius: number, damage: number }
+  reaper: { first: number, rise: number, firstSwing: number, swingEvery: number, windup: number, recover: number, range: number, waveSpeed: number, waveLife: number, waveRadius: number }
 }
 export interface Content {
   formations: Formations

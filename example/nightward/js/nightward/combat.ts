@@ -6,19 +6,26 @@ import type { Point, Weapon } from './content'
 import { direction, distance } from './content'
 import { dropPickup } from './rewards'
 
-class NightwardAction extends Game_Action {
-  constructor(subject: Game_Battler, private multiplier: number, private power?: number) { super(subject) }
-  override evalDamageFormula(target: Game_Battler): number {
-    return (this.power ?? super.evalDamageFormula(target)) * this.multiplier
+class FixedDamageAction extends Game_Action {
+  constructor(subject: Game_Battler, private power: number) {
+    super(subject)
   }
+
+  override evalDamageFormula(): number {
+    return this.power
+  }
+}
+function weaponDamage(run: RunSession, weapon: Weapon): number {
+  const attack = weapon.params[2]!
+  return Math.max(0, attack) * (1 + run.passiveValue('might'))
 }
 function weaponSkillId(weapon: Weapon): number {
   return weapon.traits.find(trait => trait.code === Game_BattlerBase.TRAIT_SKILL_ADD)!.dataId
 }
 export function hitEnemy(run: RunSession, enemy: Enemy, weapon: Weapon, origin: Point): void {
   if (enemy.dead || enemy.state === 'rise') return
-  const { key, damage, knockback } = weapon.data
-  const action = new NightwardAction(run.actor, 1 + run.passiveValue('might'), damage)
+  const { key, knockback } = weapon.data
+  const action = new FixedDamageAction(run.actor, weaponDamage(run, weapon))
   action.setSkill(weaponSkillId(weapon))
   const before = enemy.battler.hp
   action.apply(enemy.battler)
@@ -51,10 +58,11 @@ export function killEnemy(run: RunSession, enemy: Enemy): void {
   dropPickup(run, enemy.elite ? 'gemBig' : Math.random() < enemy.data.midChance ? 'gemMedium' : 'gemSmall', enemy)
   if (enemy.elite) dropPickup(run, 'chest', enemy)
 }
-export function hurtHero(run: RunSession, enemy: Enemy, power: number, origin: Point, wave = false): void {
+export function hurtHero(run: RunSession, enemy: Enemy, origin: Point, contactDamage?: number): void {
   if (run.invulnerable > 0 || run.demo || run.actor.isDead()) return
-  const action = new NightwardAction(enemy.battler, 1, power)
-  action.setSkill(wave ? run.content.waveSkill : run.content.contactSkill)
+  const isContact = contactDamage !== undefined
+  const action = isContact ? new FixedDamageAction(enemy.battler, contactDamage) : new Game_Action(enemy.battler)
+  action.setSkill(isContact ? run.content.contactSkill : run.content.waveSkill)
   action.apply(run.actor)
   action.applyGlobal()
   run.invulnerable = run.content.hero.invulnerable
@@ -67,12 +75,13 @@ export function stepContact(run: RunSession): void {
   if (!touching.length) return
   const total = touching.reduce((sum, enemy) => sum + enemy.contact, 0)
   const strongest = touching.reduce((a, b) => a.contact > b.contact ? a : b)
-  hurtHero(run, strongest, Math.min(strongest.contact + .25 * (total - strongest.contact), 1.6 * strongest.contact), strongest)
+  const damage = Math.min(strongest.contact + .25 * (total - strongest.contact), 1.6 * strongest.contact)
+  hurtHero(run, strongest, strongest, damage)
 }
-export function hitProps(run: RunSession, point: Point, radius: number, damage: number, predicate?: (prop: Point) => boolean): void {
+export function hitProps(run: RunSession, point: Point, radius: number, weapon: Weapon, predicate?: (prop: Point) => boolean): void {
   for (const prop of run.world.props) {
     if (!prop.active || prop.kind !== 'brazier' || prop.broken || distance(point, prop) > radius + prop.radius || (predicate && !predicate(prop))) continue
-    prop.hp -= damage * (1 + run.passiveValue('might'))
+    prop.hp -= weaponDamage(run, weapon)
     if (prop.hp > 0) continue
     breakProp(run, prop)
   }

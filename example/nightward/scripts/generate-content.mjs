@@ -7,16 +7,18 @@ const root = fileURLToPath(new URL('../', import.meta.url))
 const save = (path, value) => writeFileSync(`${root}${path}`, value)
 const json = (name, value) => save(`data/${name}.json`, `${JSON.stringify(value, null, 2)}\n`)
 const note = value => `<nightward:${JSON.stringify(value)}>`
+const readData = name => JSON.parse(readFileSync(`${root}data/${name}.json`, 'utf8'))
 // Keep equipment presentation authored in the native database fields.
-const equipmentDisplay = name => JSON.parse(readFileSync(`${root}data/${name}.json`, 'utf8')).map(entry => entry && ({ name: entry.name, description: entry.description, iconIndex: entry.iconIndex }))
-const weaponDisplay = equipmentDisplay('Weapons'), armorDisplay = equipmentDisplay('Armors')
+const equipmentDisplay = ({ name, description, iconIndex }) => ({ name, description, iconIndex })
+const weaponData = readData('Weapons')
+const armorData = readData('Armors')
 const families = [
-  { key: 'lash', name: 'Lash', icon: 96, damage: [14, 17, 20, 24, 30], cooldown: [1.25, 1.2, 1.12, 1.05, .95], reach: [2.6, 2.8, 3, 3.3, 3.7], halfHeight: [.85, .9, 1, 1.1, 1.25], knockback: 4, initialDelay: .3, backDelay: .16 },
-  { key: 'wand', name: 'Wand', icon: 97, damage: [10, 11, 13, 15, 18], cooldown: [1, .9, .82, .72, .6], count: [1, 2, 2, 3, 4], pierce: [1, 1, 1, 2, 2], speed: 15, turnRate: 9, life: 1.6, range: 15, height: .9, radiusHit: .25, stagger: .08, knockback: 2.5, initialDelay: .4 },
-  { key: 'tomes', name: 'Tomes', icon: 98, damage: [10, 12, 14, 17, 21], count: [2, 2, 3, 3, 4], radius: [2.2, 2.4, 2.7, 2.9, 3.2], duration: [3, 3.5, 4, 4.5, 5], rest: [3.5, 3.3, 3.1, 2.9, 2.6], spin: 3.4, rehit: .45, radiusHit: .5, fadeIn: .25, fadeOut: .3, knockback: 3, initialDelay: .3 },
-  { key: 'storm', name: 'Storm', icon: 99, damage: [18, 22, 28, 34, 42], cooldown: [4.2, 4, 3.7, 3.4, 3], count: [2, 3, 3, 4, 5], radius: [1.3, 1.45, 1.6, 1.8, 2.1], range: [9, 10, 10, 11, 12], stagger: .07, knockback: 2, initialDelay: .8 },
-  { key: 'ward', name: 'Ward', icon: 100, damage: [5, 6, 7, 9, 11], cooldown: [.62, .56, .5, .45, .4], radius: [1.6, 1.85, 2.1, 2.4, 2.7], pulseFade: .35, knockback: 3.2, initialDelay: .2 },
-  { key: 'flask', name: 'Flask', icon: 101, damage: [6, 8, 10, 12, 15], cooldown: [3.6, 3.3, 3, 2.8, 2.5], count: [1, 2, 2, 3, 4], radius: [1.25, 1.35, 1.5, 1.65, 1.85], duration: [2.6, 3, 3.2, 3.6, 4], tick: .35, flight: .55, gravity: 20, throwHeight: 1.3, range: 8, stagger: .09, knockback: 0, initialDelay: .6 },
+  { key: 'lash', name: 'Lash', icon: 96, cooldown: [1.25, 1.2, 1.12, 1.05, .95], reach: [2.6, 2.8, 3, 3.3, 3.7], halfHeight: [.85, .9, 1, 1.1, 1.25], knockback: 4, initialDelay: .3, backDelay: .16 },
+  { key: 'wand', name: 'Wand', icon: 97, cooldown: [1, .9, .82, .72, .6], count: [1, 2, 2, 3, 4], pierce: [1, 1, 1, 2, 2], speed: 15, turnRate: 9, life: 1.6, range: 15, height: .9, radiusHit: .25, stagger: .08, knockback: 2.5, initialDelay: .4 },
+  { key: 'tomes', name: 'Tomes', icon: 98, count: [2, 2, 3, 3, 4], radius: [2.2, 2.4, 2.7, 2.9, 3.2], duration: [3, 3.5, 4, 4.5, 5], rest: [3.5, 3.3, 3.1, 2.9, 2.6], spin: 3.4, rehit: .45, radiusHit: .5, fadeIn: .25, fadeOut: .3, knockback: 3, initialDelay: .3 },
+  { key: 'storm', name: 'Storm', icon: 99, cooldown: [4.2, 4, 3.7, 3.4, 3], count: [2, 3, 3, 4, 5], radius: [1.3, 1.45, 1.6, 1.8, 2.1], range: [9, 10, 10, 11, 12], stagger: .07, knockback: 2, initialDelay: .8 },
+  { key: 'ward', name: 'Ward', icon: 100, cooldown: [.62, .56, .5, .45, .4], radius: [1.6, 1.85, 2.1, 2.4, 2.7], pulseFade: .35, knockback: 3.2, initialDelay: .2 },
+  { key: 'flask', name: 'Flask', icon: 101, cooldown: [3.6, 3.3, 3, 2.8, 2.5], count: [1, 2, 2, 3, 4], radius: [1.25, 1.35, 1.5, 1.65, 1.85], duration: [2.6, 3, 3.2, 3.6, 4], tick: .35, flight: .55, gravity: 20, throwHeight: 1.3, range: 8, stagger: .09, knockback: 0, initialDelay: .6 },
 ]
 const skillBase = { animationId: 0, damage: { critical: false, elementId: 1, formula: '0', type: 1, variance: 0 }, effects: [], hitType: 0, message1: '', message2: '', mpCost: 0, occasion: 1, repeats: 1, requiredWtypeId1: 0, requiredWtypeId2: 0, scope: 1, speed: 0, stypeId: 1, successRate: 100, tpCost: 0, tpGain: 0, messageType: 1 }
 const skills = [null]
@@ -28,11 +30,14 @@ for (const family of families) {
   skills.push({ ...skillBase, id: skillId, name: `${name} Attack`, iconIndex: icon, description: '', note: note({ key: family.key, category: 'weaponAttack' }) })
   for (let rank = 1; rank <= 5; rank++) {
     const values = Object.fromEntries(Object.entries(parameters).map(([key, value]) => [key, Array.isArray(value) ? value[rank - 1] : value]))
-    weapons.push({ ...equipBase, ...weaponDisplay[weapons.length], id: weapons.length, etypeId: 1, wtypeId: 1, animationId: 0, traits: [{ code: 43, dataId: skillId, value: 1 }], note: note({ ...values, rank }) })
+    const weapon = weaponData[weapons.length]
+    weapons.push({ ...equipBase, ...equipmentDisplay(weapon), params: weapon.params, id: weapons.length, etypeId: 1, wtypeId: 1, animationId: 0, traits: [{ code: 43, dataId: skillId, value: 1 }], note: note({ ...values, rank }) })
   }
 }
 const contactSkillId = skills.length
-for (const [key, damage] of [['contact', 1], ['reaperWave', 25]]) skills.push({ ...skillBase, id: skills.length, name: key, iconIndex: 0, description: '', damage: { ...skillBase.damage, formula: String(damage) }, note: note({ key, category: 'enemyAttack' }) })
+skills.push({ ...skillBase, id: contactSkillId, name: 'contact', iconIndex: 0, description: '', damage: { ...skillBase.damage, formula: '1' }, note: note({ key: 'contact', category: 'enemyAttack' }) })
+// Keep the Reaper's wave skill authored in the database.
+skills.push(readData('Skills')[skills.length])
 json('Skills', skills)
 const states = [null, { id: 1, autoRemovalTiming: 0, chanceByDamage: 100, iconIndex: 1, maxTurns: 1, minTurns: 1, motion: 3, name: 'Death', note: '', overlay: 0, priority: 100, releaseByDamage: false, removeAtBattleEnd: false, removeByDamage: false, removeByRestriction: false, removeByWalking: false, restriction: 4, stepsToRemove: 100, traits: [], message1: '', message2: '', message3: '', message4: '', messageType: 1 }]
 json('States', states)
@@ -42,7 +47,7 @@ for (const [i, [key, value]] of [
   ['lodestone', .35],
   ['cinder', .08],
 ].entries()) for (let rank = 1; rank <= 5; rank++) {
-  armors.push({ ...equipBase, ...armorDisplay[armors.length], id: armors.length, etypeId: i + 2, atypeId: 1, note: note({ key, rank, value: value * rank }) })
+  armors.push({ ...equipBase, ...equipmentDisplay(armorData[armors.length]), id: armors.length, etypeId: i + 2, atypeId: 1, note: note({ key, rank, value: value * rank }) })
 }
 json('Weapons', weapons)
 json('Armors', armors)
@@ -61,7 +66,7 @@ const formations = [
   { key: 'swarm', first: 14, every: 22, baseCount: 12, growth: 2, maxCount: 30, timeline: [0, 30, 55, 90, 115, 150, 180, 300], weights: [[6, 4, 0, 0, 0], [5, 5, 0, 0, 0], [4, 5, .6, .6, 0], [3, 4, 2, 2, 0], [2.5, 3.5, 2, 2, .6], [2, 3, 2.5, 2, 2], [2, 3, 3, 2, 3], [2, 3, 3, 2, 4]] },
   { key: 'ring', first: 60, every: 60, baseCount: 40, growth: 16, maxCount: 96, afterReaper: .6 },
   { key: 'elite', first: 35, every: 35, transitions: [70, 110, 150] },
-  { key: 'reaper', first: 180, rise: 1.8, firstSwing: 1.5, swingEvery: 4.6, windup: .45, recover: .55, range: 16, waveSpeed: 10, waveLife: 2.6, waveRadius: 1.3, damage: 25 },
+  { key: 'reaper', first: 180, rise: 1.8, firstSwing: 1.5, swingEvery: 4.6, windup: .45, recover: .55, range: 16, waveSpeed: 10, waveLife: 2.6, waveRadius: 1.3 },
 ]
 // Troop event comments remain editable in the standard RPG Maker database.
 json('Troops', [null, ...formations.map((data, i) => ({ id: i + 1, name: ['Bat Swarms', 'Encirclement', 'Elites', 'The Reaper'][i], members: [{ enemyId: i === 3 ? 6 : i === 2 ? 2 : 1, x: 400, y: 300, hidden: false }], pages: [{ conditions: { turnEnding: false, turnValid: false, enemyValid: false, actorValid: false, switchValid: false, turnA: 0, turnB: 0, enemyIndex: 0, enemyHp: 50, actorId: 1, actorHp: 50, switchId: 1 }, span: 0, list: [{ code: 108, indent: 0, parameters: [note(data)] }, { code: 0, indent: 0, parameters: [] }] }] }))])
@@ -91,7 +96,7 @@ refreshDirtEdges({ width: 181, height: 181, data: tiles }, 90)
 if (!existsSync(`${root}data/Map001.json`)) json('Map001', { autoplayBgm: true, autoplayBgs: false, battleback1Name: '', battleback2Name: '', bgm: { name: 'Nightward', volume: 65, pitch: 100, pan: 0 }, bgs: { name: '', volume: 90, pitch: 100, pan: 0 }, disableDashing: true, displayName: 'The Graveyard', encounterList: [], encounterStep: 30, height: 181, width: 181, note: note({ center: 90, bounds: 90, path: { start: 9, end: 44, width: 3.2 } }) + '\n<propScene:models/maps/graveyard.glb>', parallaxLoopX: false, parallaxLoopY: false, parallaxName: '', parallaxShow: false, parallaxSx: 0, parallaxSy: 0, scrollType: 0, specifyBattleback: false, tilesetId: 1, data: tiles, events: [null] })
 if (!existsSync(`${root}data/MapInfos.json`)) json('MapInfos', [null, { id: 1, expanded: true, name: 'Graveyard', order: 1, parentId: 0, scrollX: 816, scrollY: 624 }])
 json('Tilesets', [null, { id: 1, name: 'Nightward', mode: 1, note: '<normalTilesets:{"4":"NightwardGround-normal","5":"NightwardDirtEdgesB-normal","6":"NightwardDirtEdgesC-normal","7":"NightwardDirtEdgesD-normal"}>', tilesetNames: ['', '', '', '', 'NightwardGround', 'NightwardDirtEdgesB', 'NightwardDirtEdgesC', 'NightwardDirtEdgesD', ''], flags: Array(8192).fill(0) }])
-const system = JSON.parse(readFileSync(`${root}data/System.json`, 'utf8'))
+const system = readData('System')
 system.equipTypes = ['', 'Weapon', 'Might', 'Haste', 'Lodestone', 'Cinder']
 system.weaponTypes = ['', 'Nightward']
 system.armorTypes = ['', 'Nightward']
@@ -99,4 +104,4 @@ Object.assign(system, { gameTitle: 'Nightward', partyMembers: [1], title1Name: '
 system.advanced.screenWidth = 1100; system.advanced.screenHeight = 760; system.advanced.uiAreaWidth = 1100; system.advanced.uiAreaHeight = 760
 json('System', system)
 
-console.log('Generated RMMZ content and preserved editor-authored map, audio, common events, and equipment display fields.')
+console.log('Generated RMMZ content and preserved editor-authored map, audio, common events, equipment fields, and Reaper wave skill.')
