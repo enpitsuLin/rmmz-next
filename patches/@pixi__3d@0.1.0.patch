@@ -1,0 +1,446 @@
+diff --git a/dist/core/LightDataList.mjs b/dist/core/LightDataList.mjs
+index ad3db5e5a16cca788db18941a0aa9c4c3fc5f50d..e3dd590cd8f1c208ecbae0aafcc894f8fc7502db 100644
+--- a/dist/core/LightDataList.mjs
++++ b/dist/core/LightDataList.mjs
+@@ -40,6 +40,8 @@ const writeLight = (light, buffer, offset) => {
+ 		buffer[offset + 3] = 1;
+ 		const point = light;
+ 		buffer[offset + 7] = rangeSquared(point.range);
++		// A point light has no direction; its first lane holds the optional falloff exponent.
++		buffer[offset + 8] = point.decay ?? -1;
+ 		buffer[offset + 15] = radiusToFourth(point.radius);
+ 	} else if (light.type === "spot") {
+ 		buffer[offset + 3] = 2;
+diff --git a/dist/core/gl/bits/shadowBitGl.mjs b/dist/core/gl/bits/shadowBitGl.mjs
+index cbac855327300a161a5a4f7a90784bd339b1cd10..bd3da5d63312ec0923ec943aca6c0d2342a06aed 100644
+--- a/dist/core/gl/bits/shadowBitGl.mjs
++++ b/dist/core/gl/bits/shadowBitGl.mjs
+@@ -75,6 +75,18 @@ ${pcfBody(SHADOW_TAPS[filter])}
+         return 1.0;
+       }
+ 
++      if (light.type == LIGHT_POINT) {
++        vec3 direction = worldPos - light.position;
++        vec3 axis = abs(direction);
++        int face;
++        if (axis.x >= max(axis.y, axis.z)) face = direction.x >= 0.0 ? 0 : 1;
++        else if (axis.y >= axis.z) face = direction.y >= 0.0 ? 2 : 3;
++        else face = direction.z >= 0.0 ? 4 : 5;
++        int index = baseIndex + face;
++        ShadowData sd = getShadowData(index);
++        return sampleShadowLayer(index, sd.lightSpaceMatrix, worldPos, normal, sd.shadowParams.xyz, NdotL);
++      }
++
+       ShadowData base = getShadowData(baseIndex);
+       int last = int(base.shadowParams.w) - 1;
+ 
+diff --git a/dist/core/gpu/ShadowRenderPassGpu.mjs b/dist/core/gpu/ShadowRenderPassGpu.mjs
+index d3a9c379144f2f839c377691f2c88549901c1bd4..46ff9b0e59b65d8b03d374e99dc1c6de1ae0b695 100644
+--- a/dist/core/gpu/ShadowRenderPassGpu.mjs
++++ b/dist/core/gpu/ShadowRenderPassGpu.mjs
+@@ -136,7 +136,7 @@ var ShadowRenderPassGpu = class extends ShadowRenderPassBase {
+ 					if (!batch.renderData._worldVisible) continue;
+ 					const list = batch.drawLists[this.bit];
+ 					if (!list || list.view.count === 0) continue;
+-					if (c === 0) for (let s = cascadeCount; s < 4; s++) results.remove(batch, s);
++					if (c === 0 && light.type === "directional") for (let s = cascadeCount; s < 4; s++) results.remove(batch, s);
+ 					const direct = list.view.count <= cpuSubmission;
+ 					const result = results.ensure(batch, c);
+ 					result.sync(list, direct);
+diff --git a/dist/core/gpu/bits/shadowBitGpu.mjs b/dist/core/gpu/bits/shadowBitGpu.mjs
+index 5ab46e2faf6939938c35bf1f45805d15f1c2cb21..2939225e4e7859147b37f0949e5fdcd64f62139b 100644
+--- a/dist/core/gpu/bits/shadowBitGpu.mjs
++++ b/dist/core/gpu/bits/shadowBitGpu.mjs
+@@ -17,7 +17,7 @@ function pcfBody(taps) {
+ 	return lines.join("\n");
+ }
+ /**
+-* Reads `uShadowData` as `ShadowDataList` lays it out. `calculateShadow` takes two floats, not the
++* Reads `uShadowData` as `ShadowDataList` lays it out. `calculateShadow` takes individual fields, not the
+ * `Light` struct, which an Adreno 8xx phone in Chrome misread when passed by value, drawing black.
+ */
+ function createShadowBitGpu(filter) {
+@@ -62,6 +62,8 @@ ${pcfBody(SHADOW_TAPS[filter])}
+     fn calculateShadow(
+       shadowDataIndex: f32,
+       cascadeCount: f32,
++      lightKind: f32,
++      lightToPoint: vec3<f32>,
+       worldPos: vec3<f32>,
+       normal: vec3<f32>,
+       NdotL: f32
+@@ -72,6 +74,16 @@ ${pcfBody(SHADOW_TAPS[filter])}
+         return 1.0;
+       }
+ 
++      if (lightKind == LIGHT_POINT) {
++        let direction = lightToPoint;
++        let axis = abs(direction);
++        var face: i32;
++        if (axis.x >= max(axis.y, axis.z)) { face = select(1, 0, direction.x >= 0.0); }
++        else if (axis.y >= axis.z) { face = select(3, 2, direction.y >= 0.0); }
++        else { face = select(5, 4, direction.z >= 0.0); }
++        return sampleShadowAtIndex(baseIndex + face, worldPos, normal, NdotL);
++      }
++
+       let last = i32(cascadeCount) - 1;
+ 
+       if (last < 1) {
+diff --git a/dist/core/render-passes/shadow/ShadowRenderPassBase.mjs b/dist/core/render-passes/shadow/ShadowRenderPassBase.mjs
+index dd71b52ac58b5656391d1cf629bb49282c38f06d..5a7cbe7c425f1f081a721acf57cce1f5217b99c7 100644
+--- a/dist/core/render-passes/shadow/ShadowRenderPassBase.mjs
++++ b/dist/core/render-passes/shadow/ShadowRenderPassBase.mjs
+@@ -9,6 +9,18 @@ import { CameraData } from "../../CameraData.mjs";
+ import { computeCascadeMatrix, computeCascadeSplits, computeFixedBoxMatrix, prepareLightSpaceTransform } from "./csmUtils.mjs";
+ import { MAX_SHADOW_SLOTS, SHADOW_QUALITY_SIZE, cascadeCountFor, cascadeRenderSkip, createShadowRenderTarget, updateRateFor, updateSpotShadowMatrices } from "./shadowPassUtils.mjs";
+ //#region src/core/render-passes/shadow/ShadowRenderPassBase.ts
++// Face order must match the dominant-axis lookup in both shadow shaders.
++const pointShadowFaces = [
++	[{ x: 1, y: 0, z: 0 }, { x: 0, y: -1, z: 0 }],
++	[{ x: -1, y: 0, z: 0 }, { x: 0, y: -1, z: 0 }],
++	[{ x: 0, y: 1, z: 0 }, { x: 0, y: 0, z: 1 }],
++	[{ x: 0, y: -1, z: 0 }, { x: 0, y: 0, z: -1 }],
++	[{ x: 0, y: 0, z: 1 }, { x: 0, y: -1, z: 0 }],
++	[{ x: 0, y: 0, z: -1 }, { x: 0, y: -1, z: 0 }]
++];
++const pointEye = new Vector3();
++const pointTarget = new Vector3();
++const pointCameraWorld = new Matrix4();
+ const tempEyeMatrix = new Matrix4();
+ const tempEye = new Vector3();
+ const _scratchSphere = new Sphere();
+@@ -31,7 +43,7 @@ const MAX_AUTO_FIT_CASTERS = 256;
+ /** The warnings built once, since their triggers hold frame after frame and the check must not allocate */
+ const WARN_BOUNDS_WITH_CASCADES = "Shadow: shadow.bounds and shadow.cascades are both set — cascades take precedence and the bounds box is ignored. Use bounds for a fixed region or cascades for a camera-following shadow, not both.";
+ const WARN_SHADOW_BOX_LARGE = "Shadow auto-fit box spans a large scene, so shadows may look soft. Raise view3d.shadowQuality, set light.shadow.bounds to the area that needs shadows, or, for a scene the camera roams across, enable cascades: light.shadow.cascades = 3.";
+-const WARN_SHADOW_BUDGET = `Too many shadow maps for the shadow budget of ${MAX_SHADOW_SLOTS}: each shadow-casting light takes one, or one per cascade. Lights past the budget render without shadows.`;
++const WARN_SHADOW_BUDGET = `Too many shadow maps for the shadow budget of ${MAX_SHADOW_SLOTS}: a point light takes six maps, and other lights take one per projection. Lights past the budget render without shadows.`;
+ /**
+ * The shadow pass work both backends share; `ShadowRenderPassGpu` and `ShadowRenderPassGl` add the draws
+ * @internal
+@@ -194,6 +206,34 @@ var ShadowRenderPassBase = class extends RenderPass {
+ 		const forceUpdate = light._shadowRefreshRequested;
+ 		const update = light.shadow.update;
+ 		const bias = light.shadow.bias ?? DEFAULT_SHADOW_BIAS;
++		if (light.type === "point") {
++			const far = light.range || 1e3;
++			const near = Math.min(.025, far / 10);
++			light.worldTransform.extractPosition(pointEye);
++			// Leave room for PCF taps on either side of a cube face boundary.
++			lightProjectionMatrix.makePerspective(Math.PI * .51, 1, near, far);
++			if (this._applyZRangeFix) {
++				const elements = lightProjectionMatrix.elements;
++				elements[10] = far / (near - far);
++				elements[14] = far * near / (near - far);
++			}
++			for (let face = 0; face < pointShadowFaces.length; face++) {
++				const slot = this._cascadeSlot(light, face);
++				const renderSkip = cascadeRenderSkip(updateRateFor(update, face), this._frameCount, forceUpdate);
++				if (!renderSkip) {
++					const [direction, up] = pointShadowFaces[face];
++					pointTarget.copyFrom(pointEye).add(direction);
++					pointCameraWorld.lookAt(pointEye, pointTarget, up).setPosition(pointEye);
++					inverseLightMatrix.getInverse(pointCameraWorld);
++					this._commitCascadeCamera(slot, inverseLightMatrix, lightProjectionMatrix);
++				}
++				slot.bias = bias;
++				slot.normalBias = light.shadow.normalBias ?? .002;
++				slot.mapSize = mapSize;
++				slot.needsRender = targetStale || !renderSkip;
++			}
++			return;
++		}
+ 		if (light.type === "spot" || light.shadow.cascades === void 0) {
+ 			const slot = this._cascadeSlot(light, 0);
+ 			const renderSkip = cascadeRenderSkip(updateRateFor(update, 0), this._frameCount, forceUpdate);
+diff --git a/dist/core/render-passes/shadow/shadowPassUtils.mjs b/dist/core/render-passes/shadow/shadowPassUtils.mjs
+index 71a45d861ecf44dfcffd5ef26e026e2f7b8bd7d5..ac988236ddd0d593035119d1d79eaada208540f5 100644
+--- a/dist/core/render-passes/shadow/shadowPassUtils.mjs
++++ b/dist/core/render-passes/shadow/shadowPassUtils.mjs
+@@ -50,10 +50,11 @@ function updateRateFor(update, cascadeIndex) {
+ /** @internal */
+ const MAX_SHADOW_SLOTS = 16;
+ /**
+-* Cascade slots a light fills: its clamped cascade count, or 1 for a fixed box or a spot light
++* Shadow slots for a point light, a directional cascade, or one projected map
+ * @internal
+ */
+ function cascadeCountFor(light) {
++	if (light.type === "point") return 6;
+ 	if (light.type !== "directional" || light.shadow.cascades === void 0) return 1;
+ 	return Math.min(Math.max(light.shadow.cascades, 1), 4);
+ }
+diff --git a/dist/core/shader/bits/noShadowBit.mjs b/dist/core/shader/bits/noShadowBit.mjs
+index ce5c621564b4635f56447195e672f8bfaa0668e7..95e055cccf17f6f075e9786c7b0a06ca0e52049a 100644
+--- a/dist/core/shader/bits/noShadowBit.mjs
++++ b/dist/core/shader/bits/noShadowBit.mjs
+@@ -10,6 +10,8 @@ const noShadowBit = {
+     fn calculateShadow(
+       shadowDataIndex: f32,
+       cascadeCount: f32,
++      lightKind: f32,
++      lightToPoint: vec3<f32>,
+       worldPos: vec3<f32>,
+       normal: vec3<f32>,
+       NdotL: f32
+diff --git a/dist/core/shader/createLightingBit.mjs b/dist/core/shader/createLightingBit.mjs
+index 548a902ac496db4215374065bfde8e960f85060e..6e5b312cac56bca80c791ef403077be3fc60bf43 100644
+--- a/dist/core/shader/createLightingBit.mjs
++++ b/dist/core/shader/createLightingBit.mjs
+@@ -100,14 +100,17 @@ ${opts.preLighting?.gpu ?? ""}
+       let toLight = light.position - input.vPosition;
+       let distanceSq = dot(toLight, toLight);
+ 
++      let decay = light.direction.x;
++      if (light.kind == LIGHT_POINT && decay >= 0.0) {
++        attenuation = 1.0 / max(pow(max(distanceSq, 1e-8), 0.5 * decay), 0.01);
++      } else {
++        attenuation = inverseSqrt(distanceSq * distanceSq + light.radiusPow4);
++      }
+       if (light.rangeSq > 0.0) {
+         if (distanceSq >= light.rangeSq) { continue; }
+-
+         let distRatio = distanceSq / light.rangeSq;
+         let windowFalloff = saturate(1.0 - distRatio * distRatio);
+-        attenuation = windowFalloff * windowFalloff * inverseSqrt(distanceSq * distanceSq + light.radiusPow4);
+-      } else {
+-        attenuation = inverseSqrt(distanceSq * distanceSq + light.radiusPow4);
++        attenuation *= windowFalloff * windowFalloff;
+       }
+ 
+       lightDir = toLight * inverseSqrt(distanceSq);
+@@ -124,7 +127,7 @@ ${opts.preLighting?.gpu ?? ""}
+     let nDotL = max(dot(normal, lightDir), 0.0);
+     if (nDotL <= 0.0) { continue; }
+ 
+-    let shadow = calculateShadow(light.shadowDataIndex, light.cascadeCount, input.vPosition, normal, nDotL);
++    let shadow = calculateShadow(light.shadowDataIndex, light.cascadeCount, light.kind, -lightDir, input.vPosition, normal, nDotL);
+ 
+ ${opts.perLight.gpu ?? ""}
+ {{fragmentLobePerLight}}
+@@ -172,14 +175,17 @@ ${opts.preLighting?.gl ?? ""}
+       vec3 toLight = light.position - vPosition;
+       float distanceSq = dot(toLight, toLight);
+ 
++      float decay = light.direction.x;
++      if (light.type == LIGHT_POINT && decay >= 0.0) {
++        attenuation = 1.0 / max(pow(max(distanceSq, 1e-8), 0.5 * decay), 0.01);
++      } else {
++        attenuation = inversesqrt(distanceSq * distanceSq + light.radiusPow4);
++      }
+       if (light.rangeSq > 0.0) {
+         if (distanceSq >= light.rangeSq) continue;
+-
+         float distRatio = distanceSq / light.rangeSq;
+         float windowFalloff = clamp(1.0 - distRatio * distRatio, 0.0, 1.0);
+-        attenuation = windowFalloff * windowFalloff * inversesqrt(distanceSq * distanceSq + light.radiusPow4);
+-      } else {
+-        attenuation = inversesqrt(distanceSq * distanceSq + light.radiusPow4);
++        attenuation *= windowFalloff * windowFalloff;
+       }
+ 
+       lightDir = toLight * inversesqrt(distanceSq);
+diff --git a/dist/extras/post-processing/effects/BloomEffect.d.ts b/dist/extras/post-processing/effects/BloomEffect.d.ts
+index 8822a0d4de375d77e0afbeacca671bf07a596b0e..62084ee89d1e431ce4a38317b1e70c0da57dbe6e 100644
+--- a/dist/extras/post-processing/effects/BloomEffect.d.ts
++++ b/dist/extras/post-processing/effects/BloomEffect.d.ts
+@@ -25,6 +25,10 @@ export interface BloomEffectOptions extends PostEffectOptions {
+    * ```
+    */
+   threshold?: number;
++  /** Use a luminance threshold with a smooth transition of this width. */
++  smoothing?: number;
++  /** Composite the bloom using screen blending. */
++  screenBlend?: boolean;
+   /**
+    * Strength of the glow added back onto the frame
+    * @default 1
+diff --git a/dist/extras/post-processing/effects/BloomEffect.mjs b/dist/extras/post-processing/effects/BloomEffect.mjs
+index 9de3a897d45136726b3dedf63ac378220431714d..0612abb986851ff2d124e969b3cc891367d217b7 100644
+--- a/dist/extras/post-processing/effects/BloomEffect.mjs
++++ b/dist/extras/post-processing/effects/BloomEffect.mjs
+@@ -10,6 +10,11 @@ fn effect(uv: vec2<f32>) -> vec4<f32> {
+   let c = 0.25 * (sampleColor(uv + vec2<f32>(-t.x, -t.y)) + sampleColor(uv + vec2<f32>(t.x, -t.y))
+     + sampleColor(uv + vec2<f32>(-t.x, t.y)) + sampleColor(uv + vec2<f32>(t.x, t.y)));
+   let threshold = fx.uBloom.x;
++  if (fx.uBloom.z >= 0.0) {
++    let luminance = dot(c.rgb, vec3<f32>(0.2126, 0.7152, 0.0722));
++    let weight = smoothstep(threshold, threshold + max(fx.uBloom.z, 0.00001), luminance);
++    return vec4<f32>(c.rgb * weight, 1.0);
++  }
+   let knee = fx.uBloom.y;
+   let brightness = max(c.r, max(c.g, c.b));
+   var soft = clamp(brightness - threshold + knee, 0.0, 2.0 * knee);
+@@ -24,6 +29,11 @@ vec4 effect(vec2 uv) {
+   vec4 c = 0.25 * (sampleColor(uv + vec2(-t.x, -t.y)) + sampleColor(uv + vec2(t.x, -t.y))
+     + sampleColor(uv + vec2(-t.x, t.y)) + sampleColor(uv + vec2(t.x, t.y)));
+   float threshold = uBloom.x;
++  if (uBloom.z >= 0.0) {
++    float luminance = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
++    float weight = smoothstep(threshold, threshold + max(uBloom.z, 0.00001), luminance);
++    return vec4(c.rgb * weight, 1.0);
++  }
+   float knee = uBloom.y;
+   float brightness = max(c.r, max(c.g, c.b));
+   float soft = clamp(brightness - threshold + knee, 0.0, 2.0 * knee);
+@@ -101,13 +111,17 @@ const COMBINE_FRAGMENT = {
+ 	gpu: `
+ fn effect(uv: vec2<f32>) -> vec4<f32> {
+   let base = sampleColor(uv);
+-  return vec4<f32>(base.rgb + sampleColor2(uv).rgb * fx.uBloomCombine.x, base.a);
++  let glow = sampleColor2(uv).rgb * fx.uBloomCombine.x;
++  let strength = select(vec3<f32>(1.0), vec3<f32>(1.0) - min(base.rgb, vec3<f32>(1.0)), fx.uBloomCombine.y > 0.0);
++  return vec4<f32>(base.rgb + glow * strength, base.a);
+ }
+ `,
+ 	gl: `
+ vec4 effect(vec2 uv) {
+   vec4 base = sampleColor(uv);
+-  return vec4(base.rgb + sampleColor2(uv).rgb * uBloomCombine.x, base.a);
++  vec3 glow = sampleColor2(uv).rgb * uBloomCombine.x;
++  vec3 strength = uBloomCombine.y > 0.0 ? 1.0 - min(base.rgb, vec3(1.0)) : vec3(1.0);
++  return vec4(base.rgb + glow * strength, base.a);
+ }
+ `
+ };
+@@ -167,7 +181,7 @@ var BloomEffect = class BloomEffect extends PostEffect {
+ 		type: "vec4<f32>"
+ 	} });
+ 	constructor(options = {}) {
+-		const { threshold, intensity, radius, levels, resolution, ...rest } = {
++		const { threshold, intensity, radius, levels, resolution, smoothing, screenBlend, ...rest } = {
+ 			...BloomEffect.defaultOptions,
+ 			...definedProps(options)
+ 		};
+@@ -175,6 +189,8 @@ var BloomEffect = class BloomEffect extends PostEffect {
+ 		this.levels = Math.max(1, Math.round(levels));
+ 		this.resolution = resolution;
+ 		this.threshold = threshold;
++		this.writeLane(this._brightUniforms, "uBloom", 2, smoothing ?? -1);
++		this.writeLane(this._combineUniforms, "uBloomCombine", 1, screenBlend ? 1 : 0);
+ 		this.intensity = intensity;
+ 		this.radius = radius;
+ 	}
+diff --git a/dist/scene/lights/Light.mjs b/dist/scene/lights/Light.mjs
+index e04477da45dc5048423e754a06297acbf5561f46..7aec12aa6d524d6742cb812f32d530906cce98d3 100644
+--- a/dist/scene/lights/Light.mjs
++++ b/dist/scene/lights/Light.mjs
+@@ -17,7 +17,7 @@ import { Color } from "pixi.js";
+ * - {@link SpotLight}: a cone of light from a point, like a torch. Casts shadows.
+ *
+ * A view draws up to 32 point, spot and directional lights and ignores the rest. Shadows share
+-* 16 shadow maps: one per spot light or uncascaded sun, and one per cascade of a cascaded sun.
++* 16 shadow maps: six per point light, one per spot light or uncascaded sun, and one per cascade of a cascaded sun.
+ * A shadow-casting light that doesn't fit draws without a shadow, and a warning says so.
+ * @example
+ * ```ts
+@@ -75,7 +75,7 @@ var Light = class extends Container3D {
+ 	*/
+ 	intensity = 0;
+ 	/**
+-	* Whether this light casts shadows; only directional and spot lights can
++	* Whether this light casts shadows
+ 	*
+ 	* The first light in a view to cast a shadow makes the view recompile its lit materials, once;
+ 	* later toggles recompile nothing.
+@@ -92,7 +92,7 @@ var Light = class extends Container3D {
+ 	* Whether this light casts shadows: {@link Light.castShadow | castShadow} is on and its kind
+ 	* can cast
+ 	*
+-	* Point and ambient lights never do, whatever `castShadow` says.
++	* Ambient lights never do, whatever `castShadow` says.
+ 	* @example
+ 	* ```ts
+ 	* const shadowCasters = view.lights.filter((light: Light) => light.canCastShadow);
+diff --git a/dist/scene/lights/PointLight.d.ts b/dist/scene/lights/PointLight.d.ts
+index 832ae056e7979e3302d35b6ebae4c935d439a533..534966d96f73c0027073ec228d282597653f7f22 100644
+--- a/dist/scene/lights/PointLight.d.ts
++++ b/dist/scene/lights/PointLight.d.ts
+@@ -30,13 +30,15 @@ export interface PointLightOptions extends LightOptions {
+    * ```
+    */
+   radius?: number;
++  /** Optional distance exponent in place of the default softened inverse-square falloff. */
++  decay?: number;
+ }
+ /**
+  * Light that shines equally in every direction from a point, like a bulb
+  *
+  * It dims with the square of the distance, fading smoothly to nothing at its
+  * {@link PointLight.range | range} when it has one. Only its position matters; rotating it
+- * changes nothing. Point lights cast no shadows.
++ * changes nothing. Shadow-casting point lights render six faces.
+  * @example
+  * ```ts
+  * import { PointLight } from '@pixi/3d';
+@@ -86,18 +88,14 @@ export declare class PointLight extends Light {
+    * ```
+    */
+   radius: number;
++  decay?: number;
+   /**
+    * Creates a new `PointLight`; add it under {@link View3D.root | view.root} to light the view
+    *
+-   * Warns when `castShadow` is `true`, since point lights cast no shadows.
++   * Set `castShadow` to render omnidirectional shadows.
+    * @param options - Construction options; see {@link PointLightOptions}.
+    */
+   constructor(options?: PointLightOptions);
+-  /**
+-   * Always `false`: point lights cast no shadows
+-   * @advanced
+-   */
+-  get canCastShadow(): boolean;
+ }
+ //#endregion
+ //# sourceMappingURL=PointLight.d.ts.map
+\ No newline at end of file
+diff --git a/dist/scene/lights/PointLight.mjs b/dist/scene/lights/PointLight.mjs
+index 1037f16453c26448ad712d71313b6c6e2f9ffe23..a71369d307c8445a7e4d568bec62ed1eac31f2fd 100644
+--- a/dist/scene/lights/PointLight.mjs
++++ b/dist/scene/lights/PointLight.mjs
+@@ -1,12 +1,12 @@
+ import { Light } from "./Light.mjs";
+-import { definedProps, warn } from "pixi.js";
++import { definedProps } from "pixi.js";
+ //#region src/scene/lights/PointLight.ts
+ /**
+ * Light that shines equally in every direction from a point, like a bulb
+ *
+ * It dims with the square of the distance, fading smoothly to nothing at its
+ * {@link PointLight.range | range} when it has one. Only its position matters; rotating it
+-* changes nothing. Point lights cast no shadows.
++* changes nothing. Shadow-casting point lights render six faces.
+ * @example
+ * ```ts
+ * import { PointLight } from '@pixi/3d';
+@@ -64,11 +64,11 @@ var PointLight = class PointLight extends Light {
+ 	/**
+ 	* Creates a new `PointLight`; add it under {@link View3D.root | view.root} to light the view
+ 	*
+-	* Warns when `castShadow` is `true`, since point lights cast no shadows.
++	* Set `castShadow` to render omnidirectional shadows.
+ 	* @param options - Construction options; see {@link PointLightOptions}.
+ 	*/
+ 	constructor(options = {}) {
+-		const { range, radius, ...rest } = {
++		const { range, radius, decay, ...rest } = {
+ 			...PointLight.defaultOptions,
+ 			...definedProps(options)
+ 		};
+@@ -78,14 +78,7 @@ var PointLight = class PointLight extends Light {
+ 		});
+ 		this.range = range;
+ 		this.radius = radius;
+-		if (this.castShadow) warn("PointLight does not cast shadows; `castShadow` has no effect.");
+-	}
+-	/**
+-	* Always `false`: point lights cast no shadows
+-	* @advanced
+-	*/
+-	get canCastShadow() {
+-		return false;
++		this.decay = decay;
+ 	}
+ };
+ //#endregion

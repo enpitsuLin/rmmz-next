@@ -5,10 +5,14 @@ packages:
   - examples/*
   - packages/*
 
+patchedDependencies:
+  '@pixi/3d@0.1.0': patches/@pixi__3d@0.1.0.patch
+
 catalog:
   '@pixi/3d': 0.1.0
   cac: ^7.0.0
   fflate: ^0.8.3
+  lil-gui: ^0.21.0
   localforage: ^1.10.0
   pixi.js: ^8.23.0
 

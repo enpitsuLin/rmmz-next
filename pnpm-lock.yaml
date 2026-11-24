@@ -177,6 +177,9 @@ catalogs:
     fflate:
       specifier: ^0.8.3
       version: 0.8.3
+    lil-gui:
+      specifier: ^0.21.0
+      version: 0.21.0
     localforage:
       specifier: ^1.10.0
       version: 1.10.0
@@ -203,6 +206,9 @@ catalogs:
     '@types/node':
       specifier: ^25.3.3
       version: 25.3.3
+
+patchedDependencies:
+  '@pixi/3d@0.1.0': cd36bceec3f75403e7baa695bd9053cd5cdc1b0d93003726618e699693685726
 
 importers:
 
@@ -237,11 +243,36 @@ importers:
         specifier: catalog:dev
         version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
 
+  examples/hd2d:
+    dependencies:
+      '@pixi/3d':
+        specifier: 'catalog:'
+        version: 0.1.0(patch_hash=cd36bceec3f75403e7baa695bd9053cd5cdc1b0d93003726618e699693685726)(pixi.js@8.23.0)
+      lil-gui:
+        specifier: 'catalog:'
+        version: 0.21.0
+      pixi.js:
+        specifier: 'catalog:'
+        version: 8.23.0
+      rmmz-next:
+        specifier: workspace:*
+        version: link:../../packages/rmmz-next
+    devDependencies:
+      '@types/node':
+        specifier: catalog:types
+        version: 25.3.3
+      typescript:
+        specifier: catalog:dev
+        version: 6.0.3
+      vite:
+        specifier: catalog:dev
+        version: 7.3.1(@types/node@25.3.3)(jiti@2.6.1)(lightningcss@1.31.1)(yaml@2.8.2)
+
   examples/nightward:
     dependencies:
       '@pixi/3d':
         specifier: 'catalog:'
-        version: 0.1.0(pixi.js@8.23.0)
+        version: 0.1.0(patch_hash=cd36bceec3f75403e7baa695bd9053cd5cdc1b0d93003726618e699693685726)(pixi.js@8.23.0)
       pixi.js:
         specifier: 'catalog:'
         version: 8.23.0
@@ -1825,6 +1856,9 @@ packages:
     resolution: {integrity: sha512-l51N2r93WmGUye3WuFoN5k10zyvrVs0qfKBhyC5ogUQ6Ew6JUSswh78mbSO+IU3nTWsyOArqPCcShdQSadghBQ==}
     engines: {node: '>= 12.0.0'}
 
+  lil-gui@0.21.0:
+    resolution: {integrity: sha512-tpvxN7v1GvE/Tv+GRopfOp0W7fVEjF4PltkuX8vOCIfim22rD1ztvfkoEMcv9lzQeuNUSeIrUmUjBwmlW/oUew==}
+
   local-pkg@1.1.2:
     resolution: {integrity: sha512-arhlxbFRmoQHl33a0Zkle/YWlmNwoyt6QNZEIJcqNbdrsix5Lvc4HyyI3EnwxTYlZYc32EbYrQ8SzEZ7dqgg9A==}
     engines: {node: '>=14'}
@@ -2716,7 +2750,7 @@ snapshots:
 
   '@oxc-project/types@0.159.0': {}
 
-  '@pixi/3d@0.1.0(pixi.js@8.23.0)':
+  '@pixi/3d@0.1.0(patch_hash=cd36bceec3f75403e7baa695bd9053cd5cdc1b0d93003726618e699693685726)(pixi.js@8.23.0)':
     dependencies:
       meshoptimizer: 1.3.0
       pixi.js: 8.23.0
@@ -3764,6 +3798,8 @@ snapshots:
       lightningcss-win32-arm64-msvc: 1.31.1
       lightningcss-win32-x64-msvc: 1.31.1
     optional: true
+
+  lil-gui@0.21.0: {}
 
   local-pkg@1.1.2:
     dependencies:
