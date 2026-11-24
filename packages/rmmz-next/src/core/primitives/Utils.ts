@@ -201,13 +201,14 @@ export class Utils {
   }
 
   /**
-   * Encodes a URI component without escaping slash characters.
+   * Encodes a URI component without escaping slash or `$` characters
+   * (`$` is a standard RPG Maker single-character sheet prefix and a valid URI sub-delim).
    *
    * @param {string} str - The input string.
    * @returns {string} Encoded string.
    */
   static encodeURI(str: string): string {
-    return encodeURIComponent(str).replace(/%2F/g, '/')
+    return encodeURIComponent(str).replace(/%2F/g, '/').replace(/%24/g, '$')
   }
 
   /**
