@@ -1,18 +1,25 @@
-import type { FollowCamera } from './camera'
-import type { Dust } from './dust'
-import type { Fog } from './fog'
-import type { PostProcessing } from './postProcessing'
+import type { FollowCamera } from '../hd2d/scene/camera'
+import type { Dust } from '../hd2d/scene/dust'
+import type { Fog } from '../hd2d/scene/fog'
+import type { PostProcessing } from '../hd2d/scene/postProcessing'
+import type { ColliderDebug } from './colliderDebug'
+import type { OrbitDebug } from './orbitDebug'
 import GUI from 'lil-gui'
-import { TONE_MAPPING_MODES } from './postProcessing'
+import { TONE_MAPPING_MODES } from '../hd2d/scene/postProcessing'
 
 export function createDebugPanel(
   post: PostProcessing,
   fog: Fog,
   dust: Dust,
   camera: FollowCamera,
+  colliderDebug: ColliderDebug,
+  orbitDebug: OrbitDebug,
+  openByDefault = true,
 ): GUI {
   const gui = new GUI({ title: 'HD-2D 调试面板' })
   gui.domElement.style.zIndex = '1000'
+  if (!openByDefault)
+    gui.close()
 
   // Stop DOM events from leaking into RMMZ Input/TouchInput listeners.
   for (const eventName of ['mousedown', 'mouseup', 'mousemove', 'pointerdown', 'pointerup', 'wheel', 'touchstart', 'touchmove', 'keydown', 'keyup']) {
@@ -84,12 +91,21 @@ export function createDebugPanel(
   dustFolder.addColor(dust.settings, 'color').name('颜色').onChange(dust.apply)
   dustFolder.close()
 
+  cameraFolder.add(orbitDebug.settings, 'enabled').name('自由旋转平移').onChange(orbitDebug.apply)
+  cameraFolder.add(orbitDebug, 'reset').name('重置自由视角')
   cameraFolder.add(camera.settings, 'follow').name('跟随玩家').onChange(camera.apply)
   cameraFolder.add(camera.settings, 'fov', 25, 75, 1).name('视野 FOV').onChange(camera.apply)
   cameraFolder.add(camera.settings, 'offsetY', 0.6, 5, 0.05).name('相机高度').onChange(camera.apply)
   cameraFolder.add(camera.settings, 'offsetZ', 2, 12, 0.05).name('相机距离').onChange(camera.apply)
   cameraFolder.add(camera.settings, 'lookAtY', -0.5, 1.5, 0.05).name('焦点高度').onChange(camera.apply)
   cameraFolder.add(camera.settings, 'damping', 1, 20, 0.5).name('跟随平滑度')
+
+  const colliderFolder = gui.addFolder('碰撞箱')
+  colliderFolder.add(colliderDebug.settings, 'enabled').name('显示碰撞箱').onChange(colliderDebug.apply)
+  colliderFolder.add(colliderDebug.settings, 'showTiles').name('图块碰撞').onChange(colliderDebug.apply)
+  colliderFolder.add(colliderDebug.settings, 'showEvents').name('事件碰撞').onChange(colliderDebug.apply)
+  colliderFolder.add(colliderDebug.settings, 'showPlayer').name('玩家碰撞').onChange(colliderDebug.apply)
+  colliderFolder.close()
 
   return gui
 }

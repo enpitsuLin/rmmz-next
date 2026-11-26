@@ -4,8 +4,21 @@ import { FlatMaterial, Geometry3D, Mesh3D } from '@pixi/3d'
 
 const imageDataCache = new WeakMap<TextureSource, ImageData>()
 const silhouetteCache = new WeakMap<Texture, Geometry3D>()
-const crossSilhouetteCache = new WeakMap<Texture, Geometry3D>()
-const bottomInsetCache = new WeakMap<Texture, number>()
+export interface SpriteFootprintMetrics {
+  bottomInsetRatio: number
+  /** Horizontal visible width ratio at the sprite's ground base, in [0, 1]. */
+  widthRatio: number
+  /** Horizontal center offset of the visible base relative to frame center, in [-0.5, 0.5]. */
+  centerOffsetRatio: number
+}
+
+const EMPTY_FOOTPRINT: SpriteFootprintMetrics = {
+  bottomInsetRatio: 0,
+  widthRatio: 0,
+  centerOffsetRatio: 0,
+}
+
+const footprintCache = new WeakMap<Texture, SpriteFootprintMetrics>()
 const shadowMaterial = new FlatMaterial()
 
 function readPixels(texture: Texture): ImageData | null {
@@ -31,9 +44,8 @@ function readPixels(texture: Texture): ImageData | null {
   return pixels
 }
 
-function buildSilhouette(texture: Texture, crossCard = false): Geometry3D {
-  const cache = crossCard ? crossSilhouetteCache : silhouetteCache
-  const cached = cache.get(texture)
+function buildSilhouette(texture: Texture): Geometry3D {
+  const cached = silhouetteCache.get(texture)
   if (cached)
     return cached
 
@@ -74,15 +86,6 @@ function buildSilhouette(texture: Texture, crossCard = false): Geometry3D {
         // Shadow pass culls back faces, so emit both windings.
         indices.push(index, index + 1, index + 2, index, index + 2, index + 3)
         indices.push(index + 2, index + 1, index, index + 3, index + 2, index)
-        if (crossCard) {
-          // Add an orthogonal profile quad so side-on lights still cast a solid character shadow.
-          const sideIndex = positions.length / 3
-          const z0 = x0 * 0.6
-          const z1 = x1 * 0.6
-          positions.push(0, y0, z0, 0, y0, z1, 0, y1, z1, 0, y1, z0)
-          indices.push(sideIndex, sideIndex + 1, sideIndex + 2, sideIndex, sideIndex + 2, sideIndex + 3)
-          indices.push(sideIndex + 2, sideIndex + 1, sideIndex, sideIndex + 3, sideIndex + 2, sideIndex)
-        }
         start = -1
       }
     }
@@ -91,19 +94,19 @@ function buildSilhouette(texture: Texture, crossCard = false): Geometry3D {
   const geometry = positions.length > 0
     ? new Geometry3D({ positions: new Float32Array(positions), indices: new Uint32Array(indices) })
     : Geometry3D.EMPTY
-  cache.set(texture, geometry)
+  silhouetteCache.set(texture, geometry)
   return geometry
 }
 
-/** Returns the fraction of transparent padding rows at the bottom of a texture frame. */
-export function getBottomInsetRatio(texture: Texture): number {
-  const cached = bottomInsetCache.get(texture)
-  if (cached !== undefined)
+/** Computes cached opaque base bounds (bottom inset, horizontal width, center offset) of a texture frame. */
+export function getSpriteFootprintMetrics(texture: Texture): SpriteFootprintMetrics {
+  const cached = footprintCache.get(texture)
+  if (cached)
     return cached
 
   const pixelData = readPixels(texture)
   if (!pixelData)
-    return 0
+    return EMPTY_FOOTPRINT
 
   const { data, width: stride } = pixelData
   const resolution = texture.source.resolution
@@ -113,41 +116,81 @@ export function getBottomInsetRatio(texture: Texture): number {
   const width = Math.round(frame.width * resolution)
   const height = Math.round(frame.height * resolution)
   if (width <= 0 || height <= 0)
-    return 0
+    return EMPTY_FOOTPRINT
 
+  let firstOpaqueY = -1
   let lastOpaqueY = -1
-  for (let y = height - 1; y >= 0; y--) {
+  for (let y = 0; y < height; y++) {
     const row = ((top + y) * stride + left) * 4
     for (let x = 0; x < width; x++) {
       if ((data[row + x * 4 + 3] ?? 0) >= 128) {
+        if (firstOpaqueY === -1)
+          firstOpaqueY = y
         lastOpaqueY = y
         break
       }
     }
-    if (lastOpaqueY !== -1)
-      break
   }
 
-  const ratio = lastOpaqueY === -1 ? 0 : (height - 1 - lastOpaqueY) / height
-  bottomInsetCache.set(texture, ratio)
-  return ratio
+  if (lastOpaqueY === -1) {
+    footprintCache.set(texture, EMPTY_FOOTPRINT)
+    return EMPTY_FOOTPRINT
+  }
+
+  // Measure horizontal footprint over the lower 35% of the visible sprite so capes/flames do not bloat ground colliders.
+  const visibleHeight = lastOpaqueY - firstOpaqueY + 1
+  const baseBandHeight = Math.max(Math.min(visibleHeight, 6), Math.ceil(visibleHeight * 0.35))
+  const baseStartY = Math.max(firstOpaqueY, lastOpaqueY - baseBandHeight + 1)
+
+  let minX = width
+  let maxX = -1
+  for (let y = baseStartY; y <= lastOpaqueY; y++) {
+    const row = ((top + y) * stride + left) * 4
+    for (let x = 0; x < width; x++) {
+      if ((data[row + x * 4 + 3] ?? 0) >= 128) {
+        if (x < minX)
+          minX = x
+        if (x > maxX)
+          maxX = x
+      }
+    }
+  }
+
+  const metrics: SpriteFootprintMetrics = {
+    bottomInsetRatio: (height - 1 - lastOpaqueY) / height,
+    widthRatio: maxX >= minX ? (maxX - minX + 1) / width : 0,
+    centerOffsetRatio: maxX >= minX ? ((minX + maxX + 1) * 0.5) / width - 0.5 : 0,
+  }
+  footprintCache.set(texture, metrics)
+  return metrics
 }
 
-export interface SpriteShadowOptions {
-  crossCard?: boolean
+/** Returns the fraction of transparent padding rows at the bottom of a texture frame. */
+export function getBottomInsetRatio(texture: Texture): number {
+  return getSpriteFootprintMetrics(texture).bottomInsetRatio
 }
 
-export function addSpriteShadow(sprite: Sprite3D, options: SpriteShadowOptions = {}): (texture: Texture) => void {
-  const crossCard = options.crossCard ?? false
+export interface SpriteShadowHandle {
+  update: (texture: Texture) => void
+  setVisible: (visible: boolean) => void
+}
+
+export function addSpriteShadow(sprite: Sprite3D): SpriteShadowHandle {
   const shadow = new Mesh3D({
-    geometry: buildSilhouette(sprite.texture, crossCard),
+    geometry: buildSilhouette(sprite.texture),
     material: shadowMaterial,
     castShadow: true,
   })
   shadow.disablePass('opaque')
   sprite.addChild(shadow)
 
-  return (texture: Texture): void => {
-    shadow.geometry = buildSilhouette(texture, crossCard)
+  return {
+    update: (texture: Texture): void => {
+      shadow.geometry = buildSilhouette(texture)
+    },
+    setVisible: (visible: boolean): void => {
+      shadow.visible = visible
+      shadow.castShadow = visible
+    },
   }
 }

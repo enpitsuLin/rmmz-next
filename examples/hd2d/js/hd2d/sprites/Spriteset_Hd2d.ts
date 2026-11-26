@@ -1,4 +1,3 @@
-import type GUI from 'lil-gui'
 import type { DestroyOptions } from 'pixi.js'
 import type { FollowCamera } from '../scene/camera'
 import type { Dust } from '../scene/dust'
@@ -9,9 +8,7 @@ import { View3D } from '@pixi/3d'
 import { Container } from 'pixi.js'
 import { GlobalMananger, Graphics } from 'rmmz-next'
 import { TILE_UNIT, tileToWorld } from '../constants'
-import { stepAnimatedSprite } from '../scene/animatedSprite'
 import { createFollowCamera } from '../scene/camera'
-import { createDebugPanel } from '../scene/debugPanel'
 import { createDust } from '../scene/dust'
 import { createFog } from '../scene/fog'
 import { createPostProcessing } from '../scene/postProcessing'
@@ -22,18 +19,17 @@ import { Sprite_Hd2dCharacter } from './Sprite_Hd2dCharacter'
 
 export class Spriteset_Hd2d extends Container {
   readonly view: View3D
-  private readonly fog: Fog
-  private readonly dust: Dust
-  private readonly post: PostProcessing
-  private readonly followCamera: FollowCamera
+  readonly fog: Fog
+  readonly dust: Dust
+  readonly post: PostProcessing
+  readonly followCamera: FollowCamera
   private readonly characters: Sprite_Hd2dCharacter[] = []
-  private gui: GUI | null = null
   private stageData: StageData | null = null
   private ready = false
   private destroyedFlag = false
   private elapsed = 0
 
-  constructor(showDebugPanel: boolean) {
+  constructor() {
     super()
 
     this.view = new View3D({
@@ -68,10 +64,6 @@ export class Spriteset_Hd2d extends Container {
     const playerPos = this.getPlayerWorldPos()
     this.followCamera.snapTo(playerPos.x, playerPos.z)
 
-    if (showDebugPanel) {
-      this.gui = createDebugPanel(this.post, this.fog, this.dust, this.followCamera)
-    }
-
     void this.loadAsyncAssets()
   }
 
@@ -94,27 +86,12 @@ export class Spriteset_Hd2d extends Container {
 
     const stage = this.stageData
     if (stage) {
-      for (const lampSwing of stage.lampSwings) {
-        lampSwing.sway.rotation.z = Math.sin(this.elapsed * 2) * 0.05
-        lampSwing.lamp.rotation.x = Math.sin(this.elapsed * 3) * 0.075
-      }
-
-      const t = this.elapsed * 1000
-      for (const flicker of stage.lightFlickers) {
-        const wave = (Math.sin(t * 4) + Math.sin(t * 2.1) * 0.5 + Math.sin(t * 6.3) * 0.2) / 60
-        flicker.light.intensity = flicker.baseIntensity * (1 + wave)
-        flicker.light.position.x = flicker.origin.x + Math.sin(t) * 0.0018
-        flicker.light.position.y = flicker.origin.y + Math.sin(t) * 0.0013
-      }
-
-      for (const anim of stage.animatedSprites) {
-        stepAnimatedSprite(anim, delta)
-      }
+      stage.update(this.elapsed)
     }
 
     const mapWidth = GlobalMananger.$gameMap.width()
     const mapHeight = GlobalMananger.$gameMap.height()
-    const lights = stage?.spriteLights ?? []
+    const lights = stage?.getSpriteLights() ?? []
     for (const characterSprite of this.characters) {
       characterSprite.update(mapWidth, mapHeight, this.elapsed, lights)
     }
@@ -129,8 +106,8 @@ export class Spriteset_Hd2d extends Container {
       return
     this.destroyedFlag = true
     this.savePersistedSettings()
-    this.gui?.destroy()
-    this.gui = null
+    this.stageData?.destroy()
+    this.stageData = null
     super.destroy(options ?? { children: true })
   }
 

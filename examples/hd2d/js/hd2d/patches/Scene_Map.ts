@@ -1,25 +1,18 @@
 import type { DestroyOptions } from 'pixi.js'
-import { PluginManager, Scene_Map, Spriteset_Base, Spriteset_Map } from 'rmmz-next'
+import { Scene_Map, Spriteset_Base, Spriteset_Map } from 'rmmz-next'
 import { Spriteset_Hd2d } from '../sprites/Spriteset_Hd2d'
 
 interface Hd2dSpritesetMap extends Spriteset_Map {
   _hd2d?: Spriteset_Hd2d
 }
 
-function shouldShowDebugPanel(): boolean {
-  const params = PluginManager.parameters('Hd2d') as Record<string, string | undefined>
-  return params.showDebugPanel !== 'false'
-}
-
 export function installSceneMapPatch(): void {
-  const showDebugPanel = shouldShowDebugPanel()
-
   Spriteset_Map.prototype.createLowerLayer = function (this: Hd2dSpritesetMap): void {
     // Skip 2D parallax, tilemap, character sprites, airship shadow, and destination marker.
     Spriteset_Base.prototype.createLowerLayer.call(this)
     this._characterSprites = []
     this._effectsContainer = this._baseSprite as unknown as Spriteset_Map['_effectsContainer']
-    this._hd2d = new Spriteset_Hd2d(showDebugPanel)
+    this._hd2d = new Spriteset_Hd2d()
     this._baseSprite.addChild(this._hd2d)
     this.createWeather()
   }

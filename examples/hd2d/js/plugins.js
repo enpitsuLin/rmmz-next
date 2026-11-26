@@ -4,5 +4,6 @@ var $plugins =
 [
 {"name":"RmmzGlobals","status":true,"description":"Publishes the engine on globalThis so classic plugins can run.","parameters":{}},
 {"name":"PixelMovement","status":true,"description":"Independent 8-directional free pixel movement compatible with standard RMMZ maps, events, and followers.","parameters":{"colliderRadius":"0.28","speedScale":"1.00","cornerSlide":"0.35","interactRange":"0.78","followSpacing":"0.75","enableWasd":"true"}},
-{"name":"Hd2d","status":true,"description":"HD-2D 3D diorama renderer for RPG Maker MZ powered by PixiJS 8 and @pixi/3d.","parameters":{"showDebugPanel":"true"}}
+{"name":"Hd2d","status":true,"description":"HD-2D 3D diorama renderer for RPG Maker MZ powered by PixiJS 8 and @pixi/3d.","parameters":{}},
+{"name":"Hd2dDebug","status":true,"description":"Standalone debug UI (lil-gui) and 3D collider overlay for the Hd2d plugin.","parameters":{"openByDefault":"true","showColliders":"false"}}
 ];

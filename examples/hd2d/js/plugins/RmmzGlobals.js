@@ -1,4 +1,5 @@
 // @ts-check
+/* eslint-disable style/spaced-comment */
 
 /*:
  * @target MZ
@@ -13,6 +14,19 @@
  *
  * Plugins written as ES modules (like TestPlugin.js) import the engine instead
  * and do not need this one.
+ */
+/*:zh
+ * @target MZ
+ * @plugindesc 将 rmmz-next 引擎类与全局状态挂载到 globalThis，以兼容传统 RPG Maker 插件。
+ * @author rmmz-next
+ *
+ * @help RmmzGlobals.js
+ *
+ * 请在插件管理器（js/plugins.js）中将本插件放在最顶部启用。
+ * 启用后，排在下方且依赖全局变量（如 Scene_Map、Window_Base、$gameParty 等）
+ * 的经典插件即可正常运行。
+ *
+ * 纯 ESM 模块插件可直接从 'rmmz-next' 导入，不强制依赖本插件。
  */
 
 import * as Rmmz from 'rmmz-next'

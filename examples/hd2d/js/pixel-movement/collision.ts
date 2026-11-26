@@ -3,6 +3,18 @@ import { GlobalMananger } from 'rmmz-next'
 
 const EVENT_COLLIDER_RADIUS = 0.32
 
+export interface EventCollider {
+  offsetX: number
+  offsetY: number
+  halfW: number
+  halfD: number
+  disabled?: boolean
+}
+
+interface PixelEventWithCollider {
+  _pixelCollider?: EventCollider | null
+}
+
 export interface MoveResult {
   x: number
   y: number
@@ -94,6 +106,26 @@ function isTileCollisionFree(fromX: number, fromY: number, toX: number, toY: num
   return true
 }
 
+function clamp(value: number, min: number, max: number): number {
+  return value < min ? min : value > max ? max : value
+}
+
+export function getEventCollider(event: Game_Event): EventCollider | null {
+  return (event as Game_Event & PixelEventWithCollider)._pixelCollider ?? null
+}
+
+export function nearestPointOnEvent(event: Game_Event, px: number, py: number): { x: number, y: number } {
+  const col = getEventCollider(event)
+  if (!col)
+    return { x: event._realX, y: event._realY }
+  const cx = event._realX + col.offsetX
+  const cy = event._realY + col.offsetY
+  return {
+    x: clamp(px, cx - col.halfW, cx + col.halfW),
+    y: clamp(py, cy - col.halfD, cy + col.halfD),
+  }
+}
+
 function findOverlappingEvents(
   fromX: number,
   fromY: number,
@@ -103,20 +135,46 @@ function findOverlappingEvents(
 ): Game_Event[] {
   const map = GlobalMananger.$gameMap
   const hits: Game_Event[] = []
-  const sumRadius = radius + EVENT_COLLIDER_RADIUS
-  const sumRadiusSq = sumRadius * sumRadius
+  const defaultSumRadiusSq = (radius + EVENT_COLLIDER_RADIUS) ** 2
+  const playerRadiusSq = radius * radius
 
   for (const event of map.events()) {
     if (!event || event.isThrough() || !event.isNormalPriority())
       continue
+
+    const col = getEventCollider(event)
+    if (col) {
+      if (col.disabled)
+        continue
+      const cx = event._realX + col.offsetX
+      const cy = event._realY + col.offsetY
+      const newNearestX = clamp(toX, cx - col.halfW, cx + col.halfW)
+      const newNearestY = clamp(toY, cy - col.halfD, cy + col.halfD)
+      const newDistSq = (toX - newNearestX) ** 2 + (toY - newNearestY) ** 2
+      if (newDistSq >= playerRadiusSq)
+        continue
+      // Allow moving away if the player started already overlapping the event box.
+      const oldNearestX = clamp(fromX, cx - col.halfW, cx + col.halfW)
+      const oldNearestY = clamp(fromY, cy - col.halfD, cy + col.halfD)
+      const oldDistSq = (fromX - oldNearestX) ** 2 + (fromY - oldNearestY) ** 2
+      if (oldDistSq < playerRadiusSq) {
+        const oldCenterSq = (fromX - cx) ** 2 + (fromY - cy) ** 2
+        const newCenterSq = (toX - cx) ** 2 + (toY - cy) ** 2
+        if (newDistSq > oldDistSq || (newDistSq === 0 && newCenterSq > oldCenterSq))
+          continue
+      }
+      hits.push(event)
+      continue
+    }
+
     const ex = event._realX
     const ey = event._realY
     const newDistSq = (toX - ex) ** 2 + (toY - ey) ** 2
-    if (newDistSq >= sumRadiusSq)
+    if (newDistSq >= defaultSumRadiusSq)
       continue
     // Allow moving away if the player started already overlapping an event.
     const oldDistSq = (fromX - ex) ** 2 + (fromY - ey) ** 2
-    if (oldDistSq < sumRadiusSq && newDistSq > oldDistSq)
+    if (oldDistSq < defaultSumRadiusSq && newDistSq > oldDistSq)
       continue
     hits.push(event)
   }

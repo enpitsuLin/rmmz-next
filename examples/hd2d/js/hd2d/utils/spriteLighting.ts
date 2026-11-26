@@ -1,14 +1,18 @@
-import type { PointLight } from '@pixi/3d'
+import type { PointLight, SpotLight } from '@pixi/3d'
 import { Vector3 } from '@pixi/3d'
+
+export type DynamicSpriteLight = PointLight | SpotLight
 
 const lightPosition = new Vector3()
 
-export function tintSprite(position: Vector3, lights: readonly PointLight[]): [number, number, number] {
+export function tintSprite(position: Vector3, lights: readonly DynamicSpriteLight[]): [number, number, number] {
   let red = 0.79
   let green = 0.63
   let blue = 0.54
 
   for (const light of lights) {
+    if (!light.visible || light.intensity <= 0)
+      continue
     const distance = light.getGlobalPosition(lightPosition).distanceTo(position)
     const falloff = Math.max(0, 1 - distance / (light.range || 4))
     const strength = 0.3 * Math.min(light.intensity / 10, 1) * falloff ** 2

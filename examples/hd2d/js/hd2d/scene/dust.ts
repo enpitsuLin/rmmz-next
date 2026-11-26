@@ -4,6 +4,12 @@ import { Color } from 'pixi.js'
 const MAX_PARTICLES = 200
 export const HALF_AREA = 3.2
 
+function wrapCoord(value: number, center: number, halfSpan: number): number {
+  const span = halfSpan * 2
+  const rel = value - center
+  return center + ((((rel + halfSpan) % span) + span) % span) - halfSpan
+}
+
 export interface DustSettings {
   enabled: boolean
   size: number
@@ -66,17 +72,16 @@ export function createDust(): Dust {
     const maxY = HALF_AREA * 1.4
     for (let index = 0; index < settings.count; index++) {
       const particle = particles[index]!
-      particle.x += particle.drift * speed * settings.randomness
+      particle.x = wrapCoord(particle.x + particle.drift * speed * settings.randomness, centerX, HALF_AREA)
       particle.y -= particle.rise * speed
-      if (Math.abs(particle.x) >= HALF_AREA)
-        particle.x *= -1
+      particle.z = wrapCoord(particle.z, centerZ, HALF_AREA)
       if (particle.y <= 0.05)
         particle.y = maxY
       object.writePacked(
         index,
-        centerX + particle.x,
+        particle.x,
         particle.y,
-        centerZ + particle.z,
+        particle.z,
         settings.size,
         0,
         tint,

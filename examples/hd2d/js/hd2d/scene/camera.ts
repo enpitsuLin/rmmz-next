@@ -22,6 +22,8 @@ export interface FollowCamera {
   apply: () => void
   snapTo: (targetX: number, targetZ: number) => void
   update: (targetX: number, targetZ: number, delta: number) => void
+  setPaused: (paused: boolean) => void
+  getTarget: () => { x: number, y: number, z: number }
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -43,19 +45,27 @@ export function createFollowCamera(camera: Camera3D, bounds: CameraBounds): Foll
 
   let focusX = 0
   let focusZ = 0
+  let paused = false
+
+  const getTarget = (): { x: number, y: number, z: number } => ({
+    x: settings.follow ? focusX : 0,
+    y: settings.lookAtY,
+    z: settings.follow ? focusZ : 0,
+  })
 
   const applyTransform = (): void => {
     camera.fov = settings.fov
     camera.near = 0.1
     camera.far = 100
-    const anchorX = settings.follow ? focusX : 0
-    const anchorZ = settings.follow ? focusZ : 0
+    if (paused)
+      return
+    const target = getTarget()
     camera.position.set(
-      anchorX + settings.offsetX,
+      target.x + settings.offsetX,
       settings.offsetY,
-      anchorZ + settings.offsetZ,
+      target.z + settings.offsetZ,
     )
-    camera.lookAt({ x: anchorX, y: settings.lookAtY, z: anchorZ })
+    camera.lookAt(target)
   }
 
   const snapTo = (targetX: number, targetZ: number): void => {
@@ -73,11 +83,19 @@ export function createFollowCamera(camera: Camera3D, bounds: CameraBounds): Foll
     applyTransform()
   }
 
+  const setPaused = (nextPaused: boolean): void => {
+    paused = nextPaused
+    if (!paused)
+      applyTransform()
+  }
+
   applyTransform()
   return {
     settings,
     apply: applyTransform,
     snapTo,
     update,
+    setPaused,
+    getTarget,
   }
 }

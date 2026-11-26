@@ -1,6 +1,7 @@
 export const TILE_UNIT = 0.65
 export const CHAR_PIXEL_SIZE_TALL = 0.01
-export const CHAR_PIXEL_SIZE_COMPACT = 0.0155
+export const CHAR_PIXEL_SIZE_COMPACT = 0.015
+export const TILE_BILLBOARD_PIXEL_SIZE = 0.0155
 export const HD2D_ASSET_ROOT = 'img/hd2d'
 
 export interface WorldPoint {

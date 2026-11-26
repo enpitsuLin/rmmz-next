@@ -1,6 +1,6 @@
 import type { Game_CharacterBase, Game_Event, Game_Follower } from 'rmmz-next'
 import { Game_Followers, Game_Player, GlobalMananger, Input } from 'rmmz-next'
-import { resolvePixelMove } from './collision'
+import { getEventCollider, nearestPointOnEvent, resolvePixelMove } from './collision'
 import { loadPixelMovementConfig } from './config'
 import { MovementTrail } from './trail'
 
@@ -56,8 +56,16 @@ function findInteractableEvent(player: Game_Player, range: number, triggers: Tri
   for (const event of GlobalMananger.$gameMap.events()) {
     if (!event || !event.isTriggerIn(triggers))
       continue
-    const dx = event._realX - player._realX
-    const dy = event._realY - player._realY
+    let target = nearestPointOnEvent(event, player._realX, player._realY)
+    // Elevated props (e.g. lantern hanging off a lamp post) can also be interacted with via their base tile.
+    if (getEventCollider(event)?.disabled) {
+      const boxDistSq = (target.x - player._realX) ** 2 + (target.y - player._realY) ** 2
+      const baseDistSq = (event._realX - player._realX) ** 2 + (event._realY - player._realY) ** 2
+      if (baseDistSq < boxDistSq)
+        target = { x: event._realX, y: event._realY }
+    }
+    const dx = target.x - player._realX
+    const dy = target.y - player._realY
     // Require the event to lie roughly in front of the player or right at the player's feet.
     const distToPlayer = Math.hypot(dx, dy)
     if (distToPlayer > range)
@@ -65,7 +73,8 @@ function findInteractableEvent(player: Game_Player, range: number, triggers: Tri
     const forwardDot = distToPlayer > 0.15 ? (dx * fx + dy * fy) / distToPlayer : 1
     if (forwardDot < 0.25)
       continue
-    const distToProbeSq = (event._realX - probeX) ** 2 + (event._realY - probeY) ** 2
+    const probeTarget = nearestPointOnEvent(event, probeX, probeY)
+    const distToProbeSq = (probeTarget.x - probeX) ** 2 + (probeTarget.y - probeY) ** 2
     if (distToProbeSq < bestDistSq) {
       bestDistSq = distToProbeSq
       best = event
